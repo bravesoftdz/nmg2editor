@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<Transactions>
+    <Transaction>1899-12-30 00:00:00.000.dproj,C:\Documents and Settings\BVerhue.BVE-HOME\My Documents\Delphi\NM G2\Source\VST\G2_vst.dproj=C:\Documents and Settings\BVerhue.BVE-HOME\My Documents\Delphi\NM G2\Source\VST\G2Vst.dproj</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.220,=C:\Users\Bruno\Delphi\NMG2\Source\NMG2Controls\stackdump.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.309,C:\Users\Bruno\Delphi\NMG2\Project\DelphiVCL\G2_vst_D2011.dproj=C:\Users\Bruno\Delphi\NMG2\Source\VST\G2_vst.dproj</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.dproj,C:\Documents and Settings\BVerhue.BVE-HOME\My Documents\Delphi\NM G2\Source\VST\G2Vst.dproj=C:\Documents and Settings\BVerhue.BVE-HOME\My Documents\Delphi\NM G2\Source\VST\VstPlugin.dproj</Transaction>
+  </Transactions>
+</BorlandProject>

@@ -1,0 +1,86 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<Transactions>
+    <Transaction>1899-12-30 00:00:00.000.pas,C:\Documents and Settings\BVerhue.BVE-HOME\My Documents\Delphi\Midi\G2 USB Demo v10\G2_Modules.pas=</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.419,C:\Users\Bruno\Delphi\NMG2\Source\UnitPatchManager.dfm=C:\Users\Bruno\Delphi\NMG2\Project\DelphiVCL\Unit1.dfm</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.451,C:\Documents and Settings\BVerhue\My Documents\Delphi\NMG2\Source\NMG2Controls\g2_midi.pas=C:\Documents and Settings\BVerhue\My Documents\Delphi\NMG2\Project\DelphiVCL\Unit1.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.pas,E:\NM G2\Source\Unit1.pas=E:\NM G2\Source\UnitSynthSettings.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.pas,E:\NM G2\Source\Unit1.pas=E:\NM G2\Source\UnitSeqGrid.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.dfm,C:\Documents and Settings\BVerhue.BVE-HOME\My Documents\Delphi\Midi\G2 USB Demo v5\Unit2.dfm=C:\Documents and Settings\BVerhue.BVE-HOME\My Documents\Delphi\Midi\G2 USB Demo v5\UnitLog.dfm</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.182,C:\Users\Bruno\Delphi\NMG2\Project\DelphiVCL\Unit1.pas=C:\Users\Bruno\Delphi\NMG2\Source\UnitConnSettings.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.006,=C:\Users\Bruno\Delphi\NMG2\Project\DelphiVCL\Unit1.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.347,=C:\Users\Bruno\Delphi\NMG2\Project\DelphiVCL\Unit1.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.695,=C:\Users\Bruno\Delphi\NMG2\Project\DelphiVCL\Unit1.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.546,=C:\Users\Bruno\Delphi\NMG2\Project\DelphiVCL\Unit1.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.pas,C:\Documents and Settings\BVerhue.BVE-HOME\My Documents\Delphi\Midi\G2 USB Demo v9\Unit1.pas=C:\Documents and Settings\BVerhue.BVE-HOME\My Documents\Delphi\Midi\G2 USB Demo v9\G2_Modules.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.100,C:\Users\Bruno\Delphi\NMG2\Project\DelphiVCL\Unit1.dfm=C:\Users\Bruno\Delphi\NMG2\Source\UnitEditorTools.dfm</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.dfm,E:\NM G2\Source\Unit1.dfm=E:\NM G2\Source\UnitParameterPages.dfm</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.dfm,E:\NM G2\Source\Unit1.dfm=E:\NM G2\Source\UnitSynthSettings.dfm</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.dfm,E:\NM G2\Source\Unit1.dfm=E:\NM G2\Source\UnitSeqGrid.dfm</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.182,C:\Users\Bruno\Delphi\NMG2\Project\DelphiVCL\Unit1.dfm=C:\Users\Bruno\Delphi\NMG2\Source\UnitConnSettings.dfm</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.077,=C:\Documents and Settings\BVerhue\My Documents\Delphi\NMG2\Project\DelphiVCL\Unit1.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.pas,E:\NM G2\Source\Unit1.pas=E:\NM G2\Source\UnitParameterPages.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.pas,E:\NM G2\Source\Knowledge.pas=</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.pas,C:\Documents and Settings\BVerhue.BVE-HOME\My Documents\Delphi\Midi\G2 Tool v3\UnitG2USB.pas=C:\Documents and Settings\BVerhue.BVE-HOME\My Documents\Delphi\Midi\G2 Tool v3\UnitG2USBDemo.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.922,F:\NMG2\Source\G2_editor_D2011.dproj=F:\NMG2\Source\G2_editor.dproj</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.dproj,C:\Documents and Settings\BVerhue.BVE-HOME\My Documents\Delphi\NM G2\Source\G2_usb_demo.dproj=C:\Documents and Settings\BVerhue.BVE-HOME\My Documents\Delphi\NM G2\Source\G2_editor.dproj</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.pas,C:\Documents and Settings\BVerhue.BVE-HOME\My Documents\Delphi\Midi\G2 Tool v2\Unit1.pas=C:\Documents and Settings\BVerhue.BVE-HOME\My Documents\Delphi\Midi\G2 Tool v2\G2_file.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.pas,E:\NMG2\Source\Unit1.pas=E:\NMG2\Source\UnitEditLabel.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.419,C:\Users\Bruno\Delphi\NMG2\Source\UnitPatchManager.pas=C:\Users\Bruno\Delphi\NMG2\Project\DelphiVCL\Unit1.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.pas,C:\Documents and Settings\BVerhue.BVE-HOME\My Documents\Delphi\NM G2\Source\UnitG2USBDemo.pas=C:\Documents and Settings\BVerhue.BVE-HOME\My Documents\Delphi\NM G2\Source\UnitG2Editor.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.094,C:\Users\Bruno\Delphi\NMG2\Project\DelphiVCL\G2_editor_D2011.dproj=C:\Users\Bruno\Delphi\NMG2\Project\DelphiVCL\G2_editor_D2011.dproj</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.dfm,C:\Documents and Settings\BVerhue.BVE-HOME\My Documents\Delphi\NM G2\Source\UnitG2USBDemo.dfm=C:\Documents and Settings\BVerhue.BVE-HOME\My Documents\Delphi\NM G2\Source\UnitG2Editor.dfm</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.dproj,C:\Documents and Settings\BVerhue.BVE-HOME\My Documents\Delphi\Project1.dproj=C:\Documents and Settings\BVerhue.BVE-HOME\My Documents\Delphi\Midi\MidiControl\Source\G2_usb_demo.dproj</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.dfm,C:\Documents and Settings\BVerhue.BVE-HOME\My Documents\Delphi\Midi\G2 USB Demo v5\Unit1.dfm=C:\Documents and Settings\BVerhue.BVE-HOME\My Documents\Delphi\Midi\G2 USB Demo v5\UnitPatchSettings.dfm</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.pas,C:\Documents and Settings\BVerhue.BVE-HOME\My Documents\Delphi\Midi\G2 USB Demo v5\Unit2.pas=C:\Documents and Settings\BVerhue.BVE-HOME\My Documents\Delphi\Midi\G2 USB Demo v5\UnitLog.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.dfm,E:\NMG2\Source\Unit1.dfm=E:\NMG2\Source\UnitEditLabel.dfm</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.990,C:\Users\Bruno\Delphi\NMG2\Project\DelphiVCL\Unit1.pas=C:\Users\Bruno\Delphi\NMG2\Source\NMG2Controls\g2_mess.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.pas,C:\Documents and Settings\BVerhue.BVE-HOME\My Documents\Delphi\Midi\G2 USB Demo v5\Unit1.pas=C:\Documents and Settings\BVerhue.BVE-HOME\My Documents\Delphi\Midi\G2 USB Demo v5\UnitPatchSettings.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.643,=C:\Users\Bruno\Delphi\NMG2\Project\DelphiVCL\Unit1.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.100,C:\Users\Bruno\Delphi\NMG2\Project\DelphiVCL\Unit1.pas=C:\Users\Bruno\Delphi\NMG2\Source\UnitEditorTools.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.769,C:\Users\Bruno\Delphi\NMG2\Project\DelphiVCL\Unit1.pas=C:\Users\Bruno\Delphi\NMG2\Source\OSC\OSCUtils.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.pas,C:\Documents and Settings\BVerhue.BVE-HOME\My Documents\Delphi\Midi\G2 USB Demo v5\Unit1.pas=C:\Documents and Settings\BVerhue.BVE-HOME\My Documents\Delphi\Midi\G2 USB Demo v5\G2_Graph.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.026,C:\Users\Bruno\Delphi\NMG2\Source\NMG2Controls\stackdump.pas=</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.920,=C:\Users\Bruno\Delphi\NMG2\Source\NMG2Controls\stackdump.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.dfm,C:\Documents and Settings\BVerhue.BVE-HOME\My Documents\Delphi\Midi\G2 Tool v3\UnitG2USB.dfm=C:\Documents and Settings\BVerhue.BVE-HOME\My Documents\Delphi\Midi\G2 Tool v3\UnitG2USBDemo.dfm</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.pas,C:\Documents and Settings\BVerhue.BVE-HOME\My Documents\Delphi\Midi\G2 USB Demo v4\Unit1.pas=C:\Documents and Settings\BVerhue.BVE-HOME\My Documents\Delphi\Midi\G2 USB Demo v4\G2_Classes.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.pas,C:\Documents and Settings\BVerhue.BVE-HOME\My Documents\Delphi\Midi\G2 USB Demo v4\Unit1.pas=C:\Documents and Settings\BVerhue.BVE-HOME\My Documents\Delphi\Midi\G2 USB Demo v4\G2_Types.pas</Transaction>
+  </Transactions>
+	<ProjectSortOrder AutoSort="0" SortType="0">
+    <File Path="..\..\..\NMG2"/>
+    <File Path="..\..\Source"/>
+    <File Path="..\..\Source\NMG2Controls"/>
+    <File Path="..\..\Source\NMG2Controls\g2_classes.pas"/>
+    <File Path="..\..\Source\NMG2Controls\g2_database.pas"/>
+    <File Path="..\..\Source\NMG2Controls\g2_file.pas"/>
+    <File Path="..\..\Source\NMG2Controls\g2_graph.pas"/>
+    <File Path="..\..\Source\NMG2Controls\g2_midi.pas"/>
+    <File Path="..\..\Source\NMG2Controls\g2_types.pas"/>
+    <File Path="..\..\Source\NMG2Controls\g2_usb.pas"/>
+    <File Path="..\..\Source\NMG2Controls\g2_mess.pas"/>
+    <File Path="..\..\Source\OSC"/>
+    <File Path="..\..\Source\OSC\OSCUtils.pas"/>
+    <File Path="..\..\Source\UnitConnSettings.pas"/>
+    <File Path="..\..\Source\UnitConnSettings.dfm"/>
+    <File Path="..\..\Source\UnitEditLabel.pas"/>
+    <File Path="..\..\Source\UnitEditLabel.dfm"/>
+    <File Path="..\..\Source\UnitEditorTools.pas"/>
+    <File Path="..\..\Source\UnitEditorTools.dfm"/>
+    <File Path="..\..\Source\UnitG2Editor.pas"/>
+    <File Path="..\..\Source\UnitG2Editor.dfm"/>
+    <File Path="..\..\Source\UnitLog.pas"/>
+    <File Path="..\..\Source\UnitLog.dfm"/>
+    <File Path="..\..\Source\UnitParameterPages.pas"/>
+    <File Path="..\..\Source\UnitParameterPages.dfm"/>
+    <File Path="..\..\Source\UnitPatchManager.pas"/>
+    <File Path="..\..\Source\UnitPatchManager.dfm"/>
+    <File Path="..\..\Source\UnitPatchSettings.pas"/>
+    <File Path="..\..\Source\UnitPatchSettings.dfm"/>
+    <File Path="..\..\Source\UnitPerfSettings.pas"/>
+    <File Path="..\..\Source\UnitPerfSettings.dfm"/>
+    <File Path="..\..\Source\UnitSeqGrid.pas"/>
+    <File Path="..\..\Source\UnitSeqGrid.dfm"/>
+    <File Path="..\..\Source\UnitSynthSettings.pas"/>
+    <File Path="..\..\Source\UnitSynthSettings.dfm"/>
+  </ProjectSortOrder>
+</BorlandProject>

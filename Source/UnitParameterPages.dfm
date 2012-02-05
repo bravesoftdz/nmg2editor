@@ -1,0 +1,607 @@
+object frmParameterPages: TfrmParameterPages
+  Left = 0
+  Top = 0
+  BorderStyle = bsSizeToolWin
+  Caption = 'Parameter pages'
+  ClientHeight = 124
+  ClientWidth = 573
+  Color = clBtnFace
+  Font.Charset = DEFAULT_CHARSET
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'Tahoma'
+  Font.Style = []
+  FormStyle = fsStayOnTop
+  OldCreateOrder = False
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  OnShow = FormShow
+  PixelsPerInch = 96
+  TextHeight = 13
+  object skP1: TG2GraphKnob
+    Left = 23
+    Top = 64
+    Width = 22
+    Height = 22
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -9
+    Font.Name = 'Arial'
+    Font.Style = []
+    Color = clWhite
+    Value = 0
+    LowValue = 0
+    HighValue = 127
+    ParentColor = False
+    ParentFont = False
+    KnobType = ktMedium
+    Orientation = otHorizontal
+  end
+  object skP2: TG2GraphKnob
+    Tag = 1
+    Left = 80
+    Top = 64
+    Width = 22
+    Height = 22
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -9
+    Font.Name = 'Arial'
+    Font.Style = []
+    Color = clWhite
+    Value = 0
+    LowValue = 0
+    HighValue = 127
+    ParentColor = False
+    ParentFont = False
+    KnobType = ktMedium
+    Orientation = otHorizontal
+  end
+  object skP3: TG2GraphKnob
+    Tag = 2
+    Left = 142
+    Top = 64
+    Width = 22
+    Height = 22
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -9
+    Font.Name = 'Arial'
+    Font.Style = []
+    Color = clWhite
+    Value = 0
+    LowValue = 0
+    HighValue = 127
+    ParentColor = False
+    ParentFont = False
+    KnobType = ktMedium
+    Orientation = otHorizontal
+  end
+  object skP4: TG2GraphKnob
+    Tag = 3
+    Left = 200
+    Top = 64
+    Width = 22
+    Height = 22
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -9
+    Font.Name = 'Arial'
+    Font.Style = []
+    Color = clWhite
+    Value = 0
+    LowValue = 0
+    HighValue = 127
+    ParentColor = False
+    ParentFont = False
+    KnobType = ktMedium
+    Orientation = otHorizontal
+  end
+  object skP5: TG2GraphKnob
+    Tag = 4
+    Left = 256
+    Top = 64
+    Width = 22
+    Height = 22
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -9
+    Font.Name = 'Arial'
+    Font.Style = []
+    Color = clWhite
+    Value = 0
+    LowValue = 0
+    HighValue = 127
+    ParentColor = False
+    ParentFont = False
+    KnobType = ktMedium
+    Orientation = otHorizontal
+  end
+  object skP6: TG2GraphKnob
+    Tag = 5
+    Left = 314
+    Top = 64
+    Width = 22
+    Height = 22
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -9
+    Font.Name = 'Arial'
+    Font.Style = []
+    Color = clWhite
+    Value = 0
+    LowValue = 0
+    HighValue = 127
+    ParentColor = False
+    ParentFont = False
+    KnobType = ktMedium
+    Orientation = otHorizontal
+  end
+  object skP7: TG2GraphKnob
+    Tag = 6
+    Left = 375
+    Top = 64
+    Width = 22
+    Height = 22
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -9
+    Font.Name = 'Arial'
+    Font.Style = []
+    Color = clWhite
+    Value = 0
+    LowValue = 0
+    HighValue = 127
+    ParentColor = False
+    ParentFont = False
+    KnobType = ktMedium
+    Orientation = otHorizontal
+  end
+  object skP8: TG2GraphKnob
+    Tag = 7
+    Left = 431
+    Top = 64
+    Width = 22
+    Height = 22
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -9
+    Font.Name = 'Arial'
+    Font.Style = []
+    Color = clWhite
+    Value = 0
+    LowValue = 0
+    HighValue = 127
+    ParentColor = False
+    ParentFont = False
+    KnobType = ktMedium
+    Orientation = otHorizontal
+  end
+  object Disp1A: TG2GraphDisplay
+    Left = 8
+    Top = 31
+    Width = 52
+    Height = 27
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWhite
+    Font.Height = -11
+    Font.Name = 'Tahoma'
+    Font.Style = []
+    Color = 5592405
+    Value = 0
+    LowValue = 0
+    HighValue = 0
+    ParentColor = False
+    ParentFont = False
+    Lines.Strings = (
+      ''
+      '')
+    TextFunction = 1001
+  end
+  object Disp2A: TG2GraphDisplay
+    Left = 66
+    Top = 31
+    Width = 52
+    Height = 27
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWhite
+    Font.Height = -11
+    Font.Name = 'Tahoma'
+    Font.Style = []
+    Color = 5592405
+    Value = 0
+    LowValue = 0
+    HighValue = 0
+    ParentColor = False
+    ParentFont = False
+    Lines.Strings = (
+      ''
+      '')
+    TextFunction = 1001
+  end
+  object Disp3A: TG2GraphDisplay
+    Left = 124
+    Top = 31
+    Width = 52
+    Height = 27
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWhite
+    Font.Height = -11
+    Font.Name = 'Tahoma'
+    Font.Style = []
+    Color = 5592405
+    Value = 0
+    LowValue = 0
+    HighValue = 0
+    ParentColor = False
+    ParentFont = False
+    Lines.Strings = (
+      ''
+      '')
+    TextFunction = 1001
+  end
+  object Disp4A: TG2GraphDisplay
+    Left = 182
+    Top = 31
+    Width = 52
+    Height = 27
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWhite
+    Font.Height = -11
+    Font.Name = 'Tahoma'
+    Font.Style = []
+    Color = 5592405
+    Value = 0
+    LowValue = 0
+    HighValue = 0
+    ParentColor = False
+    ParentFont = False
+    Lines.Strings = (
+      ''
+      '')
+    TextFunction = 1001
+  end
+  object Disp5A: TG2GraphDisplay
+    Left = 240
+    Top = 31
+    Width = 52
+    Height = 27
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWhite
+    Font.Height = -11
+    Font.Name = 'Tahoma'
+    Font.Style = []
+    Color = 5592405
+    Value = 0
+    LowValue = 0
+    HighValue = 0
+    ParentColor = False
+    ParentFont = False
+    Lines.Strings = (
+      ''
+      '')
+    TextFunction = 1001
+  end
+  object Disp6A: TG2GraphDisplay
+    Left = 298
+    Top = 31
+    Width = 52
+    Height = 27
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWhite
+    Font.Height = -11
+    Font.Name = 'Tahoma'
+    Font.Style = []
+    Color = 5592405
+    Value = 0
+    LowValue = 0
+    HighValue = 0
+    ParentColor = False
+    ParentFont = False
+    Lines.Strings = (
+      ''
+      '')
+    TextFunction = 1001
+  end
+  object Disp7A: TG2GraphDisplay
+    Left = 356
+    Top = 31
+    Width = 52
+    Height = 27
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWhite
+    Font.Height = -11
+    Font.Name = 'Tahoma'
+    Font.Style = []
+    Color = 5592405
+    Value = 0
+    LowValue = 0
+    HighValue = 0
+    ParentColor = False
+    ParentFont = False
+    Lines.Strings = (
+      ''
+      '')
+    TextFunction = 1001
+  end
+  object Disp8A: TG2GraphDisplay
+    Left = 414
+    Top = 31
+    Width = 52
+    Height = 27
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWhite
+    Font.Height = -11
+    Font.Name = 'Tahoma'
+    Font.Style = []
+    Color = 5592405
+    Value = 0
+    LowValue = 0
+    HighValue = 0
+    ParentColor = False
+    ParentFont = False
+    Lines.Strings = (
+      ''
+      '')
+    TextFunction = 1001
+  end
+  object Disp1B: TG2GraphDisplay
+    Left = 8
+    Top = 8
+    Width = 52
+    Height = 17
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -11
+    Font.Name = 'Tahoma'
+    Font.Style = [fsBold]
+    Color = clBtnFace
+    Value = 0
+    LowValue = 0
+    HighValue = 0
+    ParentColor = False
+    ParentFont = False
+    Lines.Strings = (
+      '')
+    TextFunction = 1000
+  end
+  object disp2B: TG2GraphDisplay
+    Left = 66
+    Top = 8
+    Width = 52
+    Height = 17
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -11
+    Font.Name = 'Tahoma'
+    Font.Style = [fsBold]
+    Color = clBtnFace
+    Value = 0
+    LowValue = 0
+    HighValue = 0
+    ParentColor = False
+    ParentFont = False
+    Lines.Strings = (
+      '')
+    TextFunction = 1000
+  end
+  object Disp3B: TG2GraphDisplay
+    Left = 124
+    Top = 8
+    Width = 52
+    Height = 17
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -11
+    Font.Name = 'Tahoma'
+    Font.Style = [fsBold]
+    Color = clBtnFace
+    Value = 0
+    LowValue = 0
+    HighValue = 0
+    ParentColor = False
+    ParentFont = False
+    Lines.Strings = (
+      '')
+    TextFunction = 1000
+  end
+  object Disp4B: TG2GraphDisplay
+    Left = 182
+    Top = 8
+    Width = 52
+    Height = 17
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -11
+    Font.Name = 'Tahoma'
+    Font.Style = [fsBold]
+    Color = clBtnFace
+    Value = 0
+    LowValue = 0
+    HighValue = 0
+    ParentColor = False
+    ParentFont = False
+    Lines.Strings = (
+      '')
+    TextFunction = 1000
+  end
+  object Disp5B: TG2GraphDisplay
+    Left = 240
+    Top = 8
+    Width = 52
+    Height = 17
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -11
+    Font.Name = 'Tahoma'
+    Font.Style = [fsBold]
+    Color = clBtnFace
+    Value = 0
+    LowValue = 0
+    HighValue = 0
+    ParentColor = False
+    ParentFont = False
+    Lines.Strings = (
+      '')
+    TextFunction = 1000
+  end
+  object Disp6B: TG2GraphDisplay
+    Left = 298
+    Top = 8
+    Width = 52
+    Height = 17
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -11
+    Font.Name = 'Tahoma'
+    Font.Style = [fsBold]
+    Color = clBtnFace
+    Value = 0
+    LowValue = 0
+    HighValue = 0
+    ParentColor = False
+    ParentFont = False
+    Lines.Strings = (
+      '')
+    TextFunction = 1000
+  end
+  object Disp7B: TG2GraphDisplay
+    Left = 356
+    Top = 8
+    Width = 52
+    Height = 17
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -11
+    Font.Name = 'Tahoma'
+    Font.Style = [fsBold]
+    Color = clBtnFace
+    Value = 0
+    LowValue = 0
+    HighValue = 0
+    ParentColor = False
+    ParentFont = False
+    Lines.Strings = (
+      '')
+    TextFunction = 1000
+  end
+  object Disp8B: TG2GraphDisplay
+    Left = 414
+    Top = 8
+    Width = 52
+    Height = 17
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -11
+    Font.Name = 'Tahoma'
+    Font.Style = [fsBold]
+    Color = clBtnFace
+    Value = 0
+    LowValue = 0
+    HighValue = 0
+    ParentColor = False
+    ParentFont = False
+    Lines.Strings = (
+      '')
+    TextFunction = 1000
+  end
+  object Panel1: TPanel
+    Left = 481
+    Top = 0
+    Width = 92
+    Height = 124
+    Align = alRight
+    BevelOuter = bvNone
+    Color = clAppWorkSpace
+    ParentBackground = False
+    TabOrder = 0
+    object obParam: TG2GraphButtonRadio
+      Left = 13
+      Top = 23
+      Width = 70
+      Height = 75
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -9
+      Font.Name = 'Arial'
+      Font.Style = []
+      Color = clActiveBorder
+      Value = 0
+      LowValue = 0
+      HighValue = 0
+      ParentColor = False
+      ParentFont = False
+      OnClick = obParamClick
+      ButtonText.Strings = (
+        'A - Osc'
+        'B - LFO'
+        'C - Env'
+        'D - Filter'
+        'E - Effect')
+      HightlightColor = clAqua
+      BorderColor = clBlack
+      Bevel = False
+      Orientation = otVertical
+      ButtonCount = 5
+    end
+    object obPage: TG2GraphButtonRadio
+      Left = 13
+      Top = 103
+      Width = 70
+      Height = 16
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -9
+      Font.Name = 'Arial'
+      Font.Style = []
+      Color = clActiveBorder
+      Value = 0
+      LowValue = 0
+      HighValue = 0
+      ParentColor = False
+      ParentFont = False
+      OnClick = obPageClick
+      ButtonText.Strings = (
+        '1'
+        '2'
+        '3')
+      HightlightColor = clAqua
+      BorderColor = clBlack
+      Bevel = False
+      Orientation = otHorizontal
+      ButtonCount = 3
+    end
+    object btGlobalPages: TG2GraphButtonText
+      Left = 13
+      Top = 4
+      Width = 70
+      Height = 16
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -9
+      Font.Name = 'Arial'
+      Font.Style = []
+      Color = clSilver
+      Value = 0
+      LowValue = 0
+      HighValue = 1
+      OnChange = btGlobalPagesChange
+      ParentColor = False
+      ParentFont = False
+      ButtonText.Strings = (
+        'Global')
+      HightlightColor = clAqua
+      BorderColor = clBlack
+      Bevel = False
+      ButtonTextType = bttNormal
+    end
+    object Panel2: TPanel
+      Left = -408
+      Top = 88
+      Width = 185
+      Height = 41
+      Caption = 'Panel2'
+      TabOrder = 0
+    end
+  end
+end
