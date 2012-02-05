@@ -1,9 +1,0 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<BorlandProject>
-	<Transactions>
-    <Transaction>1899-12-30 00:00:00.000.dproj,C:\Documents and Settings\BVerhue.BVE-HOME\My Documents\Delphi\NM G2\Source\G2_server.dproj=C:\Documents and Settings\BVerhue.BVE-HOME\My Documents\Delphi\Project1.dproj</Transaction>
-    <Transaction>1899-12-30 00:00:00.000.844,C:\Users\Bruno\Delphi\NMG2\Project\DelphiVCL\G2_server_D2011.dproj=C:\Users\Bruno\Delphi\NMG2\Source\G2_server.dproj</Transaction>
-    <Transaction>1899-12-30 00:00:00.000.pas,C:\Documents and Settings\BVerhue.BVE-HOME\My Documents\Delphi\NM G2\Source\UnitG2Server.pas=C:\Documents and Settings\BVerhue.BVE-HOME\My Documents\Delphi\Unit1.pas</Transaction>
-    <Transaction>1899-12-30 00:00:00.000.dfm,C:\Documents and Settings\BVerhue.BVE-HOME\My Documents\Delphi\NM G2\Source\UnitG2Server.dfm=C:\Documents and Settings\BVerhue.BVE-HOME\My Documents\Delphi\Unit1.dfm</Transaction>
-  </Transactions>
-</BorlandProject>
