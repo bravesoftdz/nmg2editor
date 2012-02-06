@@ -5,7 +5,7 @@ interface
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, ActnList, XPStyleActnCtrls, ActnMan, StdCtrls, g2_graph, g2_file,
-  g2_usb, g2_classes, g2_types, ExtCtrls;
+  g2_usb, g2_classes, g2_types, ExtCtrls, g2_mess;
 
 type
   TfrmG2Server = class(TForm)
@@ -27,15 +27,12 @@ type
     Splitter2: TSplitter;
     Label2: TLabel;
     procedure G2USBActiveChange(Sender: TObject; Active: Boolean);
-    procedure cbLogClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure aQuitExecute(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure Timer1Timer(Sender: TObject);
-    procedure G2AddClient(Sender: TObject; ClientIndex: Integer);
     procedure G2DeleteClient(Sender: TObject; ClientIndex: Integer);
-    procedure Timer2Timer(Sender: TObject);
   private
     { Private declarations }
   public
@@ -55,38 +52,19 @@ begin
   Application.Terminate;
 end;
 
-procedure TfrmG2Server.cbLogClick(Sender: TObject);
-begin
-  if cbLog.Checked then
-    G2.LogLines := Memo1
-  else
-    G2.LogLines := nil;
-end;
-
-
 procedure TfrmG2Server.FormCreate(Sender: TObject);
 begin
-  G2.LogLines := Memo1;
-  G2.ErrLogLines := Memo2;
   Application.OnException := GlobalExceptionHandler;
 end;
 
 procedure TfrmG2Server.FormDestroy(Sender: TObject);
 begin
-  G2.LogLines := nil;
-  G2.ErrLogLines := nil;
   G2.USBActive := False;
 end;
 
 procedure TfrmG2Server.FormShow(Sender: TObject);
 begin
   Timer1.Enabled := True;
-end;
-
-procedure TfrmG2Server.G2AddClient(Sender: TObject; ClientIndex: Integer);
-begin
-  Listbox1.AddItem('Client connected, handle ' + IntToStr(TG2TcpClient(G2.ClientList[ClientIndex]).FSocket.SocketHandle)
-                                    + ' type ' + IntToStr(ord(TG2TcpClient(G2.ClientList[ClientIndex]).FClientType)), nil);
 end;
 
 procedure TfrmG2Server.G2DeleteClient(Sender: TObject; ClientIndex: Integer);
@@ -115,13 +93,6 @@ procedure TfrmG2Server.Timer1Timer(Sender: TObject);
 begin
   Timer1.Enabled := False;
   G2.USBActive := True;
-end;
-
-procedure TfrmG2Server.Timer2Timer(Sender: TObject);
-begin
-  if G2.USBActive then
-    label1.Caption := IntToStr(G2.FSendMessageQueue.Count);
-  
 end;
 
 end.

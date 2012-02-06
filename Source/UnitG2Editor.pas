@@ -82,6 +82,8 @@ unit UnitG2Editor;
 
 // http://www.delphicorner.f9.co.uk/articles/op1.htm
 
+{$I delphi_version.inc}
+
 interface
 
 uses
@@ -90,10 +92,16 @@ uses
 {$ELSE}
   Windows, XPStyleActnCtrls, ActnMan, ScktComp,
 {$ENDIF}
+{$IFDEF G2_VER200_up}
+  // Don't know exactly in what version this style was introduced
+  Vcl.ActnList, Vcl.PlatformDefaultStyleActnCtrls, Vcl.ImgList,
+{$ELSE}
+  ActnList, ImgList,
+{$ENDIF}
   Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, ExtCtrls, Vcl.ActnList, Vcl.PlatformDefaultStyleActnCtrls,
+  Dialogs, StdCtrls, ExtCtrls,
   g2_types, g2_database, g2_file, g2_mess, g2_usb, g2_graph, g2_classes,
-  graph_util_vcl, Menus, Buttons, Vcl.ImgList, DOM, XMLRead, XMLWrite;
+  graph_util_vcl, Menus, Buttons, DOM, XMLRead, XMLWrite;
 
 type
   TSlotPanel = class(TG2GraphPanel)

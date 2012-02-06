@@ -74,7 +74,6 @@ object frmG2Server: TfrmG2Server
       Checked = True
       State = cbChecked
       TabOrder = 1
-      OnClick = cbLogClick
     end
   end
   object Panel2: TPanel
@@ -141,15 +140,16 @@ object frmG2Server: TfrmG2Server
     TabOrder = 4
   end
   object G2: TG2
-    IsServer = True
     ClientType = ctEditor
+    LogLevel = 0
+    IsServer = True
     Port = 2501
     Host = '127.0.0.1'
     USBActive = False
     ProcessLedData = True
     OnUSBActiveChange = G2USBActiveChange
-    OnAddClient = G2AddClient
     OnDeleteClient = G2DeleteClient
+    SelectedSlotIndex = 0
     Left = 24
     Top = 88
   end
@@ -170,7 +170,6 @@ object frmG2Server: TfrmG2Server
   end
   object Timer2: TTimer
     Interval = 250
-    OnTimer = Timer2Timer
     Left = 120
     Top = 88
   end

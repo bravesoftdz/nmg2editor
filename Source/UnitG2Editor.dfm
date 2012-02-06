@@ -1184,7 +1184,7 @@ object frmG2Main: TfrmG2Main
   object ActionManager1: TActionManager
     Left = 360
     Top = 208
-    StyleName = 'Platform Default'
+    StyleName = 'XP Style'
     object aUndo: TAction
       Category = 'Edit'
       Caption = 'Undo'

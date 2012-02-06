@@ -35,6 +35,8 @@ unit g2_graph;
 
 // http://delphirss.com/graphic.html
 
+{$I delphi_version.inc}
+
 interface
 
 uses
@@ -143,6 +145,9 @@ type
     FCopyPatch        : TG2FilePatchPart;
     FCopyOutLinesVisible : boolean;
     FStartX, FStartY : integer;
+{$IFNDEF G2_VER210_up}
+    FParentDoubleBuffered : boolean;
+{$ENDIF}
 {$IFDEF FPC}
     procedure Paint; override;
 {$ELSE}
@@ -179,6 +184,11 @@ type
     property    BackBitmap: TBitmap read FBackBitmap write SetBitmap;
     property    BackgroundColor : TColor read FBackgroundColor write SetBackgroundColor;
     property    RackColor : TColor read FRackColor write SetRackColor;
+    property    DoubleBuffered;
+{$IFNDEF G2_VER210_up}
+    // Probably introduced in Delphi2010? Added a dummy for older versions
+    property    ParentDoubleBuffered : boolean read FParentDoubleBuffered write FParentDoubleBuffered;
+{$ENDIF}
   end;
 
   TG2GraphParameter = class(TG2FileParameter)
