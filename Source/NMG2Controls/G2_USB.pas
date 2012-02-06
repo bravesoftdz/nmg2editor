@@ -62,8 +62,8 @@ uses
 {$ENDIF}
   Messages, Forms, Classes, Dialogs, SysUtils, Controls, StdCtrls, ExtCtrls,
   g2_types, g2_file, g2_mess,
-  IdCustomTCPServer, idTCPConnection, IdContext, IdTCPServer, idTCPClient,
-  idSync, IdYarn, IdThread;
+  IdCustomTCPServer, idTCPConnection, IdYarn, IdThread, idSync, IdTCPServer,
+  idTCPClient, IdContext;
 
 const
 {$IFNDEF unix}

@@ -1,12 +1,19 @@
 unit UnitPatchManager;
 
-interface
+{$I delphi_version.inc}
 
+interface
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ActnList,
-  Vcl.PlatformDefaultStyleActnCtrls, Vcl.ActnMan, Vcl.ExtCtrls, Vcl.ComCtrls,
-  Vcl.Tabs, g2_types, g2_file;
+{$IFDEF G2_VER200_up}
+  PlatformDefaultStyleActnCtrls,
+{$ELSE}
+  XPStyleActnCtrls,
+{$ENDIF}
+  Windows, Messages, SysUtils, Variants, Classes, Graphics,
+  Forms, Dialogs, StdCtrls, ActnList,
+  ExtCtrls, ComCtrls,
+  Tabs, g2_types, g2_file, ActnMan,
+  Controls;
 
 const
   MAXBUFFER = 4096;
@@ -325,7 +332,11 @@ begin
     FSearchThread.FPath := cbPath.Text;
     FSearchThread.OnTerminate := OnSearchThreadTerminate;
     FSearchThread.FreeOnTerminate := True;
+{$IFDEF G2_VER200_up}
     FSearchThread.Start;
+{$ELSE}
+    FSearchThread.Resume;
+{$ENDIF}
     Invalidate;
   end;
 end;

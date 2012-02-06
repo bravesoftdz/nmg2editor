@@ -26,8 +26,6 @@ object frmCommSettings: TfrmCommSettings
     TabOrder = 0
     object TabSheet1: TTabSheet
       Caption = 'Server'
-      ExplicitWidth = 465
-      ExplicitHeight = 220
       object Label3: TLabel
         Left = 16
         Top = 24
@@ -62,6 +60,8 @@ object frmCommSettings: TfrmCommSettings
     object TabSheet2: TTabSheet
       Caption = 'OSC'
       ImageIndex = 1
+      ExplicitLeft = 0
+      ExplicitTop = 0
       ExplicitWidth = 465
       ExplicitHeight = 220
       object Panel1: TPanel
@@ -128,9 +128,6 @@ object frmCommSettings: TfrmCommSettings
         ParentFont = False
         ScrollBars = ssBoth
         TabOrder = 1
-        ExplicitTop = 0
-        ExplicitWidth = 554
-        ExplicitHeight = 290
       end
     end
   end

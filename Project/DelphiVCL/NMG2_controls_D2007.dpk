@@ -27,14 +27,15 @@ package NMG2_controls_D2007;
 requires
   rtl,
   vcl,
-  xmlrtl;
+  dclIndyCore100,
+  dclIndyProtocols100;
 
 contains
   g2_graph in '..\..\Source\NMG2Controls\g2_graph.pas',
-  G2_Types in '..\..\Source\NMG2Controls\G2_Types.pas',
+  g2_types in '..\..\Source\NMG2Controls\g2_types.pas',
   G2_USB in '..\..\Source\NMG2Controls\G2_USB.pas',
-  G2_Classes in '..\..\Source\NMG2Controls\G2_Classes.pas',
-  G2_file in '..\..\Source\NMG2Controls\G2_file.pas',
+  g2_classes in '..\..\Source\NMG2Controls\g2_classes.pas',
+  g2_file in '..\..\Source\NMG2Controls\g2_file.pas',
   fastbitmap in '..\..\Source\NMG2Controls\fastbitmap.pas';
 
 end.

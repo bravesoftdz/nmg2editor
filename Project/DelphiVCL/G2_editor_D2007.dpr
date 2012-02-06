@@ -16,7 +16,10 @@ uses
   UnitSynthSettings in '..\..\Source\UnitSynthSettings.pas' {frmSynthSettings},
   UnitPerfSettings in '..\..\Source\UnitPerfSettings.pas' {frmPerfSettings},
   UnitEditLabel in '..\..\Source\UnitEditLabel.pas' {frmEditLabel},
-  graph_util_vcl in '..\..\Source\NMG2Controls\graph_util_vcl.pas';
+  graph_util_vcl in '..\..\Source\NMG2Controls\graph_util_vcl.pas',
+  UnitConnSettings in '..\..\Source\UnitConnSettings.pas' {frmCommSettings},
+  UnitEditorTools in '..\..\Source\UnitEditorTools.pas' {frmEditorTools},
+  UnitPatchManager in '..\..\Source\UnitPatchManager.pas' {frmPatchManager};
 
 {$R *.res}
 
@@ -34,5 +37,8 @@ begin
   Application.CreateForm(TfrmSynthSettings, frmSynthSettings);
   Application.CreateForm(TfrmPerfSettings, frmPerfSettings);
   Application.CreateForm(TfrmEditLabel, frmEditLabel);
+  Application.CreateForm(TfrmCommSettings, frmCommSettings);
+  Application.CreateForm(TfrmEditorTools, frmEditorTools);
+  Application.CreateForm(TfrmPatchManager, frmPatchManager);
   Application.Run;
 end.

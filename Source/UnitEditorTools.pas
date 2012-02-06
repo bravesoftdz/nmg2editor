@@ -3,9 +3,9 @@ unit UnitEditorTools;
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls, g2_types, Vcl.StdCtrls,
-  Vcl.ImgList, g2_graph;
+  Windows, Messages, SysUtils, Variants, Classes, Graphics,
+  Controls, Forms, Dialogs, ExtCtrls, g2_types, StdCtrls,
+  ImgList, g2_graph;
 
 type
   TfrmEditorTools = class(TForm)

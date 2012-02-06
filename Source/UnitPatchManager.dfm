@@ -45,6 +45,7 @@ object frmPatchManager: TfrmPatchManager
         Width = 460
         Height = 21
         Anchors = [akLeft, akTop, akRight]
+        ItemHeight = 0
         TabOrder = 0
         Text = 'C:\Users\Bruno\Documents\Nord Modular Patches\G2 Patches'
       end
@@ -113,7 +114,7 @@ object frmPatchManager: TfrmPatchManager
   object ActionManager1: TActionManager
     Left = 184
     Top = 136
-    StyleName = 'Platform Default'
+    StyleName = 'XP Style'
     object aReadDir: TAction
       Caption = 'Read dir'
       OnExecute = aReadDirExecute

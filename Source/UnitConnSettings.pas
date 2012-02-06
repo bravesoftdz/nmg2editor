@@ -1,12 +1,13 @@
 unit UnitConnSettings;
 
-interface
+{$I delphi_version.inc}
 
+interface
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, IdBaseComponent, IdComponent, IdUDPBase,
-  IdUDPClient, Vcl.StdCtrls, IdSocketHandle, IdUDPServer, Vcl.ExtCtrls,
-  g2_types, g2_file, OSCUtils, Vcl.ComCtrls;
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms, Dialogs,
+  IdBaseComponent, IdComponent, IdUDPBase,
+  IdUDPClient, StdCtrls, IdSocketHandle, IdUDPServer, IdGlobal, ExtCtrls,
+  g2_types, g2_file, OSCUtils, ComCtrls;
 
 type
   TfrmCommSettings = class(TForm)
@@ -35,7 +36,7 @@ type
     { Private declarations }
   public
     { Public declarations }
-    procedure udpServerDeviceUDPRead(AThread: TIdUDPListenerThread; AData: TBytes; ABinding: TIdSocketHandle);
+    procedure udpServerDeviceUDPRead(AThread: TIdUDPListenerThread; AData: TIdBytes; ABinding: TIdSocketHandle);
   end;
 
 var
@@ -64,7 +65,7 @@ begin
   frmG2Main.G2.Port := StrToInt(ePort.Text);
 end;
 
-procedure TfrmCommSettings.udpServerDeviceUDPRead(AThread: TIdUDPListenerThread; AData: TBytes; ABinding: TIdSocketHandle);
+procedure TfrmCommSettings.udpServerDeviceUDPRead(AThread: TIdUDPListenerThread; AData: TIdBytes; ABinding: TIdSocketHandle);
 var i, p, c, b, KnobIndex : integer;
     line, address : string;
     Knob : TKnob;
@@ -93,7 +94,6 @@ begin
                 end;
               end;
           end;
-
     end;
     if OscPacket is TOSCMessage then begin
       frmG2Main.G2.dump_buffer( AData, Length(AData));
@@ -102,7 +102,6 @@ begin
      OSCPacket.Free;
   end;
 end;
-
 
 procedure TfrmCommSettings.Button2Click(Sender: TObject);
 begin
