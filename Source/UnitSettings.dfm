@@ -2,8 +2,8 @@ object frmSettings: TfrmSettings
   Left = 0
   Top = 0
   Caption = 'Settings'
-  ClientHeight = 290
-  ClientWidth = 554
+  ClientHeight = 172
+  ClientWidth = 488
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -19,13 +19,17 @@ object frmSettings: TfrmSettings
   object PageControl1: TPageControl
     Left = 0
     Top = 0
-    Width = 554
-    Height = 290
-    ActivePage = TabSheet1
+    Width = 488
+    Height = 172
+    ActivePage = TabSheet3
     Align = alClient
     TabOrder = 0
+    ExplicitWidth = 554
+    ExplicitHeight = 290
     object TabSheet1: TTabSheet
       Caption = 'Server'
+      ExplicitWidth = 546
+      ExplicitHeight = 262
       object Label3: TLabel
         Left = 16
         Top = 24
@@ -60,13 +64,16 @@ object frmSettings: TfrmSettings
     object TabSheet2: TTabSheet
       Caption = 'OSC'
       ImageIndex = 1
+      ExplicitWidth = 546
+      ExplicitHeight = 262
       object Panel1: TPanel
         Left = 0
         Top = 0
-        Width = 546
+        Width = 480
         Height = 59
         Align = alTop
         TabOrder = 0
+        ExplicitWidth = 546
         object Label1: TLabel
           Left = 16
           Top = 16
@@ -110,8 +117,8 @@ object frmSettings: TfrmSettings
       object Memo1: TMemo
         Left = 0
         Top = 59
-        Width = 546
-        Height = 203
+        Width = 480
+        Height = 85
         Align = alClient
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
@@ -123,28 +130,42 @@ object frmSettings: TfrmSettings
         ParentFont = False
         ScrollBars = ssBoth
         TabOrder = 1
+        ExplicitWidth = 546
+        ExplicitHeight = 203
       end
     end
     object TabSheet3: TTabSheet
       Caption = 'Patch manager'
       ImageIndex = 2
+      ExplicitWidth = 546
+      ExplicitHeight = 262
       DesignSize = (
-        546
-        262)
+        480
+        144)
       object Label5: TLabel
         Left = 16
         Top = 27
-        Width = 63
+        Width = 64
         Height = 13
-        Caption = 'Bass folder : '
+        Caption = 'Root folder : '
       end
-      object eBassFolder: TEdit
+      object eRootFolder: TEdit
         Left = 85
         Top = 24
-        Width = 436
+        Width = 322
         Height = 21
         Anchors = [akLeft, akTop, akRight]
         TabOrder = 0
+        ExplicitWidth = 388
+      end
+      object Button1: TButton
+        Left = 413
+        Top = 22
+        Width = 35
+        Height = 25
+        Anchors = [akTop, akRight]
+        Caption = 'Button1'
+        TabOrder = 1
       end
     end
   end

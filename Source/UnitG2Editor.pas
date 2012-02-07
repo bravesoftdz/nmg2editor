@@ -146,7 +146,6 @@ type
     Uploadpatch1: TMenuItem;
     View1: TMenuItem;
     Patchsettings1: TMenuItem;
-    Log1: TMenuItem;
     cbMode: TCheckBox;
     Splitter1: TSplitter;
     puAddModule: TPopupMenu;
@@ -194,8 +193,6 @@ type
     Deassign1: TMenuItem;
     Loadperformance1: TMenuItem;
     Saveperformance1: TMenuItem;
-    Synthsettings1: TMenuItem;
-    Performancesettings1: TMenuItem;
     Edit1: TMenuItem;
     Copy2: TMenuItem;
     miModuleRename: TMenuItem;
@@ -207,19 +204,11 @@ type
     N5: TMenuItem;
     N6: TMenuItem;
     Exit1: TMenuItem;
-    N7: TMenuItem;
-    N8: TMenuItem;
-    N9: TMenuItem;
-    Commsettings1: TMenuItem;
     puConnectorMenu: TPopupMenu;
     miDeleteAllCables: TMenuItem;
     miDeleteCable: TMenuItem;
     Editortools1: TMenuItem;
     Comm1: TMenuItem;
-    Settings1: TMenuItem;
-    N10: TMenuItem;
-    Mididump1: TMenuItem;
-    Sendcontrollersnapshot1: TMenuItem;
     SavePatchAsSysEx: TMenuItem;
     SavePerfAsSysEx: TMenuItem;
     N11: TMenuItem;
@@ -235,8 +224,6 @@ type
     N12: TMenuItem;
     N13: TMenuItem;
     Selectall1: TMenuItem;
-    est1: TMenuItem;
-    ExtractTextedit1: TMenuItem;
     aPatchManager: TAction;
     Patchmanager1: TMenuItem;
     aParameterPages: TAction;
@@ -261,6 +248,17 @@ type
     Saveini1: TMenuItem;
     N14: TMenuItem;
     ResponseTimer: TTimer;
+    Settings2: TMenuItem;
+    Settings3: TMenuItem;
+    Synthsettings2: TMenuItem;
+    Performancesettings2: TMenuItem;
+    aMidiDump: TAction;
+    aSendControllerSnapshot: TAction;
+    Mididump1: TMenuItem;
+    Sendcontrolersnapshot1: TMenuItem;
+    aViewLog: TAction;
+    Viewlog1: TMenuItem;
+    N7: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure cbModeClick(Sender: TObject);
     procedure aPatchSettingsExecute(Sender: TObject);
@@ -300,8 +298,6 @@ type
     procedure miDeleteAllCablesClick(Sender: TObject);
 
     procedure G2SelectSlot(Sender: TObject; SenderID: Integer; Slot: Integer);
-    procedure Sendcontrollersnapshot1Click(Sender: TObject);
-    procedure Mididump1Click(Sender: TObject);
     procedure Splitter1Moved(Sender: TObject);
     procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure aUndoExecute(Sender: TObject);
@@ -334,18 +330,20 @@ type
     procedure G2ReceiveResponseMessage(Sender: TObject;
       ResponseMessage: TMemoryStream);
     procedure ResponseTimerTimer(Sender: TObject);
+    procedure aSendControllerSnapshotExecute(Sender: TObject);
+    procedure aMidiDumpExecute(Sender: TObject);
   private
     { Private declarations }
     procedure DialogKey(var Msg: TWMKey); message CM_DIALOGKEY;
   public
     { Public declarations }
-    FDisableControls    : boolean;
-    FSlotPanel          : array[0..3] of TSlotPanel;
-    FAddPoint           : TPoint;
-    FLocation           : TLocationType;
-    FOldSplitterPos     : integer;
-    FLastReceivedMidiCC : byte;
-    FCopyPatch          : TG2FilePatchPart;
+    FDisableControls     : boolean;
+    FSlotPanel           : array[0..3] of TSlotPanel;
+    FAddPoint            : TPoint;
+    FLocation            : TLocationType;
+    FOldSplitterPos      : integer;
+    FLastReceivedMidiCC  : byte;
+    FCopyPatch           : TG2FilePatchPart;
     procedure AddModule( aModuleType : byte);
     procedure DoAddModule( Sender: TObject);
     procedure AssignKnob( Sender: TObject);
@@ -720,6 +718,8 @@ begin
   FDisableControls := False;
   FOldSplitterPos := Splitter1.Height;
 
+  //FPatchManagerVisible := False;
+
   FSlotPanel[3] := TSlotPanel.Create( self, G2.SlotD);
   FSlotPanel[3].Parent := self;
   FSlotPanel[3].Align := alTop;
@@ -793,13 +793,12 @@ end;
 
 procedure TfrmG2Main.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
+  SaveIniXML; // At this moment all the windows still are visible
   G2.USBActive := False;
 end;
 
 procedure TfrmG2Main.FormDestroy(Sender: TObject);
 begin
-  SaveIniXML;
-
   if assigned(FCopyPatch) then
     FCopyPatch.Free;
 end;
@@ -879,33 +878,61 @@ var Doc : TXMLDocument;
 begin
   Doc := TXMLDocument.Create;
   try
-    RootNode := Doc.CreateElement('G2_Editor_settings');
-    Doc.AppendChild(RootNode);
+    ReadXMLFile( Doc, 'G2_editor_ini.xml');
 
-    TCPSettingsNode := TXMLTCPSettingsType(Doc.CreateElement('TCP_settings'));
-    RootNode.AppendChild(TCPSettingsNode);
+    RootNode := Doc.FindNode('G2_Editor_settings');
+    if not assigned(RootNode) then begin
+      RootNode := Doc.CreateElement('G2_Editor_settings');
+      Doc.AppendChild(RootNode);
+    end;
+
+    TCPSettingsNode := TXMLTCPSettingsType(RootNode.FindNode('TCP_settings'));
+    if not assigned(TCPSettingsNode) then begin
+      TCPSettingsNode := TXMLTCPSettingsType(Doc.CreateElement('TCP_settings'));
+      RootNode.AppendChild(TCPSettingsNode);
+    end;
     TCPSettingsNode.IP := G2.Host;
     TCPSettingsNode.Port := G2.Port;
 
-    PatchManagerSettingsNode := TXMLPatchManagerSettingsType(Doc.CreateElement('PatchManagerSettings'));
-    RootNode.AppendChild(PatchManagerSettingsNode);
-    PatchManagerSettingsNode.BaseFolder := frmPatchManager.cbPath.Text;
-
-    FormSettingsNode := TXMLFormSettingsTYpe(Doc.CreateElement('MainForm'));
-    RootNode.AppendChild(FormSettingsNode);
+    FormSettingsNode := TXMLFormSettingsType(RootNode.FindNode('MainForm'));
+    if not assigned(FormSettingsNode) then begin
+      FormSettingsNode := TXMLFormSettingsTYpe(Doc.CreateElement('MainForm'));
+      RootNode.AppendChild(FormSettingsNode);
+    end;
     FormSettingsNode.PosX := Left;
     FormSettingsNode.PosY := Top;
     FormSettingsNode.SizeX := Width;
     FormSettingsNode.SizeY := Height;
     FormSettingsNode.Visible := True;
 
-    FormSettingsNode := TXMLFormSettingsTYpe(Doc.CreateElement('PatchManagerForm'));
-    RootNode.AppendChild(FormSettingsNode);
+    PatchManagerSettingsNode := TXMLPatchManagerSettingsType(RootNode.FindNode('PatchManagerSettings'));
+    if not assigned(PatchManagerSettingsNode) then begin
+      PatchManagerSettingsNode := TXMLPatchManagerSettingsType(Doc.CreateElement('PatchManagerSettings'));
+      RootNode.AppendChild(PatchManagerSettingsNode);
+    end;
+    PatchManagerSettingsNode.BaseFolder := frmSettings.eRootFolder.Text;
+
+    FormSettingsNode := TXMLFormSettingsType(RootNode.FindNode('PatchManagerForm'));
+    if not assigned(FormSettingsNode) then begin
+      FormSettingsNode := TXMLFormSettingsTYpe(Doc.CreateElement('PatchManagerForm'));
+      RootNode.AppendChild(FormSettingsNode);
+    end;
     FormSettingsNode.PosX := frmPatchManager.Left;
     FormSettingsNode.PosY := frmPatchManager.Top;
     FormSettingsNode.SizeX := frmPatchManager.Width;
     FormSettingsNode.SizeY := frmPatchManager.Height;
     FormSettingsNode.Visible := frmPatchManager.Visible;
+
+    FormSettingsNode := TXMLFormSettingsType(RootNode.FindNode('SettingsForm'));
+    if not assigned(FormSettingsNode) then begin
+      FormSettingsNode := TXMLFormSettingsTYpe(Doc.CreateElement('SettingsForm'));
+      RootNode.AppendChild(FormSettingsNode);
+    end;
+    FormSettingsNode.PosX := frmSettings.Left;
+    FormSettingsNode.PosY := frmSettings.Top;
+    FormSettingsNode.SizeX := frmSettings.Width;
+    FormSettingsNode.SizeY := frmSettings.Height;
+    FormSettingsNode.Visible := frmSettings.Visible;
 
     WriteXMLFile( Doc, 'G2_editor_ini.xml');
   finally
@@ -1319,8 +1346,6 @@ begin
 //
 end;
 
-
-
 // ==== View menu ==============================================================
 
 procedure TfrmG2Main.aSynthSettingsExecute(Sender: TObject);
@@ -1513,14 +1538,14 @@ end;
 
 // ==== Communication menu =====================================================
 
-procedure TfrmG2Main.Mididump1Click(Sender: TObject);
-begin
-  G2.SendDumpMidiMessage;
-end;
-
-procedure TfrmG2Main.Sendcontrollersnapshot1Click(Sender: TObject);
+procedure TfrmG2Main.aSendControllerSnapshotExecute(Sender: TObject);
 begin
   G2.SelectedSlot.SendControllerSnapshotMessage;
+end;
+
+procedure TfrmG2Main.aMidiDumpExecute(Sender: TObject);
+begin
+  G2.SendDumpMidiMessage;
 end;
 
 // ==== Parameter menu =========================================================

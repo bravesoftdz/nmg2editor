@@ -2,7 +2,7 @@ object frmPatchManager: TfrmPatchManager
   Left = 0
   Top = 0
   BorderStyle = bsSizeToolWin
-  Caption = 'frmPatchManager'
+  Caption = 'Patch manager'
   ClientHeight = 432
   ClientWidth = 530
   Color = clBtnFace
@@ -30,35 +30,6 @@ object frmPatchManager: TfrmPatchManager
       'Patch')
     TabIndex = 0
     OnChange = TabControl1Change
-    object Panel1: TPanel
-      Left = 4
-      Top = 24
-      Width = 522
-      Height = 53
-      Align = alTop
-      TabOrder = 0
-      DesignSize = (
-        522
-        53)
-      object cbPath: TComboBox
-        Left = 12
-        Top = 17
-        Width = 460
-        Height = 21
-        Anchors = [akLeft, akTop, akRight]
-        TabOrder = 0
-        Text = 'C:\Users\Bruno\Documents\Nord Modular Patches\G2 Patches'
-      end
-      object Button1: TButton
-        Left = 480
-        Top = 15
-        Width = 34
-        Height = 25
-        Action = aSelectFolder
-        Anchors = [akTop, akRight]
-        TabOrder = 1
-      end
-    end
     object lvExternal: TListView
       Left = 16
       Top = 83
@@ -79,7 +50,7 @@ object frmPatchManager: TfrmPatchManager
         end>
       ReadOnly = True
       RowSelect = True
-      TabOrder = 1
+      TabOrder = 0
       ViewStyle = vsReport
       OnColumnClick = lvExternalColumnClick
       OnCompare = lvExternalCompare
@@ -103,7 +74,7 @@ object frmPatchManager: TfrmPatchManager
         item
           Caption = 'Slot'
         end>
-      TabOrder = 2
+      TabOrder = 1
       ViewStyle = vsReport
       OnColumnClick = lvInternalColumnClick
       OnCompare = lvInternalCompare
@@ -126,10 +97,6 @@ object frmPatchManager: TfrmPatchManager
     object aLoad: TAction
       Caption = 'Load'
       OnExecute = aLoadExecute
-    end
-    object aSelectFolder: TAction
-      Caption = '...'
-      OnExecute = aSelectFolderExecute
     end
     object aShowPerfs: TAction
       Caption = 'Perf.'

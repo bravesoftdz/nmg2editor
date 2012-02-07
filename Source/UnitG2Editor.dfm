@@ -938,21 +938,6 @@ object frmG2Main: TfrmG2Main
     end
     object View1: TMenuItem
       Caption = 'View'
-      object Commsettings1: TMenuItem
-        Action = aSettings
-      end
-      object Synthsettings1: TMenuItem
-        Action = aSynthSettings
-      end
-      object N7: TMenuItem
-        Caption = '-'
-      end
-      object Performancesettings1: TMenuItem
-        Action = aPerformanceSettings
-      end
-      object N8: TMenuItem
-        Caption = '-'
-      end
       object Patchsettings1: TMenuItem
         Action = aPatchSettings
       end
@@ -965,36 +950,32 @@ object frmG2Main: TfrmG2Main
       object Editortools1: TMenuItem
         Action = aEditTools
       end
-      object N9: TMenuItem
-        Caption = '-'
-      end
-      object Log1: TMenuItem
-        Caption = 'Log'
-        OnClick = aViewLogExecute
-      end
     end
     object Comm1: TMenuItem
-      Caption = 'Comm'
-      object Settings1: TMenuItem
-        Caption = 'Settings'
-      end
-      object N10: TMenuItem
-        Caption = '-'
-      end
-      object Sendcontrollersnapshot1: TMenuItem
-        Caption = 'Send controller snapshot'
-        OnClick = Sendcontrollersnapshot1Click
-      end
+      Caption = 'Midi'
       object Mididump1: TMenuItem
-        Caption = 'Midi dump'
-        OnClick = Mididump1Click
+        Action = aMidiDump
+      end
+      object Sendcontrolersnapshot1: TMenuItem
+        Action = aSendControllerSnapshot
       end
     end
-    object est1: TMenuItem
-      Caption = 'Test'
-      object ExtractTextedit1: TMenuItem
-        Caption = 'Extract Textedit'
-        OnClick = ExtractTextedit1Click
+    object Settings2: TMenuItem
+      Caption = 'Settings'
+      object Settings3: TMenuItem
+        Action = aSettings
+      end
+      object Synthsettings2: TMenuItem
+        Action = aSynthSettings
+      end
+      object Performancesettings2: TMenuItem
+        Action = aPerformanceSettings
+      end
+      object N7: TMenuItem
+        Caption = '-'
+      end
+      object Viewlog1: TMenuItem
+        Action = aViewLog
       end
     end
   end
@@ -1240,13 +1221,13 @@ object frmG2Main: TfrmG2Main
       OnExecute = aParameterPagesExecute
     end
     object aSynthSettings: TAction
-      Category = 'View'
+      Category = 'Settings'
       Caption = 'Synth settings'
       ShortCut = 16455
       OnExecute = aSynthSettingsExecute
     end
     object aPerformanceSettings: TAction
-      Category = 'View'
+      Category = 'Settings'
       Caption = 'Performance settings'
       ShortCut = 16466
       OnExecute = aPerformanceSettingsExecute
@@ -1258,7 +1239,7 @@ object frmG2Main: TfrmG2Main
       OnExecute = aPatchSettingsExecute
     end
     object aSettings: TAction
-      Category = 'View'
+      Category = 'Settings'
       Caption = 'Settings'
       OnExecute = aSettingsExecute
     end
@@ -1324,6 +1305,21 @@ object frmG2Main: TfrmG2Main
       Category = 'File'
       Caption = 'Exit'
       OnExecute = aExitExecute
+    end
+    object aMidiDump: TAction
+      Category = 'Midi'
+      Caption = 'Midi dump'
+      OnExecute = aMidiDumpExecute
+    end
+    object aSendControllerSnapshot: TAction
+      Category = 'Midi'
+      Caption = 'Send controler snapshot'
+      OnExecute = aSendControllerSnapshotExecute
+    end
+    object aViewLog: TAction
+      Category = 'Settings'
+      Caption = 'View log'
+      OnExecute = aViewLogExecute
     end
   end
   object ResponseTimer: TTimer

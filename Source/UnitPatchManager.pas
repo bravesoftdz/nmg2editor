@@ -43,10 +43,6 @@ type
     aReadDir: TAction;
     aSearch: TAction;
     aLoad: TAction;
-    Button1: TButton;
-    aSelectFolder: TAction;
-    Panel1: TPanel;
-    cbPath: TComboBox;
     lvExternal: TListView;
     TabControl1: TTabControl;
     aShowPerfs: TAction;
@@ -62,7 +58,6 @@ type
       Data: Integer; var Compare: Integer);
     procedure lvExternalKeyUp(Sender: TObject; var Key: Word;
       Shift: TShiftState);
-    procedure aSelectFolderExecute(Sender: TObject);
     procedure aShowPerfsExecute(Sender: TObject);
     procedure aShowPatchesExecute(Sender: TObject);
     procedure TabControl1Change(Sender: TObject);
@@ -95,7 +90,7 @@ implementation
 
 {$R *.dfm}
 
-uses UnitG2Editor;
+uses UnitG2Editor, UnitSettings;
 
 { TSearchThread }
 
@@ -259,18 +254,11 @@ begin
   FSearchThread := nil;
 end;
 
-
-{procedure TSearchThread.ShowFile;
-begin
-  Form1.ShowFile(FCurrPath, FCurrSr.Name);
-end;}
-
 procedure TSearchThread.AddFile;
 begin
   if frmPatchManager.TabControl1.TabIndex = 0 then
     frmPatchManager.AddFile(FCurrPath, FCurrSr.Name, FiledateToDateTime(FCurrSr.time));
 end;
-
 
 procedure TfrmPatchManager.aSearchExecute(Sender: TObject);
 begin
@@ -294,11 +282,6 @@ begin
   end;}
 end;
 
-procedure TfrmPatchManager.aSelectFolderExecute(Sender: TObject);
-begin
-  //
-end;
-
 procedure TfrmPatchManager.aLoadExecute(Sender: TObject);
 begin
   frmG2Main.G2.LoadFileStream( lvExternal.Selected.SubItems[1] + lvExternal.Selected.Caption);
@@ -318,18 +301,17 @@ end;
 
 procedure TfrmPatchManager.aReadDirExecute(Sender: TObject);
 begin
-  if Length(cbPath.Text)> 2 then begin
+  lvExternal.Clear;
+  lvInternal.Visible := False;
+  lvExternal.Visible := True;
+  lvExternal.Align := alClient;
 
-    lvExternal.Clear;
-    lvInternal.Visible := False;
-    lvExternal.Visible := True;
-    lvExternal.Align := alClient;
-
-    if cbPath.Text[Length(cbPath.Text)] <> '\'  then
-      cbPath.Text := cbPath.Text + '\';
+  if Length(frmSettings.eRootFolder.Text)> 2 then begin
+    if frmSettings.eRootFolder.Text[Length(frmSettings.eRootFolder.Text)] <> '\'  then
+      frmSettings.eRootFolder.Text := frmSettings.eRootFolder.Text + '\';
 
     FSearchThread := TSearchThread.Create(True);
-    FSearchThread.FPath := cbPath.Text;
+    FSearchThread.FPath := frmSettings.eRootFolder.Text;
     FSearchThread.OnTerminate := OnSearchThreadTerminate;
     FSearchThread.FreeOnTerminate := True;
 {$IFDEF G2_VER200_up}
@@ -337,8 +319,8 @@ begin
 {$ELSE}
     FSearchThread.Resume;
 {$ENDIF}
-    Invalidate;
   end;
+  Invalidate;
 end;
 
 function Pad( s : AnsiString; l : integer): AnsiString;
@@ -406,10 +388,10 @@ begin
 
     RootNode := Doc.FindNode('G2_Editor_settings');
     if assigned(RootNode) then begin
-      PatchManagerSettingsNode := TXMLPatchManagerSettingsType(RootNode.FindNode('PatchManagerSettings'));
+      {PatchManagerSettingsNode := TXMLPatchManagerSettingsType(RootNode.FindNode('PatchManagerSettings'));
       if assigned(PatchManagerSettingsNode) then begin
         cbPath.Text := PatchManagerSettingsNode.BaseFolder;
-      end;
+      end;}
 
       FormSettingsNode := TXMLFormSettingsType(RootNode.FindNode('PatchManagerForm'));
       if assigned(FormSettingsNode) then begin
@@ -417,10 +399,9 @@ begin
         Top := FormSettingsNode.PosY;
         Width := FormSettingsNode.SizeX;
         Height := FormSettingsNode.SizeY;
-        Visible := True;
+        Visible := FormSettingsNode.Visible;
       end;
     end;
-
   finally
     Doc.Free;
   end;

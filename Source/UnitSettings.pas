@@ -7,7 +7,7 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms, Dialogs,
   IdBaseComponent, IdComponent, IdUDPBase,
   IdUDPClient, StdCtrls, IdSocketHandle, IdUDPServer, IdGlobal, ExtCtrls,
-  g2_types, g2_file, OSCUtils, ComCtrls;
+  g2_types, g2_database, g2_file, OSCUtils, ComCtrls, DOM, XMLRead, XMLWrite;
 
 type
   TfrmSettings = class(TForm)
@@ -27,8 +27,9 @@ type
     eHost: TEdit;
     Label4: TLabel;
     TabSheet3: TTabSheet;
-    eBassFolder: TEdit;
+    eRootFolder: TEdit;
     Label5: TLabel;
+    Button1: TButton;
     procedure Button2Click(Sender: TObject);
     procedure IdUDPServer1Status(ASender: TObject; const AStatus: TIdStatus;
       const AStatusText: string);
@@ -39,6 +40,7 @@ type
     { Private declarations }
   public
     { Public declarations }
+    procedure LoadIniXML;
     procedure udpServerDeviceUDPRead(AThread: TIdUDPListenerThread; AData: TIdBytes; ABinding: TIdSocketHandle);
   end;
 
@@ -53,6 +55,7 @@ uses UnitG2Editor;
 
 procedure TfrmSettings.FormCreate(Sender: TObject);
 begin
+  LoadIniXML;
   IdUDPServer1.OnUDPRead := udpServerDeviceUDPRead;
 end;
 
@@ -61,6 +64,38 @@ begin
   eHost.Text := frmG2Main.G2.Host;
   ePort.Text := IntTostr(frmG2Main.G2.Port);
 end;
+
+procedure TfrmSettings.LoadIniXML;
+var Doc : TXMLDocument;
+    RootNode : TDOMNode;
+    PatchManagerSettingsNode : TXMLPatchManagerSettingsType;
+    FormSettingsNode : TXMLFormSettingsType;
+begin
+  Doc := TXMLDocument.Create;
+  try
+    ReadXMLFile( Doc, 'G2_editor_ini.xml');
+
+    RootNode := Doc.FindNode('G2_Editor_settings');
+    if assigned(RootNode) then begin
+      PatchManagerSettingsNode := TXMLPatchManagerSettingsType(RootNode.FindNode('PatchManagerSettings'));
+      if assigned(PatchManagerSettingsNode) then begin
+        eRootFolder.Text := PatchManagerSettingsNode.BaseFolder;
+      end;
+
+      FormSettingsNode := TXMLFormSettingsType(RootNode.FindNode('SettingsForm'));
+      if assigned(FormSettingsNode) then begin
+        Left := FormSettingsNode.PosX;
+        Top := FormSettingsNode.PosY;
+        Width := FormSettingsNode.SizeX;
+        Height := FormSettingsNode.SizeY;
+        Visible := FormSettingsNode.Visible;
+      end;
+    end;
+  finally
+    Doc.Free;
+  end;
+end;
+
 
 procedure TfrmSettings.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
