@@ -175,8 +175,8 @@
 			<DCCReference Include="..\..\Source\UnitEditLabel.pas">
 				<Form>frmEditLabel</Form>
 			</DCCReference>
-			<DCCReference Include="..\..\Source\UnitConnSettings.pas">
-				<Form>frmCommSettings</Form>
+			<DCCReference Include="..\..\Source\UnitSettings.pas">
+				<Form>frmSettings</Form>
 			</DCCReference>
 			<DCCReference Include="..\..\Source\OSC\OSCUtils.pas"/>
 			<DCCReference Include="..\..\Source\UnitEditorTools.pas">

@@ -98,6 +98,8 @@ object frmG2Main: TfrmG2Main
     Width = 1067
     Height = 131
     Align = alBottom
+    DoubleBuffered = False
+    ParentDoubleBuffered = False
     TabOrder = 1
     OnMouseUp = sbFXMouseUp
     Location = ltFX
@@ -466,8 +468,6 @@ object frmG2Main: TfrmG2Main
       C0C0C0C0C0C0C0C0C0C0C0C0C0C0C0C0C0C0C0C08E8E8E000000}
     BackgroundColor = 4210752
     RackColor = clSilver
-    DoubleBuffered = False
-    ParentDoubleBuffered = False
   end
   object sbVA: TG2GraphScrollBox
     Left = 0
@@ -475,7 +475,9 @@ object frmG2Main: TfrmG2Main
     Width = 1067
     Height = 443
     Align = alClient
+    DoubleBuffered = False
     ParentBackground = True
+    ParentDoubleBuffered = False
     TabOrder = 2
     OnMouseUp = sbVAMouseUp
     Location = ltVA
@@ -844,8 +846,6 @@ object frmG2Main: TfrmG2Main
       C0C0C0C0C0C0C0C0C0C0C0C0C0C0C0C0C0C0C0C08E8E8E000000}
     BackgroundColor = 4210752
     RackColor = clSilver
-    DoubleBuffered = False
-    ParentDoubleBuffered = False
   end
   object OpenDialog1: TOpenDialog
     Left = 16
@@ -939,7 +939,7 @@ object frmG2Main: TfrmG2Main
     object View1: TMenuItem
       Caption = 'View'
       object Commsettings1: TMenuItem
-        Action = aCommSettings
+        Action = aSettings
       end
       object Synthsettings1: TMenuItem
         Action = aSynthSettings
@@ -1257,10 +1257,10 @@ object frmG2Main: TfrmG2Main
       ShortCut = 16464
       OnExecute = aPatchSettingsExecute
     end
-    object aCommSettings: TAction
+    object aSettings: TAction
       Category = 'View'
-      Caption = 'Comm settings'
-      OnExecute = aCommSettingsExecute
+      Caption = 'Settings'
+      OnExecute = aSettingsExecute
     end
     object aEditTools: TAction
       Category = 'View'

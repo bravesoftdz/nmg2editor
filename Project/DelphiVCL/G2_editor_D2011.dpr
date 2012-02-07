@@ -16,7 +16,7 @@ uses
   UnitSynthSettings in '..\..\Source\UnitSynthSettings.pas' {frmSynthSettings},
   UnitPerfSettings in '..\..\Source\UnitPerfSettings.pas' {frmPerfSettings},
   UnitEditLabel in '..\..\Source\UnitEditLabel.pas' {frmEditLabel},
-  UnitConnSettings in '..\..\Source\UnitConnSettings.pas' {frmCommSettings},
+  UnitSettings in '..\..\Source\UnitSettings.pas' {frmSettings},
   OSCUtils in '..\..\Source\OSC\OSCUtils.pas',
   UnitEditorTools in '..\..\Source\UnitEditorTools.pas' {frmEditorTools},
   g2_midi in '..\..\Source\NMG2Controls\g2_midi.pas',
@@ -39,7 +39,7 @@ begin
   Application.CreateForm(TfrmSynthSettings, frmSynthSettings);
   Application.CreateForm(TfrmPerfSettings, frmPerfSettings);
   Application.CreateForm(TfrmEditLabel, frmEditLabel);
-  Application.CreateForm(TfrmCommSettings, frmCommSettings);
+  Application.CreateForm(TfrmSettings, frmSettings);
   Application.CreateForm(TfrmEditorTools, frmEditorTools);
   Application.CreateForm(TfrmPatchManager, frmPatchManager);
   Application.Run;

@@ -1,5 +1,7 @@
 <?xml version="1.0"?>
 <G2_Editor_settings>
   <TCP_settings IP="127.0.0.1" Port="2501"/>
-  <MainForm PosX="73" PosY="0" SizeX="1401" SizeY="964" Visible="-1"/>
+  <PatchManagerSettings BaseFolder=""/>
+  <MainForm PosX="66" PosY="72" SizeX="1198" SizeY="651" Visible="-1"/>
+  <PatchManagerForm PosX="843" PosY="15" SizeX="376" SizeY="556" Visible="0"/>
 </G2_Editor_settings>

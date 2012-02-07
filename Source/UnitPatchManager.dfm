@@ -13,6 +13,7 @@ object frmPatchManager: TfrmPatchManager
   Font.Style = []
   FormStyle = fsStayOnTop
   OldCreateOrder = False
+  OnCreate = FormCreate
   OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13
@@ -45,7 +46,6 @@ object frmPatchManager: TfrmPatchManager
         Width = 460
         Height = 21
         Anchors = [akLeft, akTop, akRight]
-        ItemHeight = 0
         TabOrder = 0
         Text = 'C:\Users\Bruno\Documents\Nord Modular Patches\G2 Patches'
       end

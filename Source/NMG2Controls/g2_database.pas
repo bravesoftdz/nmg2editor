@@ -156,6 +156,13 @@ type
     property Visible: boolean read Get_Visible write Set_Visible;
   end;
 
+  TXMLPatchManagerSettingsType = class(TDOMElement)
+  protected
+    function Get_BaseFolder: string;
+    procedure Set_BaseFolder( aValue : string);
+  public
+    property BaseFolder: string read Get_BaseFolder write Set_BaseFolder;
+  end;
 
 implementation
 
@@ -454,6 +461,18 @@ end;
 procedure TXMLFormSettingsType.Set_Visible(aValue: boolean);
 begin
   SetAttribute('Visible', BoolToStr(aValue));
+end;
+
+{ TXMLPatchManagerSettingsType }
+
+function TXMLPatchManagerSettingsType.Get_BaseFolder: string;
+begin
+  Result := GetAttribute('BaseFolder');
+end;
+
+procedure TXMLPatchManagerSettingsType.Set_BaseFolder(aValue: string);
+begin
+  SetAttribute('BaseFolder', aValue);
 end;
 
 end.

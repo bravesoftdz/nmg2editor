@@ -243,7 +243,7 @@ type
     aSynthSettings: TAction;
     aPerformanceSettings: TAction;
     aPatchSettings: TAction;
-    aCommSettings: TAction;
+    aSettings: TAction;
     aEditTools: TAction;
     aInitPatch: TAction;
     aLoadPatch: TAction;
@@ -315,7 +315,7 @@ type
     procedure G2AfterG2Init(Sender: TObject);
     procedure aPatchManagerExecute(Sender: TObject);
     procedure aPerformanceSettingsExecute(Sender: TObject);
-    procedure aCommSettingsExecute(Sender: TObject);
+    procedure aSettingsExecute(Sender: TObject);
     procedure aEditToolsExecute(Sender: TObject);
     procedure G2AfterRetrievePatch(Sender: TObject; SenderID: Integer; aSlot,
       aBank, aPatch: Byte);
@@ -387,7 +387,7 @@ var
 implementation
 
 uses UnitLog, UnitPatchSettings, UnitParameterPages, UnitSeqGrid,
-  UnitSynthSettings, UnitPerfSettings, UnitEditLabel, UnitConnSettings,
+  UnitSynthSettings, UnitPerfSettings, UnitEditLabel, UnitSettings,
   UnitEditorTools, UnitPatchManager;
 
 {$IFNDEF FPC}
@@ -874,6 +874,7 @@ procedure TfrmG2Main.SaveIniXML;
 var Doc : TXMLDocument;
     RootNode : TDOMNode;
     TCPSettingsNode : TXMLTCPSettingsType;
+    PatchManagerSettingsNode : TXMLPatchManagerSettingsType;
     FormSettingsNode : TXMLFormSettingsType;
 begin
   Doc := TXMLDocument.Create;
@@ -886,6 +887,10 @@ begin
     TCPSettingsNode.IP := G2.Host;
     TCPSettingsNode.Port := G2.Port;
 
+    PatchManagerSettingsNode := TXMLPatchManagerSettingsType(Doc.CreateElement('PatchManagerSettings'));
+    RootNode.AppendChild(PatchManagerSettingsNode);
+    PatchManagerSettingsNode.BaseFolder := frmPatchManager.cbPath.Text;
+
     FormSettingsNode := TXMLFormSettingsTYpe(Doc.CreateElement('MainForm'));
     RootNode.AppendChild(FormSettingsNode);
     FormSettingsNode.PosX := Left;
@@ -893,6 +898,14 @@ begin
     FormSettingsNode.SizeX := Width;
     FormSettingsNode.SizeY := Height;
     FormSettingsNode.Visible := True;
+
+    FormSettingsNode := TXMLFormSettingsTYpe(Doc.CreateElement('PatchManagerForm'));
+    RootNode.AppendChild(FormSettingsNode);
+    FormSettingsNode.PosX := frmPatchManager.Left;
+    FormSettingsNode.PosY := frmPatchManager.Top;
+    FormSettingsNode.SizeX := frmPatchManager.Width;
+    FormSettingsNode.SizeY := frmPatchManager.Height;
+    FormSettingsNode.Visible := frmPatchManager.Visible;
 
     WriteXMLFile( Doc, 'G2_editor_ini.xml');
   finally
@@ -1230,6 +1243,7 @@ var Module : TG2GraphModule;
     i, j, k: Integer;
     modulename : string;
 begin
+  // I used this to get some info out of the paneld definitions
   for i := 0 to G2.FModuleDefList.Count - 1 do begin
     Module := G2.SelectedPatch.CreateModule( ltVA, 1, G2.FModuleDefList.ModuleDef[i].ModuleType) as TG2GraphModule;
     if assigned(Module) then
@@ -1340,9 +1354,9 @@ begin
   frmPerfSettings.Show;
 end;
 
-procedure TfrmG2Main.aCommSettingsExecute(Sender: TObject);
+procedure TfrmG2Main.aSettingsExecute(Sender: TObject);
 begin
-  frmCommSettings.Show;
+  frmSettings.Show;
 end;
 
 procedure TfrmG2Main.aEditToolsExecute(Sender: TObject);

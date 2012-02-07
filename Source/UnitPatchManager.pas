@@ -10,10 +10,8 @@ uses
   XPStyleActnCtrls,
 {$ENDIF}
   Windows, Messages, SysUtils, Variants, Classes, Graphics,
-  Forms, Dialogs, StdCtrls, ActnList,
-  ExtCtrls, ComCtrls,
-  Tabs, g2_types, g2_file, ActnMan,
-  Controls;
+  Forms, Dialogs, StdCtrls, ActnList,  ExtCtrls, ComCtrls, Tabs,
+  g2_types, g2_database, g2_file, ActnMan, Controls, DOM, XMLRead, XMLWrite;
 
 const
   MAXBUFFER = 4096;
@@ -74,6 +72,7 @@ type
     procedure aRestoreExecute(Sender: TObject);
     procedure lvInternalKeyUp(Sender: TObject; var Key: Word;
       Shift: TShiftState);
+    procedure FormCreate(Sender: TObject);
   private
     { Private declarations }
   public
@@ -86,6 +85,7 @@ type
     //procedure ShowFile(path, filename: string);
     procedure OnSearchThreadTerminate(Sender: TObject);
     //procedure OpenFile;
+    procedure LoadIniXML;
   end;
 
 var
@@ -384,9 +384,46 @@ begin
   end;
 end;
 
+procedure TfrmPatchManager.FormCreate(Sender: TObject);
+begin
+  LoadIniXML;
+end;
+
 procedure TfrmPatchManager.FormShow(Sender: TObject);
 begin
   TabControl1Change(Self);
+end;
+
+procedure TfrmPatchManager.LoadIniXML;
+var Doc : TXMLDocument;
+    RootNode : TDOMNode;
+    PatchManagerSettingsNode : TXMLPatchManagerSettingsType;
+    FormSettingsNode : TXMLFormSettingsType;
+begin
+  Doc := TXMLDocument.Create;
+  try
+    ReadXMLFile( Doc, 'G2_editor_ini.xml');
+
+    RootNode := Doc.FindNode('G2_Editor_settings');
+    if assigned(RootNode) then begin
+      PatchManagerSettingsNode := TXMLPatchManagerSettingsType(RootNode.FindNode('PatchManagerSettings'));
+      if assigned(PatchManagerSettingsNode) then begin
+        cbPath.Text := PatchManagerSettingsNode.BaseFolder;
+      end;
+
+      FormSettingsNode := TXMLFormSettingsType(RootNode.FindNode('PatchManagerForm'));
+      if assigned(FormSettingsNode) then begin
+        Left := FormSettingsNode.PosX;
+        Top := FormSettingsNode.PosY;
+        Width := FormSettingsNode.SizeX;
+        Height := FormSettingsNode.SizeY;
+        Visible := True;
+      end;
+    end;
+
+  finally
+    Doc.Free;
+  end;
 end;
 
 procedure TfrmPatchManager.lvExternalColumnClick(Sender: TObject; Column: TListColumn);
