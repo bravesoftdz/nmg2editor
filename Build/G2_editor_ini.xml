@@ -2,7 +2,7 @@
 <G2_Editor_settings>
   <TCP_settings IP="127.0.0.1" Port="2501"/>
   <PatchManagerSettings BaseFolder="C:\Users\Bruno\Documents\Nord Modular Patches\"/>
-  <MainForm PosX="259" PosY="184" SizeX="1236" SizeY="736" Visible="-1"/>
-  <PatchManagerForm PosX="1328" PosY="485" SizeX="252" SizeY="513" Visible="-1"/>
-  <SettingsForm PosX="452" PosY="469" SizeX="504" SizeY="210" Visible="0"/>
+  <MainForm PosX="259" PosY="2" SizeX="1236" SizeY="918" Visible="-1"/>
+  <PatchManagerForm PosX="1342" PosY="277" SizeX="316" SizeY="635" Visible="-1"/>
+  <SettingsForm PosX="836" PosY="244" SizeX="504" SizeY="210" Visible="0"/>
 </G2_Editor_settings>
