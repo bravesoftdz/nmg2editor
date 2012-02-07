@@ -60,10 +60,6 @@ object frmCommSettings: TfrmCommSettings
     object TabSheet2: TTabSheet
       Caption = 'OSC'
       ImageIndex = 1
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 465
-      ExplicitHeight = 220
       object Panel1: TPanel
         Left = 0
         Top = 0
@@ -71,7 +67,6 @@ object frmCommSettings: TfrmCommSettings
         Height = 59
         Align = alTop
         TabOrder = 0
-        ExplicitWidth = 554
         object Label1: TLabel
           Left = 16
           Top = 16
@@ -135,7 +130,7 @@ object frmCommSettings: TfrmCommSettings
     OnStatus = IdUDPServer1Status
     Bindings = <>
     DefaultPort = 5678
-    Left = 440
-    Top = 8
+    Left = 200
+    Top = 56
   end
 end

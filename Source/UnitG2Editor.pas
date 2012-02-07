@@ -91,15 +91,13 @@ uses
   FileUtil, LclIntf,
 {$ELSE}
   Windows, XPStyleActnCtrls, ActnMan, ScktComp,
-{$ENDIF}
-{$IFDEF G2_VER200_up}
-  // Don't know exactly in what version this style was introduced
-  Vcl.ActnList, Vcl.PlatformDefaultStyleActnCtrls, Vcl.ImgList,
-{$ELSE}
-  ActnList, ImgList,
+  {$IFDEF G2_VER200_up}
+    // Don't know exactly in what version this style was introduced
+    Vcl.PlatformDefaultStyleActnCtrls,
+  {$ENDIF}
 {$ENDIF}
   Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, ExtCtrls,
+  Dialogs, StdCtrls, ExtCtrls,  ActnList, ImgList,
   g2_types, g2_database, g2_file, g2_mess, g2_usb, g2_graph, g2_classes,
   graph_util_vcl, Menus, Buttons, DOM, XMLRead, XMLWrite;
 
