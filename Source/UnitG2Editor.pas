@@ -1228,6 +1228,7 @@ procedure TfrmG2Main.aSavePatchExecute(Sender: TObject);
 var WriteStream : TFileStream;
 begin
   SaveDialog1.Filter := 'patch files (*.pch2)|*.pch2';
+  SaveDialog1.DefaultExt := 'pch2';
   if SaveDialog1.Execute then begin
 {$IFDEF FPC}
     if FileExistsUTF8(SaveDialog1.FileName) { *Converted from FileExists*  } then begin
@@ -1302,6 +1303,7 @@ procedure TfrmG2Main.aSavePerformanceExecute(Sender: TObject);
 var WriteStream : TFileStream;
 begin
   SaveDialog1.Filter := 'performance files (*.prf2)|*.prf2';
+  SaveDialog1.DefaultExt := 'prf2';
   if SaveDialog1.Execute then begin
 {$IFDEF FPC}
     if FileExistsUTF8(SaveDialog1.FileName) { *Converted from FileExists*  } then begin
