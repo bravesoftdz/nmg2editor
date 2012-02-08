@@ -13,6 +13,7 @@ object frmPatchSettings: TfrmPatchSettings
   Font.Style = []
   FormStyle = fsStayOnTop
   OldCreateOrder = False
+  OnCreate = FormCreate
   PixelsPerInch = 96
   TextHeight = 13
   object G2GraphPanel1: TG2GraphPanel
@@ -24,7 +25,6 @@ object frmPatchSettings: TfrmPatchSettings
     BevelOuter = bvNone
     Caption = 'G2GraphPanel1'
     TabOrder = 0
-    ExplicitWidth = 601
     object G2GraphLabel1: TG2GraphLabel
       Left = 14
       Top = 17

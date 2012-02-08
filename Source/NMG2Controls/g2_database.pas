@@ -160,11 +160,28 @@ type
   protected
     function Get_BaseFolder: string;
     procedure Set_BaseFolder( aValue : string);
+    function Get_ExternalSortCol: integer;
+    procedure Set_ExternalSortCol( aValue : integer);
+    function Get_InternalSortCol: integer;
+    procedure Set_InternalSortCol( aValue : integer);
+    function Get_SelectedTab: integer;
+    procedure Set_SelectedTab( aValue : integer);
   public
     property BaseFolder: string read Get_BaseFolder write Set_BaseFolder;
+    property ExternalSortCol : integer read Get_ExternalSortCol write Set_ExternalSortCol;
+    property InternalSortCol : integer read Get_InternalSortCol write Set_InternalSortCol;
+    property SelectedTab : integer read Get_SelectedTab write Set_SelectedTab;
   end;
 
 implementation
+
+function GetInt( aValue : string): integer;
+var Code : integer;
+begin
+  val( aValue, Result, Code);
+  if Code <> 0 then
+    Result := 0;
+end;
 
 { TXMLModuleDefListType }
 
@@ -182,17 +199,17 @@ end;
 
 function TXMLModuleDefType.Get_ModuleType: Integer;
 begin
-  Result := StrToInt(FindNode('ModuleType').FirstChild.NodeValue);
+  Result := GetInt(FindNode('ModuleType').FirstChild.NodeValue);
 end;
 
 function TXMLModuleDefType.Get_IsLed: Integer;
 begin
-  Result := StrToInt(FindNode('IsLed').FirstChild.NodeValue);
+  Result := GetInt(FindNode('IsLed').FirstChild.NodeValue);
 end;
 
 function TXMLModuleDefType.Get_Uprate: Integer;
 begin
-  Result := StrToInt(FindNode('Uprate').FirstChild.NodeValue);
+  Result := GetInt(FindNode('Uprate').FirstChild.NodeValue);
 end;
 
 function TXMLModuleDefType.Get_Page: WideString;
@@ -202,7 +219,7 @@ end;
 
 function TXMLModuleDefType.Get_PageIndex: Integer;
 begin
-  Result := StrToInt(FindNode('PageIndex').FirstChild.NodeValue);
+  Result := GetInt(FindNode('PageIndex').FirstChild.NodeValue);
 end;
 
 function TXMLModuleDefType.Get_ShortName: WideString;
@@ -217,7 +234,7 @@ end;
 
 function TXMLModuleDefType.Get_Height: Integer;
 begin
-  Result := StrToInt(FindNode('Height').FirstChild.NodeValue);
+  Result := GetInt(FindNode('Height').FirstChild.NodeValue);
 end;
 
 function TXMLModuleDefType.Get_Inputs: TXMLConnectorListType;
@@ -300,12 +317,12 @@ end;
 
 function TXMLParamType.Get_DefaultValue: Integer;
 begin
-  Result := StrToInt(FindNode('DefaultValue').FirstChild.NodeValue);
+  Result := GetInt(FindNode('DefaultValue').FirstChild.NodeValue);
 end;
 
 function TXMLParamType.Get_Id: Integer;
 begin
-  Result := StrToInt(FindNode('Id').FirstChild.NodeValue);
+  Result := GetInt(FindNode('Id').FirstChild.NodeValue);
 end;
 
 function TXMLParamType.Get_Name: WideString;
@@ -344,7 +361,7 @@ end;
 
 function TXMLParamDefType.Get_DefaultValue: Integer;
 begin
-  Result := StrToInt(FindNode('DefaultValue').FirstChild.NodeValue);
+  Result := GetInt(FindNode('DefaultValue').FirstChild.NodeValue);
 end;
 
 function TXMLParamDefType.Get_Definitions: WideString;
@@ -354,22 +371,22 @@ end;
 
 function TXMLParamDefType.Get_HighValue: Integer;
 begin
-  Result := StrToInt(FindNode('HighValue').FirstChild.NodeValue);
+  Result := GetInt(FindNode('HighValue').FirstChild.NodeValue);
 end;
 
 function TXMLParamDefType.Get_Id: Integer;
 begin
-  Result := StrToInt(FindNode('Id').FirstChild.NodeValue);
+  Result := GetInt(FindNode('Id').FirstChild.NodeValue);
 end;
 
 function TXMLParamDefType.Get_LowValue: Integer;
 begin
-  Result := StrToInt(FindNode('LowValue').FirstChild.NodeValue);
+  Result := GetInt(FindNode('LowValue').FirstChild.NodeValue);
 end;
 
 function TXMLParamDefType.Get_ParamType: Integer;
 begin
-  Result := StrToInt(FindNode('ParamType').FirstChild.NodeValue);
+  Result := GetInt(FindNode('ParamType').FirstChild.NodeValue);
 end;
 
 function TXMLParamDefType.Get_RangeType: WideString;
@@ -386,7 +403,7 @@ end;
 
 function TXMLTCPSettingsType.Get_Port: integer;
 begin
-  Result := StrToInt(GetAttribute('Port'));
+  Result := GetInt(GetAttribute('Port'));
 end;
 
 procedure TXMLTCPSettingsType.Set_IP(aValue: string);
@@ -415,22 +432,22 @@ end;
 
 function TXMLFormSettingsType.Get_PosX: integer;
 begin
-  Result := StrToInt(GetAttribute('PosX'));
+  Result := GetInt(GetAttribute('PosX'));
 end;
 
 function TXMLFormSettingsType.Get_PosY: integer;
 begin
-  Result := StrToInt(GetAttribute('PosY'));
+  Result := GetInt(GetAttribute('PosY'));
 end;
 
 function TXMLFormSettingsType.Get_SizeX: integer;
 begin
-  Result := StrToInt(GetAttribute('SizeX'));
+  Result := GetInt(GetAttribute('SizeX'));
 end;
 
 function TXMLFormSettingsType.Get_SizeY: integer;
 begin
-  Result := StrToInt(GetAttribute('SizeY'));
+  Result := GetInt(GetAttribute('SizeY'));
 end;
 
 function TXMLFormSettingsType.Get_Visible: boolean;
@@ -470,9 +487,40 @@ begin
   Result := GetAttribute('BaseFolder');
 end;
 
+function TXMLPatchManagerSettingsType.Get_ExternalSortCol: integer;
+begin
+  Result := GetInt(GetAttribute('ExternalSortCol'));
+end;
+
+function TXMLPatchManagerSettingsType.Get_InternalSortCol: integer;
+begin
+  Result := GetInt(GetAttribute('InternalSortCol'));
+end;
+
+function TXMLPatchManagerSettingsType.Get_SelectedTab: integer;
+var attr : string;
+begin
+  Result := GetInt(GetAttribute('SelectedTab'));
+end;
+
 procedure TXMLPatchManagerSettingsType.Set_BaseFolder(aValue: string);
 begin
   SetAttribute('BaseFolder', aValue);
+end;
+
+procedure TXMLPatchManagerSettingsType.Set_ExternalSortCol(aValue: integer);
+begin
+  SetAttribute('ExternalSortCol', IntToStr(aValue));
+end;
+
+procedure TXMLPatchManagerSettingsType.Set_InternalSortCol(aValue: integer);
+begin
+  SetAttribute('InternalSortCol', IntToStr(aValue));
+end;
+
+procedure TXMLPatchManagerSettingsType.Set_SelectedTab(aValue: integer);
+begin
+  SetAttribute('SelectedTab', IntToStr(aValue));
 end;
 
 end.

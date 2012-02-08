@@ -5,7 +5,7 @@ interface
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics,
   Controls, Forms, Dialogs, ExtCtrls, g2_types, StdCtrls,
-  ImgList, g2_graph;
+  ImgList, g2_database, g2_graph, DOM, XMLRead, XMLWrite;
 
 type
   TfrmEditorTools = class(TForm)
@@ -45,11 +45,13 @@ type
     procedure FormShow(Sender: TObject);
     procedure PanelClick(Sender: TObject);
     procedure btCablesClick(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
   private
     { Private declarations }
   public
     { Public declarations }
     FDisableControls : boolean;
+    procedure LoadIniXML;
     procedure UpdateControls;
   end;
 
@@ -61,6 +63,39 @@ implementation
 {$R *.dfm}
 
 uses UnitG2Editor;
+
+procedure TfrmEditorTools.FormCreate(Sender: TObject);
+begin
+  LoadIniXML;
+end;
+
+procedure TfrmEditorTools.LoadIniXML;
+var Doc : TXMLDocument;
+    RootNode : TDOMNode;
+    PatchManagerSettingsNode : TXMLPatchManagerSettingsType;
+    FormSettingsNode : TXMLFormSettingsType;
+begin
+  Doc := TXMLDocument.Create;
+  try
+    ReadXMLFile( Doc, 'G2_editor_ini.xml');
+
+    RootNode := Doc.FindNode('G2_Editor_settings');
+    if assigned(RootNode) then begin
+      FormSettingsNode := TXMLFormSettingsType(RootNode.FindNode('EditorToolsForm'));
+      if assigned(FormSettingsNode) then begin
+        SetFormPosition( self,
+                         FormSettingsNode.PosX,
+                         FormSettingsNode.PosY,
+                         FormSettingsNode.SizeX,
+                         FormSettingsNode.SizeY);
+        Visible := FormSettingsNode.Visible;
+      end;
+    end;
+  finally
+    Doc.Free;
+  end;
+end;
+
 
 procedure TfrmEditorTools.btCablesClick(Sender: TObject);
 begin

@@ -13,7 +13,7 @@ uses
 {$ENDIF}
   Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, G2_Graph, StdCtrls, G2_Types, G2_File, G2_classes, ExtCtrls,
-  graph_util_vcl;
+  graph_util_vcl, g2_database, DOM, XMLRead, XMLWrite;
 
 type
   TfrmParameterPages = class(TForm)
@@ -65,6 +65,7 @@ type
 {$ENDIF}
   public
     { Public declarations }
+    procedure LoadIniXML;
     procedure UpdateControls;
     function GetKnobIndexOffset : integer;
   end;
@@ -115,11 +116,40 @@ begin
   FKnobArray[5] := skP6;
   FKnobArray[6] := skP7;
   FKnobArray[7] := skP8;
+
+  LoadIniXML;
 end;
 
 procedure TfrmParameterPages.FormDestroy(Sender: TObject);
 begin
   FExtBitmap.Free;
+end;
+
+procedure TfrmParameterPages.LoadIniXML;
+var Doc : TXMLDocument;
+    RootNode : TDOMNode;
+    PatchManagerSettingsNode : TXMLPatchManagerSettingsType;
+    FormSettingsNode : TXMLFormSettingsType;
+begin
+  Doc := TXMLDocument.Create;
+  try
+    ReadXMLFile( Doc, 'G2_editor_ini.xml');
+
+    RootNode := Doc.FindNode('G2_Editor_settings');
+    if assigned(RootNode) then begin
+      FormSettingsNode := TXMLFormSettingsType(RootNode.FindNode('ParameterPagesForm'));
+      if assigned(FormSettingsNode) then begin
+        SetFormPosition( self,
+                         FormSettingsNode.PosX,
+                         FormSettingsNode.PosY,
+                         FormSettingsNode.SizeX,
+                         FormSettingsNode.SizeY);
+        Visible := FormSettingsNode.Visible;
+      end;
+    end;
+  finally
+    Doc.Free;
+  end;
 end;
 
 {$IFDEF FPC}

@@ -388,17 +388,22 @@ begin
 
     RootNode := Doc.FindNode('G2_Editor_settings');
     if assigned(RootNode) then begin
-      {PatchManagerSettingsNode := TXMLPatchManagerSettingsType(RootNode.FindNode('PatchManagerSettings'));
+
+      PatchManagerSettingsNode := TXMLPatchManagerSettingsType(RootNode.FindNode('PatchManagerSettings'));
       if assigned(PatchManagerSettingsNode) then begin
-        cbPath.Text := PatchManagerSettingsNode.BaseFolder;
-      end;}
+        FExternalSortCol := PatchManagerSettingsNode.ExternalSortCol;
+        FInternalSortCol := PatchManagerSettingsNode.InternalSortCol;
+        if PatchManagerSettingsNode.SelectedTab < TabControl1.Tabs.Count then
+          TabControl1.TabIndex := PatchManagerSettingsNode.SelectedTab;
+      end;
 
       FormSettingsNode := TXMLFormSettingsType(RootNode.FindNode('PatchManagerForm'));
       if assigned(FormSettingsNode) then begin
-        Left := FormSettingsNode.PosX;
-        Top := FormSettingsNode.PosY;
-        Width := FormSettingsNode.SizeX;
-        Height := FormSettingsNode.SizeY;
+        SetFormPosition( self,
+                         FormSettingsNode.PosX,
+                         FormSettingsNode.PosY,
+                         FormSettingsNode.SizeX,
+                         FormSettingsNode.SizeY);
         Visible := FormSettingsNode.Visible;
       end;
     end;

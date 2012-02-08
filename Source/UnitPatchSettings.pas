@@ -13,7 +13,7 @@ uses
 {$ENDIF}
   Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, StdCtrls, ExtCtrls, g2_types, g2_file, g2_graph, g2_classes,
-  UnitG2Editor;
+  UnitG2Editor, g2_database, DOM, XMLRead, XMLWrite;
 
 type
   TfrmPatchSettings = class(TForm)
@@ -39,11 +39,12 @@ type
     VibratoRate: TLabel;
     obArpDir: TG2GraphButtonRadio;
     procedure PatchCtrlMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+    procedure FormCreate(Sender: TObject);
   private
     { Private declarations }
   public
     { Public declarations }
-    //procedure PatchCtrlMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+    procedure LoadIniXML;
     procedure UpdateControls( Variation : TVariation);
   end;
 
@@ -58,13 +59,40 @@ implementation
   {$R *.lfm}
 {$ENDIF}
 
+procedure TfrmPatchSettings.FormCreate(Sender: TObject);
+begin
+  LoadIniXML;
+end;
+
+procedure TfrmPatchSettings.LoadIniXML;
+var Doc : TXMLDocument;
+    RootNode : TDOMNode;
+    PatchManagerSettingsNode : TXMLPatchManagerSettingsType;
+    FormSettingsNode : TXMLFormSettingsType;
+begin
+  Doc := TXMLDocument.Create;
+  try
+    ReadXMLFile( Doc, 'G2_editor_ini.xml');
+
+    RootNode := Doc.FindNode('G2_Editor_settings');
+    if assigned(RootNode) then begin
+      FormSettingsNode := TXMLFormSettingsType(RootNode.FindNode('PatchSettingsForm'));
+      if assigned(FormSettingsNode) then begin
+        SetFormPosition( self,
+                         FormSettingsNode.PosX,
+                         FormSettingsNode.PosY,
+                         FormSettingsNode.SizeX,
+                         FormSettingsNode.SizeY);
+        Visible := FormSettingsNode.Visible;
+      end;
+    end;
+  finally
+    Doc.Free;
+  end;
+end;
+
 procedure TfrmPatchSettings.PatchCtrlMouseUp(Sender: TObject;  Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
-
-//end;
-
-{procedure TfrmPatchSettings.PatchCtrlMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-begin}
   if Assigned(frmG2Main) and (Sender is TG2GraphChildControl) then
     frmG2Main.ParameterClick( Sender, Button, Shift, X, Y, (Sender as TG2GraphChildControl).Parameter);
 end;

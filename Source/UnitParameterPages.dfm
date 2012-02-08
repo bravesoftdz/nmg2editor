@@ -528,7 +528,7 @@ object frmParameterPages: TfrmParameterPages
       Color = clActiveBorder
       Value = 0
       LowValue = 0
-      HighValue = 0
+      HighValue = 4
       ParentColor = False
       ParentFont = False
       OnClick = obParamClick
@@ -557,7 +557,7 @@ object frmParameterPages: TfrmParameterPages
       Color = clActiveBorder
       Value = 0
       LowValue = 0
-      HighValue = 0
+      HighValue = 2
       ParentColor = False
       ParentFont = False
       OnClick = obPageClick

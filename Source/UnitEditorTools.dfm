@@ -14,6 +14,7 @@ object frmEditorTools: TfrmEditorTools
   FormStyle = fsStayOnTop
   OldCreateOrder = False
   Scaled = False
+  OnCreate = FormCreate
   OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13

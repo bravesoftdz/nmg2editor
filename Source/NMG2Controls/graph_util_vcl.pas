@@ -643,7 +643,7 @@ begin
 
           DrawPolygon;
         end;
-    itCheck : begin
+    itCheck : begin // an ugly checkmark
           SetLength( pts, 6);
           pts[0].x := aIconRect.Left + Width * 1 div 7;  pts[0].y := aIconRect.Top;
           pts[1].x := aIconRect.Left + Width * 4 div 7;  pts[1].y := aIconRect.Top + Height * 4 div 7;

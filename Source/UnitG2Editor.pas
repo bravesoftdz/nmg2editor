@@ -379,6 +379,8 @@ type
     procedure PanelClick(Sender: TObject);
   end;
 
+  procedure SetFormPosition( aForm : TForm; aLeft, aTop, aWidth, aHeight : integer);
+
 var
   frmG2Main: TfrmG2Main;
 
@@ -393,6 +395,35 @@ uses UnitLog, UnitPatchSettings, UnitParameterPages, UnitSeqGrid,
 {$ELSE}
   {$R *.lfm}
 {$ENDIF}
+
+
+procedure SetFormPosition( aForm : TForm; aLeft, aTop, aWidth, aHeight : integer);
+begin
+  // Check if form doesn;t fall of the screen
+  Screen.Width;
+
+  if aLeft < 0 then
+    aForm.Left := 0
+  else
+    if aLeft > Screen.Width then
+      aForm.Left := Screen.Width - 32
+    else
+      aForm.Left := aLeft;
+
+  if aTop < 0 then
+    aForm.Top := 0
+  else
+    if aTop > Screen.Height then
+      aForm.Top := Screen.Height - 32
+    else
+      aForm.Top := aTop;
+
+  if aWidth > 0 then
+    aForm.Width := aWidth;
+
+  if aHeight > 0 then
+    aForm.Height := aHeight;
+end;
 
 // ==== TSlotPanel =============================================================
 
@@ -856,10 +887,11 @@ begin
 
       FormSettingsNode := TXMLFormSettingsType(RootNode.FindNode('MainForm'));
       if assigned(FormSettingsNode) then begin
-        Left := FormSettingsNode.PosX;
-        Top := FormSettingsNode.PosY;
-        Width := FormSettingsNode.SizeX;
-        Height := FormSettingsNode.SizeY;
+        SetFormPosition( self,
+                         FormSettingsNode.PosX,
+                         FormSettingsNode.PosY,
+                         FormSettingsNode.SizeX,
+                         FormSettingsNode.SizeY);
         Visible := True;
       end;
     end;
@@ -911,6 +943,9 @@ begin
       RootNode.AppendChild(PatchManagerSettingsNode);
     end;
     PatchManagerSettingsNode.BaseFolder := frmSettings.eRootFolder.Text;
+    PatchManagerSettingsNode.SelectedTab := frmPatchManager.TabControl1.TabIndex;
+    PatchManagerSettingsNode.ExternalSortCol := frmPatchManager.FExternalSortCol;
+    PatchManagerSettingsNode.InternalSortCol := frmPatchManager.FInternalSortCol;
 
     FormSettingsNode := TXMLFormSettingsType(RootNode.FindNode('PatchManagerForm'));
     if not assigned(FormSettingsNode) then begin
@@ -933,6 +968,39 @@ begin
     FormSettingsNode.SizeX := frmSettings.Width;
     FormSettingsNode.SizeY := frmSettings.Height;
     FormSettingsNode.Visible := frmSettings.Visible;
+
+    FormSettingsNode := TXMLFormSettingsType(RootNode.FindNode('ParameterPagesForm'));
+    if not assigned(FormSettingsNode) then begin
+      FormSettingsNode := TXMLFormSettingsTYpe(Doc.CreateElement('ParameterPagesForm'));
+      RootNode.AppendChild(FormSettingsNode);
+    end;
+    FormSettingsNode.PosX := frmParameterPages.Left;
+    FormSettingsNode.PosY := frmParameterPages.Top;
+    FormSettingsNode.SizeX := frmParameterPages.Width;
+    FormSettingsNode.SizeY := frmParameterPages.Height;
+    FormSettingsNode.Visible := frmParameterPages.Visible;
+
+    FormSettingsNode := TXMLFormSettingsType(RootNode.FindNode('PatchSettingsForm'));
+    if not assigned(FormSettingsNode) then begin
+      FormSettingsNode := TXMLFormSettingsTYpe(Doc.CreateElement('PatchSettingsForm'));
+      RootNode.AppendChild(FormSettingsNode);
+    end;
+    FormSettingsNode.PosX := frmPatchSettings.Left;
+    FormSettingsNode.PosY := frmPatchSettings.Top;
+    FormSettingsNode.SizeX := frmPatchSettings.Width;
+    FormSettingsNode.SizeY := frmPatchSettings.Height;
+    FormSettingsNode.Visible := frmPatchSettings.Visible;
+
+    FormSettingsNode := TXMLFormSettingsType(RootNode.FindNode('EditorToolsForm'));
+    if not assigned(FormSettingsNode) then begin
+      FormSettingsNode := TXMLFormSettingsTYpe(Doc.CreateElement('EditorToolsForm'));
+      RootNode.AppendChild(FormSettingsNode);
+    end;
+    FormSettingsNode.PosX := frmEditorTools.Left;
+    FormSettingsNode.PosY := frmEditorTools.Top;
+    FormSettingsNode.SizeX := frmEditorTools.Width;
+    FormSettingsNode.SizeY := frmEditorTools.Height;
+    FormSettingsNode.Visible := frmEditorTools.Visible;
 
     WriteXMLFile( Doc, 'G2_editor_ini.xml');
   finally
