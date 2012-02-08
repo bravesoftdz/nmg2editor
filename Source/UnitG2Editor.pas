@@ -448,6 +448,7 @@ begin
   FlbSlotName.OnClick := frmG2Main.PanelClick;
 
   FePatchName := TEdit.Create(self);
+  FePatchName.ReadOnly := True;
   FePatchName.Parent := self;
   FePatchName.SetBounds( 36, 6, 101, 21);
 
