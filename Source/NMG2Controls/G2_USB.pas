@@ -301,6 +301,7 @@ type
       FLogLedDataMessages  : boolean;
       FErrorMessage        : boolean;
       FErrorMessageNo      : integer;
+      FTCPErrorMessage     : string;
 
       constructor Create( AOwner: TComponent); override;
       destructor  Destroy; override;
@@ -1807,23 +1808,31 @@ begin
 
       FIdTCPClient.Port := FPort;
       FIdTCPClient.Host := FHost;
-      FIdTCPClient.Connect; // attempt connection
+      FTCPErrorMessage := '';
+      try
+        FIdTCPClient.Connect; // attempt connection
 
 
-      if FIdTCPClient.Connected then begin
-        // if we are connected, create a listener thread instance
-        FIdClientReadThread := TIdClientReadThread.Create(self);
+        if FIdTCPClient.Connected then begin
+          // if we are connected, create a listener thread instance
+          FIdClientReadThread := TIdClientReadThread.Create(self);
 
-        sleep(250); // Wait for listening thread to start
+          sleep(250); // Wait for listening thread to start
 
-        add_log_line( 'Connect to server ' + FHost + '.', LOGCMD_NUL);
-        ClientSendConnectedToServer;
+          add_log_line( 'Connect to server ' + FHost + '.', LOGCMD_NUL);
+          ClientSendConnectedToServer;
 
-        if assigned( FOnUSBActiveChange) then
-          FOnUSBActiveChange( self, True);
+          if assigned( FOnUSBActiveChange) then
+            FOnUSBActiveChange( self, True);
 
-        // Start the G2 initialization for the client
-        USBStartInit;
+          // Start the G2 initialization for the client
+          USBStartInit;
+        end;
+      except on E:Exception do begin
+          FTCPErrorMessage := E.Message;
+          add_log_line( E.Message, LOGCMD_ERR);
+        end;
+
       end;
     end;
   end else begin

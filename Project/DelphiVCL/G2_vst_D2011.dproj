@@ -70,6 +70,7 @@
 			<DCC_HppOutput>..\..\Build\Dcu</DCC_HppOutput>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
+			<DCC_ExeOutput>C:\Users\Bruno\Documents\Ableton\VST\</DCC_ExeOutput>
 			<DCC_DcuOutput>..\..\Dcu</DCC_DcuOutput>
 			<VerInfo_AutoGenVersion>true</VerInfo_AutoGenVersion>
 			<Debugger_HostApplication>C:\Program Files (x86)\Ableton\Live 8.2.6\Program\Live 8.2.6.exe</Debugger_HostApplication>
