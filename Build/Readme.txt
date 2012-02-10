@@ -18,4 +18,4 @@ ParamDef.xml
 
 Only tested it with ableton so far.
 
-Before staring ableton, you have to start the editor!
+Before using the vst, you have to start the editor!
