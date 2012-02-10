@@ -3934,7 +3934,9 @@ begin
   Rect2 := Rect;
 
   i := 0;
-  while (i <= Height) and (i <= (Height * Flevel) div 10) do begin
+  // I don't know what levels green/yellow/red correspond to, I've just
+  // taken an arbitrary value here
+  while (i <= Height) and (i <= (Height * Flevel) div 16) do begin
 
     Rect2.Top := Rect.Bottom - i - 1;
     Rect2.Bottom := Rect.Bottom - i;

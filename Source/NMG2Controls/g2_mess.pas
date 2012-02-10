@@ -1418,14 +1418,25 @@ begin
                   Result := GetSlot(3).ProcessResponseMessage( MemStream, aCmd);
                 end;
           R_MIDI_CC :
-                begin // Receive Midi CC info from G2
-                  // 82 01 04 00 80 00 3f 30 40 00 00 00 00 00 00 00  = CC #63
+                begin // Receive Midi info from G2, CC or Program change...
                   MemStream.Read( b, 1);
                   MemStream.Read( b, 1);
-                  MemStream.Read( b, 1);
-                  MemStream.Read( aMidiCC, 1);
-                  if assigned( FOnMidiCCReceive) then
-                    FOnMidiCCReceive( self, ID, aMidiCC);
+                  case b of
+                  $80 : begin
+                          // Midi CC
+                          // 82 01 04 00 80 00 3f 30 40 00 00 00 00 00 00 00  = CC #63
+                          MemStream.Read( b, 1);
+                          MemStream.Read( aMidiCC, 1);
+                          if assigned( FOnMidiCCReceive) then
+                            FOnMidiCCReceive( self, ID, aMidiCC);
+                        end;
+                  $38 : begin
+                          // Slot patch version changed. Reload slot
+                          MemStream.Read( aSlot, 1);
+                          if assigned( FOnAfterRetrievePatch) then
+                            FOnAfterRetrievePatch( self, ID, aSlot, 0, 0);
+                        end;
+                  end;
                 end;
             else begin
               add_log_line('Unknown command ' + IntToHex(aR, 2) + ' ' + IntToHex(aCmd, 2), LOGCMD_ERR);
