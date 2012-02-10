@@ -19,7 +19,8 @@ uses
   graph_util_vcl in '..\..\Source\NMG2Controls\graph_util_vcl.pas',
   UnitConnSettings in '..\..\Source\UnitConnSettings.pas' {frmCommSettings},
   UnitEditorTools in '..\..\Source\UnitEditorTools.pas' {frmEditorTools},
-  UnitPatchManager in '..\..\Source\UnitPatchManager.pas' {frmPatchManager};
+  UnitPatchManager in '..\..\Source\UnitPatchManager.pas' {frmPatchManager},
+  UnitSettings in '..\..\Source\UnitSettings.pas' {frmSettings};
 
 {$R *.res}
 
@@ -40,5 +41,6 @@ begin
   Application.CreateForm(TfrmCommSettings, frmCommSettings);
   Application.CreateForm(TfrmEditorTools, frmEditorTools);
   Application.CreateForm(TfrmPatchManager, frmPatchManager);
+  Application.CreateForm(TfrmSettings, frmSettings);
   Application.Run;
 end.

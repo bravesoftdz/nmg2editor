@@ -76,13 +76,13 @@
 			<DCC_DcuOutput>..\..\Build\Dcu</DCC_DcuOutput>
 			<DCC_ObjOutput>..\..\Build\Dcu</DCC_ObjOutput>
 			<DCC_HppOutput>..\..\Build\Dcu</DCC_HppOutput>
-			<DCC_BplOutput>..\..\Build</DCC_BplOutput>
 			<DCC_UnitSearchPath>Delphi\xml;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
 			<DCC_ResourcePath>Delphi\xml;$(DCC_ResourcePath)</DCC_ResourcePath>
 			<DCC_ObjPath>Delphi\xml;$(DCC_ObjPath)</DCC_ObjPath>
 			<DCC_IncludePath>Delphi\xml;$(DCC_IncludePath)</DCC_IncludePath>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
+			<DCC_DcuOutput>..\..\Dcu</DCC_DcuOutput>
 			<DCC_UnitSearchPath>..\..\Source\NMG2Controls;..\..\Source\XML;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
 			<VerInfo_Locale>1033</VerInfo_Locale>
 		</PropertyGroup>
@@ -127,9 +127,9 @@
 						<Source Name="MainSource">NMG2_controls_D2011.dpk</Source>
 					</Source>
 					<Excluded_Packages>
-						<Excluded_Packages Name="C:\Documents and Settings\BVerhue\My Documents\Delphi\NMG2\Build\NMG2_controls_D2011.bpl">(untitled)</Excluded_Packages>
 						<Excluded_Packages Name="$(BDSBIN)\dcloffice2k160.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
 						<Excluded_Packages Name="$(BDSBIN)\dclofficexp160.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
+						<Excluded_Packages Name="C:\Users\Bruno\Delphi\NMG2\Build\NMG2_controls.bpl">File C:\Users\Bruno\Delphi\NMG2\Build\NMG2_controls.bpl not found</Excluded_Packages>
 					</Excluded_Packages>
 				</Delphi.Personality>
 				<Platforms>
