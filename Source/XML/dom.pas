@@ -111,7 +111,8 @@ type
 //   DOMString
 // -------------------------------------------------------
 
-  TSetOfChar = set of Char;
+  //TSetOfChar = set of Char;
+  TSetOfChar = set of AnsiChar;
   DOMString = WideString;
   DOMPChar = PWideChar;
   PDOMString = ^DOMString;

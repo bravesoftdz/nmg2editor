@@ -102,8 +102,6 @@ begin
 end;
 
 function FindNextOccurrance(content, sText: string; index1: integer; index2: integer): boolean;
-var i : integer;
-    ok : boolean;
 begin
   if index1 > length(sText) then
   // end of text mask, return a match
@@ -257,7 +255,7 @@ end;
 procedure TSearchThread.AddFile;
 begin
   if frmPatchManager.TabControl1.TabIndex = 0 then
-    frmPatchManager.AddFile(FCurrPath, FCurrSr.Name, FiledateToDateTime(FCurrSr.time));
+    frmPatchManager.AddFile(FCurrPath, FCurrSr.Name, FCurrSr.TimeStamp);
 end;
 
 procedure TfrmPatchManager.aSearchExecute(Sender: TObject);
@@ -382,6 +380,9 @@ var Doc : TXMLDocument;
     PatchManagerSettingsNode : TXMLPatchManagerSettingsType;
     FormSettingsNode : TXMLFormSettingsType;
 begin
+  if not FileExists('G2_editor_ini.xml') then
+    exit;
+
   Doc := TXMLDocument.Create;
   try
     ReadXMLFile( Doc, 'G2_editor_ini.xml');
@@ -529,9 +530,10 @@ procedure TfrmPatchManager.AddSlot( BankItem : TBankItem);
 var ListItem : TListItem;
 begin
   ListItem := lvInternal.Items.Add;
-  ListItem.Caption := BankItem.PatchName;
+  ListItem.Caption := string(BankItem.PatchName);
   ListItem.SubItems.Add( CATEGORIES[ BankItem.Category]);
-  ListItem.SubItems.Add( Pad(IntToStr(BankItem.Bank), 2) + ':' + Pad( IntToStr( BankItem.Patch), 3));
+  ListItem.SubItems.Add( string(Pad(AnsiString(IntToStr( BankItem.Bank)), 2) + ':'
+                              + Pad(AnsiString(IntToStr( BankItem.Patch)), 3)));
   ListItem.Data := BankItem;
 end;
 

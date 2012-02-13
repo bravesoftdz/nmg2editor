@@ -202,25 +202,24 @@ begin
 end;
 
 procedure TG2Patch.SetParameterAutomated(aLocation: TLocationType; aModuleIndex, aParameterIndex, aVariation, aValue: byte);
-var Param : TG2FileParameter;
-    Slot : TG2Slot;
-    Module : TG2FileModule;
+var Slot : TG2Slot;
 begin
   // Parameter sent from VST host to G2 Vst client
   inherited SetParameterValue( aLocation, aModuleIndex, aParameterIndex, aVariation, aValue);
-  try
+
   Slot := GetSlot;
-  if assigned(Slot) then
-    Slot.SendSetParamMessage( ord(aLocation), aModuleIndex, aParameterIndex, aValue, aVariation);
-  except on E:Exception do begin
-      G2.add_log_line( E.Message + ' SetParameterAutomated, Slot = '+ IntToStr(Int64(Slot))
-                       + ', Location = ' + IntToStr(ord(aLocation))
-                       + ', ModuleIdnex = ' + IntToStr(aModuleIndex)
-                       + ', ParamIndex = ' + IntToStr(aParameterIndex)
-                       + ', Value = ' + IntToStr(aValue)
-                       + ', Variation = ' + IntToStr(aVariation), LOGCMD_NUL);
-      G2.save_log;
-    end;
+  try
+    if assigned(Slot) then
+      Slot.SendSetParamMessage( ord(aLocation), aModuleIndex, aParameterIndex, aValue, aVariation);
+    except on E:Exception do begin
+        G2.add_log_line( E.Message + ' SetParameterAutomated, Slot = '+ IntToStr(Int64(Slot))
+                         + ', Location = ' + IntToStr(ord(aLocation))
+                         + ', ModuleIdnex = ' + IntToStr(aModuleIndex)
+                         + ', ParamIndex = ' + IntToStr(aParameterIndex)
+                         + ', Value = ' + IntToStr(aValue)
+                         + ', Variation = ' + IntToStr(aVariation), LOGCMD_NUL);
+        G2.save_log;
+      end;
 
   end;
   // No event calling to prevent feedback loops
@@ -228,8 +227,7 @@ begin
 end;
 
 procedure TG2Patch.SetParameterValue( aLocation: TLocationType; aModuleIndex, aParameterIndex, aVariation : byte; aValue: byte);
-var Param : TG2FileParameter;
-    Slot : TG2Slot;
+var Slot : TG2Slot;
 begin
   Slot := GetSlot;
 
@@ -327,7 +325,7 @@ end;
 
 procedure TG2Slot.UploadPatch( aFileName: string);
 var aPatch : TG2FilePatch;
-    PatchName : string;
+    PatchName : AnsiString;
     i : integer;
     FileStream : TFileStream;
 begin
@@ -340,7 +338,7 @@ begin
     PatchName := '';
     i := 1;
     while (i<=Length( aFileName)) and (i<=16) and ( aFileName[i] <> '.') do begin
-      PatchName := PatchName + aFileName[i];
+      PatchName := PatchName + AnsiChar(aFileName[i]);
       inc(i);
     end;
 
@@ -409,7 +407,7 @@ end;
 
 procedure TG2Performance.UploadPerf( aFileName: string);
 var aPerf : TG2FilePerformance;
-    PerfName : string;
+    PerfName : AnsiString;
     i : integer;
     FileStream : TFileStream;
     LogLines : TStrings;
@@ -422,7 +420,7 @@ begin
     PerfName := '';
     i := 1;
     while (i<=Length( aFileName)) and (i<=16) and ( aFileName[i] <> '.') do begin
-      PerfName := PerfName + aFileName[i];
+      PerfName := PerfName + AnsiChar(aFileName[i]);
       inc(i);
     end;
 
@@ -539,6 +537,7 @@ end;
 
 function TG2.GetSelectedSlotIndex: TBits2;
 begin
+  Result := 0;
   if assigned( Performance) then
     Result := Performance.SelectedSlot;
 end;
@@ -572,7 +571,7 @@ end;
 
 procedure TG2.LoadFileStream( aFilename : string);
 var G2FileDataStream : TG2FileDataStream;
-    DataName : string;
+    DataName : AnsiString;
     i : integer;
     FileStream : TFileStream;
     Lines : TStrings;
@@ -586,7 +585,7 @@ begin
     DataName := '';
     i := 1;
     while (i<=Length( aFileName)) and (i<=16) and ( aFileName[i] <> '.') do begin
-      DataName := DataName + aFileName[i];
+      DataName := DataName + AnsiChar(aFileName[i]);
       inc(i);
     end;
 
@@ -619,7 +618,7 @@ end;
 
 procedure TG2.LoadMidiStream( aFilename: string);
 var G2FileDataStream : TG2FileDataStream;
-    DataName : string;
+    DataName : AnsiString;
     i : integer;
     FileStream : TFileStream;
     Lines : TStrings;
@@ -632,7 +631,7 @@ begin
     DataName := '';
     i := 1;
     while (i<=Length( aFileName)) and (i<=16) and ( aFileName[i] <> '.') do begin
-      DataName := DataName + aFileName[i];
+      DataName := DataName + AnsiChar(aFileName[i]);
       inc(i);
     end;
 

@@ -87,7 +87,7 @@ type
     function  GetModule : TG2FileModule;
     procedure SetModule( aModule: TG2FileModule);
     procedure InitBtn( aBtn, aValue : byte);
-    procedure Update;
+    procedure UpdateControls;
   end;
 
 var
@@ -198,7 +198,6 @@ end;
 
 procedure TfrmSeqGrid.bLeftMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 var NoteValue, BtnValue : byte;
-    ParamNote, ParamBtn : TG2FileParameter;
     i : integer;
     Module : TG2FileModule;
 begin
@@ -247,7 +246,6 @@ end;
 
 procedure TfrmSeqGrid.bRightMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 var NoteValue, BtnValue : byte;
-    ParamNote, ParamBtn : TG2FileParameter;
     i : integer;
     Module : TG2FileModule;
 begin
@@ -349,7 +347,7 @@ begin
   FLocation := aModule.Location;
 end;
 
-procedure TfrmSeqGrid.Update;
+procedure TfrmSeqGrid.UpdateControls;
 var i : integer;
     Param : TG2FileParameter;
     Module : TG2FileModule;

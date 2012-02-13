@@ -38,6 +38,8 @@ object frmEditorTools: TfrmEditorTools
     HightlightColor = 5921535
     BorderColor = clBlack
     Bevel = False
+    Orientation = otHorizontal
+    ButtonCount = 0
     ButtonTextType = bttCheck
   end
   object btCablesBlue: TG2GraphButtonText
@@ -60,6 +62,8 @@ object frmEditorTools: TfrmEditorTools
     HightlightColor = clAqua
     BorderColor = clBlack
     Bevel = False
+    Orientation = otHorizontal
+    ButtonCount = 0
     ButtonTextType = bttCheck
   end
   object btCablesYellow: TG2GraphButtonText
@@ -82,6 +86,8 @@ object frmEditorTools: TfrmEditorTools
     HightlightColor = clAqua
     BorderColor = clBlack
     Bevel = False
+    Orientation = otHorizontal
+    ButtonCount = 0
     ButtonTextType = bttCheck
   end
   object btCablesOrange: TG2GraphButtonText
@@ -104,6 +110,8 @@ object frmEditorTools: TfrmEditorTools
     HightlightColor = clAqua
     BorderColor = clBlack
     Bevel = False
+    Orientation = otHorizontal
+    ButtonCount = 0
     ButtonTextType = bttCheck
   end
   object btCablesGreen: TG2GraphButtonText
@@ -126,6 +134,8 @@ object frmEditorTools: TfrmEditorTools
     HightlightColor = clAqua
     BorderColor = clBlack
     Bevel = False
+    Orientation = otHorizontal
+    ButtonCount = 0
     ButtonTextType = bttCheck
   end
   object btCablesPurple: TG2GraphButtonText
@@ -148,6 +158,8 @@ object frmEditorTools: TfrmEditorTools
     HightlightColor = clAqua
     BorderColor = clBlack
     Bevel = False
+    Orientation = otHorizontal
+    ButtonCount = 0
     ButtonTextType = bttCheck
   end
   object btCablesWhite: TG2GraphButtonText
@@ -170,6 +182,8 @@ object frmEditorTools: TfrmEditorTools
     HightlightColor = clAqua
     BorderColor = clBlack
     Bevel = False
+    Orientation = otHorizontal
+    ButtonCount = 0
     ButtonTextType = bttCheck
   end
   object Label1: TLabel

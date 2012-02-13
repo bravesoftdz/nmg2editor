@@ -54,7 +54,7 @@ var MemStream : TG2SendMessage;
 
     function GetHexValue(h : char): integer;
     begin
-      if h in ['0'..'9'] then
+      if CharInSet(h, ['0'..'9']) then
         Result := ord(h) - 48
       else
         Result := ord(h) - 55;
@@ -70,8 +70,8 @@ begin
   j := 0;
   while (i<= Length(eCommand.Text)) do begin
 
-    if (eCommand.Text[i] in ['0'..'9']) or (eCommand.Text[i] in ['a'..'f'])
-      or (eCommand.Text[i] in ['A'..'F']) then begin
+    if CharInSet(eCommand.Text[i], ['0'..'9']) or CharInSet(eCommand.Text[i], ['a'..'f'])
+      or CharInSet(eCommand.Text[i], ['A'..'F']) then begin
 
       b := b * 16 + GetHexValue(uppercase(eCommand.Text)[i]);
       inc(j);

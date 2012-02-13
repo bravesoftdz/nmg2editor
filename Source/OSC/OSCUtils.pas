@@ -161,7 +161,7 @@ begin
   for i := 0 to 3 do
   begin
     tmp := intg and $ff;
-    result := result + chr(tmp);
+    result := result + AnsiChar(tmp);
     intg := intg shr 8;
   end;
 end;
@@ -180,7 +180,7 @@ begin
   for i := 0 to 3 do
   begin
     tmp := val and $ff;
-    result := result + chr(tmp);
+    result := result + AnsiChar(tmp);
     val := val shr 8;
   end;
 end;
@@ -285,11 +285,11 @@ begin
 
   try
     if TypeTag = 'f' then
-      FArguments.Add(MakeOSCFloat(StrToFloat(Value)))
+      FArguments.Add(string(MakeOSCFloat(StrToFloat(string(Value)))))
     else if TypeTag = 'i' then
-      FArguments.Add(MakeOSCInt(StrToInt(Value)))
+      FArguments.Add(string(MakeOSCInt(StrToInt(string(Value)))))
     else if TypeTag = 's' then
-      FArguments.Add(MakeOSCString(Value))
+      FArguments.Add(string(MakeOSCString(Value)))
     else
       Result := OSC_UNRECOGNIZED_TYPETAG;
   except on EConvertError do
@@ -303,19 +303,19 @@ end;
 procedure TOSCMessage.AddFloat(Value: Single);
 begin
   FTypeTags := FTypeTags + 'f';
-  FArguments.Add(MakeOSCFloat(Value));
+  FArguments.Add(string(MakeOSCFloat(Value)));
 end;
 
 procedure TOSCMessage.AddInteger(Value: Integer);
 begin
   FTypeTags := FTypeTags + 'i';
-  FArguments.Add(MakeOSCInt(Value));
+  FArguments.Add(string(MakeOSCInt(Value)));
 end;
 
 procedure TOSCMessage.AddString(Value: AnsiString);
 begin
   FTypeTags := FTypeTags + 's';
-  FArguments.Add(MakeOSCString(Value));
+  FArguments.Add(string(MakeOSCString(Value)));
 end;
 
 procedure TOSCMessage.Decode;
@@ -331,7 +331,7 @@ begin
   for i := 1 to Length(FTypeTags) - 1 do
   begin
     if FTypeTags[i+1] = 's' then
-      FArguments.Add(UnpackString(FBytes, offset))
+      FArguments.Add(string(UnpackString(FBytes, offset)))
     else if FTypeTags[i+1] = 'i' then
       FArguments.Add(IntToStr(UnpackInt(FBytes, offset)))
     else if FTypeTags[i+1] = 'f' then
@@ -343,7 +343,7 @@ end;
 
 function TOSCMessage.GetArgument(Index: Integer): AnsiString;
 begin
-  Result := FArguments[Index];
+  Result := AnsiString(FArguments[Index]);
 end;
 
 function TOSCMessage.GetArgumentCount: Integer;
@@ -375,7 +375,7 @@ begin
   Result := MakeOSCString(FAddress) + MakeOSCString(FTypeTags);
 
   for i := 0 to FArguments.Count - 1 do
-    Result := Result + FArguments[i];
+    Result := Result + AnsiString(FArguments[i]);
 end;
 
 procedure TOSCMessage.Unmatch;

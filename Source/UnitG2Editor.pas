@@ -57,6 +57,7 @@ unit UnitG2Editor;
 // Uprate calculation bug
 // Undo delete modules
 // Clean up global assign on init/load patch
+// ini-file (xml) with some preferences
 
 // TODO List for beta release
 // ==========================
@@ -66,7 +67,6 @@ unit UnitG2Editor;
 // Auto assign midi
 // some of the text functions
 // some of the graphic screens
-// ini-file (xml) with some preferences
 // osc/client server connections screen
 // finish basic osc
 
@@ -350,7 +350,7 @@ type
     procedure DeAssignKnob( Sender: TObject);
     procedure AssignGlobalKnob( Sender: TObject);
     procedure DeAssignGlobalKnob( Sender: TObject);
-    function  GetPatchversion: boolean;
+    procedure GetPatchversion;
     procedure UpdateControls;
     procedure SetSelectedModuleColor( aColor : byte);
     function  GetPatchWindowHeight: integer;
@@ -559,7 +559,7 @@ begin
     FG2btMorphArray[i].Color := clBtnFace;
     FG2btMorphArray[i].Tag := i + 8;
     FG2btMorphArray[i].ButtonText.Add('knob');
-    FG2btMorphArray[i].ButtonText.Add(STD_MORPH_NAMES[i]);
+    FG2btMorphArray[i].ButtonText.Add(string(STD_MORPH_NAMES[i]));
     FG2btMorphArray[i].ButtonText.Add('');
   end;
 
@@ -599,7 +599,7 @@ var Variation : TVariation;
 begin
   FDisableControls := True;
   try
-    FePatchName.Text     := FSlot.PatchName;
+    FePatchName.Text     := string(FSlot.PatchName);
     FG2rbVariation.InitValue( FSlot.Patch.ActiveVariation);
     Variation            := FSlot.Patch.PatchSettings.Variations[ FSlot.Patch.ActiveVariation];
     if FSlot.Patch.EditAllVariations then
@@ -744,8 +744,7 @@ end;
 // =============================================================================
 
 procedure TfrmG2Main.FormCreate(Sender: TObject);
-var SlotPanel : TSlotPanel;
-    ModuleMap : TBitmap;
+var ModuleMap : TBitmap;
 begin
   FDisableControls := False;
   FOldSplitterPos := Splitter1.Height;
@@ -795,7 +794,6 @@ begin
 end;
 
 procedure TfrmG2Main.FormShow(Sender: TObject);
-var line : TG2GraphLine;
 begin
   cbLogMessages.Checked := True;
   cbLogMessagesClick(self);
@@ -874,6 +872,9 @@ var Doc : TXMLDocument;
     TCPSettingsNode : TXMLTCPSettingsType;
     FormSettingsNode : TXMLFormSettingsType;
 begin
+  if not FileExists('G2_editor_ini.xml') then
+    exit;
+
   Doc := TXMLDocument.Create;
   try
     ReadXMLFile( Doc, 'G2_editor_ini.xml');
@@ -911,7 +912,8 @@ var Doc : TXMLDocument;
 begin
   Doc := TXMLDocument.Create;
   try
-    ReadXMLFile( Doc, 'G2_editor_ini.xml');
+    if FileExists('G2_editor_ini.xml') then
+      ReadXMLFile( Doc, 'G2_editor_ini.xml');
 
     RootNode := Doc.FindNode('G2_Editor_settings');
     if not assigned(RootNode) then begin
@@ -1075,7 +1077,6 @@ begin
 end;
 
 procedure TfrmG2Main.cbModeClick(Sender: TObject);
-var patch_version : byte;
 begin
   if FDisableControls then exit;
 
@@ -1089,7 +1090,7 @@ begin
   UpdateControls;
 end;
 
-function TfrmG2Main.GetPatchversion: boolean;
+procedure TfrmG2Main.GetPatchversion;
 begin
   // Get current patch version from G2
   G2.SelectedSlot.SendGetPatchVersionMessage;
@@ -1339,7 +1340,7 @@ procedure TfrmG2Main.ExtractTextEdit;
 var Module : TG2GraphModule;
     Control : TG2GraphChildControl;
     i, j, k: Integer;
-    modulename : string;
+    modulename : AnsiString;
 begin
   // I used this to get some info out of the paneld definitions
   for i := 0 to G2.FModuleDefList.Count - 1 do begin
@@ -1360,7 +1361,7 @@ begin
               if (Control as TG2GraphTextEdit).ButtonText.Count > 0 then begin
                 if modulename = '' then begin
                   modulename := Module.ModuleName;
-                  G2.add_log_line('Module : ' + Module.ModuleName + ', param : ' + Control.Parameter.ParamName, LOGCMD_NUL);
+                  G2.add_log_line('Module : ' + Module.ModuleName + ', param : ' + string(Control.Parameter.ParamName), LOGCMD_NUL);
                 end;
                 G2.add_log_line('<ParamLabel>' + (Control as TG2GraphButtonText).ButtonText[0] + '</ParamLabel>', LOGCMD_NUL);
               end;
@@ -1495,12 +1496,12 @@ begin
       if G2.FModuleDefList.ModuleDef[j].ModuleType = 164 then
         dummy := 1;
 
-      if G2.FModuleDefList.ModuleDef[j].Page = aMenuItem.Caption then begin
+      if string(G2.FModuleDefList.ModuleDef[j].Page) = aMenuItem.Caption then begin
         if aMenuItem.ImageIndex = -1 then
           aMenuItem.ImageIndex := G2.FModuleDefList.ModuleDef[j].ModuleType;
 
         aSubMenuItem := TMenuItem.Create( puAddModule);
-        aSubMenuItem.Caption := G2.FModuleDefList.ModuleDef[j].ShortName;
+        aSubMenuItem.Caption := string(G2.FModuleDefList.ModuleDef[j].ShortName);
         aSubMenuItem.Tag := G2.FModuleDefList.ModuleDef[j].ModuleType;
         aSubMenuItem.ImageIndex := G2.FModuleDefList.ModuleDef[j].ModuleType;
         aSubMenuItem.OnClick := DoAddModule;
@@ -1529,7 +1530,7 @@ begin
   if frmEditLabel.ShowModal = mrOk then begin
     G2.SelectedPatch.MessSetModuleLabel( Module.Location,
                                          Module.ModuleIndex,
-                                         frmEditLabel.eLabel.Text);
+                                         AnsiString(frmEditLabel.eLabel.Text));
   end;
 end;
 
@@ -1579,9 +1580,9 @@ begin
     for i := 0 to Connector.CableCount - 1 do begin
       aMenuItem := TMenuItem.Create( puConnectorMenu);
       if Connector.Cables[i].FromConnector = Connector then
-        aMenuItem.Caption := 'Cable to ' + G2.SelectedPatch.GetModuleLabel( Connector.Module.Location, Connector.Cables[i].ModuleTo)
+        aMenuItem.Caption := 'Cable to ' + string(G2.SelectedPatch.GetModuleLabel( Connector.Module.Location, Connector.Cables[i].ModuleTo))
       else
-        aMenuItem.Caption := 'Cable to ' + G2.SelectedPatch.GetModuleLabel( Connector.Module.Location, Connector.Cables[i].ModuleFrom);
+        aMenuItem.Caption := 'Cable to ' + string(G2.SelectedPatch.GetModuleLabel( Connector.Module.Location, Connector.Cables[i].ModuleFrom));
       aMenuItem.Tag := integer(Connector.Cables[i]);
       aMenuItem.OnClick := miDeleteCablesClick;
       miDeleteCable.Add(aMenuItem);
@@ -1689,7 +1690,7 @@ begin
     G2.SelectedPatch.MessSetModuleParamLabels( Parameter.Location,
                                                Parameter.ModuleIndex,
                                                Parameter.ParamIndex,
-                                               frmEditLabel.eLabel.Text);
+                                               AnsiString(frmEditLabel.eLabel.Text));
   end;
 end;
 

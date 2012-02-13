@@ -90,7 +90,7 @@ type
     procedure CopyFromBitmapRect( Bitmap: TBitmap; Rect : TRect);
     procedure DrawAntialisedLine( const AX1, AY1, AX2, AY2: real; const LineColor: TColor);
     procedure DrawAntialisedDisk( CenterX, CenterY, Radius, Feather: single; aColor : TColor; aBrushStyle : TBrushStyle);
-    function  PolygonIsConvex( var polygon : array of TPoint) : boolean;
+    //function  PolygonIsConvex( var polygon : array of TPoint) : boolean;
     procedure DrawPolygon( var polygon : array of TPoint; color : TColor);
     procedure DrawHorizontalLine( x1, x2, y : integer; pixel : TFastBitmapPixelComponents);
 
@@ -495,7 +495,7 @@ end;
 procedure TFastBitmap.DrawHorizontalLine( x1, x2, y : integer; pixel : TFastBitmapPixelComponents);
 var ptr : pointer;
     i, l, s : integer;
-    redpixel, bluepixel : TFastBitmapPixel;
+    //redpixel, bluepixel : TFastBitmapPixel;
 begin
   if (y < 0) or (y > Size.Y - 1) then
     exit;
@@ -537,7 +537,7 @@ begin
   end;
 end;
 
-function TFastBitmap.PolygonIsConvex( var polygon : array of TPoint) : boolean;
+{function TFastBitmap.PolygonIsConvex( var polygon : array of TPoint) : boolean;
 var p, v, u, tmp : TPoint;
     i, res, newres : integer;
 begin
@@ -564,10 +564,11 @@ begin
   end;
 
   Result := True;
-end;
+end;}
 
 function CompareEdges( Edge1, Edge2 : pointer): integer;
 begin
+  Result := 0;
   if TEdge(Edge1).p1.y < TEdge(Edge2).p1.y then
     Result := -1
   else
@@ -579,9 +580,7 @@ begin
           Result := -1
         else
           if TEdge(Edge1).curx > TEdge(Edge2).curx then
-            Result := 1
-          else
-            Result := 0;
+            Result := 1;
       end;
 end;
 
@@ -613,10 +612,10 @@ begin
   ActiveEdgeList := TList.Create;
   try
 
-    if not PolygonIsConvex( polygon) then begin
-      //raise Exception.Create('Polygon is not convex.');
-      //exit;
-    end;
+    {if not PolygonIsConvex( polygon) then begin
+      raise Exception.Create('Polygon is not convex.');
+      exit;
+    end;}
 
     if Color < 0 then
       Color := ColorToRGB(Color);

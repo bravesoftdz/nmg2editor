@@ -593,6 +593,8 @@ object frmParameterPages: TfrmParameterPages
       HightlightColor = clAqua
       BorderColor = clBlack
       Bevel = False
+      Orientation = otHorizontal
+      ButtonCount = 0
       ButtonTextType = bttNormal
     end
     object Panel2: TPanel

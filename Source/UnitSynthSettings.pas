@@ -189,7 +189,7 @@ begin
   FDisableControls := True;
   try
 
-  frmG2Main.G2.SynthName := eSynthName.Text;
+  frmG2Main.G2.SynthName := AnsiString(eSynthName.Text);
 
   frmG2Main.G2.MidiChannelA := StrToInt(eMidiChannelA.Text) - 1;
   udMidiChannelA.Position := frmG2Main.G2.MidiChannelA;
@@ -372,7 +372,7 @@ procedure TfrmSynthSettings.updateDialog;
 begin
   FDisableControls := True;
   try
-    eSynthName.Text := frmG2Main.G2.SynthName;
+    eSynthName.Text := string(frmG2Main.G2.SynthName);
 
     eMidiChannelA.Text := IntToStr(frmG2Main.G2.MidiChannelA + 1);
     cbMidiActiveA.Checked := frmG2Main.G2.MidiChannelA < 16;

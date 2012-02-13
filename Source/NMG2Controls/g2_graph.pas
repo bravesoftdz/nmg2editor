@@ -157,7 +157,7 @@ type
     procedure   SetBitmap( aValue: TBitmap);
     procedure   SetBackgroundColor( aValue : TColor);
     procedure   SetRackColor( aValue : TColor);
-    procedure   SetLocation( aValue : TLocationType);
+    //procedure   SetLocation( aValue : TLocationType);
     procedure   SetCopyPatch( aValue : TG2FilePatchPart);
   protected
     procedure   PaintBackGround( ExtCanvas: TCanvas; ExtBoundsRect: TRect);
@@ -339,7 +339,7 @@ type
     FStartY : integer;
 
     FChildControls : TList;
-    FSelectedControlIndex : integer;
+    //FSelectedControlIndex : integer;
 
     FOnModuleClick : TModuleClickEvent;
     FOnParameterClick : TParameterClickEvent;
@@ -387,7 +387,7 @@ type
 
     function    GetPatch : TG2GraphPatch;
     function    GetControlType( aG2GraphChildControl: TG2GraphChildControl): string;
-    function    NewG2GraphControl( aControlType : string) : TG2GraphChildControl;
+    function    NewG2GraphControl( aControlType : AnsiString) : TG2GraphChildControl;
 
     procedure   ParsePanelData;
 
@@ -442,8 +442,8 @@ type
     procedure   SetModule( aValue : TG2GraphModulePanel);
     procedure   SetValue( aValue : byte);
     function    GetValue : byte;
-    procedure   SetParamLabel( aValue : string);
-    function    GetParamLabel : string;
+    procedure   SetParamLabel( aValue : AnsiString);
+    function    GetParamLabel : AnsiString;
     procedure   InitValue( aValue: integer);
     function    CheckValueBounds( aValue : integer): byte;
     procedure   SetMorphValue( aValue: byte);
@@ -455,7 +455,7 @@ type
     function    GetMorph : TMorphParameter;
     function    GetParamIndex : integer;
     procedure   ParsePanelData( fs : TModuleDefStream); virtual;
-    function    ParseProperties( fs: TModuleDefStream; aName : string): boolean; virtual;
+    function    ParseProperties( fs: TModuleDefStream; aName : AnsiString): boolean; virtual;
 
     property    Parameter   : TG2FileParameter read FParameter write SetParameter;
     property    ParamIndex  : integer read GetParamIndex;
@@ -469,7 +469,7 @@ type
     property    MorphValue  : byte read GetMorphValue;
     property    LowValue    : byte read GetLowValue write SetLowValue;
     property    HighValue   : byte read GetHighValue write SetHighValue;
-    property    ParamLabel  : string read GetParamLabel write SetParamLabel;
+    property    ParamLabel  : AnsiString read GetParamLabel write SetParamLabel;
     property    OnMouseUp;
     property    OnMouseDown;
     property    OnMouseMove;
@@ -486,7 +486,7 @@ type
     destructor  Destroy; override;
     procedure   PaintOn( ExtCanvas : TCanvas; ExtBoundsRect : TRect); override;
     procedure   ParsePanelData( fs : TModuleDefStream); override;
-    function    ParseProperties( fs: TModuleDefStream; aName : string): boolean; override;
+    function    ParseProperties( fs: TModuleDefStream; aName : AnsiString): boolean; override;
   end;
 
   TG2GraphLine = class( TG2GraphChildControl)
@@ -503,7 +503,7 @@ type
     destructor  Destroy; override;
     procedure   PaintOn( ExtCanvas : TCanvas; ExtBoundsRect : TRect); override;
     procedure   ParsePanelData( fs : TModuleDefStream); override;
-    function    ParseProperties( fs: TModuleDefStream; aName : string): boolean; override;
+    function    ParseProperties( fs: TModuleDefStream; aName : AnsiString): boolean; override;
   published
     property    Orientation : TOrientationType read FOrientation write SetOrientation;
     property    LineWidth : integer read FLineWidth write SetLineWidth;
@@ -521,7 +521,7 @@ type
     constructor Create( AOwner: TComponent); override;
     destructor  Destroy; override;
     procedure   PaintOn( ExtCanvas : TCanvas; ExtBoundsRect : TRect); override;
-    function    ParseProperties( fs: TModuleDefStream; aName : string): boolean; override;
+    function    ParseProperties( fs: TModuleDefStream; aName : AnsiString): boolean; override;
   published
     property    Caption : string read FCaption write SetCaption;
     property    OnClick : TClickEvent read FOnClick write FOnClick;
@@ -540,7 +540,7 @@ type
     constructor Create( AOwner: TComponent); override;
     destructor  Destroy; override;
     procedure   PaintOn( ExtCanvas : TCanvas; ExtBoundsRect : TRect); override;
-    function    ParseProperties( fs: TModuleDefStream; aName : string): boolean; override;
+    function    ParseProperties( fs: TModuleDefStream; aName : AnsiString): boolean; override;
 
     property    Line[ index : integer] : string read GetLine write SetLine;
   published
@@ -555,7 +555,7 @@ type
     constructor Create( AOwner: TComponent); override;
     destructor  Destroy; override;
     procedure   PaintOn( ExtCanvas : TCanvas; ExtBoundsRect : TRect); override;
-    function    ParseProperties( fs: TModuleDefStream; aName : string): boolean; override;
+    function    ParseProperties( fs: TModuleDefStream; aName : AnsiString): boolean; override;
   published
     property    Font;
     property    Color;
@@ -580,7 +580,7 @@ type
     destructor  Destroy; override;
     procedure   PaintOn( ExtCanvas : TCanvas; ExtBoundsRect : TRect); override;
     procedure   ParsePanelData( fs : TModuleDefStream); override;
-    function    ParseProperties( fs: TModuleDefStream; aName : string): boolean; override;
+    function    ParseProperties( fs: TModuleDefStream; aName : AnsiString): boolean; override;
     procedure   SetLevel( aValue : byte); override;
   end;
 
@@ -607,7 +607,7 @@ type
     destructor  Destroy; override;
     procedure   PaintOn( ExtCanvas : TCanvas; ExtBoundsRect : TRect); override;
     procedure   ParsePanelData( fs : TModuleDefStream); override;
-    function    ParseProperties( fs: TModuleDefStream; aName : string): boolean; override;
+    function    ParseProperties( fs: TModuleDefStream; aName : AnsiString): boolean; override;
     procedure   SetLevel( aValue : byte); override;
   end;
 
@@ -626,32 +626,33 @@ type
     FImageCount     : integer;
     FCaption        : string;
     FIcon           : TIconType;
-    FAutoHide       : boolean;
-    FHide           : boolean;
+    //FAutoHide       : boolean;
+    //FHide           : boolean;
     FPressed        : boolean;
     FOnClick        : TClickEvent;
   protected
     procedure   MouseDown( Button: TMouseButton; Shift: TShiftState; X: Integer; Y: Integer); override;
     procedure   MouseUp( Button: TMouseButton; Shift: TShiftState; X: Integer; Y: Integer); override;
     procedure   SetCaption( aValue : string);
-    procedure   SetAutoHide( aValue : boolean);
-    procedure   SetHide( aValue : boolean);
+    //procedure   SetAutoHide( aValue : boolean);
+    //procedure   SetHide( aValue : boolean);
     procedure   SetIcon( aValue : TIconType);
     procedure   SetButtonText( aValue : TStrings);
     procedure   SetHighLightColor( aValue : TColor);
     procedure   SetBorderColor( aValue : TColor);
     procedure   SetButtonCount( aValue : integer);
     procedure   SetBevel( aValue : boolean);
+    procedure   SetOrientation( aValue : TOrientationType); virtual;
   public
     constructor Create( AOwner: TComponent); override;
     destructor  Destroy; override;
     procedure   PaintOn( ExtCanvas : TCanvas; ExtBoundsRect : TRect); override;
-    function    ParseProperties( fs: TModuleDefStream; aName : string): boolean; override;
+    function    ParseProperties( fs: TModuleDefStream; aName : AnsiString): boolean; override;
 
     property    Module : TG2GraphModulePanel read FModule;
     property    Icon : TIconType read FIcon write SetIcon;
-    property    AutoHide : boolean read FAutoHide write SetAutoHide;
-    property    Hide : boolean read FHide Write SetHide;
+    //property    AutoHide : boolean read FAutoHide write SetAutoHide;
+    //property    Hide : boolean read FHide Write SetHide;
   published
     property    Caption : string read FCaption write SetCaption;
     property    OnClick : TClickEvent read FOnClick write FOnClick;
@@ -659,6 +660,8 @@ type
     property    HightlightColor : TColor read FHighlightColor write SetHighlightColor;
     property    BorderColor : TColor read FBorderColor write SetBorderColor;
     property    Bevel : boolean read FBevel write SetBevel;
+    property    Orientation : TOrientationType read FOrientation write SetOrientation;
+    property    ButtonCount : integer read FButtonCount write SetButtonCount;
   end;
 
   TG2GraphButtonText = class( TG2GraphButton)
@@ -673,7 +676,7 @@ type
     destructor  Destroy; override;
     procedure   PaintOn( ExtCanvas : TCanvas; ExtBoundsRect : TRect); override;
     procedure   ParsePanelData( fs : TModuleDefStream); override;
-    function    ParseProperties( fs: TModuleDefStream; aName : string): boolean; override;
+    function    ParseProperties( fs: TModuleDefStream; aName : AnsiString): boolean; override;
   published
     property    ButtonTextType : TButtonTextType read FButtonTextType write SetButtonTextType;
   end;
@@ -694,38 +697,32 @@ type
   end;
 
   TG2GraphButtonRadio = class( TG2GraphButton)
-  private
-    procedure   SetOrientation( aValue : TOrientationType);
   protected
     procedure   MouseDown(Button: TMouseButton; Shift: TShiftState; X: Integer; Y: Integer); override;
+    procedure   SetOrientation( aValue : TOrientationType); override;
   public
     constructor Create( AOwner: TComponent); override;
     destructor  Destroy; override;
     procedure   PaintOn( ExtCanvas : TCanvas; ExtBoundsRect : TRect); override;
     procedure   SetBounds(ALeft: Integer; ATop: Integer;  AWidth: Integer; AHeight: Integer); override;
     procedure   ParsePanelData( fs : TModuleDefStream); override;
-    function    ParseProperties( fs: TModuleDefStream; aName : string): boolean; override;
-  published
-    property    Orientation : TOrientationType read FOrientation write SetOrientation;
-    property    ButtonCount : integer read FButtonCount write SetButtonCount;
+    function    ParseProperties( fs: TModuleDefStream; aName : AnsiString): boolean; override;
   end;
 
   TG2GraphButtonIncDec = class( TG2GraphButton)
   private
     FButtonPressed : integer;
-    procedure   SetOrientation( aValue : TOrientationType);
   protected
     procedure   MouseDown(Button: TMouseButton; Shift: TShiftState; X: Integer; Y: Integer); override;
     procedure   MouseUp( Button: TMouseButton; Shift: TShiftState; X: Integer; Y: Integer); override;
+    procedure   SetOrientation( aValue : TOrientationType); override;
   public
     constructor Create( AOwner: TComponent); override;
     destructor  Destroy; override;
     procedure   SetBounds(ALeft: Integer; ATop: Integer;  AWidth: Integer; AHeight: Integer); override;
     procedure   PaintOn( ExtCanvas : TCanvas; ExtBoundsRect : TRect); override;
     procedure   ParsePanelData( fs : TModuleDefStream); override;
-    function    ParseProperties( fs: TModuleDefStream; aName : string): boolean; override;
-  published
-    property    Orientation : TOrientationType read FOrientation write SetOrientation;
+    function    ParseProperties( fs: TModuleDefStream; aName : AnsiString): boolean; override;
   end;
 
   TG2GraphDropDownList = class( TGraphicControl)
@@ -745,7 +742,6 @@ type
 
   TG2GraphPartSelector = class( TG2GraphChildControl)
   private
-    FCaption     : string;
     FButton      : TG2GraphButton;
     FImageList   : TG2ImageList;
     FImageWidth  : integer;
@@ -761,7 +757,7 @@ type
     procedure   PaintOn( ExtCanvas : TCanvas; ExtBoundsRect : TRect); override;
     procedure   SetBounds(ALeft: Integer; ATop: Integer;  AWidth: Integer; AHeight: Integer); override;
     procedure   ParsePanelData( fs : TModuleDefStream); override;
-    function    ParseProperties( fs: TModuleDefStream; aName : string): boolean; override;
+    function    ParseProperties( fs: TModuleDefStream; aName : AnsiString): boolean; override;
   end;
 
   TG2GraphKnob = class( TG2GraphChildControl)
@@ -790,7 +786,7 @@ type
     procedure   PaintOn( ExtCanvas : TCanvas; ExtBoundsRect : TRect); override;
     function    GetSliderRect: TRect;
     procedure   SetBounds(ALeft: Integer; ATop: Integer;  AWidth: Integer; AHeight: Integer); override;
-    function    ParseProperties( fs: TModuleDefStream; aName : string): boolean; override;
+    function    ParseProperties( fs: TModuleDefStream; aName : AnsiString): boolean; override;
   published
     property    KnobType : TKnobType read FType write SetKnobType;
     property    Orientation : TOrientationType read FOrientation write SetOrientation;
@@ -810,7 +806,7 @@ type
     procedure   PaintOn( ExtCanvas : TCanvas; ExtBoundsRect : TRect); override;
     procedure   SetBounds( ALeft: Integer; ATop: Integer;  AWidth: Integer; AHeight: Integer); override;
     procedure   ParsePanelData( fs : TModuleDefStream); override;
-    function    ParseProperties( fs: TModuleDefStream; aName : string): boolean; override;
+    function    ParseProperties( fs: TModuleDefStream; aName : AnsiString): boolean; override;
 
     property    Data : TG2FileConnector read FData write SetData;
   end;
@@ -1061,13 +1057,12 @@ begin
 end;
 
 procedure TG2GraphPanel.WMPaint(var Msg: TWMPaint);
-var DC, MemDC : HDC;
-    PS        : TPaintStruct;
+var PS        : TPaintStruct;
     i         : integer;
     Rect      : TRect;
     Control   : TG2GraphChildControl;
 begin
-  DC := BeginPaint(Handle, PS);
+  BeginPaint(Handle, PS);
 
   if (PS.rcPaint.Right - PS.rcPaint.Left) + 1 > FExtBitmap.Width then
     FExtBitmap.Width := PS.rcPaint.Right - PS.rcPaint.Left + 1;
@@ -1261,8 +1256,6 @@ begin
 end;
 
 procedure TG2GraphScrollBox.MouseMove(Shift: TShiftState; X, Y: Integer);
-var i : integer;
-    Module : TG2FileModule;
 begin
   if assigned( FCopyPatch) then begin
     if FCopyOutLinesVisible then begin
@@ -1395,11 +1388,11 @@ begin
     end;
 end;
 
-procedure TG2GraphScrollBox.SetLocation( aValue: TLocationType);
+{procedure TG2GraphScrollBox.SetLocation( aValue: TLocationType);
 begin
   FLocation := aValue;
   Invalidate;
-end;
+end;}
 
 procedure TG2GraphScrollBox.SetRackColor( aValue: TColor);
 begin
@@ -1476,9 +1469,8 @@ end;
 procedure TG2GraphScrollBox.WMPaint(var Msg: TWMPaint);
 //http://catch22.net/tuts/flicker
 var
-  DC, MemDC   : HDC;
   PS          : TPaintStruct;
-  dummy, i    : integer;
+  i           : integer;
   FPatch      : TG2GraphPatch;
   FPatchPart  : TG2FilePatchPart;
   Module      : TG2GraphModule;
@@ -1513,7 +1505,7 @@ begin
     FPatch := nil;
 
   // PS.rcPaint is the arean that needs to be repainted
-  DC := BeginPaint(Handle, PS);
+  BeginPaint(Handle, PS);
 
   //AddLogLine('Update region ' + IntToStr(PS.rcPaint.Left) + ' ' + IntToStr(PS.rcPaint.Top) + ' ' + IntToStr(PS.rcPaint.Right) + ' ' + IntToStr(PS.rcPaint.Bottom));
 
@@ -1585,7 +1577,6 @@ end;
 procedure TG2GraphScrollBox.PaintBackGround( ExtCanvas: TCanvas; ExtBoundsRect: TRect);
 var FDrawHeight, FDrawWidth,
     Row, Column, xl, xt, xw, xh,
-    dl, dt, dr, db,
     xoffs, yoffs: Integer;
     Bitmap : TBitmap;
 begin
@@ -1622,11 +1613,10 @@ end;
 
 procedure TG2GraphScrollBox.PaintCables(ExtBitmap: TBitmap; ExtBoundsRect: TRect);
 var Cable : TG2GraphCable;
-    i, j, CableCount : integer;
-    Rect : TRect;
+    i, j : integer;
     FPatch : TG2GraphPatch;
 begin
-  if not( assigned( FG2Graph) and assigned( FPatch)) then
+  if not assigned( FG2Graph) then
     exit;
 
   FPatch := FG2Graph.GetSelectedPatch as TG2GraphPatch;
@@ -1657,7 +1647,6 @@ begin
               Cable.FNode[j].PaintOn( ExtBitmap, ExtBoundsRect);
           end;
         end;
-
     end;
 end;
 
@@ -1950,7 +1939,6 @@ begin
 end;
 
 destructor TG2GraphPatch.Destroy;
-var i : integer;
 begin
   FLed3AList.Free;
   FLed39List.Free;
@@ -1961,7 +1949,6 @@ begin
 end;
 
 procedure TG2GraphPatch.Init;
-var i : integer;
 begin
   inherited;
 
@@ -1974,12 +1961,10 @@ begin
 end;
 
 function TG2GraphPatch.CreateModule( aLocation : TLocationType; aModuleIndex : byte; aModuleType : byte): TG2FileModule;
-var i : integer;
+var i : LongWord;
     Module : TG2GraphModule;
 begin
   // Create a module in a patch file
-
-  Result := nil;
 
   Module := TG2GraphModule.Create( PatchPart[ ord( aLocation)]);
   Module.TypeID := aModuleType;
@@ -2021,15 +2006,12 @@ begin
 end;
 
 function TG2GraphPatch.CreateCable( aLocation : TLocationType; aColor : byte; aFromModule : byte; aFromConnector : byte; aLinkType : byte; aToModule : byte; aToConnector : byte): TG2FileCable;
-var i : integer;
-    FromConnKind : TConnectorKind;
+var FromConnKind : TConnectorKind;
     ModuleFrom, ModuleTo : TG2GraphModule;
     Cable : TG2GraphCable;
     ConnectorFrom, ConnectorTo : TG2GraphConnector;
 begin
   // Create a cable connection in a patch file
-
-  Result := nil;
 
   ModuleFrom := GetModule( ord(aLocation), aFromModule) as TG2GraphModule;
   if not assigned(ModuleFrom) then
@@ -2122,25 +2104,16 @@ begin
 end;
 
 procedure TG2GraphPatch.MoveOutlines(dX, dY: integer);
-var i, j : integer;
+var i : integer;
 begin
-  {for i := 0 to 1 do
-    for j := 0 to ModuleCount[i] - 1 do
-      if ModuleList[i].Items[j].Selected then
-        (ModuleList[i].Items[j] as TG2GraphModule).FPanel.MoveOutline( dX, dY);}
   for i := 0 to SelectedModuleList.Count - 1 do
     (SelectedModuleList[i] as TG2GraphModule).FPanel.MoveOutline( dX, dY);
-
 end;
 
 function TG2GraphPatch.MessMoveModules: boolean;
-var i, j : integer;
+var i : integer;
 begin
   Result := inherited MessMoveModules;
-  {for i := 0 to 1 do
-    for j := 0 to ModuleCount[i] - 1 do
-      if ModuleList[i].Items[j].Selected then
-        (ModuleList[i].Items[j] as TG2GraphModule).FPanel.MoveModule;}
   for i := 0 to SelectedModuleList.Count - 1 do
     (SelectedModuleList[i] as TG2GraphModule).FPanel.MoveModule;
 end;
@@ -2588,8 +2561,7 @@ begin
 end;
 
 procedure TG2GraphModulePanel.MouseDown(Button: TMouseButton; Shift: TShiftState; X,  Y: Integer);
-var P : TPoint;
-    i : integer;
+var i : integer;
     Patch : TG2GraphPatch;
 begin
   if assigned( FDropDownList) then begin
@@ -2656,8 +2628,7 @@ begin
 end;
 
 procedure TG2GraphModulePanel.MouseUp(Button: TMouseButton; Shift: TShiftState; X,  Y: Integer);
-var NewCol, NewRow : byte;
-    Patch : TG2GraphPatch;
+var Patch : TG2GraphPatch;
 begin
   Patch := GetPatch;
 
@@ -2712,7 +2683,7 @@ begin
 end;
 
 procedure TG2GraphModulePanel.MoveModule;
-var Patch : TG2GraphPatch;
+//var Patch : TG2GraphPatch;
 begin
   // TODO
   if FData.FOutlineVisible then
@@ -2728,17 +2699,23 @@ var Patch : TG2GraphPatch;
 end;
 
 function TG2GraphModulePanel.GetNewCol: TBits7;
+var NewCol : integer;
 begin
-  Result := (ScrollPosX + FData.FOutlineRect.Left - FOldX) div UNITS_COL;
-  if Result < 0 then
-    Result := 0;
+  NewCol := (ScrollPosX + FData.FOutlineRect.Left - FOldX) div UNITS_COL;
+  if NewCol < 0 then
+    Result := 0
+  else
+    Result := NewCol;
 end;
 
 function TG2GraphModulePanel.GetNewRow: TBits7;
+var NewRow : integer;
 begin
-  Result := (ScrollPosY + FData.FOutlineRect.Top - FOldY) div UNITS_ROW;
-  if Result < 0 then
-    Result := 0;
+  NewRow := (ScrollPosY + FData.FOutlineRect.Top - FOldY) div UNITS_ROW;
+  if NewRow < 0 then
+    Result := 0
+  else
+    Result := NewRow;
 end;
 
 function TG2GraphModulePanel.GetPatch: TG2GraphPatch;
@@ -2759,7 +2736,7 @@ end;
 
 procedure TG2GraphModulePanel.PaintOn( ExtCanvas: TCanvas; ExtBoundsRect : TRect);
 var Rect, Rect2 : TRect;
-    i, j : integer;
+    i : integer;
     Title : string;
 begin
   inherited;
@@ -2768,9 +2745,9 @@ begin
 
   Title := '';
   if assigned(FData.PatchPart) then
-    Title := FData.PatchPart.GetModuleLabel( ModuleIndex)
+    Title := string(FData.PatchPart.GetModuleLabel( ModuleIndex))
   else
-    Title := FData.ModuleName;
+    Title := string(FData.ModuleName);
 
   Rect := SubRect( BoundsRect, ExtBoundsRect);
 
@@ -2782,7 +2759,7 @@ begin
 
   Rect2.Left   := 16;
   Rect2.Top    := 1;
-  Rect2.Right  := Rect2.Left + ExtCanvas.TextWidth(Title) + 1;
+  Rect2.Right  := Rect2.Left + ExtCanvas.TextWidth( Title) + 1;
   Rect2.Bottom := 14;
 
   Rect2 := AddRect( Rect2, BoundsRect);
@@ -2806,7 +2783,7 @@ end;
 procedure TG2GraphModulePanel.ParsePanelData;
 var //MemStream : TMemoryStream;
     ModuleStream : TModuleDefStream;
-    i, CodeRef, Err : integer;
+    CodeRef, Err : integer;
     aPath : string;
     aName, aValue, ControlType, CodeRefStr : AnsiString;
     ChildControl : TG2GraphChildControl;
@@ -2824,10 +2801,10 @@ begin
 
   Patch := GetPatch;
 
-  if FileExists( aPath + FData.ModuleName + '.txt') then begin
+  if FileExists( aPath + string(FData.ModuleName) + '.txt') then begin
     //MemStream := TMemoryStream.Create;
     //MemStream.LoadFromFile( aPath + FData.ModuleName + '.txt');
-    ModuleStream := TModuleDefStream.Create(aPath + FData.ModuleName + '.txt');
+    ModuleStream := TModuleDefStream.Create(aPath + string(FData.ModuleName) + '.txt');
     try
       if ModuleStream.ReadConst('<#Module') then begin
         aName := 'Module';
@@ -2838,7 +2815,7 @@ begin
             aValue := ModuleStream.ReadUntil( [#13]);
 
             if aName = 'Height' then
-              Height := UNITS_ROW * StrToInt(aValue);
+              Height := UNITS_ROW * StrToInt(string(aValue));
           end;
         end;
 
@@ -2847,7 +2824,7 @@ begin
           if ControlType = 'Input' then begin
 
             CodeRefStr := ModuleStream.PeekValue( 'CodeRef:', [#13, #10, '#'], ['#', '>']);
-            val( CodeRefStr, CodeRef, Err);
+            val( string(CodeRefStr), CodeRef, Err);
             if Err = 0 then begin
               Connector := TG2GraphConnector.Create(self);
               Connector.FModule := self;
@@ -2858,13 +2835,13 @@ begin
               Connector.ParsePanelData( ModuleStream);
               AddGraphControl( Connector);
             end else
-              raise Exception.Create('Parse error, module  ' + FData.ModuleName + ' input connector CodeRef not found.' );
+              raise Exception.Create('Parse error, module  ' + string(FData.ModuleName) + ' input connector CodeRef not found.' );
 
           end else
             if ControlType = 'Output' then begin
 
               CodeRefStr := ModuleStream.PeekValue( 'CodeRef:', [#13, #10, '#'], ['#', '>']);
-              val( CodeRefStr, CodeRef, Err);
+              val( string(CodeRefStr), CodeRef, Err);
               if Err = 0 then begin
                 Connector := TG2GraphConnector.Create(self);
                 Connector.FModule := self;
@@ -2875,7 +2852,7 @@ begin
                 Connector.ParsePanelData( ModuleStream);
                 AddGraphControl( Connector);
               end else
-                raise Exception.Create('Parse error, module  ' + FData.ModuleName + ' output connector CodeRef not found.' );
+                raise Exception.Create('Parse error, module  ' + string(FData.ModuleName) + ' output connector CodeRef not found.' );
 
             end else begin
               ChildControl := NewG2GraphControl(ControlType);
@@ -2893,7 +2870,7 @@ begin
                    ( ControlType = 'ButtonText') then begin
 
                   CodeRefStr := ModuleStream.PeekValue( 'CodeRef:', [#13, #10, '#'], ['#', '>']);
-                  val( CodeRefStr, CodeRef, Err);
+                  val( string(CodeRefStr), CodeRef, Err);
                   if Err = 0 then begin
                     if ControlType = 'PartSelector' then begin
                       Param := FData.Mode[ CodeRef] as TG2GraphParameter;
@@ -2903,7 +2880,7 @@ begin
                     ChildControl.ParsePanelData( ModuleStream);
                     ChildControl.Parameter := Param;
                   end else
-                    raise Exception.Create('Parse error, module  ' + FData.ModuleName + ' parameter CodeRef not found.' );
+                    raise Exception.Create('Parse error, module  ' + string(FData.ModuleName) + ' parameter CodeRef not found.' );
 
                 end else
                   // No parameter associated
@@ -2978,7 +2955,7 @@ begin
     Result := 'Bitmap';
 end;
 
-function TG2GraphModulePanel.NewG2GraphControl( aControlType : string) : TG2GraphChildControl;
+function TG2GraphModulePanel.NewG2GraphControl( aControlType : AnsiString) : TG2GraphChildControl;
 begin
   Result := nil;
 
@@ -3230,7 +3207,7 @@ begin
     Result := -1;
 end;
 
-function TG2GraphChildControl.GetParamLabel: string;
+function TG2GraphChildControl.GetParamLabel: AnsiString;
 begin
   if assigned( FParameter) then
     Result := FParameter.ParamLabel
@@ -3309,7 +3286,7 @@ begin
 end;
 
 procedure TG2GraphChildControl.ParsePanelData(fs: TModuleDefStream);
-var aName, aValue : string;
+var aName, aValue : AnsiString;
 begin
   while (fs.Position < fs.Size) and (aName <> '#>') do begin
     fs.ReadSpaces;
@@ -3324,19 +3301,19 @@ begin
   end;
 end;
 
-function TG2GraphChildControl.ParseProperties( fs: TModuleDefStream; aName : string): boolean;
-var aValue : string;
+function TG2GraphChildControl.ParseProperties( fs: TModuleDefStream; aName : AnsiString): boolean;
+var aValue : AnsiString;
 begin
   Result := True;
 
   if aName = 'XPos' then begin
     aValue := fs.ReadUntil( [#13]);
-    Left := FModule.Left + StrToInt( aValue);
+    Left := FModule.Left + StrToInt( string(aValue));
   end else
 
   if aName = 'YPos' then begin
     aValue := fs.ReadUntil( [#13]);
-    Top  := FModule.Top + StrToInt( aValue);
+    Top  := FModule.Top + StrToInt( string(aValue));
   end else
 
   if aName = 'Width' then begin
@@ -3345,17 +3322,17 @@ begin
       fs.Position := fs.Position - Length(aValue) - 1;
       Result := False;
     end else
-      Width := StrToInt( aValue);
+      Width := StrToInt( string(aValue));
   end else
 
   if aName = 'Height' then begin
     aValue := fs.ReadUntil( [#13]);
-    Height := StrToInt( aValue);
+    Height := StrToInt( string(aValue));
   end else
 
   if aName = 'ZPos' then begin
     aValue := fs.ReadUntil( [#13]);
-    FZOrder := StrToInt( aValue);
+    FZOrder := StrToInt( string(aValue));
   end else
 
     Result := False
@@ -3382,7 +3359,7 @@ begin
   end;
 end;
 
-procedure TG2GraphChildControl.SetParamLabel(aValue: string);
+procedure TG2GraphChildControl.SetParamLabel(aValue: AnsiString);
 begin
   if assigned( FParameter) then
     FParameter.ParamLabel := aValue
@@ -3436,8 +3413,6 @@ begin
 end;
 
 procedure TG2GraphChildControl.SetMorphValue( aValue: byte);
-var MorphParameter : TMorphParameter;
-    TempValue : integer;
 begin
   if assigned( FParameter) then begin
     FParameter.SetSelectedMorphValue( aValue);
@@ -3517,15 +3492,15 @@ begin
   end;
 end;
 
-function TG2GraphLine.ParseProperties( fs: TModuleDefStream; aName: string): boolean;
-var aValue : string;
+function TG2GraphLine.ParseProperties( fs: TModuleDefStream; aName: AnsiString): boolean;
+var aValue : AnsiString;
 begin
   Result := True;
   if not inherited ParseProperties( fs, aName) then begin
 
     if aName = 'Length' then begin
       aValue := fs.ReadUntil( [#13]);
-      FLength := StrToInt(aValue);
+      FLength := StrToInt(string(aValue));
     end else
 
     if aName = 'Orientation' then begin
@@ -3607,8 +3582,7 @@ begin
   //SetBounds(Left, Top, Width, Height);
 end;
 
-function TG2GraphBitmap.ParseProperties( fs: TModuleDefStream; aName : string): boolean;
-var aValue : string;
+function TG2GraphBitmap.ParseProperties( fs: TModuleDefStream; aName : AnsiString): boolean;
 begin
   Result := True;
 
@@ -3674,20 +3648,20 @@ begin
           FCaption);
 end;
 
-function TG2GraphLabel.ParseProperties( fs: TModuleDefStream; aName : string): boolean;
-var aValue : string;
+function TG2GraphLabel.ParseProperties( fs: TModuleDefStream; aName : AnsiString): boolean;
+var aValue : AnsiString;
 begin
   Result := True;
   if not inherited ParseProperties( fs, aName) then begin
 
     if aName = 'FontSize' then begin
       aValue := fs.ReadUntil( [#13]);
-      Font.Size := StrToInt(aValue)-2
+      Font.Size := StrToInt(string(aValue))-2
     end else
 
     if aName = 'Text' then begin
       aValue := fs.ReadUntil( [#13]);
-      Caption := fs.UnQuote(aValue);
+      Caption := string(fs.UnQuote(aValue));
     end else
 
       Result := False
@@ -3765,7 +3739,6 @@ end;
 procedure TG2GraphLedGreen.ParsePanelData( fs: TModuleDefStream);
 var i : integer;
     LedGroup : TG2GraphLedGroup;
-    LedGroupList : TList;
     Patch : TG2GraphPatch;
 begin
   inherited;
@@ -3797,20 +3770,20 @@ begin
   LedGroup.FLeds.Sort( CompareSeqLedOrder);
 end;
 
-function TG2GraphLedGreen.ParseProperties( fs: TModuleDefStream; aName : string): boolean;
-var aValue : string;
+function TG2GraphLedGreen.ParseProperties( fs: TModuleDefStream; aName : AnsiString): boolean;
+var aValue : AnsiString;
 begin
   Result := True;
   if not inherited ParseProperties( fs, aName) then begin
 
     if aName = 'CodeRef' then begin
       aValue := fs.ReadUntil( [#13]);
-      FCodeRef := StrToInt(aValue);
+      FCodeRef := StrToInt(string(aValue));
     end else
 
     if aName = 'InfoFunc' then begin
       aValue := fs.ReadUntil( [#13]);
-      FInfoFunc := StrToInt(aValue);
+      FInfoFunc := StrToInt(string(aValue));
     end else
 
     if aName = 'Type' then begin
@@ -3829,7 +3802,7 @@ begin
 
     if aName = 'GroupId' then begin
       aValue := fs.ReadUntil( [#13]);
-      FGroupId := StrToInt(aValue);
+      FGroupId := StrToInt(string(aValue));
     end else
 
       Result := False
@@ -3965,20 +3938,20 @@ begin
   Patch.FMiniVUList.Sort( CompareMiniVUOrder);
 end;
 
-function TG2GraphMiniVU.ParseProperties( fs: TModuleDefStream; aName : string): boolean;
-var aValue : string;
+function TG2GraphMiniVU.ParseProperties( fs: TModuleDefStream; aName : AnsiString): boolean;
+var aValue : AnsiString;
 begin
   Result := True;
   if not inherited ParseProperties( fs, aName) then begin
 
     if aName = 'CodeRef' then begin
       aValue := fs.ReadUntil( [#13]);
-      FCodeRef := StrToInt(aValue);
+      FCodeRef := StrToInt(string(aValue));
     end else
 
     if aName = 'InfoFunc' then begin
       aValue := fs.ReadUntil( [#13]);
-      FInfoFunc := StrToInt(aValue);
+      FInfoFunc := StrToInt(string(aValue));
     end else
 
     if aName = 'Orientation' then begin
@@ -3997,7 +3970,7 @@ begin
 
     if aName = 'GroupId' then begin
       aValue := fs.ReadUntil( [#13]);
-      FGroupId := StrToInt(aValue);
+      FGroupId := StrToInt(string(aValue));
     end else
 
       Result := False
@@ -4116,22 +4089,22 @@ begin
   end;
 end;
 
-function TG2GraphDisplay.ParseProperties( fs: TModuleDefStream; aName : string): boolean;
-var aValue : string;
+function TG2GraphDisplay.ParseProperties( fs: TModuleDefStream; aName : AnsiString): boolean;
+var aValue : AnsiString;
 begin
   Result := True;
   if not inherited ParseProperties( fs, aName) then begin
 
     if aName = 'MasterRef' then begin
       aValue := fs.ReadUntil( [#13]);
-      FParameter := FModule.FData.Parameter[ StrToInt(aValue)] as TG2GraphParameter;
+      FParameter := FModule.FData.Parameter[ StrToInt(string(aValue))] as TG2GraphParameter;
       (FParameter as TG2GraphParameter).AssignControl(self);
 
     end else
 
     if aName = 'Text Func' then begin
       aValue := fs.ReadUntil( [#13]);
-      FTextFunction := StrToInt(aValue);
+      FTextFunction := StrToInt(string(aValue));
     end else
 
     if aName = 'Dependencies' then begin
@@ -4168,8 +4141,8 @@ begin
   ExtCanvas.Rectangle(Rect);
 end;
 
-function TG2GraphGraph.ParseProperties( fs: TModuleDefStream; aName: string): boolean;
-var aValue : string;
+function TG2GraphGraph.ParseProperties( fs: TModuleDefStream; aName: AnsiString): boolean;
+var aValue : AnsiString;
 begin
   Result := True;
   if not inherited ParseProperties( fs, aName) then begin
@@ -4213,8 +4186,8 @@ begin
   FIcon := itNone;
 
   FPressed := False;
-  FHide := False;
-  FAutoHide := False;
+  //FHide := False;
+  //FAutoHide := False;
 
   Color := CL_BTN_FACE;
 end;
@@ -4248,8 +4221,8 @@ var Rect, Rect2 : TRect;
 begin
   inherited;
 
-  if FHide  then
-    exit;
+  //if FHide  then
+  //  exit;
 
   //AddLogLine('Paint button');
 
@@ -4280,14 +4253,14 @@ begin
     DrawBevel( ExtCanvas, Rect, bvRaised);
 end;
 
-procedure TG2GraphButton.SetAutoHide( aValue: boolean);
+{procedure TG2GraphButton.SetAutoHide( aValue: boolean);
 begin
   FAutoHide := aValue;
   if FAutoHide then
     Hide := True
   else
     Hide := False;
-end;
+end;}
 
 procedure TG2GraphButton.SetCaption( aValue: string);
 begin
@@ -4295,11 +4268,16 @@ begin
   Invalidate;
 end;
 
-procedure TG2GraphButton.SetHide( aValue: boolean);
+procedure TG2GraphButton.SetOrientation( aValue : TOrientationType);
+begin
+  // Abstract
+end;
+
+{procedure TG2GraphButton.SetHide( aValue: boolean);
 begin
   FHide := aValue;
   Invalidate;
-end;
+end;}
 
 procedure TG2GraphButton.SetHighLightColor( aValue: TColor);
 begin
@@ -4339,8 +4317,8 @@ begin
   Invalidate;
 end;
 
-function TG2GraphButton.ParseProperties( fs: TModuleDefStream; aName : string): boolean;
-var aValue : string;
+function TG2GraphButton.ParseProperties( fs: TModuleDefStream; aName : AnsiString): boolean;
+var aValue : AnsiString;
 begin
   Result := True;
 
@@ -4358,7 +4336,7 @@ begin
 
     if aName = 'CodeRef' then begin
       aValue := fs.ReadUntil( [#13]);
-      FParameter := FModule.FData.Parameter[ StrToInt(aValue)] as TG2GraphParameter;
+      FParameter := FModule.FData.Parameter[ StrToInt(string(aValue))] as TG2GraphParameter;
       (FParameter as TG2GraphParameter).AssignControl(self);
     end else
 
@@ -4377,12 +4355,12 @@ begin
 
     if aName = 'ButtonCount' then begin
       aValue := fs.ReadUntil( [#13]);
-      FButtonCount := StrToInt(aValue);
+      FButtonCount := StrToInt(string(aValue));
     end else
 
     if aName = 'ButtonWidth' then begin
       aValue := fs.ReadUntil( [#13]);
-      FButtonWidth := StrToInt(aValue);
+      FButtonWidth := StrToInt(string(aValue));
     end else
 
     {if aName = 'Type' then begin
@@ -4397,12 +4375,12 @@ begin
 
     if aName = 'ImageWidth' then begin
       aValue := fs.ReadUntil( [#13]);
-      FImageWidth := StrToInt(aValue);
+      FImageWidth := StrToInt(string(aValue));
     end else
 
     if aName = 'ImageCount' then begin
       aValue := fs.ReadUntil( [#13]);
-      FImageCount := StrToInt(aValue);
+      FImageCount := StrToInt(string(aValue));
     end else
 
       Result := False
@@ -4447,8 +4425,8 @@ var Rect, IconRect : TRect;
     LabelText : string;
     OldBrushColor : TColor;
 begin
+  OldBrushColor := ExtCanvas.Brush.Color;
   try
-    OldBrushColor := ExtCanvas.Brush.Color;
     Rect := SubRect( GetRelToParentRect, ExtBoundsRect);
 
     ExtCanvas.Font.Assign( Font);
@@ -4480,9 +4458,9 @@ begin
         DrawCenter( ExtCanvas, Rect, FImageList.Items[0])
       else
         if FButtonText.Count > 0 then begin
-          LabelText := ParamLabel;
+          LabelText := string(ParamLabel);
           if LabelText = '' then
-            LabelTExt := FButtonText[0];
+            LabelText := FButtonText[0];
 
           TextCenter( ExtCanvas, Rect, LabelText);
         end else
@@ -4515,8 +4493,8 @@ begin
   //FParameter.CanChangeLabel := True;
 end;
 
-function TG2GraphButtonText.ParseProperties(fs: TModuleDefStream; aName: string): boolean;
-var aValue : string;
+function TG2GraphButtonText.ParseProperties(fs: TModuleDefStream; aName: AnsiString): boolean;
+var aValue : AnsiString;
 begin
   Result := True;
 
@@ -4773,8 +4751,8 @@ begin
   end;
 end;
 
-function TG2GraphButtonRadio.ParseProperties( fs: TModuleDefStream; aName : string): boolean;
-var aValue : string;
+function TG2GraphButtonRadio.ParseProperties( fs: TModuleDefStream; aName : AnsiString): boolean;
+var aValue : AnsiString;
 begin
   Result := True;
 
@@ -4790,12 +4768,12 @@ begin
 
     if aName = 'ButtonCount' then begin
       aValue := fs.ReadUntil( [#13]);
-      FButtonCount := StrToInt(aValue);
+      FButtonCount := StrToInt(string(aValue));
     end else
 
     if aName = 'ButtonWidth' then begin
       aValue := fs.ReadUntil( [#13]);
-      FButtonWidth := StrToInt(aValue);
+      FButtonWidth := StrToInt(string(aValue));
     end else
 
       Result := False
@@ -4966,8 +4944,8 @@ begin
   CalcSize;
 end;
 
-function TG2GraphButtonIncDec.ParseProperties( fs: TModuleDefStream; aName: string): boolean;
-var aValue : string;
+function TG2GraphButtonIncDec.ParseProperties( fs: TModuleDefStream; aName: AnsiString): boolean;
+var aValue : AnsiString;
 begin
   Result := True;
 
@@ -5151,8 +5129,7 @@ begin
 end;
 
 procedure TG2GraphPartSelector.PaintOn( ExtCanvas : TCanvas; ExtBoundsRect : TRect);
-var i, h : integer;
-    Rect, Rect2, Rect3, IconRect : TRect;
+var Rect, Rect2, Rect3, IconRect : TRect;
 begin
   //AddLogLine('Paint partselector');
 
@@ -5188,7 +5165,7 @@ begin
   ShrinkRect( Rect2, 1);
   SquareRect( Rect2);
   ExtCanvas.Brush.Color := clBlack;
-  if ( Value >= 0) and ( Value <= HighValue) then
+  if ( Value >= LowValue) and ( Value <= HighValue) then
     ExtCanvas.Draw( Rect.Left + 1, Rect.Top + 2, FImageList.Items[ Value]);
 end;
 
@@ -5219,8 +5196,8 @@ begin
   SetBounds(Left, Top, Width, Height);
 end;
 
-function TG2GraphPartSelector.ParseProperties( fs: TModuleDefStream; aName : string): boolean;
-var aValue : string;
+function TG2GraphPartSelector.ParseProperties( fs: TModuleDefStream; aName : AnsiString): boolean;
+var aValue : AnsiString;
 begin
   Result := True;
 
@@ -5238,7 +5215,7 @@ begin
 
     if aName = 'CodeRef' then begin
       aValue := fs.ReadUntil( [#13]);
-      FParameter := FModule.FData.Mode[ StrToInt(aValue)] as TG2GraphParameter;
+      FParameter := FModule.FData.Mode[ StrToInt(string(aValue))] as TG2GraphParameter;
     end else
 
     if aName = 'InfoFunc' then begin
@@ -5248,12 +5225,12 @@ begin
 
     if aName = 'ImageWidth' then begin
       aValue := fs.ReadUntil( [#13]);
-      FImageWidth := StrToInt(aValue);
+      FImageWidth := StrToInt(string(aValue));
     end else
 
     if aName = 'ImageCount' then begin
       aValue := fs.ReadUntil( [#13]);
-      FImageCount := StrToInt(aValue);
+      FImageCount := StrToInt(string(aValue));
     end else
 
     if aName = 'MenuOffset' then begin
@@ -5322,7 +5299,7 @@ begin
 end;
 
 procedure TG2GraphKnob.MouseMove(Shift: TShiftState; X, Y: Integer);
-var FdX, FdY, TempValue : integer;
+var FdX, FdY : integer;
 begin
   if (ssLeft in Shift) then begin
 
@@ -5349,7 +5326,6 @@ begin
 end;
 
 procedure TG2GraphKnob.MouseUp(Button: TMouseButton; Shift: TShiftState; X,  Y: Integer);
-var Rect : TRect;
 begin
   FSliderSelected := False;
   inherited;
@@ -5359,7 +5335,7 @@ procedure TG2GraphKnob.PaintOn( ExtCanvas : TCanvas; ExtBoundsRect : TRect);
 var mx, my, r : integer;
     rad, mrad, X, Y : single;
     p1, p2, p3 : TPoint;
-    Rect, Rect2, IconRect : TRect;
+    Rect, IconRect : TRect;
     MorphParameter : TMorphParameter;
     FastBitmap : TFastbitmap;
     BitMap : TBitmap;
@@ -5500,8 +5476,8 @@ begin
   end;
 end;
 
-function TG2GraphKnob.ParseProperties( fs: TModuleDefStream; aName : string): boolean;
-var aValue : string;
+function TG2GraphKnob.ParseProperties( fs: TModuleDefStream; aName : AnsiString): boolean;
+var aValue : AnsiString;
 begin
   Result := True;
 
@@ -5509,7 +5485,7 @@ begin
 
     if aName = 'CodeRef' then begin
       aValue := fs.ReadUntil( [#13]);
-      FParameter := FModule.FData.Parameter[ StrToInt(aValue)] as TG2GraphParameter;
+      FParameter := FModule.FData.Parameter[ StrToInt(string(aValue))] as TG2GraphParameter;
       (FParameter as TG2GraphParameter).AssignControl(self);
     end else
 
@@ -5670,7 +5646,6 @@ begin
 end;
 
 procedure TG2GraphConnector.MouseDown(Button: TMouseButton; Shift: TShiftState; X,  Y: Integer);
-var P : TPoint;
 begin
   inherited;
 
@@ -5812,8 +5787,8 @@ begin
   FData.CalcDefColor;
 end;
 
-function TG2GraphConnector.ParseProperties( fs: TModuleDefStream; aName : string): boolean;
-var aValue : string;
+function TG2GraphConnector.ParseProperties( fs: TModuleDefStream; aName : AnsiString): boolean;
+var aValue : AnsiString;
 begin
   Result := True;
 
@@ -5821,7 +5796,7 @@ begin
 
     if aName = 'CodeRef' then begin
       aValue := fs.ReadUntil( [#13]);
-      FData.ConnectorIndex := StrToInt(aValue);
+      FData.ConnectorIndex := StrToInt(string(aValue));
     end else
 
     if aName = 'InfoFunc' then begin
@@ -5840,7 +5815,7 @@ begin
           if aValue = '"Control"' then
             FData.ConnectorType := ctControl
           else
-            raise Exception.Create('Unknown control type ' + aValue);
+            raise Exception.Create('Unknown control type ' + string(aValue));
     end else
 
     if aName = 'Bandwidth' then begin
@@ -5851,7 +5826,7 @@ begin
         if aValue = '"Dynamic"' then
           FData.BandWidth := btDynamic
         else
-          raise Exception.Create('Unknown bandwidth type ' + aValue);
+          raise Exception.Create('Unknown bandwidth type ' + string(aValue));
     end else
 
       Result := False
@@ -6026,13 +6001,9 @@ begin
 end;
 
 procedure Tg2GraphCable.PaintElements;
-var i, j, n : integer;
-    w : single;
+var i, n : integer;
     pt1, pt2, pt3, ptn : TPointFloat;
-    p1, p2 : TPoint;
     pts : array[0..(NCABLE_ELEMENTS*2)-1] of TPoint;
-    BitMap : TBitMap;
-    Rect : TRect;
     Color : TColor;
 
     function GetPoint( i : integer): TPointFloat;
@@ -6308,7 +6279,6 @@ end;
 
 procedure TG2GraphCable.ConnectorMoved;
 var i : integer;
-    Rect : TRect;
     ModuleFrom, ModuleTo : TG2GraphModulePanel;
     ConnectorFrom, ConnectorTo : TG2GraphConnector;
 begin

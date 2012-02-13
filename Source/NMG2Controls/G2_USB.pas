@@ -264,7 +264,7 @@ type
       FSendMessageThreadHandle : THandle;
 
       // Vars for communication between server and client
-      FHost                 : AnsiString;
+      FHost                 : String;
       FPort                 : integer;
       FIsServer             : boolean;
       FClientID             : TClient;       // user name & ID
@@ -312,7 +312,7 @@ type
       function    GetSlot( aSlot : byte) : TG2USBSlot;
 
       // Initialization USB interface
-      function    Init: boolean;
+      procedure   Init;
       procedure   Done;
 
       function    get_error: string;
@@ -326,7 +326,7 @@ type
       procedure   IdTCPServerDisconnect( AContext: TIdContext);
       procedure   IdTCPServerExecute( AContext: TIdContext);
 
-      function    ServerProcessClientMessage( ClientMessage : TClientSendMessage): boolean;
+      procedure   ServerProcessClientMessage( ClientMessage : TClientSendMessage);
       procedure   ServerBroadcastResponseMessage( ResponseMessage : TG2ResponseMessage);
       procedure   ServerBroadcastSendMessage( ClientSendMessage : TClientSendMessage);
       function    ServerProcessClientResponselessMessage( ClientMessage : TClientSendMessage): boolean;
@@ -367,7 +367,7 @@ type
     published
       property    IsServer : boolean read FIsServer write FIsServer;
       property    Port : integer read FPort write FPort;
-      property    Host : AnsiString read FHost write FHost;
+      property    Host : string read FHost write FHost;
       property    USBActive : boolean read GetUSBActive write SetUSBActive;
       property    ProcessLedData : boolean read FProcessLedData write FProcessLedData;
       property    OnUSBError : TUSBErrorEvent read FOnUSBError write FOnUSBError;
@@ -572,7 +572,7 @@ begin
   Result := '';
   i := 0;
   while (i<255) and (err[i]<>#0) do begin
-    Result := Result + err[i];
+    Result := Result + string(err[i]);
     inc(i);
   end;
 {$ENDIF}
@@ -631,12 +631,11 @@ begin
   end;
 end;
 {$ELSE}
-function TG2USB.Init : boolean;
+procedure TG2USB.Init;
 var dev: pusb_device;
 begin
   // Initialization of the USB interface windows
   try
-    Result := False;
 
     // Find g2 usb device
     g2dev := nil;
@@ -682,11 +681,8 @@ begin
     if usb_claim_interface(g2udev, 0) < 0 then
       raise Exception.Create('Unable to claim the interface.');
 
-    Result := True;
-
   except on E:Exception do begin
       MessageDlg( E.Message, mtError, [mbOK], 0);
-      Result := False;
     end;
   end;
 end;
@@ -772,6 +768,7 @@ end;
 
 function TG2USB.bread(addr: longword; var buffer; size, timeout: longword): integer;
 begin
+  Result := 0;
   // Read a bulk message from USB windows
   if assigned(g2udev) then
     Result := usb_bulk_read(g2udev, addr, buffer, size, timeout);
@@ -951,9 +948,8 @@ end;
 
 procedure TReceiveMessageThread.Execute;
 var iin_buf : TByteBuffer;
-    i, bytes_read : integer;
+    bytes_read : integer;
     error : boolean;
-    Cmd, b : byte;
 begin
   SetLength(iin_buf, 16);
 
@@ -1022,8 +1018,6 @@ end;
 
 procedure TG2USB.USBSendMessage;
 var retries, total_bytes_send, bytes_send, packet : integer;
-    crc : word;
-    b : byte;
     MessageList : TList;
     ClientSendMessage : TClientSendMessage;
 begin
@@ -1146,20 +1140,27 @@ begin
                 PStaticByteBuffer(g_bout_buf.Memory)^[11] := Slot.FParamUpdBuf[i].Negative;
                 PStaticByteBuffer(g_bout_buf.Memory)^[12] := Slot.FParamUpdBuf[i].Variation;
               end;
+            else begin
+              Size := 0;
+            end;
           end;
 
-          // Calc CRC
-          crc := 0;
-          for j := 2 to Size - 3 do
-            crc := CrcClavia(crc, PStaticByteBuffer(g_bout_buf.Memory)^[j]);
+          if Size > 3 then begin
 
-          // Write CRC
-          PStaticByteBuffer(g_bout_buf.Memory)^[Size - 2] := CRC div 256;
-          PStaticByteBuffer(g_bout_buf.Memory)^[Size - 1] := CRC mod 256;;
+            // Calc CRC
+            crc := 0;
+            for j := 2 to Size - 3 do
+              crc := CrcClavia(crc, PStaticByteBuffer(g_bout_buf.Memory)^[j]);
 
-          // Online?
-          if assigned(g2udev) then
-            bwrite( g2bout, PStaticByteBuffer(g_bout_buf.Memory)^, Size, TIME_OUT);
+            // Write CRC
+            PStaticByteBuffer(g_bout_buf.Memory)^[Size - 2] := CRC div 256;
+            PStaticByteBuffer(g_bout_buf.Memory)^[Size - 1] := CRC mod 256;;
+
+            // Online?
+            if assigned(g2udev) then
+              bwrite( g2bout, PStaticByteBuffer(g_bout_buf.Memory)^, Size, TIME_OUT);
+
+          end;
 
           Slot.FParamUpdBuf[i].Changed := False;
 
@@ -1235,7 +1236,8 @@ begin
   if not((ClientSendMessage.FClientContext = nil) and not(ClientSendMessage.FMessage.HasResponse)) then begin
     // Only forward responseless messages to clients comming from server (to prevent loopbacks)
     ClientSendMessage.FMessage.Position := 0;
-    ProcessSendMessage( ClientSendMessage.FMessage, ClientSendMessage.FMessageSender.ID);
+    if not ProcessSendMessage( ClientSendMessage.FMessage, ClientSendMessage.FMessageSender.ID) then
+       add_log_line( DateTimeToStr(Now) + ' Send message not processed.', LOGCMD_ERR);
   end;
 
   ServerBroadCastSendMessage( ClientSendMessage);
@@ -1243,18 +1245,19 @@ end;
 
 procedure TG2USB.USBProcessResponseMessage( ResponseMessage : TG2ResponseMessage);
 begin
-  if not( ResponseMessage.IsLedData) or FLogLedDataMessages then begin
-    add_log_line( '', LOGCMD_NUL);
-    add_log_line( 'Broadcast : ', LOGCMD_NUL);
-    dump_buffer( PStaticByteBuffer( ResponseMessage.Memory)^, ResponseMessage.Size);
-  end;
-
   if ResponseMessage.IsEmbedded then
     ResponseMessage.Position := 1 // Skip first byte if embedded
   else
     ResponseMessage.Position := 0;
 
-  ProcessResponseMessage( ResponseMessage, 0);
+  if not ProcessResponseMessage( ResponseMessage, 0) then
+    add_log_line( DateTimeToStr(Now) + ' Response message not processed.', LOGCMD_ERR);
+
+  if not( ResponseMessage.IsLedData) or FLogLedDataMessages then begin
+    add_log_line( '', LOGCMD_NUL);
+    add_log_line( 'Broadcast : ', LOGCMD_NUL);
+    dump_buffer( PStaticByteBuffer( ResponseMessage.Memory)^, ResponseMessage.Size);
+  end;
 
   ServerBroadCastResponseMessage( ResponseMessage);
 end;
@@ -1384,16 +1387,14 @@ var
   LDataSize: Integer;
   LProtocol: TProtocol;
   LClientContext: TClientContext; // we need to HARD CAST AContext to TClientContext in order to access our custom methods(procedures)
-  ClientSendMessage : TClientSendMessage;
   MyNotify: TG2ProcessClientSendMessage;
-  MemStream : TMemoryStream;
 begin
   // hard cast AContext to TClientContext
   LClientContext := TClientContext(AContext);
   LDataSize := LClientContext.Connection.IOHandler.InputBuffer.Size;
   if LDataSize >= szProtocol then begin
+    LBuffer := TMemoryStream.Create;
     try
-      LBuffer := TMemoryStream.Create;
       LClientContext.Connection.IOHandler.ReadStream( LBuffer, szProtocol);
       LProtocol := StreamToProtocol(LBuffer);
       // check client command and act accordingly
@@ -1500,10 +1501,11 @@ function TG2USB.GetClientCount: integer;
 var LClients: TList;
     i : integer;
 begin
+  Result := 0;
+
   if not assigned(FIdTCPServer) then
     exit;
 
-  Result := 0;
   if assigned(FIdTCPServer) then begin
     LClients := FIdTCPServer.Contexts.LockList;
     try
@@ -1623,9 +1625,10 @@ begin
   //add_log_line( 'Client received message ' + IntToHex( Cmd, 2), LOGCMD_NUL);
 
   try
-    ProcessResponseMessage( MemStream, 0);
+    if not ProcessResponseMessage( MemStream, 0) then
+      add_log_line( DateTimeToStr(Now) + ' Response message not processed.', LOGCMD_ERR);
   except on E:Exception do
-    add_log_line( DateTimeToStr(now) + E.Message, LOGCMD_ERR);
+    add_log_line( DateTimeToStr(Now) + ' ' + E.Message, LOGCMD_ERR);
   end;
 
   // Is this what we've been waiting for?
@@ -1666,12 +1669,12 @@ begin
 end;
 
 procedure TG2USB.ClientProcessServerSendMessage( MemStream : TMemoryStream; SenderID : integer);
-var Cmd, b : byte;
 begin
   // Client receives a send message
   MemStream.Position := 0;
   try
-    ProcessSendMessage( MemStream, SenderID);
+    if not ProcessSendMessage( MemStream, SenderID) then
+      add_log_line( DateTimeToStr(now) + ' Send message not processed.', LOGCMD_ERR);
   except on E:Exception do
     add_log_line( DateTimeToStr(now) + E.Message, LOGCMD_ERR);
   end;
@@ -1741,8 +1744,6 @@ begin
 end;
 
 procedure TG2USB.SetUSBActive(const Value: boolean);
-var Start, Duration : integer;
-    ExitCode : DWord;
 begin
   if Value then begin
 
@@ -1895,16 +1896,13 @@ begin
 end;
 
 function TG2USB.SendCmdMessage( SendMessage : TG2SendMessage): boolean;
-var res : integer;
-    Start, Duration : integer;
-    ClientSendMessage : TClientSendMessage;
+var ClientSendMessage : TClientSendMessage;
     MessageList : TList;
-    SendStream : TMemoryStream;
-    Cmd : byte;
 begin
    // Send message from server to G2 or from client to server
 
-   Result := True;
+   // Return True if message was send
+   Result := False;
    FErrorMessage := False;
    FErrorMessageNo := 0;
 
@@ -1938,6 +1936,8 @@ begin
       finally
         FSendMessageQueue.UnlockList;
       end;
+      Result := True;
+
 
       add_log_line('Send buffer count is ' + IntTostr(FSendMessageCount), LOGCMD_NUL);
 
@@ -1949,6 +1949,7 @@ begin
       ClientSendMessage.FMessage := SendMessage;
       try
         USBProcessSendMessage( ClientSendMessage);
+        Result := True;
       finally
         SendMessage.Free;
         ClientSendMessage.Free;
@@ -1974,13 +1975,14 @@ begin
       PStaticByteBuffer( SendMessage.Memory)^[0] := SendMessage.Size div 256;
       PStaticByteBuffer( SendMessage.Memory)^[1] := SendMessage.Size mod 256;
       ClientSendMessageToServer( SendMessage);
+      Result := True;
     end;
 
     SendMessage.Free;
   end;
 end;
 
-function TG2USB.ServerProcessClientMessage( ClientMessage : TClientSendMessage): boolean;
+procedure TG2USB.ServerProcessClientMessage( ClientMessage : TClientSendMessage);
 var ResponseMessage : TG2ResponseMessage;
     MessageList : TList;
 begin
@@ -2429,71 +2431,70 @@ procedure TG2USBSlot.AddParamUpdRec( aSubCmd, aLocation, aModule, aParam, aMorph
 var i : integer;
     SendStream : TG2SendMessage;
 begin
-try
-  if not assigned(G2) then
-    exit;
+  try
+    if not assigned(G2) then
+      exit;
 
-  // Todo : replace by fast search and add sorted
-  i := 0;
-  while (i < FParamUpdBufCount) and not(( FParamUpdBuf[i].SubCmd = aSubCmd)
-                                    and ( FParamUpdBuf[i].Location = aLocation)
-                                    and ( FParamUpdBuf[i].Module = aModule)
-                                    and ( FParamUpdBuf[i].Param = aParam)
-                                    and ( FParamUpdBuf[i].Morph = aMorph)
-                                    and ( FParamUpdBuf[i].Variation = aVariation)
-                                    {and ( FParamUpdBuf[i].Sender = aSender)}
-                                    and ( FParamUpdBuf[i].ClientContext = aClientContext)) do
-    inc(i);
+    // Todo : replace by fast search and add sorted
+    i := 0;
+    while (i < FParamUpdBufCount) and not(( FParamUpdBuf[i].SubCmd = aSubCmd)
+                                      and ( FParamUpdBuf[i].Location = aLocation)
+                                      and ( FParamUpdBuf[i].Module = aModule)
+                                      and ( FParamUpdBuf[i].Param = aParam)
+                                      and ( FParamUpdBuf[i].Morph = aMorph)
+                                      and ( FParamUpdBuf[i].Variation = aVariation)
+                                      {and ( FParamUpdBuf[i].Sender = aSender)}
+                                      and ( FParamUpdBuf[i].ClientContext = aClientContext)) do
+      inc(i);
 
-  if not(i < FParamUpdBufCount) then begin
-    // Not found, add
-    if (FParamUpdBufCount + 1) >= Length( FParamUpdBuf) then
-      SetLength( FParamUpdBuf, Length( FParamUpdBuf) + 100); // Increase buffersize
+    if not(i < FParamUpdBufCount) then begin
+      // Not found, add
+      if (FParamUpdBufCount + 1) >= Length( FParamUpdBuf) then
+        SetLength( FParamUpdBuf, Length( FParamUpdBuf) + 100); // Increase buffersize
 
-    FParamUpdBuf[ FParamUpdBufCount].SubCmd := aSubCmd;
-    FParamUpdBuf[ FParamUpdBufCount].Location := aLocation;
-    FParamUpdBuf[ FParamUpdBufCount].Module := aModule;
-    FParamUpdBuf[ FParamUpdBufCount].Param := aParam;
-    FParamUpdBuf[ FParamUpdBufCount].Morph := aMorph;
-    FParamUpdBuf[ FParamUpdBufCount].Value := 128; // Clavia max is 127, so this means "unitialized"
-    FParamUpdBuf[ FParamUpdBufCount].Negative := 0;
-    FParamUpdBuf[ FParamUpdBufCount].Variation := aVariation;
-    //FParamUpdBuf[ FParamUpdBufCount].Sender := aSender;
-    FParamUpdBuf[ FParamUpdBufCount].ClientContext := aClientContext;
-    inc( FParamUpdBufCount);
-  end;
-
-  if ((G2 as TG2USB).FIsServer) then begin
-    // Server, mark what has to be updated to the G2
-    if (FParamUpdBuf[ i].Value <> aValue) or (FParamUpdBuf[ i].Negative <> aNegative) then begin
-      FParamUpdBuf[ i].Value := aValue;
-      FParamUpdBuf[ i].Negative := aNegative;
-      FParamUpdBuf[ i].Changed := True;
+      FParamUpdBuf[ FParamUpdBufCount].SubCmd := aSubCmd;
+      FParamUpdBuf[ FParamUpdBufCount].Location := aLocation;
+      FParamUpdBuf[ FParamUpdBufCount].Module := aModule;
+      FParamUpdBuf[ FParamUpdBufCount].Param := aParam;
+      FParamUpdBuf[ FParamUpdBufCount].Morph := aMorph;
+      FParamUpdBuf[ FParamUpdBufCount].Value := 128; // Clavia max is 127, so this means "unitialized"
+      FParamUpdBuf[ FParamUpdBufCount].Negative := 0;
+      FParamUpdBuf[ FParamUpdBufCount].Variation := aVariation;
+      //FParamUpdBuf[ FParamUpdBufCount].Sender := aSender;
+      FParamUpdBuf[ FParamUpdBufCount].ClientContext := aClientContext;
+      inc( FParamUpdBufCount);
     end;
-  end else begin
-    // Client, send only if value is changed
-    if (FParamUpdBuf[ i].Value <> aValue) or (FParamUpdBuf[ i].Negative <> aNegative) then begin
-      FParamUpdBuf[ i].Value := aValue;
-      FParamUpdBuf[ i].Negative := aNegative;
 
-      SendStream := nil;
-      case aSubCmd of
-        S_SEL_PARAM       : SendStream := CreateSelParamMessage( FParamUpdBuf[ i].Location, FParamUpdBuf[ i].Module, FParamUpdBuf[ i].Param);
-        S_SET_PARAM       : SendStream := CreateSetParamMessage( FParamUpdBuf[ i].Location, FParamUpdBuf[ i].Module, FParamUpdBuf[ i].Param, FParamUpdBuf[ i].Value, FParamUpdBuf[ i].Variation);
-        S_SET_MORPH_RANGE : SendStream := CreateSetMorphMessage( FParamUpdBuf[ i].Location, FParamUpdBuf[ i].Module, FParamUpdBuf[ i].Param, FParamUpdBuf[ i].Morph, FParamUpdBuf[ i].Value, FParamUpdBuf[ i].Negative, FParamUpdBuf[ i].Variation);
+    if ((G2 as TG2USB).FIsServer) then begin
+      // Server, mark what has to be updated to the G2
+      if (FParamUpdBuf[ i].Value <> aValue) or (FParamUpdBuf[ i].Negative <> aNegative) then begin
+        FParamUpdBuf[ i].Value := aValue;
+        FParamUpdBuf[ i].Negative := aNegative;
+        FParamUpdBuf[ i].Changed := True;
       end;
+    end else begin
+      // Client, send only if value is changed
+      if (FParamUpdBuf[ i].Value <> aValue) or (FParamUpdBuf[ i].Negative <> aNegative) then begin
+        FParamUpdBuf[ i].Value := aValue;
+        FParamUpdBuf[ i].Negative := aNegative;
 
-      if assigned(SendStream) then
-        (G2 as TG2USB).SendOnClientMessage( SendStream);
+        SendStream := nil;
+        case aSubCmd of
+          S_SEL_PARAM       : SendStream := CreateSelParamMessage( FParamUpdBuf[ i].Location, FParamUpdBuf[ i].Module, FParamUpdBuf[ i].Param);
+          S_SET_PARAM       : SendStream := CreateSetParamMessage( FParamUpdBuf[ i].Location, FParamUpdBuf[ i].Module, FParamUpdBuf[ i].Param, FParamUpdBuf[ i].Value, FParamUpdBuf[ i].Variation);
+          S_SET_MORPH_RANGE : SendStream := CreateSetMorphMessage( FParamUpdBuf[ i].Location, FParamUpdBuf[ i].Module, FParamUpdBuf[ i].Param, FParamUpdBuf[ i].Morph, FParamUpdBuf[ i].Value, FParamUpdBuf[ i].Negative, FParamUpdBuf[ i].Variation);
+        end;
 
+        if assigned(SendStream) then
+          (G2 as TG2USB).SendOnClientMessage( SendStream);
+
+      end;
+    end;
+  except on E:Exception do begin
+      G2.add_log_line( 'AddParamUpdRec, FParamUpdBufCount ' + IntToStr(FParamUpdBufCount) + ', Length buf ' + IntToStr(Length(FParamUpdBuf)), LOGCMD_NUL);
+      G2.save_log;
     end;
   end;
-except on E:Exception do begin
-    G2.add_log_line( 'AddParamUpdRec, FParamUpdBufCount ' + IntToStr(FParamUpdBufCount) + ', i = ' + IntToStr(i) + ', Length buf ' + IntToStr(Length(FParamUpdBuf)), LOGCMD_NUL);
-    G2.save_log;
-  end;
-end;
-
 end;
 
 procedure TG2USBSlot.SendSetParamMessage( aLocation, aModule, aParam, aValue, aVariation: byte);
@@ -2515,7 +2516,6 @@ try
 end;
 
 procedure TG2USBSlot.SendSelParamMessage( aLocation, aModule, aParam: integer);
-var MemStream : TMemoryStream;
 begin
   add_log_line('Select param, module ' + IntToStr(aModule) + ', param ' + IntToStr(aParam) + ', slot ' + IntToStr(SlotIndex) + ', patch_version ' + IntToStr(FPatchVersion), LOGCMD_HDR);
 
@@ -2523,7 +2523,6 @@ begin
 end;
 
 procedure TG2USBSlot.SendSetMorphMessage( aLocation, aModule, aParam, aMorph, aValue, aNegative, aVariation: byte);
-var MemStream : TMemoryStream;
 begin
   add_log_line('Set morph, location ' + IntToStr(aLocation) + ', module ' + IntToStr(aModule) + ', param ' + IntToStr(aParam) + ', morph ' + IntToStr(aMorph) + ', value ' + IntToStr(aValue) + ', negative ' + IntToStr(aNegative) + ', variation ' + IntToStr(aVariation) + ', slot ' + IntToStr(SlotIndex) + ', patch_version ' + IntToStr(FPatchVersion), LOGCMD_HDR);
 
@@ -2592,7 +2591,7 @@ function TG2USBPatch.MessAddModule( aLocation : TLocationType; aModuleType, aCol
 var MemStream : TG2SendMessage;
     aModuleIndex : Byte;
 begin
-  Result := inherited MessAddModule( aLocation, aModuleType, aCol, aRow);
+  inherited MessAddModule( aLocation, aModuleType, aCol, aRow);
 
   // Get a new module index
   aModuleIndex := GetMaxModuleIndex( aLocation) + 1;
@@ -2605,7 +2604,7 @@ end;
 function TG2USBPatch.MessCopyModules( aSrcePatch : TG2FilePatchPart; aFromLocation, aToLocation : TLocationType): boolean;
 var MemStream : TG2SendMessage;
 begin
-  Result := inherited MessCopyModules( aSrcePatch, aFromLocation, aToLocation);
+  inherited MessCopyModules( aSrcePatch, aFromLocation, aToLocation);
 
   MemStream := CreateCopyModulesMessage( aSrcePatch, aFromLocation, aToLocation, True);
   Result := SendCmdMessage( MemStream);

@@ -71,7 +71,7 @@ begin
   if FDisableControls then
     exit;
 
-  frmG2Main.G2.Performance.PerformanceName := ePerfName.Text;
+  frmG2Main.G2.Performance.PerformanceName := AnsiString(ePerfName.Text);
   frmG2Main.G2.Performance.SendSetPerfNameMessage( frmG2Main.G2.Performance.PerformanceName);
 end;
 
@@ -131,7 +131,7 @@ procedure TfrmPerfSettings.updateDialog;
 begin
   FDisableControls := True;
   try
-    ePerfName.Text := frmG2Main.G2.Performance.PerformanceName;
+    ePerfName.Text := string(frmG2Main.G2.Performance.PerformanceName);
 
     eRate.Text := IntToStr(frmG2Main.G2.Performance.MasterClock);
     udRate.Position := frmG2Main.G2.Performance.MasterClock;

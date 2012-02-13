@@ -28,6 +28,8 @@ object frmSettings: TfrmSettings
     ExplicitHeight = 290
     object TabSheet1: TTabSheet
       Caption = 'Server'
+      ExplicitLeft = 0
+      ExplicitTop = 0
       ExplicitWidth = 546
       ExplicitHeight = 262
       object Label3: TLabel
@@ -64,6 +66,8 @@ object frmSettings: TfrmSettings
     object TabSheet2: TTabSheet
       Caption = 'OSC'
       ImageIndex = 1
+      ExplicitLeft = 0
+      ExplicitTop = 0
       ExplicitWidth = 546
       ExplicitHeight = 262
       object Panel1: TPanel
@@ -130,13 +134,13 @@ object frmSettings: TfrmSettings
         ParentFont = False
         ScrollBars = ssBoth
         TabOrder = 1
-        ExplicitWidth = 546
-        ExplicitHeight = 203
       end
     end
     object TabSheet3: TTabSheet
       Caption = 'Patch manager'
       ImageIndex = 2
+      ExplicitLeft = 0
+      ExplicitTop = 0
       ExplicitWidth = 546
       ExplicitHeight = 262
       DesignSize = (

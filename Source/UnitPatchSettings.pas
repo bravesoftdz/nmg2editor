@@ -67,9 +67,12 @@ end;
 procedure TfrmPatchSettings.LoadIniXML;
 var Doc : TXMLDocument;
     RootNode : TDOMNode;
-    PatchManagerSettingsNode : TXMLPatchManagerSettingsType;
     FormSettingsNode : TXMLFormSettingsType;
 begin
+  if not FileExists('G2_editor_ini.xml') then
+    exit;
+
+
   Doc := TXMLDocument.Create;
   try
     ReadXMLFile( Doc, 'G2_editor_ini.xml');

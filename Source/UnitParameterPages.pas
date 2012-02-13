@@ -128,9 +128,11 @@ end;
 procedure TfrmParameterPages.LoadIniXML;
 var Doc : TXMLDocument;
     RootNode : TDOMNode;
-    PatchManagerSettingsNode : TXMLPatchManagerSettingsType;
     FormSettingsNode : TXMLFormSettingsType;
 begin
+  if not FileExists('G2_editor_ini.xml') then
+    exit;
+
   Doc := TXMLDocument.Create;
   try
     ReadXMLFile( Doc, 'G2_editor_ini.xml');
@@ -160,13 +162,12 @@ begin
 end;
 
 procedure TfrmParameterPages.WMPaint(var Msg: TWMPaint);
-var DC, MemDC : HDC;
-    PS        : TPaintStruct;
+var PS        : TPaintStruct;
     i         : integer;
     Rect      : TRect;
     Control   : TG2GraphChildControl;
 begin
-  DC := BeginPaint(Handle, PS);
+  BeginPaint(Handle, PS);
 
   if PS.rcPaint.Right - PS.rcPaint.Left > FExtBitmap.Width then
     FExtBitmap.Width := PS.rcPaint.Right - PS.rcPaint.Left;

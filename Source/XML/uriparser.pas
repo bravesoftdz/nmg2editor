@@ -70,7 +70,7 @@ var
 begin
   L := Length(s);
   for i := 1 to Length(s) do
-    if not (s[i] in Allowed) then Inc(L,2);
+    if not CharInSet(s[i], Allowed) then Inc(L,2);
   if L = Length(s) then
   begin
     Result := s;
@@ -81,7 +81,7 @@ begin
   P := @Result[1];
   for i := 1 to Length(s) do
   begin
-    if not (s[i] in Allowed) then
+    if not CharInSet(s[i], Allowed) then
     begin
       P^ := '%'; Inc(P);
       StrFmt(P, '%.2x', [ord(s[i])]); Inc(P);
@@ -186,7 +186,7 @@ begin
       break;
     end
     else
-      if not (((i=1) and (s[i] in ALPHA)) or (s[i] in ALPHA + DIGIT + ['+', '-', '.'])) then
+      if not (((i=1) and CharInSet(s[i], ALPHA)) or CharInSet(s[i], ALPHA + DIGIT + ['+', '-', '.'])) then
         break;
 
   // Extract the bookmark
@@ -408,7 +408,7 @@ var
   IsAbsFilename: Boolean;
 begin
   IsAbsFilename := ((Filename <> '') and (Filename[1] = PathDelim)) or
-    ((Length(Filename) > 2) and (Filename[1] in ['A'..'Z', 'a'..'z']) and (Filename[2] = ':'));
+    ((Length(Filename) > 2) and CharInSet(Filename[1], ['A'..'Z', 'a'..'z']) and (Filename[2] = ':'));
 
   Result := 'file:';
   if IsAbsFilename then
@@ -443,8 +443,8 @@ begin
     if UriReference[I] = ':' then
       Exit
     else
-      if not (((I=1) and (UriReference[I] in ALPHA)) or
-         (UriReference[i] in ALPHA + DIGIT + ['+', '-', '.'])) then
+      if not (((I=1) and CharInSet(UriReference[I], ALPHA)) or
+         CharInSet(UriReference[i], ALPHA + DIGIT + ['+', '-', '.'])) then
       Break;
   end;
   Result := False;

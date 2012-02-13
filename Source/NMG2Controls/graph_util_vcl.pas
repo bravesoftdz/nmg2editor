@@ -318,7 +318,6 @@ procedure DrawDisk( Bitmap: TBitmap; CenterX, CenterY, Radius, Feather: single; 
 var
   x, y: integer;
   LX, RX, LY, RY: integer;
-  Fact: integer;
   RPF2, RMF2: single;
   //P: PByteArray;
   SqY, SqDist: single;
@@ -334,7 +333,6 @@ var
 {$ENDIF}
   aRatio : Real;
   LMinusRatio : Real;
-  R : TRect;
 begin
 {$IFDEF FPC}
   TempIntfImg := TLazIntfImage.Create(0,0);

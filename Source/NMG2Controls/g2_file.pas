@@ -112,27 +112,27 @@ type
     constructor Create( AOwner: TComponent); override;
     destructor  Destroy; override;
     function    LoadFileHeader( aStream : TStream; aChunk : TPatchChunk): boolean;
-    procedure   Read( aChunk : TPatchChunk); virtual; abstract;
-    procedure   Write( aChunk : TPatchChunk; aVariationCount : byte); virtual; abstract;
+    procedure   Read( aChunk : TPatchChunk); virtual;
+    procedure   Write( aChunk : TPatchChunk; aVariationCount : byte); virtual;
 
     function    ReadClaviaString( aStream : TStream): AnsiString;
     procedure   WriteClaviaString( aStream : TStream; aValue : AnsiString);
 
     function    CreateFromMidiStream(const aStream: TStream): TMemoryStream;
-    function    CreateMidiBlock( aBlockNr, aBlockCount, anOffset, aSize: Integer; aChunk : TPatchChunk; aMidiStream : TStream): boolean;
+    procedure   CreateMidiBlock( aBlockNr, aBlockCount, anOffset, aSize: Integer; aChunk : TPatchChunk; aMidiStream : TStream);
     procedure   SaveMidiToStream( const aStream : TStream);
     function    ParseMidiConst  ( const aStream : TStream; aValue: Byte): Byte;
     function    ParseMidiSeptet ( const aStream : TStream): Byte;
     function    ParseMidiInt    ( const aStream : TStream): Integer;
-    function    ParseMidiString ( const aStream : TStream): string;
+    function    ParseMidiString ( const aStream : TStream): AnsiString;
     procedure   AddMidiByte( aStream : TStream; aByte: Byte);
     procedure   AddMidiInt( aStream : TStream; anInteger: Integer);
-    procedure   AddMidiName( aStream : TStream; aName : string);
+    procedure   AddMidiName( aStream : TStream; aName : AnsiString);
 
     class function LoadFileData( AOwner: TComponent; aStream : TStream; aLogLines : TStrings): TG2FileDataStream; virtual;
-    class function LoadFileStream( AOwner: TComponent; aStream : TStream; aChunk : TPatchChunk): TG2FileDataStream; virtual; abstract;
+    class function LoadFileStream( AOwner: TComponent; aStream : TStream; aChunk : TPatchChunk): TG2FileDataStream; virtual;
     class function LoadMidiData( AOwner : TComponent; aStream: TStream; aLogLines : TStrings): TG2FileDataStream;
-    class function LoadMidiStream( AOwner : TComponent; aStream: TStream): TG2FileDataStream; virtual; abstract;
+    class function LoadMidiStream( AOwner : TComponent; aStream: TStream): TG2FileDataStream; virtual;
 
     property Version : byte read FVersion write FVersion;
     property PatchType : byte read FPatchType write FPatchType;
@@ -282,7 +282,7 @@ type
     constructor CopyCreate( AOwner: TComponent; aCable : TG2FileCable);
     destructor  Destroy; override;
     procedure   Init;
-    procedure   ConnectorMoved; virtual; abstract;
+    procedure   ConnectorMoved; virtual;
     procedure   Read( aChunk : TPatchChunk);
     procedure   Write( aChunk : TPatchChunk);
 
@@ -393,7 +393,7 @@ type
   TModuleParameters = class( TObjectList)
   private
     FLocation       : Tbits2;
-    FSetCount       : TBits8;
+    FParamSetCount  : TBits8;
     FVariationCount : TBits8;
     //FPatch          : TG2FilePatch;
     function    GetParamSet( aIndex : integer) : TParamSet;
@@ -412,7 +412,7 @@ type
     function    FindParamValue( aModuleIndex, aVariation, aParamIndex : integer): TBits7;
     function    AddParamSet( aValue : TParamSet): integer;
     property    Items[ aIndex : integer]: TParamSet read GetParamSet write SetParamSet; default;
-    property    SetCount : TBits8 read FSetCount write FSetCount;
+    property    ParamSetCount : TBits8 read FParamSetCount write FParamSetCount;
     property    VariationCount : TBits8 read FVariationCount write FVariationCount;
   end;
 
@@ -593,7 +593,6 @@ type
   TControllerList = class( TObjectList)
   private
     FControllerCount : TBits7;
-    FPatch           : TG2FilePatch;
     function    GetController( aIndex : integer) : TController;
     procedure   SetController( aIndex : integer; const aValue : TController);
   public
@@ -683,7 +682,6 @@ type
   private
     FLocation    : Tbits2;
     FModuleCount : TBits8;
-    FPatch       : TG2FilePatch;
     function    GetParamLabelModule( aIndex : integer) : TParamLabelModule;
     procedure   SetParamLabelModule( aIndex : integer; const aValue : TParamLabelModule);
   public
@@ -957,14 +955,14 @@ type
     function    MessAddModule( aLocation : TLocationType; aModuleType, aCol, aRow: byte): boolean; virtual;
     function    MessCopyModules( aSrcePatch : TG2FilePatchPart; aFromLocation, aToLocation : TLocationType): boolean; virtual;
     // Abstract functions
-    function    MessAddConnection( aLocation : TLocationType; aFromConnection, aToConnection : TG2FileConnector): boolean; virtual; abstract;
-    function    MessDeleteConnection( aLocation : TLocationType; aCable : TG2FileCable): boolean; virtual; abstract;
-    function    MessDeleteModule( aLocation : TLocationType; aModuleIndex : byte): boolean; virtual; abstract;
-    function    MessDeleteModules( aLocation : TLocationType): boolean; virtual; abstract;
-    function    MessMoveModule( aLocation : TLocationType; aModuleIndex, aCol, aRow : byte): boolean; virtual; abstract;
-    function    MessSetModuleColor( aLocation: TLocationType; aModuleIndex, aColor : byte): boolean; virtual; abstract;
-    function    MessSetModuleParamLabels( aLocation: TLocationType; aModuleIndex, aParamIndex: byte; aName: AnsiString): boolean; virtual; abstract;
-    function    MessSetModuleLabel( aLocation : TLocationType; aModuleIndex : byte; aName : AnsiString): boolean; virtual; abstract;
+    function    MessAddConnection( aLocation : TLocationType; aFromConnection, aToConnection : TG2FileConnector): boolean; virtual;
+    function    MessDeleteConnection( aLocation : TLocationType; aCable : TG2FileCable): boolean; virtual;
+    function    MessDeleteModule( aLocation : TLocationType; aModuleIndex : byte): boolean; virtual;
+    function    MessDeleteModules( aLocation : TLocationType): boolean; virtual;
+    function    MessMoveModule( aLocation : TLocationType; aModuleIndex, aCol, aRow : byte): boolean; virtual;
+    function    MessSetModuleColor( aLocation: TLocationType; aModuleIndex, aColor : byte): boolean; virtual;
+    function    MessSetModuleParamLabels( aLocation: TLocationType; aModuleIndex, aParamIndex: byte; aName: AnsiString): boolean; virtual;
+    function    MessSetModuleLabel( aLocation : TLocationType; aModuleIndex : byte; aName : AnsiString): boolean; virtual;
 
     procedure   SortLeds; virtual;
 
@@ -1094,7 +1092,7 @@ type
     function    GetSelectedMorphValue : byte;
     function    GetMorphValue( aMorphIndex, aVariation : integer) : byte;
     procedure   SetSelectedMorphValue( Value: byte);
-    function    TextFunction( aTextFunction: integer; LineNo, TotalLines : integer): AnsiString;
+    function    TextFunction( aTextFunction: integer; LineNo, TotalLines : integer): string;
     //FMX procedure   AssignControl( aControl : TGraphicControl); virtual; abstract;
     //FMX procedure   DeassignControl( aControl : TGraphicControl); virtual; abstract;
     procedure   InvalidateControl; virtual;
@@ -1429,7 +1427,7 @@ begin
 end;
 
 procedure TG2FileModule.InitModule( aLocation : TLocationType; aModuleDef: TXMLModuleDefType; aParamDefList : TXMLParamDefListType);
-var i, j : integer;
+var i : integer;
     aParamDef : TXMLParamDefType;
     aConnectorList : TXMLConnectorListType;
     aParamList : TXMLParamListType;
@@ -2080,6 +2078,11 @@ begin
   aChunk.WriteBits( FConnectorTo, 6);
 end;
 
+procedure TG2FileCable.ConnectorMoved;
+begin
+  // Abstract
+end;
+
 ////////////////////////////////////////////////////////////////////////////////
 //  TG2CableList
 ////////////////////////////////////////////////////////////////////////////////
@@ -2093,7 +2096,7 @@ begin
 end;
 
 constructor TCableList.CopySelected( AOwnsObjects : boolean; aPatchPart : TG2FilePatchPart; aModuleList : TModuleList; aCableList : TCableList);
-var i, j : integer;
+var i : integer;
     ModuleFrom, ModuleTo : TG2FileModule;
     NumCables : integer;
 begin
@@ -2282,8 +2285,7 @@ begin
 end;
 
 procedure TCurrentNote.Init;
-var i : integer;
-    Note : TNote;
+var Note : TNote;
 begin
   FLastNote.Init;
 
@@ -2541,7 +2543,7 @@ begin
 end;
 
 constructor TModuleParameters.CopySelected( AOwnsObjects : boolean; {aPatch : TG2FilePatch;} aModuleList : TModuleList; aModuleParameters : TModuleParameters);
-var NumSets, i, j : integer;
+var NumSets, i : integer;
     Module : TG2FileModule;
 begin
   inherited Create( AOwnsObjects);
@@ -2566,7 +2568,7 @@ procedure TModuleParameters.Init;
 begin
   Clear;
 
-  FSetCount  := 0;
+  FParamSetCount  := 0;
   FVariationCount := 0;
 end;
 
@@ -2594,7 +2596,7 @@ begin
 
   if (i < Count) then begin
     Delete(i);
-    FSetCount := Count;
+    FParamSetCount := Count;
   end;
 end;
 
@@ -2620,16 +2622,16 @@ begin
     ParamSet.Read( achunk);
     Add(ParamSet);
   end;
-  FSetCount := Count;
+  FParamSetCount := Count;
 end;
 
 procedure TModuleParameters.Write( aChunk : TPatchChunk; aVariationCount : byte);
 var i : integer;
 begin
-  FSetCount := Count;
-  aChunk.WriteBits(FSetCount, 8);
+  FParamSetCount := Count;
+  aChunk.WriteBits(FParamSetCount, 8);
   //aChunk.WriteBits( min( FVariationCount, FPatch.FMaxVariations), 8);
-  if FSetCount = 0 then
+  if FParamSetCount = 0 then
     aChunk.WriteBits( 0, 8)
   else
     aChunk.WriteBits( aVariationCount, 8);
@@ -2950,7 +2952,7 @@ begin
   Result := nil;
   i := 0;
   while (i < Count) and
-    not((Items[i].FLocation = ord(aLocation)) and
+    not((Items[i].FLocation = TBits2(aLocation)) and
         (Items[i].FModuleIndex = aModuleIndex) and
         (Items[i].FParamIndex = aParamIndex) and
         (Items[i].FMorph = aMorphIndex)) do
@@ -2961,8 +2963,7 @@ begin
 end;
 
 procedure TVariation.AddNewMorphParam( aLocation, aModuleIndex, aParamIndex, aMorphIndex, aRange: byte);
-var i : integer;
-    MorphParam : TMorphParameter;
+var MorphParam : TMorphParameter;
 begin
   MorphParam := TMorphParameter.Create;
   MorphParam.FLocation := aLocation;
@@ -2974,8 +2975,7 @@ begin
 end;
 
 procedure TVariation.DelMorphParam( aLocation, aModuleIndex, aParamIndex, aMorphIndex: byte);
-var i, j : integer;
-    MorphParam : TMorphParameter;
+var i: integer;
 begin
   i := 0;
   while (i < Count) and not((Items[i].FLocation = aLocation) and
@@ -3092,7 +3092,7 @@ begin
 end;
 
 procedure TPatchSettings.Read( aChunk : TPatchChunk);
-var i, j, section, entries, variation : integer;
+var i, j, variation : integer;
 begin
   // FLocation       : Tbits2;
   // FSectionCnt     : TBits8;
@@ -3110,8 +3110,8 @@ begin
     inc(i);
   end;
 
-  section := aChunk.ReadBits( 8);
-  entries := aChunk.ReadBits( 7);
+  aChunk.ReadBits( 8); // Sections
+  aChunk.ReadBits( 7); // Entries
 
   for i := 0 to FVariationCount - 1 do begin
     variation := aChunk.ReadBits( 8);
@@ -3122,8 +3122,8 @@ begin
       FMorphs[j].FModes[variation] := aChunk.ReadBits( 7);
   end;
 
-  section := aChunk.ReadBits( 8);
-  entries := aChunk.ReadBits( 7);
+  aChunk.ReadBits( 8); // Sections
+  aChunk.ReadBits( 7); // Entries
 
   for i := 0 to FVariationCount - 1 do begin
     variation := aChunk.ReadBits( 8);
@@ -3131,8 +3131,8 @@ begin
     FVariations[variation].FActiveMuted := aChunk.ReadBits( 7);
   end;
 
-  section := aChunk.ReadBits( 8);
-  entries := aChunk.ReadBits( 7);
+  aChunk.ReadBits( 8); // Sections
+  aChunk.ReadBits( 7); // Entries
 
   for i := 0 to FVariationCount - 1 do begin
     variation := aChunk.ReadBits( 8);
@@ -3140,8 +3140,8 @@ begin
     FVariations[variation].FGlideTime := aChunk.ReadBits( 7);
   end;
 
-  section := aChunk.ReadBits( 8);
-  entries := aChunk.ReadBits( 7);
+  aChunk.ReadBits( 8); // Sections
+  aChunk.ReadBits( 7); // Entries
 
   for i := 0 to FVariationCount - 1 do begin
     variation := aChunk.ReadBits( 8);
@@ -3149,8 +3149,8 @@ begin
     FVariations[variation].FSemi := aChunk.ReadBits( 7);
   end;
 
-  section := aChunk.ReadBits( 8);
-  entries := aChunk.ReadBits( 7);
+  aChunk.ReadBits( 8); // Sections
+  aChunk.ReadBits( 7); // Entries
 
   for i := 0 to FVariationCount - 1 do begin
     variation := aChunk.ReadBits( 8);
@@ -3159,8 +3159,8 @@ begin
     FVariations[variation].FRate        := aChunk.ReadBits( 7);
   end;
 
-  section := aChunk.ReadBits( 8);
-  entries := aChunk.ReadBits( 7);
+  aChunk.ReadBits( 8); // Sections
+  aChunk.ReadBits( 7); // Entries
 
   for i := 0 to FVariationCount - 1 do begin
     variation := aChunk.ReadBits( 8);
@@ -3170,8 +3170,8 @@ begin
     FVariations[variation].FOctaves     := aChunk.ReadBits( 7);
   end;
 
-  section := aChunk.ReadBits( 8);
-  entries := aChunk.ReadBits( 7);
+  aChunk.ReadBits( 8); // Sections
+  aChunk.ReadBits( 7); // Entries
 
   for i := 0 to FVariationCount - 1 do begin
     variation := aChunk.ReadBits( 8);
@@ -3260,7 +3260,7 @@ begin
 end;
 
 procedure TPatchSettings.AddNewVariation;
-var i, j : integer;
+var j : integer;
 begin
   inc( FVariationCount);
   SetLength(FVariations, FVariationCount);
@@ -3470,7 +3470,7 @@ var i : integer;
 begin
   i := 0;
   while (i < Count) and not(( Items[i].FAssigned = 1)
-                        and ( Items[i].FLocation = ord(aLocation))
+                        and ( Items[i].FLocation = TBits2(aLocation))
                         and ( Items[i].FModuleIndex = aModuleIndex)
                         and ( Items[i].FParamIndex = aParamIndex) ) do
     inc(i);
@@ -3618,7 +3618,7 @@ var i : integer;
 begin
   i := 0;
   while (i < Count)
-           and not(( Items[i].FLocation = ord(aLocation))
+           and not(( Items[i].FLocation = TBits2(aLocation))
                and ( Items[i].FModuleIndex = aModuleIndex)
                and ( Items[i].FParamIndex = aParamIndex)) do
     inc(i);
@@ -3981,7 +3981,7 @@ begin
       end;
       if assigned(aChunk.FLogLines) then begin
         for j := 0 to ParamLabelParam.Count - 1 do
-          parlabels_str := parlabels_str + ' ' + ParamLabelParam.Items[j].GetName;
+          parlabels_str := parlabels_str + ' ' + string(ParamLabelParam.Items[j].GetName);
       end;
     end;
     if assigned(aChunk.FLogLines) then
@@ -4013,7 +4013,7 @@ begin
 end;
 
 constructor TParameterLabels.CopySelected( AOwnsObjects : boolean; aModuleList : TModuleList; aParameterLabels : TParameterLabels);
-var i, j : integer;
+var i : integer;
     Module : TG2FileModule;
 begin
   inherited Create( AOwnsObjects);
@@ -4052,7 +4052,6 @@ begin
 end;
 
 procedure TParameterLabels.Init;
-var i : integer;
 begin
   FLocation       := 0;
   FModuleCount    := 0;
@@ -4102,7 +4101,7 @@ begin
 end;
 
 procedure TParameterLabels.DeleteParamLabel( aModuleIndex : Byte);
-var i , j : integer;
+var i : integer;
 begin
   i := 0;
   while (i < Count) and (Items[i].FModuleIndex <> aModuleIndex) do
@@ -4193,7 +4192,7 @@ begin
 end;
 
 constructor TModuleLabels.CopySelected( AOwnsObjects: Boolean; aModuleList : TModuleList; aModuleLabels : TModuleLabels);
-var i, j : integer;
+var i : integer;
     Module : TG2FileModule;
 begin
   inherited Create( AOwnsObjects);
@@ -4302,7 +4301,7 @@ begin
     ModuleLabel.Read( aChunk);
 
     if assigned( aChunk.FLogLines) then
-      aChunk.FLogLines.Add( Format('%3d', [ModuleLabel.FModuleIndex]) + ' ' + ModuleLabel.FName);
+      aChunk.FLogLines.Add( Format('%3d', [ModuleLabel.FModuleIndex]) + ' ' + string(ModuleLabel.FName));
 
     Add( ModuleLabel);
   end;
@@ -4805,11 +4804,9 @@ begin
 end;
 
 procedure TG2FilePatch.InitNames;
-var m, l, p, k, Count : integer;
+var m, l, Count : integer;
     aName : AnsiString;
     Module : TG2FileModule;
-    Param : TG2FileParameter;
-    Knob : TKnob;
 begin
   for l := 0 to 1 do begin
     Count := ModuleCount[ l];
@@ -5071,7 +5068,7 @@ begin
       case c of
       #$0d :; // just skip it
       #$0a : begin
-               sl.Add( s);
+               sl.Add(string(s));
                s := '';
              end;
       #$00 : Break;
@@ -5080,7 +5077,7 @@ begin
       end;
     end;
     if s <> '' then
-      sl.Add( S);
+      sl.Add(string(s));
 
     Init;
     Chunk.ReadBuffer( 2);
@@ -5131,7 +5128,7 @@ begin
 
     for i := 0 to sl.Count - 1 do
     begin
-      s := sl[i];
+      s := AnsiString(sl[i]);
       aStream.Write( s[1], Length( s));
       c := #$0d;
       aStream.Write( c, SizeOf( c));
@@ -5196,7 +5193,7 @@ begin
 end;
 
 function TG2FilePatch.CreateModule( aLocation : TLocationType; aModuleIndex : byte; aModuleType : byte): TG2FileModule;
-var i : integer;
+var i : LongWord;
 begin
   Result := TG2FileModule.Create( FPatchPart[ ord(aLocation)]);
   Result.FModuleIndex := aModuleIndex;
@@ -5307,10 +5304,10 @@ end;
 function TG2FilePatch.AssignKnobInPatch(aKnobIndex: integer; aLocation : TLocationType; aModuleIndex, aParamIndex : byte): TKnob;
 var Knob : TKnob;
 begin
+  Result := nil;
+
   if aKnobIndex < 0 then
     exit;
-
-  Result := nil;
 
   if aKnobIndex < FKnobList.Count then begin
     Knob := FKnobList.Items[ aKnobIndex];
@@ -5411,9 +5408,9 @@ begin
 end;
 
 function TG2FilePatch.GetParameterValue( aLocation : TLocationType; aModuleIndex : byte; aParamIndex : byte; aVariation : byte): byte;
-var i, j : integer;
-    Params : TParams;
 begin
+  Result := 0;
+
   if ( aLocation = ltFX) or ( aLocation = ltVA) then begin
     Result := FPatchPart[ord(aLocation)].FindParamValue( aModuleIndex, aVariation, aParamIndex);
   end else
@@ -5477,8 +5474,7 @@ begin
 end;
 
 procedure TG2FilePatch.SetParameterValue( aLocation : TLocationType; aModuleIndex : byte; aParamIndex : byte; aVariation : byte; aValue: byte);
-var i, j : integer;
-    ParamSet : TParamSet;
+var ParamSet : TParamSet;
     Params : TParams;
 begin
   if ( aLocation = ltFX) or ( aLocation = ltVA) then begin
@@ -5564,8 +5560,7 @@ begin
 end;
 
 function TG2FilePatch.GetModeValue( aLocation : TLocationType; aModuleIndex : byte; aParamIndex : byte): byte;
-var i : integer;
-    Module : TG2FileModule;
+var Module : TG2FileModule;
 begin
   Result := 0;
 
@@ -5576,8 +5571,7 @@ begin
 end;
 
 procedure TG2FilePatch.SetModeValue( aLocation : TLocationType; aModuleIndex : byte; aParamIndex : byte; aValue: byte);
-var i : integer;
-    Module : TG2FileModule;
+var Module : TG2FileModule;
 begin
   Module := FPatchPart[ ord(aLocation)].FindModule( aModuleIndex);
   if assigned(Module) then
@@ -5592,7 +5586,7 @@ begin
   Variation := FPatchSettings.FVariations[aVariation];
   i := 0;
   while (i < Variation.Count) and
-    not((Variation.Items[i].FLocation = ord(aLocation)) and
+    not((Variation.Items[i].FLocation = TBits2(aLocation)) and
         (Variation.Items[i].FModuleIndex = aModuleIndex) and
         (Variation.Items[i].FParamIndex = aParamIndex)) do
     inc(i);
@@ -5601,7 +5595,6 @@ begin
 end;
 
 function TG2FilePatch.GetMorph( aLocation : TLocationType; aModuleIndex, aParamIndex, aMorphIndex, aVariation : byte): TMorphParameter;
-var i : integer;
 begin
   Result := FPatchSettings.FVariations[aVariation].FindMorphParam( aLocation, aModuleIndex, aParamIndex, aMorphIndex, aVariation);
 end;
@@ -5867,14 +5860,64 @@ end;
 
 function TG2FilePatch.MessAddModule( aLocation : TLocationType; aModuleType, aCol, aRow: byte): boolean;
 begin
+  Result := False;
   UnselectModules( ltVA);
   UnselectModules( ltFX);
 end;
 
 function TG2FilePatch.MessCopyModules( aSrcePatch : TG2FilePatchPart; aFromLocation, aToLocation : TLocationType): boolean;
 begin
+  Result := False;
   UnselectModules( ltVA);
   UnselectModules( ltFX);
+end;
+
+function TG2FilePatch.MessAddConnection( aLocation : TLocationType; aFromConnection, aToConnection : TG2FileConnector): boolean;
+begin
+  // Abstract
+  Result := False;
+end;
+
+function TG2FilePatch.MessDeleteConnection( aLocation : TLocationType; aCable : TG2FileCable): boolean;
+begin
+  // Abstract
+  Result := False;
+end;
+
+function TG2FilePatch.MessDeleteModule( aLocation : TLocationType; aModuleIndex : byte): boolean;
+begin
+  // Abstract
+  Result := False;
+end;
+
+function TG2FilePatch.MessDeleteModules( aLocation : TLocationType): boolean;
+begin
+  // Abstract
+  Result := False;
+end;
+
+function TG2FilePatch.MessMoveModule( aLocation : TLocationType; aModuleIndex, aCol, aRow : byte): boolean;
+begin
+  // Abstract
+  Result := False;
+end;
+
+function TG2FilePatch.MessSetModuleColor( aLocation: TLocationType; aModuleIndex, aColor : byte): boolean;
+begin
+  // Abstract
+  Result := False;
+end;
+
+function TG2FilePatch.MessSetModuleParamLabels( aLocation: TLocationType; aModuleIndex, aParamIndex: byte; aName: AnsiString): boolean;
+begin
+  // Abstract
+  Result := False;
+end;
+
+function TG2FilePatch.MessSetModuleLabel( aLocation : TLocationType; aModuleIndex : byte; aName : AnsiString): boolean;
+begin
+  // Abstract
+  Result := False;
 end;
 
 procedure TG2FilePatch.SortLeds;
@@ -5926,27 +5969,27 @@ begin
   FConnectorIndex := aConnectorIndex;
   FConnectorKind := aConnectorKind;
   FName := ConnectorDef.Name;
-  if LowerCase(ConnectorDef.Type_) = 'yellow' then begin
+  if LowerCase(string(ConnectorDef.Type_)) = 'yellow' then begin
     FConnectorType := ctLogic;
     FBandWidth := btStatic;
   end else
-    if LowerCase(ConnectorDef.Type_) = 'yellow_orange' then begin
+    if LowerCase(string(ConnectorDef.Type_)) = 'yellow_orange' then begin
       FConnectorType := ctLogic;
       FBandWidth := btStatic;
     end else
-      if LowerCase(ConnectorDef.Type_) = 'blue' then begin
+      if LowerCase(string(ConnectorDef.Type_)) = 'blue' then begin
         FConnectorType := ctLogic;
         FBandWidth := btStatic;
       end else
-        if LowerCase(ConnectorDef.Type_) = 'blue_red' then begin
+        if LowerCase(string(ConnectorDef.Type_)) = 'blue_red' then begin
           FConnectorType := ctLogic;
           FBandWidth := btStatic;
         end else
-          if LowerCase(ConnectorDef.Type_) = 'red' then begin
+          if LowerCase(string(ConnectorDef.Type_)) = 'red' then begin
             FConnectorType := ctLogic;
             FBandWidth := btStatic;
           end else
-            raise Exception.Create('Unknown connector type ' + ConnectorDef.Type_);
+            raise Exception.Create('Unknown connector type ' + string(ConnectorDef.Type_));
 end;
 
 procedure TG2FileConnector.AddCable( aCable: TG2FileCable);
@@ -6042,6 +6085,7 @@ end;
 
 function TG2FileConnector.GetDefRate: TBits1;
 begin
+  Result := 0;
   // Return signal frequency indicator comming from this connector : 0 - 24kHz, 1 - 96kHz
   if FConnectorType = ctLogic then
     Result := 0
@@ -6116,7 +6160,6 @@ end;
 
 function TG2FileParameter.GetMorphValue( aMorphIndex, aVariation : integer) : byte;
 var MorphParameter : TMorphParameter;
-    TempValue : integer;
 begin
   MorphParameter := GetMorph( aMorphIndex, aVariation);
   if assigned(MorphParameter) then begin
@@ -6358,7 +6401,7 @@ begin
   end;
 end;
 
-function TG2FileParameter.TextFunction( aTextFunction: integer; LineNo, TotalLines : integer): AnsiString;
+function TG2FileParameter.TextFunction( aTextFunction: integer; LineNo, TotalLines : integer): string;
 var aValue : byte;
 begin
   aValue := GetParameterValue;
@@ -6373,15 +6416,15 @@ begin
            20 : Result := 'Slot D';
            end;
          end;
-  1000 : Result := FModuleName;
+  1000 : Result := string(FModuleName);
   1001 : begin
            case LineNo of
-           0 : Result := FParamName;
+           0 : Result := string(FParamName);
            1 : Result := IntToStr(aValue);
            end;
          end;
   1002 : begin
-           Result := IntToStr(FPatch.Slot.SlotIndex + 1) + ':' + FModuleName;
+           Result := IntToStr(FPatch.Slot.SlotIndex + 1) + ':' + string(FModuleName);
          end
   else
     Result := IntToStr(aValue);
@@ -6635,7 +6678,7 @@ begin
   i := 0;
   while (i < Count) and not(( Items[i].FAssigned = 1)
                         and ( Items[i].FSlotIndex = aSlotIndex)
-                        and ( Items[i].FLocation = ord(aLocation))
+                        and ( Items[i].FLocation = TBits2(aLocation))
                         and ( Items[i].FModuleIndex = aModuleIndex)
                         and ( Items[i].FParamIndex = aParamIndex)) do
     inc(i);
@@ -6837,9 +6880,7 @@ end;
 
 procedure TG2FilePerformance.Read( aChunk : TPatchChunk);
 var einde : boolean;
-    Location : byte;
     i, PatchCount : integer;
-    dummy : integer;
 begin
   // FUnknown              : TBits8;
   // FPerformanceName      : 16TBits8 or ends with #0
@@ -6954,7 +6995,7 @@ begin
       case c of
       #$0d :; // just skip it
       #$0a : begin
-               sl.Add( s);
+               sl.Add(string(s));
                s := '';
              end;
       #$00 : Break;
@@ -6963,7 +7004,7 @@ begin
       end;
     end;
     if s <> '' then
-      sl.Add( S);
+      sl.Add(string(s));
 
     Init;
     Chunk.ReadBuffer( 2);
@@ -7014,7 +7055,7 @@ begin
 
     for i := 0 to sl.Count - 1 do
     begin
-      s := sl[i];
+      s := AnsiString(sl[i]);
       aStream.Write( s[1], Length( s));
       c := #$0d;
       aStream.Write( c, SizeOf( c));
@@ -7043,7 +7084,6 @@ end;
 procedure TG2FilePerformance.SaveAsFXB( aStream : TStream);
 var FXBHeader : TFXBHeader;
     MemStream : TMemoryStream;
-    i : integer;
 
     function SwapBytes(Value: Cardinal): Cardinal; register;
     asm
@@ -7080,7 +7120,6 @@ end;
 function TG2FilePerformance.LoadFromFXB( aStream : TStream): boolean;
 var FXBHeader : TFXBHeader;
     MemStream : TMemoryStream;
-    i : integer;
 
     function SwapBytes(Value: Cardinal): Cardinal; register;
     asm
@@ -7091,6 +7130,7 @@ var FXBHeader : TFXBHeader;
     end;}
 
 begin
+  Result := False;
   MemStream := TMemoryStream.Create;
   try
     aStream.Read( FXBHeader.chunkMagic, SizeOf( FXBHeader.chunkMagic));
@@ -7115,6 +7155,8 @@ begin
     FXBHeader.chunkSize := SwapBytes(FXBHeader.chunkSize);
 
     LoadFromFile( aStream, nil);
+
+    Result := True;
   finally
     MemStream.Free;
   end;
@@ -7130,10 +7172,11 @@ end;
 function TG2FilePerformance.AssignGlobalKnobInPerf(aKnobIndex: integer; aSlotIndex: byte; aLocation : TLocationType; aModuleIndex, aParamIndex : byte): TGlobalKnob;
 var Knob : TGlobalKnob;
 begin
+  Result := nil;
+
   if aKnobIndex < 0 then
     exit;
 
-  Result := nil;
   if aKnobIndex < FGlobalKnobList.Count then begin
     Knob := FGlobalKnobList.Items[ aKnobIndex];
     Knob.FAssigned := 1;
@@ -7183,6 +7226,17 @@ begin
   inherited;
 end;
 
+procedure TG2FileDataStream.Read( aChunk : TPatchChunk);
+begin
+  // Abstract
+end;
+
+procedure TG2FileDataStream.Write( aChunk : TPatchChunk; aVariationCount : byte);
+begin
+  // Abstract
+end;
+
+
 function TG2FileDataStream.LoadFileHeader( aStream : TStream; aChunk : TPatchChunk): boolean;
 var sl : TStringList;
     s : AnsiString;
@@ -7199,7 +7253,7 @@ begin
       case c of
       #$0d :; // just skip it
       #$0a : begin
-               sl.Add( s);
+               sl.Add(string(s));
                s := '';
              end;
       #$00 : Break;
@@ -7208,7 +7262,7 @@ begin
       end;
     end;
     if s <> '' then
-      sl.Add( S);
+      sl.Add(string(s));
 
     aChunk.ReadBuffer( 2);
     FVersion := aChunk.ReadBits( 8);
@@ -7224,7 +7278,7 @@ begin
   Result := '';
   aStream.Read(b, 1);
   while (b <> 0) do begin
-    Result := Result + char(b);
+    Result := Result + AnsiChar(b);
     if Length(Result) = 16 then
       break;
     aStream.Read(b, 1);
@@ -7320,7 +7374,7 @@ begin
   end;
 end;
 
-function TG2FileDataStream.CreateMidiBlock( aBlockNr, aBlockCount, anOffset, aSize: Integer; aChunk : TPatchChunk; aMidiStream : TStream): boolean;
+procedure TG2FileDataStream.CreateMidiBlock( aBlockNr, aBlockCount, anOffset, aSize: Integer; aChunk : TPatchChunk; aMidiStream : TStream);
 var
   i, bits_left : integer;
   b         : Byte;
@@ -7373,7 +7427,6 @@ var
   BlockCount : Integer;     // Total block count
   Remaining  : Integer;     // Total of remaining septets tp handle
   SaveSize   : Integer;     // Save size for current block, in septets
-  DataSize   : integer;
   FileStream : TMemoryStream;
   Chunk      : TPatchChunk;
   b          : byte;
@@ -7449,7 +7502,7 @@ Begin
   FChecksum := ( FChecksum + Result) And $7f;
 end;
 
-function TG2FileDataStream.ParseMidiString( const aStream : TStream): string;
+function TG2FileDataStream.ParseMidiString( const aStream : TStream): AnsiString;
 Var
   C : Byte;
   i : Integer;
@@ -7460,7 +7513,7 @@ Begin
   for i := 1 to 16 do begin // Read the 16 characters
     C := parseMidiSeptet( aStream);
     if C <> 0 then // Don't add \0's to pascal string
-      Result := Result + Char( C);
+      Result := Result + AnsiChar( C);
   end;
   ParseMidiConst( aStream, 0); // Read the closing \0
 end;
@@ -7481,7 +7534,7 @@ begin
   AddMidiByte( aStream, anInteger and $7f);         // then  low  septet
 end;
 
-procedure TG2FileDataStream.AddMidiName( aStream : TStream; aName : string);
+procedure TG2FileDataStream.AddMidiName( aStream : TStream; aName : AnsiString);
 var i : Integer;
 Begin
   // Adds the patch name as a String[ 16]\0 to aData
@@ -7532,14 +7585,9 @@ end;
 
 class function TG2FileDataStream.LoadMidiData( AOwner : TComponent; aStream: TStream; aLogLines : TStrings): TG2FileDataStream;
 var Chunk            : TPatchChunk;
-    b, bm, bl        : Byte;
+    b                : Byte;
     MemStream        : TMemoryStream;
     G2FileDataStream : TG2FileDataStream;
-    MData            : Integer;
-    FName            : String;
-    BlockCount       : Integer;
-    CurrentBlock     : Integer;
-    Slot             : byte;
 begin
   G2FileDataStream := TG2FileDataStream.Create( AOwner);
   try
@@ -7567,13 +7615,26 @@ begin
 
     finally
       Chunk.Free;
+      MemStream.Free;
     end;
 
   finally
     G2FileDataStream.Free;
-    MemStream.Free;
   end;
 end;
+
+class function TG2FileDataStream.LoadFileStream( AOwner: TComponent; aStream : TStream; aChunk : TPatchChunk): TG2FileDataStream;
+begin
+  // Abstract
+  Result := nil;
+end;
+
+class function TG2FileDataStream.LoadMidiStream( AOwner : TComponent; aStream: TStream): TG2FileDataStream;
+begin
+  // Abstract
+  Result := nil;
+end;
+
 
 ////////////////////////////////////////////////////////////////////////////////
 //  TBankList

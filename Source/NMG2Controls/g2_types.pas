@@ -209,14 +209,14 @@ const
     SUSTAIN_PEDAL         = $01;
     OCTAVE_SHIFT          = $00;
 
-  STD_MORPH_NAMES : array[0..7] of string = ('Wheel',
-                                             'Vel',
-                                             'Keyb',
-                                             'Aft.Tch',
-                                             'Sust.Pd',
-                                             'Ctrl.Pd',
-                                             'P.Stick',
-                                             'G.Wh 2');
+  STD_MORPH_NAMES : array[0..7] of AnsiString = ('Wheel',
+                                                 'Vel',
+                                                 'Keyb',
+                                                 'Aft.Tch',
+                                                 'Sust.Pd',
+                                                 'Ctrl.Pd',
+                                                 'P.Stick',
+                                                 'G.Wh 2');
 
   PARAM_PAGE_NAMES : array[0..4] of string = ('Osc',
                                               'LFO',
@@ -254,7 +254,7 @@ type
   TConnectorType = (ctAudio, ctLogic, ctControl);
   TConnectorKind = (ckInput, ckOutput);
   TLedType = (ltSequencer, ltGreen, ltMiniVU);
-  TLocationType = (ltFX, ltVA, ltPatch);
+  TLocationType = (ltFX = 0, ltVA = 1, ltPatch = 2);
   TClientType = (ctEditor, ctVST);
 
   TByteBuffer = packed array of byte;
@@ -276,7 +276,7 @@ type
   TBits2 = byte;
   TBits1 = byte;
 
-  TEndToken = set of char;
+  TEndToken = set of AnsiChar;
 
   TBitReader = class
     FReadBitPointer : integer;
@@ -513,7 +513,7 @@ begin
   end;
   if (length(source) > 0) then
     source := copy(source, 2, Length(source)-1);
-  Result := StrToInt(value);
+  Result := StrToInt(string(value));
 end;
 
 function TModuleDefStream.GetNextInteger( var source : AnsiString; EndTokens : TEndToken): Integer;
@@ -526,7 +526,7 @@ begin
   end;
   if (length(source) > 0) then
     source := copy(source, 2, Length(source)-1);
-  Result := StrToInt(value);
+  Result := StrToInt(string(value));
 end;
 
 procedure TModuleDefStream.ReadSpaces;
@@ -561,18 +561,17 @@ end;
 
 function TModuleDefStream.ReadOptions( sl : TStrings; ListTokens, EndTokens : TEndToken): integer;
 var c : AnsiChar;
-    i : integer;
     s : AnsiString;
 begin
   while ( Position < Size) and ( Read( c, 1) = 1) and not(c in EndTokens) do begin
     if (c in ListTokens) then begin
-      sl.Add(s);
+      sl.Add(string(s));
       s := '';
     end else
       s := s + c;
   end;
   if s <> '' then
-    sl.Add(s);
+    sl.Add(string(s));
   Result := sl.Count;
 end;
 
@@ -916,7 +915,7 @@ begin
   Result := '';
   b := ReadBits(8);
   while (b <> 0) do begin
-    Result := Result + char(b);
+    Result := Result + AnsiChar(b);
     if Length(Result) = 16 then
       break;
     b := ReadBits(8);

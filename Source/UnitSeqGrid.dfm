@@ -36,6 +36,8 @@ object frmSeqGrid: TfrmSeqGrid
     HightlightColor = clAqua
     BorderColor = clBlack
     Bevel = False
+    Orientation = otHorizontal
+    ButtonCount = 0
     ButtonTextType = bttNormal
   end
   object b2: TG2GraphButtonText
@@ -59,6 +61,8 @@ object frmSeqGrid: TfrmSeqGrid
     HightlightColor = clAqua
     BorderColor = clBlack
     Bevel = False
+    Orientation = otHorizontal
+    ButtonCount = 0
     ButtonTextType = bttNormal
   end
   object b3: TG2GraphButtonText
@@ -82,6 +86,8 @@ object frmSeqGrid: TfrmSeqGrid
     HightlightColor = clAqua
     BorderColor = clBlack
     Bevel = False
+    Orientation = otHorizontal
+    ButtonCount = 0
     ButtonTextType = bttNormal
   end
   object b4: TG2GraphButtonText
@@ -105,6 +111,8 @@ object frmSeqGrid: TfrmSeqGrid
     HightlightColor = clAqua
     BorderColor = clBlack
     Bevel = False
+    Orientation = otHorizontal
+    ButtonCount = 0
     ButtonTextType = bttNormal
   end
   object b5: TG2GraphButtonText
@@ -128,6 +136,8 @@ object frmSeqGrid: TfrmSeqGrid
     HightlightColor = clAqua
     BorderColor = clBlack
     Bevel = False
+    Orientation = otHorizontal
+    ButtonCount = 0
     ButtonTextType = bttNormal
   end
   object b6: TG2GraphButtonText
@@ -151,6 +161,8 @@ object frmSeqGrid: TfrmSeqGrid
     HightlightColor = clAqua
     BorderColor = clBlack
     Bevel = False
+    Orientation = otHorizontal
+    ButtonCount = 0
     ButtonTextType = bttNormal
   end
   object b7: TG2GraphButtonText
@@ -174,6 +186,8 @@ object frmSeqGrid: TfrmSeqGrid
     HightlightColor = clAqua
     BorderColor = clBlack
     Bevel = False
+    Orientation = otHorizontal
+    ButtonCount = 0
     ButtonTextType = bttNormal
   end
   object b8: TG2GraphButtonText
@@ -197,6 +211,8 @@ object frmSeqGrid: TfrmSeqGrid
     HightlightColor = clAqua
     BorderColor = clBlack
     Bevel = False
+    Orientation = otHorizontal
+    ButtonCount = 0
     ButtonTextType = bttNormal
   end
   object b9: TG2GraphButtonText
@@ -220,6 +236,8 @@ object frmSeqGrid: TfrmSeqGrid
     HightlightColor = clAqua
     BorderColor = clBlack
     Bevel = False
+    Orientation = otHorizontal
+    ButtonCount = 0
     ButtonTextType = bttNormal
   end
   object b10: TG2GraphButtonText
@@ -243,6 +261,8 @@ object frmSeqGrid: TfrmSeqGrid
     HightlightColor = clAqua
     BorderColor = clBlack
     Bevel = False
+    Orientation = otHorizontal
+    ButtonCount = 0
     ButtonTextType = bttNormal
   end
   object b11: TG2GraphButtonText
@@ -266,6 +286,8 @@ object frmSeqGrid: TfrmSeqGrid
     HightlightColor = clAqua
     BorderColor = clBlack
     Bevel = False
+    Orientation = otHorizontal
+    ButtonCount = 0
     ButtonTextType = bttNormal
   end
   object b12: TG2GraphButtonText
@@ -289,6 +311,8 @@ object frmSeqGrid: TfrmSeqGrid
     HightlightColor = clAqua
     BorderColor = clBlack
     Bevel = False
+    Orientation = otHorizontal
+    ButtonCount = 0
     ButtonTextType = bttNormal
   end
   object b13: TG2GraphButtonText
@@ -312,6 +336,8 @@ object frmSeqGrid: TfrmSeqGrid
     HightlightColor = clAqua
     BorderColor = clBlack
     Bevel = False
+    Orientation = otHorizontal
+    ButtonCount = 0
     ButtonTextType = bttNormal
   end
   object b14: TG2GraphButtonText
@@ -335,6 +361,8 @@ object frmSeqGrid: TfrmSeqGrid
     HightlightColor = clAqua
     BorderColor = clBlack
     Bevel = False
+    Orientation = otHorizontal
+    ButtonCount = 0
     ButtonTextType = bttNormal
   end
   object b15: TG2GraphButtonText
@@ -358,6 +386,8 @@ object frmSeqGrid: TfrmSeqGrid
     HightlightColor = clAqua
     BorderColor = clBlack
     Bevel = False
+    Orientation = otHorizontal
+    ButtonCount = 0
     ButtonTextType = bttNormal
   end
   object b16: TG2GraphButtonText
@@ -381,6 +411,8 @@ object frmSeqGrid: TfrmSeqGrid
     HightlightColor = clAqua
     BorderColor = clBlack
     Bevel = False
+    Orientation = otHorizontal
+    ButtonCount = 0
     ButtonTextType = bttNormal
   end
   object bLeft: TG2GraphButtonText
@@ -405,6 +437,8 @@ object frmSeqGrid: TfrmSeqGrid
     HightlightColor = clAqua
     BorderColor = clBlack
     Bevel = False
+    Orientation = otHorizontal
+    ButtonCount = 0
     ButtonTextType = bttPush
   end
   object bRight: TG2GraphButtonText
@@ -429,6 +463,8 @@ object frmSeqGrid: TfrmSeqGrid
     HightlightColor = clAqua
     BorderColor = clBlack
     Bevel = False
+    Orientation = otHorizontal
+    ButtonCount = 0
     ButtonTextType = bttPush
   end
   object bRnd: TG2GraphButtonText
@@ -453,6 +489,8 @@ object frmSeqGrid: TfrmSeqGrid
     HightlightColor = clAqua
     BorderColor = clBlack
     Bevel = False
+    Orientation = otHorizontal
+    ButtonCount = 0
     ButtonTextType = bttPush
   end
   object bClr: TG2GraphButtonText
@@ -477,6 +515,8 @@ object frmSeqGrid: TfrmSeqGrid
     HightlightColor = clAqua
     BorderColor = clBlack
     Bevel = False
+    Orientation = otHorizontal
+    ButtonCount = 0
     ButtonTextType = bttPush
   end
   object bUp: TG2GraphButtonText
@@ -501,6 +541,8 @@ object frmSeqGrid: TfrmSeqGrid
     HightlightColor = clAqua
     BorderColor = clBlack
     Bevel = False
+    Orientation = otHorizontal
+    ButtonCount = 0
     ButtonTextType = bttPush
   end
   object bDown: TG2GraphButtonText
@@ -525,6 +567,8 @@ object frmSeqGrid: TfrmSeqGrid
     HightlightColor = clAqua
     BorderColor = clBlack
     Bevel = False
+    Orientation = otHorizontal
+    ButtonCount = 0
     ButtonTextType = bttPush
   end
   object bnC: TG2GraphButtonText
@@ -547,6 +591,8 @@ object frmSeqGrid: TfrmSeqGrid
     HightlightColor = clAqua
     BorderColor = clBlack
     Bevel = False
+    Orientation = otHorizontal
+    ButtonCount = 0
     ButtonTextType = bttNormal
   end
   object bnCsharp: TG2GraphButtonText
@@ -569,6 +615,8 @@ object frmSeqGrid: TfrmSeqGrid
     HightlightColor = clAqua
     BorderColor = clBlack
     Bevel = False
+    Orientation = otHorizontal
+    ButtonCount = 0
     ButtonTextType = bttNormal
   end
   object bnD: TG2GraphButtonText
@@ -591,6 +639,8 @@ object frmSeqGrid: TfrmSeqGrid
     HightlightColor = clAqua
     BorderColor = clBlack
     Bevel = False
+    Orientation = otHorizontal
+    ButtonCount = 0
     ButtonTextType = bttNormal
   end
   object bnDsharp: TG2GraphButtonText
@@ -613,6 +663,8 @@ object frmSeqGrid: TfrmSeqGrid
     HightlightColor = clAqua
     BorderColor = clBlack
     Bevel = False
+    Orientation = otHorizontal
+    ButtonCount = 0
     ButtonTextType = bttNormal
   end
   object bnE: TG2GraphButtonText
@@ -635,6 +687,8 @@ object frmSeqGrid: TfrmSeqGrid
     HightlightColor = clAqua
     BorderColor = clBlack
     Bevel = False
+    Orientation = otHorizontal
+    ButtonCount = 0
     ButtonTextType = bttNormal
   end
   object bnF: TG2GraphButtonText
@@ -657,6 +711,8 @@ object frmSeqGrid: TfrmSeqGrid
     HightlightColor = clAqua
     BorderColor = clBlack
     Bevel = False
+    Orientation = otHorizontal
+    ButtonCount = 0
     ButtonTextType = bttNormal
   end
   object bnFsharp: TG2GraphButtonText
@@ -679,6 +735,8 @@ object frmSeqGrid: TfrmSeqGrid
     HightlightColor = clAqua
     BorderColor = clBlack
     Bevel = False
+    Orientation = otHorizontal
+    ButtonCount = 0
     ButtonTextType = bttNormal
   end
   object bnG: TG2GraphButtonText
@@ -701,6 +759,8 @@ object frmSeqGrid: TfrmSeqGrid
     HightlightColor = clAqua
     BorderColor = clBlack
     Bevel = False
+    Orientation = otHorizontal
+    ButtonCount = 0
     ButtonTextType = bttNormal
   end
   object bnGsharp: TG2GraphButtonText
@@ -723,6 +783,8 @@ object frmSeqGrid: TfrmSeqGrid
     HightlightColor = clAqua
     BorderColor = clBlack
     Bevel = False
+    Orientation = otHorizontal
+    ButtonCount = 0
     ButtonTextType = bttNormal
   end
   object bnA: TG2GraphButtonText
@@ -745,6 +807,8 @@ object frmSeqGrid: TfrmSeqGrid
     HightlightColor = clAqua
     BorderColor = clBlack
     Bevel = False
+    Orientation = otHorizontal
+    ButtonCount = 0
     ButtonTextType = bttNormal
   end
   object bnAsharp: TG2GraphButtonText
@@ -767,6 +831,8 @@ object frmSeqGrid: TfrmSeqGrid
     HightlightColor = clAqua
     BorderColor = clBlack
     Bevel = False
+    Orientation = otHorizontal
+    ButtonCount = 0
     ButtonTextType = bttNormal
   end
   object bnB: TG2GraphButtonText
@@ -789,6 +855,8 @@ object frmSeqGrid: TfrmSeqGrid
     HightlightColor = clAqua
     BorderColor = clBlack
     Bevel = False
+    Orientation = otHorizontal
+    ButtonCount = 0
     ButtonTextType = bttNormal
   end
   object G2GraphDisplay1: TG2GraphDisplay

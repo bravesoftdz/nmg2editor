@@ -71,6 +71,9 @@ var Doc : TXMLDocument;
     PatchManagerSettingsNode : TXMLPatchManagerSettingsType;
     FormSettingsNode : TXMLFormSettingsType;
 begin
+  if not FileExists('G2_editor_ini.xml') then
+    exit;
+
   Doc := TXMLDocument.Create;
   try
     ReadXMLFile( Doc, 'G2_editor_ini.xml');
@@ -105,7 +108,7 @@ end;
 
 procedure TfrmSettings.udpServerDeviceUDPRead(AThread: TIdUDPListenerThread; AData: TIdBytes; ABinding: TIdSocketHandle);
 var i, p, c, b, KnobIndex : integer;
-    line, address : string;
+    address : AnsiString;
     Knob : TKnob;
     OscBundle : TOSCBundle;
     OscMessage : TOSCMessage;
@@ -119,7 +122,7 @@ begin
       for p := 0 to 4 do
         for c := 0 to 2 do
           for b := 0 to 7 do begin
-            address := '/' + PARAM_PAGE_NAMES[p] + '/' + IntToStr(c) + '/' + IntToStr(b);
+            address := AnsiString('/' + PARAM_PAGE_NAMES[p] + '/' + IntToStr(c) + '/' + IntToStr(b));
             OscMessage := (OscPacket as TOSCBundle).MatchAddress(Address);
               if assigned(OscMessage) then begin
                 OscMessage.Decode;
@@ -127,8 +130,8 @@ begin
                 Knob := frmG2Main.G2.SelectedPatch.GetKnob( KnobIndex);
                 if assigned(Knob) and (Knob.IsAssigned = 1) then
                 for i := 0 to OscMessage.ArgumentCount - 1 do begin
-                  Memo1.Lines.Add(Address + ':' + OscMessage.Argument[i]);
-                  Knob.Parameter.SetParameterValue( trunc(127 * StrToFloat(OscMessage.Argument[i])));
+                  Memo1.Lines.Add(string(Address + ':' + OscMessage.Argument[i]));
+                  Knob.Parameter.SetParameterValue( trunc(127 * StrToFloat(string(OscMessage.Argument[i]))));
                 end;
               end;
           end;

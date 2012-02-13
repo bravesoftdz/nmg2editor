@@ -692,9 +692,9 @@ begin
   repeat
     if FBuf^ = #10 then
       NewLine;
-    if (FBuf^ < #255) and (Char(ord(FBuf^)) in Delim) then
+    if (FBuf^ < #255) and CharInSet(Char(ord(FBuf^)), Delim) then
       Break;
-    if (FBuf^ > #32) or not (Char(ord(FBuf^)) in [#32, #9, #10, #13]) then
+    if (FBuf^ > #32) or not CharInSet(Char(ord(FBuf^)), [#32, #9, #10, #13]) then
       nonws := True;
     Inc(FBuf);
   until False;
@@ -1994,8 +1994,8 @@ begin
     SkipQuote(Delim);
     I := 0;
     while (I < 30) and (FSource.FBuf^ <> Delim) and (FSource.FBuf^ < #127) and
-      ((Char(ord(FSource.FBuf^)) in ['A'..'Z', 'a'..'z']) or
-      ((I > 0) and (Char(ord(FSource.FBuf^)) in ['0'..'9', '.', '-', '_']))) do
+      (CharInSet(Char(ord(FSource.FBuf^)), ['A'..'Z', 'a'..'z']) or
+      ((I > 0) and CharInSet(Char(ord(FSource.FBuf^)), ['0'..'9', '.', '-', '_']))) do
     begin
       buf[I] := FSource.FBuf^;
       Inc(I);
@@ -2694,7 +2694,7 @@ begin
         (wc <> #9)) or (wc > #$FFFD) or
         (FXML11Rules and (wc >= #$7F) and (wc <= #$9F)) then
              FReader.FatalError('Invalid character');
-      if (wc < #255) and (Char(ord(wc)) in Delim) then
+      if (wc < #255) and CharInSet(Char(ord(wc)), Delim) then
         Break;
 // the checks above filter away everything below #32 that isn't a whitespace
       if wc > #32 then
@@ -3223,7 +3223,7 @@ begin
     for I := 1 to Length(PubID) do
     begin
       wc := PubID[I];
-      if (wc > #255) or not (Char(ord(wc)) in PubidChars) then
+      if (wc > #255) or not CharInSet(Char(ord(wc)), PubidChars) then
         FatalError('Illegal Public ID literal', -1);
     end;
   end

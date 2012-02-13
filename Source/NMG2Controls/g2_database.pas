@@ -30,10 +30,10 @@ type
     function Get_ModuleType: Integer;
     function Get_IsLed: Integer;
     function Get_Uprate: Integer;
-    function Get_Page: WideString;
+    function Get_Page: AnsiString;
     function Get_PageIndex: Integer;
-    function Get_ShortName: WideString;
-    function Get_LongName: WideString;
+    function Get_ShortName: AnsiString;
+    function Get_LongName: AnsiString;
     function Get_Height: Integer;
     function Get_Inputs: TXMLConnectorListType;
     function Get_Outputs: TXMLConnectorListType;
@@ -43,10 +43,10 @@ type
     property ModuleType: Integer read Get_ModuleType;
     property IsLed: Integer read Get_IsLed;
     property Uprate: Integer read Get_Uprate;
-    property Page: WideString read Get_Page;
+    property Page: AnsiString read Get_Page;
     property PageIndex: Integer read Get_PageIndex;
-    property ShortName: WideString read Get_ShortName;
-    property LongName: WideString read Get_LongName;
+    property ShortName: AnsiString read Get_ShortName;
+    property LongName: AnsiString read Get_LongName;
     property Height: Integer read Get_Height;
     property Inputs: TXMLConnectorListType read Get_Inputs;
     property Outputs: TXMLConnectorListType read Get_Outputs;
@@ -63,10 +63,10 @@ type
   end;
 
   TXMLConnectorType = class(TDOMElement)
-    function Get_Name: WideString;
-    function Get_Type_: WideString;
-    property Name: WideString read Get_Name;
-    property Type_: WideString read Get_Type_;
+    function Get_Name: AnsiString;
+    function Get_Type_: AnsiString;
+    property Name: AnsiString read Get_Name;
+    property Type_: AnsiString read Get_Type_;
   end;
 
   TXMLParamListType = class(TDOMElementList)
@@ -79,13 +79,13 @@ type
 
   TXMLParamType = class(TDOMElement)
     function Get_Id: Integer;
-    function Get_Name: WideString;
+    function Get_Name: AnsiString;
     function Get_DefaultValue: Integer;
-    function Get_ParamLabel: WideString;
+    function Get_ParamLabel: AnsiString;
     property Id: Integer read Get_Id;
-    property Name: WideString read Get_Name;
+    property Name: AnsiString read Get_Name;
     property DefaultValue: Integer read Get_DefaultValue;
-    property ParamLabel: WideString read Get_ParamLabel;
+    property ParamLabel: AnsiString read Get_ParamLabel;
   end;
 
   TXMLParamDefListType = class(TDOMElementList)
@@ -100,21 +100,21 @@ type
   protected
     function Get_Id: Integer;
     function Get_ParamType: Integer;
-    function Get_RangeType: WideString;
+    function Get_RangeType: AnsiString;
     function Get_LowValue: Integer;
     function Get_HighValue: Integer;
     function Get_DefaultValue: Integer;
-    function Get_Definitions: WideString;
-    function Get_Comments: WideString;
+    function Get_Definitions: AnsiString;
+    function Get_Comments: AnsiString;
   public
     property Id: Integer read Get_Id;
     property ParamType: Integer read Get_ParamType;
-    property RangeType: WideString read Get_RangeType;
+    property RangeType: AnsiString read Get_RangeType;
     property LowValue: Integer read Get_LowValue;
     property HighValue: Integer read Get_HighValue;
     property DefaultValue: Integer read Get_DefaultValue;
-    property Definitions: WideString read Get_Definitions;
-    property Comments: WideString read Get_Comments;
+    property Definitions: AnsiString read Get_Definitions;
+    property Comments: AnsiString read Get_Comments;
   end;
 
   TXMLTCPSettingsListType = class(TDOMElementList)
@@ -212,9 +212,9 @@ begin
   Result := GetInt(FindNode('Uprate').FirstChild.NodeValue);
 end;
 
-function TXMLModuleDefType.Get_Page: WideString;
+function TXMLModuleDefType.Get_Page: AnsiString;
 begin
-  Result := FindNode('Page').FirstChild.NodeValue;
+  Result := AnsiString(FindNode('Page').FirstChild.NodeValue);
 end;
 
 function TXMLModuleDefType.Get_PageIndex: Integer;
@@ -222,14 +222,14 @@ begin
   Result := GetInt(FindNode('PageIndex').FirstChild.NodeValue);
 end;
 
-function TXMLModuleDefType.Get_ShortName: WideString;
+function TXMLModuleDefType.Get_ShortName: AnsiString;
 begin
-  Result := FindNode('ShortName').FirstChild.NodeValue;
+  Result := AnsiString(FindNode('ShortName').FirstChild.NodeValue);
 end;
 
-function TXMLModuleDefType.Get_LongName: WideString;
+function TXMLModuleDefType.Get_LongName: AnsiString;
 begin
-  Result := FindNode('LongName').FirstChild.NodeValue;
+  Result := AnsiString(FindNode('LongName').FirstChild.NodeValue);
 end;
 
 function TXMLModuleDefType.Get_Height: Integer;
@@ -291,14 +291,14 @@ end;
 
 { TXMLConnectorType }
 
-function TXMLConnectorType.Get_Name: WideString;
+function TXMLConnectorType.Get_Name: AnsiString;
 begin
-  Result := FindNode('Name').FirstChild.NodeValue;
+  Result := AnsiString(FindNode('Name').FirstChild.NodeValue);
 end;
 
-function TXMLConnectorType.Get_Type_: WideString;
+function TXMLConnectorType.Get_Type_: AnsiString;
 begin
-  Result := FindNode('Type').FirstChild.NodeValue;
+  Result := AnsiString(FindNode('Type').FirstChild.NodeValue);
 end;
 
 { TXMLParamListType }
@@ -325,17 +325,17 @@ begin
   Result := GetInt(FindNode('Id').FirstChild.NodeValue);
 end;
 
-function TXMLParamType.Get_Name: WideString;
+function TXMLParamType.Get_Name: AnsiString;
 begin
-  Result := FindNode('Name').FirstChild.NodeValue;
+  Result := AnsiString(FindNode('Name').FirstChild.NodeValue);
 end;
 
-function TXMLParamType.Get_ParamLabel: WideString;
+function TXMLParamType.Get_ParamLabel: AnsiString;
 var Node : TDomNode;
 begin
   Node := FindNode('ParamLabel');
   if assigned(Node) then
-    Result := Node.FirstChild.NodeValue
+    Result := AnsiString(Node.FirstChild.NodeValue)
   else
     Result := '';
 end;
@@ -354,9 +354,9 @@ end;
 
 { TXMLParamDefType }
 
-function TXMLParamDefType.Get_Comments: WideString;
+function TXMLParamDefType.Get_Comments: AnsiString;
 begin
-  Result := FindNode('Comments').FirstChild.NodeValue;
+  Result := AnsiString(FindNode('Comments').FirstChild.NodeValue);
 end;
 
 function TXMLParamDefType.Get_DefaultValue: Integer;
@@ -364,9 +364,9 @@ begin
   Result := GetInt(FindNode('DefaultValue').FirstChild.NodeValue);
 end;
 
-function TXMLParamDefType.Get_Definitions: WideString;
+function TXMLParamDefType.Get_Definitions: AnsiString;
 begin
-  Result := FindNode('Definitions').FirstChild.NodeValue;
+  Result := AnsiString(FindNode('Definitions').FirstChild.NodeValue);
 end;
 
 function TXMLParamDefType.Get_HighValue: Integer;
@@ -389,9 +389,9 @@ begin
   Result := GetInt(FindNode('ParamType').FirstChild.NodeValue);
 end;
 
-function TXMLParamDefType.Get_RangeType: WideString;
+function TXMLParamDefType.Get_RangeType: AnsiString;
 begin
-  Result := FindNode('RangeType').FirstChild.NodeValue;
+  Result := AnsiString(FindNode('RangeType').FirstChild.NodeValue);
 end;
 
 { TXMLTCPSettings }
@@ -498,7 +498,6 @@ begin
 end;
 
 function TXMLPatchManagerSettingsType.Get_SelectedTab: integer;
-var attr : string;
 begin
   Result := GetInt(GetAttribute('SelectedTab'));
 end;
