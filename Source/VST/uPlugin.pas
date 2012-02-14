@@ -263,41 +263,47 @@ var i, j, Page, PageColumn, Param : integer;
 begin
   // initialize your parameters here:
   FG2.LogLevel := 1;
-  FG2.LoadModuleDefs(GetLibraryPath);
-  FG2.USBActive := True;
+  try
+    FG2.LoadModuleDefs(GetLibraryPath);
+    FG2.USBActive := True;
 
-  FG2.add_log_line( 'Initialize parameters', LOGCMD_NUL);
+    FG2.add_log_line( 'Initialize parameters', LOGCMD_NUL);
 
-  for i := 0 to FNumGlobalKnobs - 1 do begin
-    Value := FG2.Performance.GlobalKnobList.Items[i].KnobValue / 127;
+    for i := 0 to FNumGlobalKnobs - 1 do begin
+      Value := FG2.Performance.GlobalKnobList.Items[i].KnobValue / 127;
 
-    inherited setParameter( i , Value);
+      inherited setParameter( i , Value);
 
-    Param := i mod 8;
-    PageColumn := (i div 8) mod 3;
-    Page := (i div 8) div 3;;
+      Param := i mod 8;
+      PageColumn := (i div 8) mod 3;
+      Page := (i div 8) div 3;;
 
-    Name := 'Page ' + chr(65 + Page) + IntToStr(PageColumn) + ' Knob ' + IntTostr(Param);
-    j := 1;
-    while (j <= Length(Name)) and (j <= 30) do begin
-      ParameterProperties[i].name[j-1] := Name[j];
-      inc(j);
+      Name := 'Page ' + chr(65 + Page) + IntToStr(PageColumn) + ' Knob ' + IntTostr(Param);
+      j := 1;
+      while (j <= Length(Name)) and (j <= 30) do begin
+        ParameterProperties[i].name[j-1] := Name[j];
+        inc(j);
+      end;
+      ParameterProperties[i].name[j-1] := #0;
     end;
-    ParameterProperties[i].name[j-1] := #0;
-  end;
 
-  for i := 0 to FNumVariationParams - 1 do begin
-    Value := FG2.GetSlot(i).GetPatch.ActiveVariation / 7;
+    for i := 0 to FNumVariationParams - 1 do begin
+      Value := FG2.GetSlot(i).GetPatch.ActiveVariation / 7;
 
-    inherited setParameter( i , Value);
+      inherited setParameter( i , Value);
 
-    Name := 'Variation slot ' + IntToStr( i + 1);
-    j := 1;
-    while (j <= Length(Name)) and (j <= 30) do begin
-      ParameterProperties[ FNumGlobalKnobs + i].name[j-1] := Name[j];
-      inc(j);
+      Name := 'Variation slot ' + IntToStr( i + 1);
+      j := 1;
+      while (j <= Length(Name)) and (j <= 30) do begin
+        ParameterProperties[ FNumGlobalKnobs + i].name[j-1] := Name[j];
+        inc(j);
+      end;
+      ParameterProperties[ FNumGlobalKnobs + i].name[j-1] := #0;
     end;
-    ParameterProperties[ FNumGlobalKnobs + i].name[j-1] := #0;
+  except on E:Exception do
+    begin
+      FG2.add_log_line( E.Message, LOGCMD_ERR);
+    end;
   end;
 end;
 
