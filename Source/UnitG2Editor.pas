@@ -259,6 +259,9 @@ type
     aViewLog: TAction;
     Viewlog1: TMenuItem;
     N7: TMenuItem;
+    aConvertModuleDef: TAction;
+    est1: TMenuItem;
+    aConvertModuleDef1: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure cbModeClick(Sender: TObject);
     procedure aPatchSettingsExecute(Sender: TObject);
@@ -332,6 +335,7 @@ type
     procedure ResponseTimerTimer(Sender: TObject);
     procedure aSendControllerSnapshotExecute(Sender: TObject);
     procedure aMidiDumpExecute(Sender: TObject);
+    procedure aConvertModuleDefExecute(Sender: TObject);
   private
     { Private declarations }
     procedure DialogKey(var Msg: TWMKey); message CM_DIALOGKEY;
@@ -1381,6 +1385,11 @@ begin
 end;
 
 // ==== Edit menu ==============================================================
+
+procedure TfrmG2Main.aConvertModuleDefExecute(Sender: TObject);
+begin
+  convert_moduledef_xml('ModuleDef.xml', 'ModuleDef_new.xml');
+end;
 
 procedure TfrmG2Main.aCopyExecute(Sender: TObject);
 begin

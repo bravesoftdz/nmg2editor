@@ -2,7 +2,7 @@ unit g2_database;
 
 interface
 uses
-  SysUtils, DOM;
+  SysUtils, DOM, XMLRead, XMLWrite;
 
 type
   TXMLModuleDefListType = class;
@@ -82,10 +82,13 @@ type
     function Get_Name: AnsiString;
     function Get_DefaultValue: Integer;
     function Get_ParamLabel: AnsiString;
+    function Get_DefaultKnob : Integer;
+    procedure Set_DefaultKnob( aValue : integer);
     property Id: Integer read Get_Id;
     property Name: AnsiString read Get_Name;
     property DefaultValue: Integer read Get_DefaultValue;
     property ParamLabel: AnsiString read Get_ParamLabel;
+    property DefaultKnob : Integer read Get_DefaultKnob write Set_DefaultKnob;
   end;
 
   TXMLParamDefListType = class(TDOMElementList)
@@ -172,6 +175,8 @@ type
     property InternalSortCol : integer read Get_InternalSortCol write Set_InternalSortCol;
     property SelectedTab : integer read Get_SelectedTab write Set_SelectedTab;
   end;
+
+  procedure convert_moduledef_xml( filename, new_filename : string);
 
 implementation
 
@@ -315,6 +320,11 @@ end;
 
 { TXMLParamType }
 
+function TXMLParamType.Get_DefaultKnob: Integer;
+begin
+  Result := GetInt(FindNode('DefaultKnob').FirstChild.NodeValue);
+end;
+
 function TXMLParamType.Get_DefaultValue: Integer;
 begin
   Result := GetInt(FindNode('DefaultValue').FirstChild.NodeValue);
@@ -338,6 +348,19 @@ begin
     Result := AnsiString(Node.FirstChild.NodeValue)
   else
     Result := '';
+end;
+
+procedure TXMLParamType.Set_DefaultKnob(aValue: integer);
+var Node : TDOMElement;
+begin
+  Node := TDOMElement(FindNode('DefaultKnob'));
+  if assigned(Node) then begin
+    Node.TextContent := IntToStr(aValue);
+  end else begin
+    Node := TDOMDocument(OwnerDocument).CreateElement('DefaultKnob');
+    AppendChild( Node);
+    Node.TextContent := IntToStr(aValue);
+  end;
 end;
 
 { TXMLParamDefListType }
@@ -521,5 +544,39 @@ procedure TXMLPatchManagerSettingsType.Set_SelectedTab(aValue: integer);
 begin
   SetAttribute('SelectedTab', IntToStr(aValue));
 end;
+
+procedure convert_moduledef_xml( filename, new_filename : string);
+var ModuleDefList : TXMLModuleDefListType;
+    XMLModuleDefs : TXMLDocument;
+    ParamList : TXMLParamListType;
+    i : integer;
+begin
+  if not(FileExists( filename)) then
+    raise Exception.Create('Module definitions xml file not found : ' + filename);
+
+  XMLModuleDefs := TXMLDocument.Create;
+  try
+    ReadXMLFile( XMLModuleDefs, filename);
+    ModuleDefList := TXMLModuleDefListType.Create( XMLModuleDefs.FirstChild);
+    try
+      ParamList := ModuleDefList.ModuleDef[1].Params;
+      if assigned(ParamList) then
+        try
+          for i := 0 to ParamList.Count - 1 do begin
+            ParamList[i].Set_DefaultKnob(0);
+          end;
+        finally
+          ParamList.Free;
+        end;
+
+    finally
+      ModuleDefList.Free;
+    end;
+    WriteXMLFile( XMLModuleDefs, new_filename);
+  finally
+    XMLModuleDefs.Free;
+  end;
+end;
+
 
 end.
