@@ -1264,9 +1264,6 @@ type
 
   TG2File = class( TComponent)
   private
-    FXMLModuleDefs        : TXMLDocument;
-    FXMLParamDefs         : TXMLDocument;
-
     FClientType           : TClientType;
 
     FBankList             : TBankList;
@@ -1294,7 +1291,10 @@ type
   protected
     function  GetID : integer; virtual;
   public
+    // TODO
     FBanks         : TStringList;
+    FXMLModuleDefs : TXMLDocument;
+    FXMLParamDefs  : TXMLDocument;
     FModuleDefList : TXMLModuleDefListType;
     FParamDefList  : TXMLParamDefListType;
 

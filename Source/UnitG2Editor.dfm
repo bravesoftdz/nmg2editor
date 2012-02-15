@@ -1100,6 +1100,10 @@ object frmG2Main: TfrmG2Main
       Caption = 'Properties'
       OnClick = Properties1Click
     end
+    object Def1: TMenuItem
+      Caption = 'Module def.'
+      OnClick = Def1Click
+    end
   end
   object puVariationMenu: TPopupMenu
     Left = 152

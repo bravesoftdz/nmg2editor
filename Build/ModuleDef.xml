@@ -105,16 +105,22 @@
         <Name>Destination</Name>
         <DefaultValue>0</DefaultValue>
         <Id>26</Id>
+        <DefaultKnob>0</DefaultKnob>
+        <ButtonParam>0</ButtonParam>
       </Param>
       <Param>
         <Name>Active</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
+        <DefaultKnob>2</DefaultKnob>
+        <ButtonParam>1</ButtonParam>
       </Param>
       <Param>
         <Name>Pad</Name>
         <DefaultValue>0</DefaultValue>
         <Id>126</Id>
+        <DefaultKnob>1</DefaultKnob>
+        <ButtonParam>2</ButtonParam>
       </Param>
     </Params>
   </ModuleDef>
@@ -190,56 +196,72 @@
         <Name>FreqCoarse</Name>
         <DefaultValue>64</DefaultValue>
         <Id>56</Id>
+        <DefaultKnob>0</DefaultKnob>
+        <ButtonParam>4</ButtonParam>
       </Param>
       <Param>
         <Name>FreqFine</Name>
         <DefaultValue>64</DefaultValue>
         <Id>57</Id>
+        <DefaultKnob>1</DefaultKnob>
+        <ButtonParam>2</ButtonParam>
       </Param>
       <Param>
         <Name>KBT</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
+        <ButtonParam>3</ButtonParam>
       </Param>
       <Param>
         <Name>PitchMod</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>2</DefaultKnob>
       </Param>
       <Param>
         <Name>FreqMode</Name>
         <DefaultValue>0</DefaultValue>
         <Id>59</Id>
+        <ButtonParam>4</ButtonParam>
       </Param>
       <Param>
         <Name>FmAmount</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>6</DefaultKnob>
+        <ButtonParam>10</ButtonParam>
       </Param>
       <Param>
         <Name>Shape</Name>
         <DefaultValue>0</DefaultValue>
         <Id>141</Id>
+        <DefaultKnob>4</DefaultKnob>
       </Param>
       <Param>
         <Name>ShapeMod</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>5</DefaultKnob>
       </Param>
       <Param>
         <Name>WaveForm</Name>
         <DefaultValue>2</DefaultValue>
         <Id>119</Id>
+        <DefaultKnob>3</DefaultKnob>
+        <ButtonParam>8</ButtonParam>
       </Param>
       <Param>
         <Name>Active</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
+        <DefaultKnob>7</DefaultKnob>
+        <ButtonParam>9</ButtonParam>
       </Param>
       <Param>
         <Name>FmMode</Name>
         <DefaultValue>0</DefaultValue>
         <Id>52</Id>
+        <ButtonParam>10</ButtonParam>
       </Param>
     </Params>
   </ModuleDef>

@@ -262,6 +262,7 @@ type
     aConvertModuleDef: TAction;
     est1: TMenuItem;
     aConvertModuleDef1: TMenuItem;
+    Def1: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure cbModeClick(Sender: TObject);
     procedure aPatchSettingsExecute(Sender: TObject);
@@ -336,6 +337,7 @@ type
     procedure aSendControllerSnapshotExecute(Sender: TObject);
     procedure aMidiDumpExecute(Sender: TObject);
     procedure aConvertModuleDefExecute(Sender: TObject);
+    procedure Def1Click(Sender: TObject);
   private
     { Private declarations }
     procedure DialogKey(var Msg: TWMKey); message CM_DIALOGKEY;
@@ -392,7 +394,7 @@ implementation
 
 uses UnitLog, UnitPatchSettings, UnitParameterPages, UnitSeqGrid,
   UnitSynthSettings, UnitPerfSettings, UnitEditLabel, UnitSettings,
-  UnitEditorTools, UnitPatchManager;
+  UnitEditorTools, UnitPatchManager, UnitModuleDef;
 
 {$IFNDEF FPC}
   {$R *.dfm}
@@ -1552,6 +1554,16 @@ begin
     frmSeqGrid.Show;
   end;
 end;
+
+procedure TfrmG2Main.Def1Click(Sender: TObject);
+var Module : TG2GraphModule;
+begin
+  Module := TG2GraphModule(puModuleMenu.Tag);
+  frmModuleDef.FModuleType := Module.TypeID;
+  frmModuleDef.Show;
+end;
+
+
 
 procedure TfrmG2Main.AddModule( aModuleType : byte);
 begin
