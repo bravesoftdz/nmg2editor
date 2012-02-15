@@ -176,7 +176,6 @@ const
   R_OK                    = $7f;
   M_UNKNOWN_1             = $81;
 
-
   START_COMM              = $00;
   STOP_COMM               = $01;
 

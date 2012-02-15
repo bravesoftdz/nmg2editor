@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 <G2_Editor_settings>
   <TCP_settings IP="127.0.0.1" Port="2501"/>
-  <MainForm PosX="462" PosY="89" SizeX="819" SizeY="673" Visible="-1"/>
-  <PatchManagerSettings BaseFolder="" SelectedTab="2" ExternalSortCol="0" InternalSortCol="1"/>
-  <PatchManagerForm PosX="1246" PosY="187" SizeX="387" SizeY="738" Visible="-1"/>
+  <MainForm PosX="373" PosY="129" SizeX="1141" SizeY="673" Visible="-1"/>
+  <PatchManagerSettings BaseFolder="" SelectedTab="2" ExternalSortCol="0" InternalSortCol="2"/>
+  <PatchManagerForm PosX="1194" PosY="187" SizeX="387" SizeY="738" Visible="-1"/>
   <SettingsForm PosX="25" PosY="25" SizeX="504" SizeY="210" Visible="0"/>
   <ParameterPagesForm PosX="25" PosY="25" SizeX="589" SizeY="158" Visible="0"/>
   <PatchSettingsForm PosX="200" PosY="200" SizeX="608" SizeY="185" Visible="0"/>
