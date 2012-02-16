@@ -308,7 +308,6 @@ type
     procedure aPasteExecute(Sender: TObject);
     procedure aDeleteExecute(Sender: TObject);
     procedure aSelectAllExecute(Sender: TObject);
-    procedure ExtractTextedit1Click(Sender: TObject);
     procedure G2AfterG2Init(Sender: TObject);
     procedure aPatchManagerExecute(Sender: TObject);
     procedure aPerformanceSettingsExecute(Sender: TObject);
@@ -334,6 +333,7 @@ type
     procedure aSendControllerSnapshotExecute(Sender: TObject);
     procedure aMidiDumpExecute(Sender: TObject);
     procedure Def1Click(Sender: TObject);
+    procedure aExtractModuleInfoExecute(Sender: TObject);
   private
     { Private declarations }
     procedure DialogKey(var Msg: TWMKey); message CM_DIALOGKEY;
@@ -368,8 +368,6 @@ type
     procedure SelectSlot( aSlotIndex : byte);
     procedure SelectVariation( aSlotIndex, aVariationIndex : byte);
     procedure SelectPatchLocation( aLocation : TLocationType);
-
-    procedure ExtractTextEdit;
 
     procedure SaveIniXML;
     procedure LoadIniXML;
@@ -1338,49 +1336,10 @@ begin
   Application.Terminate;
 end;
 
-procedure TfrmG2Main.ExtractTextEdit;
-var Module : TG2GraphModule;
-    Control : TG2GraphChildControl;
-    i, j, k: Integer;
-    modulename : AnsiString;
+procedure TfrmG2Main.aExtractModuleInfoExecute(Sender: TObject);
 begin
-  // I used this to get some info out of the paneld definitions
-  for i := 0 to G2.FModuleDefList.Count - 1 do begin
-    Module := G2.SelectedPatch.CreateModule( ltVA, 1, G2.FModuleDefList.ModuleDef[i].ModuleType) as TG2GraphModule;
-    if assigned(Module) then
-      try
-        modulename := '';
-        G2.SelectedPatch.AddModuleToPatch( ltVA, Module);
-        G2.SelectedPatch.SortLeds;
-        for j := 0 to Module.ParameterCount - 1 do begin
-          k := 0;
-          while (k < Module.Panel.ChildControlsCount) and (Module.Panel.GraphChildControls[k].Parameter <> Module.Parameter[j]) do
-            inc(k);
-
-          if (k < Module.Panel.ChildControlsCount) then begin
-            Control := Module.Panel.GraphChildControls[k];
-            if (control is TG2GraphTextEdit) then begin
-              if (Control as TG2GraphTextEdit).ButtonText.Count > 0 then begin
-                if modulename = '' then begin
-                  modulename := Module.ModuleName;
-                  G2.add_log_line('Module : ' + Module.ModuleName + ', param : ' + string(Control.Parameter.ParamName), LOGCMD_NUL);
-                end;
-                G2.add_log_line('<ParamLabel>' + (Control as TG2GraphButtonText).ButtonText[0] + '</ParamLabel>', LOGCMD_NUL);
-              end;
-            end;
-          end;
-        end;
-      finally
-        G2.SelectedPatch.RemoveFromLedList( ltVA, Module.ModuleIndex);
-        G2.SelectedPatch.DeleteModuleFromPatch(ltVA, Module);
-      end;
-  end;
 end;
 
-procedure TfrmG2Main.ExtractTextedit1Click(Sender: TObject);
-begin
-  ExtractTextEdit;
-end;
 
 // ==== Edit menu ==============================================================
 
@@ -1553,8 +1512,6 @@ begin
   frmModuleDef.FModuleType := Module.TypeID;
   frmModuleDef.Show;
 end;
-
-
 
 procedure TfrmG2Main.AddModule( aModuleType : byte);
 begin
