@@ -1,7 +1,7 @@
 object frmG2Main: TfrmG2Main
   Left = 0
   Top = 0
-  Caption = 'G2 Editor v0.2'
+  Caption = 'G2 Editor v0.21'
   ClientHeight = 605
   ClientWidth = 1067
   Color = clBtnFace
@@ -978,12 +978,6 @@ object frmG2Main: TfrmG2Main
         Action = aViewLog
       end
     end
-    object est1: TMenuItem
-      Caption = 'Test'
-      object aConvertModuleDef1: TMenuItem
-        Action = aConvertModuleDef
-      end
-    end
   end
   object puAddModule: TPopupMenu
     AutoPopup = False
@@ -1330,10 +1324,6 @@ object frmG2Main: TfrmG2Main
       Category = 'Settings'
       Caption = 'View log'
       OnExecute = aViewLogExecute
-    end
-    object aConvertModuleDef: TAction
-      Caption = 'aConvertModuleDef'
-      OnExecute = aConvertModuleDefExecute
     end
   end
   object ResponseTimer: TTimer

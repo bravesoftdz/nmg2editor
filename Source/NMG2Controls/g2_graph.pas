@@ -6313,7 +6313,7 @@ end;
 procedure Register;
 begin
   RegisterComponents('NM G2', [TG2GraphScrollBox, TG2GraphDisplay, TG2GraphButtonRadio,
-      TG2GraphButtonText, TG2GraphButtonIncDec, TG2GraphKnob, TG2GraphLine,
+      TG2GraphButtonText, TG2GraphButtonFlat, TG2GraphButtonIncDec, TG2GraphKnob, TG2GraphLine,
       TG2GraphLabel, TG2GraphPanel]);
 end;
 

@@ -16,7 +16,6 @@ type
 
   TXMLTCPSettingsType = class;
 
-
   TXMLModuleDefListType = class(TDOMElementList)
   protected
     function Get_ModuleDef(Index: Integer): TXMLModuleDefType;
@@ -83,12 +82,13 @@ type
     function Get_DefaultValue: Integer;
     function Get_ParamLabel: AnsiString;
     function Get_DefaultKnob : Integer;
-    procedure Set_DefaultKnob( aValue : integer);
+    function Get_ButtonParamIndex : Integer;
     property Id: Integer read Get_Id;
     property Name: AnsiString read Get_Name;
     property DefaultValue: Integer read Get_DefaultValue;
     property ParamLabel: AnsiString read Get_ParamLabel;
-    property DefaultKnob : Integer read Get_DefaultKnob write Set_DefaultKnob;
+    property DefaultKnob : Integer read Get_DefaultKnob;
+    property ButtonParamIndex : Integer read Get_ButtonParamIndex;
   end;
 
   TXMLParamDefListType = class(TDOMElementList)
@@ -175,8 +175,6 @@ type
     property InternalSortCol : integer read Get_InternalSortCol write Set_InternalSortCol;
     property SelectedTab : integer read Get_SelectedTab write Set_SelectedTab;
   end;
-
-  procedure convert_moduledef_xml( filename, new_filename : string);
 
 implementation
 
@@ -321,8 +319,23 @@ end;
 { TXMLParamType }
 
 function TXMLParamType.Get_DefaultKnob: Integer;
+var Node : TDOMNode;
 begin
-  Result := GetInt(FindNode('DefaultKnob').FirstChild.NodeValue);
+  Node := FindNode('DefaultKnob');
+  if Node <> nil then
+    Result := GetInt(Node.TextContent)
+  else
+    Result := -1;
+end;
+
+function TXMLParamType.Get_ButtonParamIndex: Integer;
+var Node : TDOMNode;
+begin
+  Node := FindNode('ButtonParam');
+  if Node <> nil then
+    Result := GetInt(Node.TextContent)
+  else
+    Result := -1;
 end;
 
 function TXMLParamType.Get_DefaultValue: Integer;
@@ -350,7 +363,7 @@ begin
     Result := '';
 end;
 
-procedure TXMLParamType.Set_DefaultKnob(aValue: integer);
+{procedure TXMLParamType.Set_DefaultKnob(aValue: integer);
 var Node : TDOMElement;
 begin
   Node := TDOMElement(FindNode('DefaultKnob'));
@@ -361,7 +374,7 @@ begin
     AppendChild( Node);
     Node.TextContent := IntToStr(aValue);
   end;
-end;
+end;}
 
 { TXMLParamDefListType }
 
@@ -543,39 +556,6 @@ end;
 procedure TXMLPatchManagerSettingsType.Set_SelectedTab(aValue: integer);
 begin
   SetAttribute('SelectedTab', IntToStr(aValue));
-end;
-
-procedure convert_moduledef_xml( filename, new_filename : string);
-var ModuleDefList : TXMLModuleDefListType;
-    XMLModuleDefs : TXMLDocument;
-    ParamList : TXMLParamListType;
-    i : integer;
-begin
-  if not(FileExists( filename)) then
-    raise Exception.Create('Module definitions xml file not found : ' + filename);
-
-  XMLModuleDefs := TXMLDocument.Create;
-  try
-    ReadXMLFile( XMLModuleDefs, filename);
-    ModuleDefList := TXMLModuleDefListType.Create( XMLModuleDefs.FirstChild);
-    try
-      ParamList := ModuleDefList.ModuleDef[1].Params;
-      if assigned(ParamList) then
-        try
-          for i := 0 to ParamList.Count - 1 do begin
-            ParamList[i].Set_DefaultKnob(0);
-          end;
-        finally
-          ParamList.Free;
-        end;
-
-    finally
-      ModuleDefList.Free;
-    end;
-    WriteXMLFile( XMLModuleDefs, new_filename);
-  finally
-    XMLModuleDefs.Free;
-  end;
 end;
 
 

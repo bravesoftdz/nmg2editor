@@ -46,6 +46,14 @@ type
     Disp8B: TG2GraphDisplay;
     btGlobalPages: TG2GraphButtonText;
     Panel2: TPanel;
+    bfP1: TG2GraphButtonFlat;
+    bfP2: TG2GraphButtonFlat;
+    bfP3: TG2GraphButtonFlat;
+    bfP4: TG2GraphButtonFlat;
+    bfP5: TG2GraphButtonFlat;
+    bfP6: TG2GraphButtonFlat;
+    bfP7: TG2GraphButtonFlat;
+    bfP8: TG2GraphButtonFlat;
     procedure obParamClick(Sender: TObject);
     procedure obPageClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
@@ -58,6 +66,7 @@ type
     FKnobArray       : array[0..7] of TG2GraphKnob;
     FDispKnobArray   : array[0..7] of TG2GraphDisplay;
     FDispModuleArray : array[0..7] of TG2GraphDisplay;
+    FButtonArray     : array[0..7] of TG2GraphButtonFlat;
 {$IFDEF FPC}
 {$ELSE}
     procedure WMPaint(var Msg: TWMPaint); message WM_PAINT;
@@ -116,6 +125,15 @@ begin
   FKnobArray[5] := skP6;
   FKnobArray[6] := skP7;
   FKnobArray[7] := skP8;
+
+  FButtonArray[0] := bfP1;
+  FButtonArray[1] := bfP2;
+  FButtonArray[2] := bfP3;
+  FButtonArray[3] := bfP4;
+  FButtonArray[4] := bfP5;
+  FButtonArray[5] := bfP6;
+  FButtonArray[6] := bfP7;
+  FButtonArray[7] := bfP8;
 
   LoadIniXML;
 end;
@@ -234,6 +252,7 @@ var i : integer;
     Patch : TG2Patch;
     Perf : TG2Performance;
     Knob : TKnob;
+    Module : TG2FileModule;
 begin
   if btGlobalPages.Value = 0 then begin
 
@@ -244,10 +263,16 @@ begin
         FKnobArray[i].SetParameter( Knob.Parameter as TG2GraphParameter);
         FDispKnobArray[i].SetParameter( Knob.Parameter as TG2GraphParameter);
         FDispModuleArray[i].SetParameter( Knob.Parameter as TG2GraphParameter);
+        if Knob.Parameter.ButtonParamIndex <> -1 then begin
+          Module := Patch.Modules[ Knob.Location, Knob.ModuleIndex];
+          if assigned(Module) then
+            FButtonArray[i].SetParameter( Module.Parameter[ Knob.Parameter.ButtonParamIndex]);
+        end;
       end else begin
         FKnobArray[i].SetParameter( nil);
         FDispKnobArray[i].SetParameter( nil);
         FDispModuleArray[i].SetParameter( nil);
+        FButtonArray[i].SetParameter( nil);
       end;
     end;
 
@@ -264,6 +289,7 @@ begin
         FKnobArray[i].SetParameter( nil);
         FDispKnobArray[i].SetParameter( nil);
         FDispModuleArray[i].SetParameter( nil);
+        FButtonArray[i].SetParameter( nil);
       end;
     end;
   end;

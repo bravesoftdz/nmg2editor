@@ -1065,13 +1065,14 @@ type
     FModuleName        : AnsiString;
     FDefaultParamLabel : AnsiString;
     FCanChangeLabel    : boolean;
-
+    FDefaultKnob       : integer; // When a module is assigned to a parameter page
+    FButtonParamIndex  : integer; // The parameter that is assigned to the button below the knob on the param page
     procedure   SetSelected( aValue : boolean); virtual;
     function    GetSelected : boolean;
   public
     constructor Create( aPatch : TG2FilePatch; aLocation : TLocationType; aModuleIndex : integer);
     destructor  Destroy; override;
-    procedure   InitParam( aModuleName : AnsiString; aParamIndex : byte; aParamType : TParamType; aParamName, aDefaultParamLabel : AnsiString; aLowValue, aHighValue, aDefaultValue : byte);
+    procedure   InitParam( aModuleName : AnsiString; aParamIndex : byte; aParamType : TParamType; aParamName, aDefaultParamLabel : AnsiString; aLowValue, aHighValue, aDefaultValue : byte; aDefaultKnob, aButtonParamIndex : integer);
     procedure   AssignKnob( aKnobIndex : integer);
     procedure   DeassignKnob( aKnobIndex : integer);
     procedure   AssignGlobalKnob( aPerf : TG2FilePerformance; aSlotIndex : byte; aKnobIndex : integer);
@@ -1112,6 +1113,8 @@ type
     property    Knob : TKnob read FKnob write FKnob;
     property    GlobalKnob : TGlobalKnob read FGlobalKnob write FGlobalKnob;
     property    Controller : TController read FController write FController;
+    property    ButtonParamIndex : integer read FButtonParamIndex write FButtonParamIndex;
+    property    DefaultKnob : integer read FDefaultKnob write FDefaultKnob;
   end;
 
   TG2FileSlot = class( TComponent)
@@ -1291,7 +1294,7 @@ type
   protected
     function  GetID : integer; virtual;
   public
-    // TODO
+    // TODO make these private
     FBanks         : TStringList;
     FXMLModuleDefs : TXMLDocument;
     FXMLParamDefs  : TXMLDocument;
@@ -1470,7 +1473,9 @@ begin
       for i := 0 to aParamList.Count - 1 do begin
         FParams[i] := CreateParameter;
         aParamDef := aParamDefList.ParamDef[ aModuleDef.Params[i].Id];
-        FParams[i].InitParam( aModuleDef.ShortName, i, ptParam, aModuleDef.Params[i].Name, aModuleDef.Params[i].ParamLabel, aParamDef.LowValue, aParamDef.HighValue, aParamDef.DefaultValue);
+        FParams[i].InitParam( aModuleDef.ShortName, i, ptParam, aModuleDef.Params[i].Name, aModuleDef.Params[i].ParamLabel,
+                              aParamDef.LowValue, aParamDef.HighValue, aParamDef.DefaultValue,
+                              aModuleDef.Params[i].DefaultKnob, aModuleDef.Params[i].ButtonParamIndex);
       end;
     finally
       aParamList.Free;
@@ -1485,7 +1490,7 @@ begin
       for i := 0 to aParamList.Count - 1 do begin
         FModes[i] := CreateParameter;
         aParamDef := aParamDefList.ParamDef[ aModuleDef.Modes[i].Id];
-        FModes[i].InitParam( aModuleDef.ShortName, i, ptMode, aModuleDef.Modes[i].Name,  aModuleDef.Modes[i].ParamLabel, aParamDef.LowValue, aParamDef.HighValue, aParamDef.DefaultValue);
+        FModes[i].InitParam( aModuleDef.ShortName, i, ptMode, aModuleDef.Modes[i].Name, aModuleDef.Modes[i].ParamLabel, aParamDef.LowValue, aParamDef.HighValue, aParamDef.DefaultValue, -1, -1);
         FModeInfo[i] := aParamDef.DefaultValue;
       end;
     finally
@@ -4829,7 +4834,7 @@ var i : integer;
     i := Length(FParams);
     SetLength(FParams, i + 1);
     FParams[i] := CreateParameter( ModuleIndex);
-    FParams[i].InitParam( ModuleName, ParamIndex, ptParam, ParamName, '', LowValue, HighValue, DefaultValue);
+    FParams[i].InitParam( ModuleName, ParamIndex, ptParam, ParamName, '', LowValue, HighValue, DefaultValue, -1, -1);
   end;
 
 begin
@@ -6129,6 +6134,8 @@ begin
   FModuleIndex := aModuleIndex;
   FKnob := nil;
   FCanChangeLabel := False;
+  FDefaultKnob := -1;
+  FButtonParamIndex := -1;
 end;
 
 destructor TG2FileParameter.Destroy;
@@ -6301,7 +6308,10 @@ begin
   end;
 end;
 
-procedure TG2FileParameter.InitParam( aModuleName : AnsiString; aParamIndex : byte; aParamType : TParamType; aParamName, aDefaultParamLabel : AnsiString; aLowValue, aHighValue, aDefaultValue : byte);
+procedure TG2FileParameter.InitParam( aModuleName : AnsiString; aParamIndex : byte; aParamType : TParamType;
+                                      aParamName, aDefaultParamLabel : AnsiString;
+                                      aLowValue, aHighValue, aDefaultValue : byte;
+                                      aDefaultKnob, aButtonParamIndex : integer);
 var i : integer;
 begin
   FParamType := aParamType;
@@ -6313,6 +6323,8 @@ begin
   FHighValue := aHighValue;
   FDefaultValue := aDefaultValue;
   FModuleName := aModuleName;
+  FDefaultKnob := aDefaultKnob;
+  FButtonParamIndex := aButtonParamIndex;
 
   if assigned(FPatch) then begin
     // Check for associated knob
