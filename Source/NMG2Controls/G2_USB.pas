@@ -58,7 +58,8 @@ uses
 {$IFDEF unix}
   libusb,
 {$ELSE}
-  LibUSBWin,
+  //LibUSBWin,
+  LibUSBWinDyn,
 {$ENDIF}
   Messages, Forms, Classes, Dialogs, SysUtils, Controls, StdCtrls, ExtCtrls,
   g2_types, g2_file, g2_mess,
@@ -640,6 +641,9 @@ begin
     // Find g2 usb device
     g2dev := nil;
     g2udev := nil;
+
+    if not assigned(usb_init) then
+      exit; // libusb dll not loaded
 
     // LibUSB-Win32 Initialization
     usb_init;              // Initialize libusb

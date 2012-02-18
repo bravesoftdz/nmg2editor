@@ -52,7 +52,7 @@ uses
 {$ENDIF}
   Forms, Messages, Classes, SysUtils, StdCtrls, ExtCtrls, Controls,
   Graphics, Menus, Dialogs, math, g2_database,
-  g2_file, g2_types, graph_util_vcl, g2_usb, fastbitmap;
+  g2_file, g2_types, graph_util_vcl, g2_usb, g2_midi, fastbitmap;
 
 type
   TG2GraphChildControl = class;
@@ -100,7 +100,7 @@ type
     property    BitmapHeight : integer read FBitmapHeight write FBitmapHeight;
   end;
 
-  TG2Graph = class( TG2USB)
+  TG2Graph = class( TG2Midi)
   private
     FScrollboxVA    : TG2GraphScrollBox;
     FScrollboxFX    : TG2GraphScrollBox;

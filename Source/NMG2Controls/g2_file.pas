@@ -43,7 +43,7 @@ uses
   Windows, Classes, SysUtils, DOM, XMLRead, g2_types, g2_database;
 
 const
-  MIDI_BLOCK_SIZE = 419; // The number of whole octets in  a full size MIDI packet
+  MIDI_BLOCK_SIZE = 479;//419; // The number of whole octets in  a full size MIDI packet
 
 type
   TG2FilePatch = class;
@@ -118,7 +118,7 @@ type
     function    ReadClaviaString( aStream : TStream): AnsiString;
     procedure   WriteClaviaString( aStream : TStream; aValue : AnsiString);
 
-    function    CreateFromMidiStream(const aStream: TStream): TMemoryStream;
+    function    CreateFromMidiStream(const aStream: TStream; aLogLines : TStrings): TMemoryStream;
     procedure   CreateMidiBlock( aBlockNr, aBlockCount, anOffset, aSize: Integer; aChunk : TPatchChunk; aMidiStream : TStream);
     procedure   SaveMidiToStream( const aStream : TStream);
     function    ParseMidiConst  ( const aStream : TStream; aValue: Byte): Byte;
@@ -1490,7 +1490,9 @@ begin
       for i := 0 to aParamList.Count - 1 do begin
         FModes[i] := CreateParameter;
         aParamDef := aParamDefList.ParamDef[ aModuleDef.Modes[i].Id];
-        FModes[i].InitParam( aModuleDef.ShortName, i, ptMode, aModuleDef.Modes[i].Name, aModuleDef.Modes[i].ParamLabel, aParamDef.LowValue, aParamDef.HighValue, aParamDef.DefaultValue, -1, -1);
+        FModes[i].InitParam( aModuleDef.ShortName, i, ptMode, aModuleDef.Modes[i].Name, aModuleDef.Modes[i].ParamLabel,
+                             aParamDef.LowValue, aParamDef.HighValue, aParamDef.DefaultValue,
+                             -1, -1);
         FModeInfo[i] := aParamDef.DefaultValue;
       end;
     finally
@@ -7314,24 +7316,26 @@ begin
   end;
 end;
 
-function TG2FileDataStream.CreateFromMidiStream(const aStream: TStream): TMemoryStream;
-var MData, i, SlotIndex : integer;
+function TG2FileDataStream.CreateFromMidiStream(const aStream: TStream; aLogLines : TStrings): TMemoryStream;
+var MData, i, SlotIndex, Offs : integer;
     b : byte;
     FName        : AnsiString;
     BlockCount   : integer;
     CurrentBlock : integer;
     BitWriter    : TBitWriter;
+    Line         : string;
 begin
   BlockCount     := 0;
   CurrentBlock   := 0;
+  Offs := 0;
 
   Result := TMemoryStream.Create;
 
   BitWriter := TBitWriter.Create;
   try
-
     aStream.Position := 0;
     while aStream.Position < aStream.Size do Begin
+      Line := '';
       FChecksum := 0;
       ParseMidiConst( aStream, $f0);            // Start sysex
       ParseMidiConst( aStream, $33);            // Clavia
@@ -7351,17 +7355,25 @@ begin
       ParseMidiConst( aStream, $00);            // ?
       MData := ParseMidiInt( aStream);          // Block Number
 
+      Line := Line + 'Block : ' + IntToStr(MData);
+
       if MData <> CurrentBlock then
         raise Exception.Create(Format( 'Invalid MIDI, block %d expected but block %d seen', [ CurrentBlock, MData]));
 
       MData := ParseMidiInt( aStream);          // Block count
+
+      Line := Line + ' Count : ' + IntToStr(MData);
+
       if BlockCount = 0 then
         BlockCount := MData
       else
         if BlockCount <> MData then
           raise Exception.Create(Format( 'Block count changed during MIDI load (%d -> %d)', [ BlockCount, MData]));
 
+
       FName := ParseMidiString( aStream);       // Patch name
+
+      Line := Line + ' Name : ' + string(FName) + ' Data : ';
 
       MData := ParseMidiInt( aStream);          // Septet count
       for i := 0 to MData - 2 do begin
@@ -7371,7 +7383,16 @@ begin
       end;
       aStream.Read( b, 1);
       FChecksum := ( FChecksum + b) and $7f;
+      b := b shr (7-BitWriter.GetWriteBufferBitsLeft); {!}
       BitWriter.WriteBits( Result, b, BitWriter.GetWriteBufferBitsLeft);
+
+      for i := Offs to Result.Size - 1 do
+        Line := Line + IntToHex(PStaticByteBuffer(Result.Memory)^[i], 2) + ' ';
+      Offs := Result.Size;
+
+
+      if assigned(aLogLines) then
+        aLogLines.Add(Line);
 
       MData := FChecksum;
 
@@ -7420,6 +7441,7 @@ Begin
     if i = aSize - 1 then begin
       bits_left := aChunk.GetReadBufferBitsLeft mod 8;
       b := aChunk.ReadBits( bits_left);
+      b := b shl (7 - bits_left); {! Tricky business}
     end else
       b := aChunk.ReadBits( 7) and $7f;
     AddMidiByte( aMidiStream, b);                // Data septets
@@ -7454,6 +7476,10 @@ begin
     Chunk.Flush;
 
     //MaxVariations := 9;
+
+    if PatchType = PERF_DATA then // TODO
+      (self as TG2FilePerformance).WriteSettings( Chunk);
+
     Write( Chunk, 9); // 9 Variations are written to file
     Chunk.WriteCrc( FileStream);
 
@@ -7603,9 +7629,10 @@ var Chunk            : TPatchChunk;
 begin
   G2FileDataStream := TG2FileDataStream.Create( AOwner);
   try
-    MemStream := G2FileDataStream.CreateFromMidiStream( aStream);
+    MemStream := G2FileDataStream.CreateFromMidiStream( aStream, aLogLines);
 
     MemStream.Position := 0;
+    MemStream.SaveToFile('TestSysEx_converted.bin');
     Chunk := TPatchChunk.Create( MemStream);
     try
       if assigned( aLogLines) then

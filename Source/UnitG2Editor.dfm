@@ -956,6 +956,15 @@ object frmG2Main: TfrmG2Main
       object Mididump1: TMenuItem
         Action = aMidiDump
       end
+      object Sendpatchsysex1: TMenuItem
+        Action = aSendPartchSysex
+      end
+      object Sendperformancesysex1: TMenuItem
+        Action = aSendPerfSysex
+      end
+      object N8: TMenuItem
+        Caption = '-'
+      end
       object Sendcontrolersnapshot1: TMenuItem
         Action = aSendControllerSnapshot
       end
@@ -1324,6 +1333,18 @@ object frmG2Main: TfrmG2Main
       Category = 'Settings'
       Caption = 'View log'
       OnExecute = aViewLogExecute
+    end
+    object aSendPartchSysex: TAction
+      Category = 'Midi'
+      Caption = 'Send patch sysex'
+      ShortCut = 113
+      OnExecute = aSendPartchSysexExecute
+    end
+    object aSendPerfSysex: TAction
+      Category = 'Midi'
+      Caption = 'Send performance sysex'
+      ShortCut = 114
+      OnExecute = aSendPerfSysexExecute
     end
   end
   object ResponseTimer: TTimer

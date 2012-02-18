@@ -1,5 +1,31 @@
 unit UnitSettings;
 
+//  ////////////////////////////////////////////////////////////////////////////
+//
+//  Copyright (C) 2011 Bruno Verhue
+//
+//  This program is free software; you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation; either version 2 of the License, or
+//  (at your option) any later version.
+//
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//
+//  You should have received a copy of the GNU General Public License
+//  along with this program; if not, write to the Free Software
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+//
+//  ////////////////////////////////////////////////////////////////////////////
+
+//  ////////////////////////////////////////////////////////////////////////////
+//
+//  This unit needs the Delphi MIDI I/O components, download at https://bitbucket.org/h4ndy/midiio-dev/overview
+//
+//  ////////////////////////////////////////////////////////////////////////////
+
 {$I delphi_version.inc}
 
 interface
@@ -7,7 +33,8 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms, Dialogs,
   IdBaseComponent, IdComponent, IdUDPBase,
   IdUDPClient, StdCtrls, IdSocketHandle, IdUDPServer, IdGlobal, ExtCtrls,
-  g2_types, g2_database, g2_file, OSCUtils, ComCtrls, DOM, XMLRead, XMLWrite;
+  g2_types, g2_database, g2_file, OSCUtils, ComCtrls, DOM, XMLRead, XMLWrite,
+  MidiDeviceComboBox;
 
 type
   TfrmSettings = class(TForm)
@@ -30,12 +57,21 @@ type
     eRootFolder: TEdit;
     Label5: TLabel;
     Button1: TButton;
+    TabSheet4: TTabSheet;
+    mcbMidiIn: TMidiDeviceComboBox;
+    mcbMidiOut: TMidiDeviceComboBox;
+    Label6: TLabel;
+    Label7: TLabel;
+    cbIsServer: TCheckBox;
+    cbEnableMidi: TCheckBox;
     procedure Button2Click(Sender: TObject);
     procedure IdUDPServer1Status(ASender: TObject; const AStatus: TIdStatus;
       const AStatusText: string);
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure mcbMidiInChange(Sender: TObject);
+    procedure mcbMidiOutChange(Sender: TObject);
   private
     { Private declarations }
   public
@@ -99,6 +135,16 @@ begin
   end;
 end;
 
+
+procedure TfrmSettings.mcbMidiInChange(Sender: TObject);
+begin
+  frmG2Main.G2.MidiInput.ChangeDevice( mcbMidiIn.SelectedDeviceID);
+end;
+
+procedure TfrmSettings.mcbMidiOutChange(Sender: TObject);
+begin
+  frmG2Main.G2.MidiOutput.ChangeDevice( mcbMidiOut.SelectedDeviceID)
+end;
 
 procedure TfrmSettings.FormClose(Sender: TObject; var Action: TCloseAction);
 begin

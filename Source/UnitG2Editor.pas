@@ -59,8 +59,16 @@ unit UnitG2Editor;
 // Clean up global assign on init/load patch
 // ini-file (xml) with some preferences
 
-// TODO List for beta release
-// ==========================
+// TODO List v2.1
+// ==============
+
+// Solve compiler warnings
+// Assign whole module to parameter page
+// Buttons on parameter pages
+// Midi, send receieve sysex
+// Static binding of libusb.dll (optional loading)
+// Add ini file for VST
+
 
 // Set parameter functions to g2_file
 // Make Set..InPatch functions private
@@ -260,6 +268,11 @@ type
     Viewlog1: TMenuItem;
     N7: TMenuItem;
     Def1: TMenuItem;
+    aSendPartchSysex: TAction;
+    aSendPerfSysex: TAction;
+    Sendpatchsysex1: TMenuItem;
+    Sendperformancesysex1: TMenuItem;
+    N8: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure cbModeClick(Sender: TObject);
     procedure aPatchSettingsExecute(Sender: TObject);
@@ -334,6 +347,8 @@ type
     procedure aMidiDumpExecute(Sender: TObject);
     procedure Def1Click(Sender: TObject);
     procedure aExtractModuleInfoExecute(Sender: TObject);
+    procedure aSendPartchSysexExecute(Sender: TObject);
+    procedure aSendPerfSysexExecute(Sender: TObject);
   private
     { Private declarations }
     procedure DialogKey(var Msg: TWMKey); message CM_DIALOGKEY;
@@ -1582,6 +1597,16 @@ end;
 procedure TfrmG2Main.aSendControllerSnapshotExecute(Sender: TObject);
 begin
   G2.SelectedSlot.SendControllerSnapshotMessage;
+end;
+
+procedure TfrmG2Main.aSendPartchSysexExecute(Sender: TObject);
+begin
+  G2.SysExSendPatch( G2.SelectedSlotIndex);
+end;
+
+procedure TfrmG2Main.aSendPerfSysexExecute(Sender: TObject);
+begin
+  G2.SysExSendPerformance;
 end;
 
 procedure TfrmG2Main.aMidiDumpExecute(Sender: TObject);

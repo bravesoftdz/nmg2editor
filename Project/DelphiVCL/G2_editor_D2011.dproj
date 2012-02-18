@@ -80,7 +80,7 @@
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
 			<DCC_ExeOutput>..\..\Build\</DCC_ExeOutput>
-			<DCC_UnitSearchPath>..\..\Source\NMG2Controls\;..\..\Source\XML\;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+			<DCC_UnitSearchPath>..\..\Source\NMG2Controls\;..\..\Source\XML\;..\..\..\midiio-dev-v7\h4ndy-midiio-dev-67754a8fdfa5;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
 			<DCC_DcuOutput>..\..\Dcu</DCC_DcuOutput>
 			<VerInfo_AutoGenVersion>true</VerInfo_AutoGenVersion>
 			<VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
