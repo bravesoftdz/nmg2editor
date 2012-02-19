@@ -535,6 +535,10 @@ type
     procedure    SetKnobFloatValue( aValue : single);
     function     GetKnobHighValue : byte;
     function     GetKnobLowValue : byte;
+    function     GetKnobButtonValue : byte;
+    procedure    SetKnobButtonValue( aValue : byte);
+    function     GetKnobButtonFloatValue : single;
+    procedure    SetKnobButtonFloatValue( aValue : single);
   public
     procedure    Init; virtual;
     procedure    Read( aChunk : TPatchChunk); virtual;
@@ -547,6 +551,8 @@ type
     property     Parameter : TG2FileParameter read FParameter write FParameter;
     property     KnobValue : byte read GetKnobValue write SetKnobValue;
     property     KnobFloatValue : single read GetKnobFloatValue write SetKnobFloatValue;
+    property     KnobButtonValue : byte read GetKnobButtonValue write SetKnobButtonValue;
+    property     KnobButtonFloatValue : single read GetKnobButtonFloatValue write SetKnobButtonFloatValue;
     property     KnobHighValue : byte read GetKnobHighValue;
     property     KnobLowValue : byte read GetKnobLowValue;
     property     KnobIndex : integer read FKnobIndex;
@@ -1067,12 +1073,19 @@ type
     FCanChangeLabel    : boolean;
     FDefaultKnob       : integer; // When a module is assigned to a parameter page
     FButtonParamIndex  : integer; // The parameter that is assigned to the button below the knob on the param page
+    FButtonText        : TStrings;
+  protected
     procedure   SetSelected( aValue : boolean); virtual;
     function    GetSelected : boolean;
+    function    GetButtonText( Index : integer): string;
+    procedure   SetButtonText( Index : integer; aValue : string);
+    function    GetSelectedButtonText: string;
+    function    GetButtonTextCount : integer;
+    function    GetButtonParam : TG2FileParameter;
   public
     constructor Create( aPatch : TG2FilePatch; aLocation : TLocationType; aModuleIndex : integer);
     destructor  Destroy; override;
-    procedure   InitParam( aModuleName : AnsiString; aParamIndex : byte; aParamType : TParamType; aParamName, aDefaultParamLabel : AnsiString; aLowValue, aHighValue, aDefaultValue : byte; aDefaultKnob, aButtonParamIndex : integer);
+    procedure   InitParam( aModuleName : AnsiString; aParamIndex : byte; aParamType : TParamType; aParamName, aDefaultParamLabel : AnsiString; aLowValue, aHighValue, aDefaultValue : byte; aDefaultKnob, aButtonParamIndex : integer; aButtonText : string);
     procedure   AssignKnob( aKnobIndex : integer);
     procedure   DeassignKnob( aKnobIndex : integer);
     procedure   AssignGlobalKnob( aPerf : TG2FilePerformance; aSlotIndex : byte; aKnobIndex : integer);
@@ -1115,6 +1128,10 @@ type
     property    Controller : TController read FController write FController;
     property    ButtonParamIndex : integer read FButtonParamIndex write FButtonParamIndex;
     property    DefaultKnob : integer read FDefaultKnob write FDefaultKnob;
+    property    ButtonText[ index : integer]: string read GetButtonText write SetButtonText;
+    property    ButtonTextCount : integer read GetButtonTextCount;
+    property    SelectedButtonText: string read GetSelectedButtonText;
+    property    ButtonParam : TG2FileParameter read GetButtonParam;
   end;
 
   TG2FileSlot = class( TComponent)
@@ -1289,6 +1306,8 @@ type
     FLogLines    : TStringList;
     FLogLock     : TRTLCriticalSection; // for multi threaded access to log
 
+    FLastError   : string;
+
     procedure SetPerformance( aValue : TG2FilePerformance);
     procedure SetLogLevel( aValue : integer);
   protected
@@ -1322,6 +1341,7 @@ type
     property    ClientType : TClientType read FClientType write FClientType;
     property    LogLines : TStringList read FLogLines;
     property    LogLevel : integer read FLogLevel write SetLogLevel;
+    property    LastError : string read FLastError write FLastError;
     property    OnCreateModule : TCreateModuleEvent read FOnCreateModule write FOnCreateModule;
     property    OnAddModule : TAddModuleEvent read FOnAddModule write FOnAddModule;
     property    OnDeleteModule : TDeleteModuleEvent read FOnDeleteModule write FOnDeleteModule;
@@ -1475,7 +1495,8 @@ begin
         aParamDef := aParamDefList.ParamDef[ aModuleDef.Params[i].Id];
         FParams[i].InitParam( aModuleDef.ShortName, i, ptParam, aModuleDef.Params[i].Name, aModuleDef.Params[i].ParamLabel,
                               aParamDef.LowValue, aParamDef.HighValue, aParamDef.DefaultValue,
-                              aModuleDef.Params[i].DefaultKnob, aModuleDef.Params[i].ButtonParamIndex);
+                              aModuleDef.Params[i].DefaultKnob, aModuleDef.Params[i].ButtonParamIndex,
+                              aParamDef.ButtonText);
       end;
     finally
       aParamList.Free;
@@ -1492,7 +1513,8 @@ begin
         aParamDef := aParamDefList.ParamDef[ aModuleDef.Modes[i].Id];
         FModes[i].InitParam( aModuleDef.ShortName, i, ptMode, aModuleDef.Modes[i].Name, aModuleDef.Modes[i].ParamLabel,
                              aParamDef.LowValue, aParamDef.HighValue, aParamDef.DefaultValue,
-                             -1, -1);
+                             -1, -1,
+                              aParamDef.ButtonText);
         FModeInfo[i] := aParamDef.DefaultValue;
       end;
     finally
@@ -3359,21 +3381,62 @@ begin
     FParameter.SetParameterValue( aValue);
 end;
 
-function TKnob.GetKnobFloatValue : single;
+function TKnob.GetKnobButtonValue : byte;
+var ButtonParam : TG2FileParameter;
+begin
+  Result := 0;
+  if (FAssigned = 1) and assigned(FParameter) then begin
+    ButtonParam := FParameter.ButtonParam;
+    if assigned(ButtonParam) then
+      Result := ButtonParam.GetParameterValue;
+  end;
+end;
+
+procedure TKnob.SetKnobButtonValue( aValue : byte);
+var ButtonParam : TG2FileParameter;
 begin
   if (FAssigned = 1) and assigned(FParameter) then begin
+    ButtonParam := FParameter.ButtonParam;
+    if assigned(ButtonParam) then
+      ButtonParam.SetParameterValue( aValue);
+  end;
+end;
+
+function TKnob.GetKnobFloatValue : single;
+begin
+  Result := 0;
+  if (FAssigned = 1) and assigned(FParameter) then
     if FParameter.HighValue - FParameter.LowValue <> 0 then
-      Result := FParameter.GetParameterValue / (FParameter.HighValue - FParameter.LowValue)
-    else
-      Result := 0
-  end else
-    Result := 0;
+      Result := FParameter.GetParameterValue / (FParameter.HighValue - FParameter.LowValue);
+end;
+
+function TKnob.GetKnobButtonFloatValue : single;
+var ButtonParam : TG2FileParameter;
+begin
+  Result := 0;
+  if (FAssigned = 1) and assigned(FParameter) then begin
+    ButtonParam := FParameter.ButtonParam;
+    if assigned(ButtonParam) then begin
+      if ButtonParam.HighValue - ButtonParam.LowValue <> 0 then
+        Result := ButtonParam.GetParameterValue / (ButtonParam.HighValue - ButtonParam.LowValue);
+    end;
+  end;
 end;
 
 procedure TKnob.SetKnobFloatValue( aValue : single);
 begin
   if (FAssigned = 1) and assigned(FParameter) then
     FParameter.SetParameterValue( trunc(aValue * 127));
+end;
+
+procedure TKnob.SetKnobButtonFloatValue( aValue : single);
+var ButtonParam : TG2FileParameter;
+begin
+  if (FAssigned = 1) and assigned(FParameter) then begin
+    ButtonParam := FParameter.ButtonParam;
+    if assigned(ButtonParam) then
+      ButtonParam.SetParameterValue( trunc(aValue * 127));
+  end;
 end;
 
 function TKnob.GetKnobHighValue : byte;
@@ -4836,7 +4899,7 @@ var i : integer;
     i := Length(FParams);
     SetLength(FParams, i + 1);
     FParams[i] := CreateParameter( ModuleIndex);
-    FParams[i].InitParam( ModuleName, ParamIndex, ptParam, ParamName, '', LowValue, HighValue, DefaultValue, -1, -1);
+    FParams[i].InitParam( ModuleName, ParamIndex, ptParam, ParamName, '', LowValue, HighValue, DefaultValue, -1, -1, '');
   end;
 
 begin
@@ -6138,11 +6201,27 @@ begin
   FCanChangeLabel := False;
   FDefaultKnob := -1;
   FButtonParamIndex := -1;
+  FButtonText := TStringList.Create;
+  FButtonText.Delimiter := ';';
 end;
 
 destructor TG2FileParameter.Destroy;
 begin
+  FButtonText.Free;
   inherited;
+end;
+
+function TG2FileParameter.GetButtonText(Index: integer): string;
+begin
+  if Index < FButtonText.Count then
+    Result := FButtonText[Index]
+  else
+    Result := '';
+end;
+
+function TG2FileParameter.GetButtonTextCount: integer;
+begin
+  Result := FButtonText.Count;
 end;
 
 function TG2FileParameter.GetMorph( aMorphIndex, aVariation : integer) : TMorphParameter;
@@ -6152,7 +6231,6 @@ begin
   else
     Result := nil;
 end;
-
 
 function TG2FileParameter.GetSelectedMorph: TMorphParameter;
 begin
@@ -6187,7 +6265,6 @@ begin
     Result := 0;
 end;
 
-
 function TG2FileParameter.GetSelectedMorphValue : byte;
 begin
   Result := GetMorphValue( FPatch.FSelectedMorphIndex, FPatch.ActiveVariation);
@@ -6221,6 +6298,12 @@ begin
       Result := FPatch.GetModeValue( FLocation, FModuleIndex, FParamIndex);
   end else
     Result := 0;
+end;
+
+procedure TG2FileParameter.SetButtonText(Index: integer; aValue: string);
+begin
+  if Index < FButtonText.Count then
+    FButtonText[Index] := aValue;
 end;
 
 procedure TG2FileParameter.SetParameterValue( Value: byte);
@@ -6313,7 +6396,7 @@ end;
 procedure TG2FileParameter.InitParam( aModuleName : AnsiString; aParamIndex : byte; aParamType : TParamType;
                                       aParamName, aDefaultParamLabel : AnsiString;
                                       aLowValue, aHighValue, aDefaultValue : byte;
-                                      aDefaultKnob, aButtonParamIndex : integer);
+                                      aDefaultKnob, aButtonParamIndex : integer; aButtonText : string);
 var i : integer;
 begin
   FParamType := aParamType;
@@ -6327,6 +6410,7 @@ begin
   FModuleName := aModuleName;
   FDefaultKnob := aDefaultKnob;
   FButtonParamIndex := aButtonParamIndex;
+  FButtonText.DelimitedText := aButtonText;
 
   if assigned(FPatch) then begin
     // Check for associated knob
@@ -6399,6 +6483,38 @@ begin
     Result := FPatch.SelectedParam = self
   else
     Result := False;;
+end;
+
+function TG2FileParameter.GetSelectedButtonText: string;
+var ParamValue : byte;
+begin
+  if FButtonText.Count > 0 then begin
+    if FButtonText.Count = 1 then begin
+      Result := ParamLabel;
+      if Result = '' then
+        Result := FButtonText[0];
+    end else begin
+      ParamValue := GetParameterValue;
+      if ParamValue < FButtonText.Count then
+        Result := FButtonText[ParamValue]
+      else
+        Result := 'Overflow';
+    end;
+  end else
+    Result := '';
+end;
+
+function TG2FileParameter.GetButtonParam : TG2FileParameter;
+var Module : TG2FileModule;
+begin
+  if FButtonParamIndex <> -1 then begin
+    Module := FPatch.Modules[ ord(FLocation), FModuleIndex];
+    if assigned(Module) then
+      Result := Module.Parameter[FButtonParamIndex]
+    else
+      Result := nil;
+  end else
+    Result := nil;
 end;
 
 procedure TG2FileParameter.SetSelected( aValue : boolean);
@@ -7632,7 +7748,7 @@ begin
     MemStream := G2FileDataStream.CreateFromMidiStream( aStream, aLogLines);
 
     MemStream.Position := 0;
-    MemStream.SaveToFile('TestSysEx_converted.bin');
+    //MemStream.SaveToFile('TestSysEx_converted.bin');
     Chunk := TPatchChunk.Create( MemStream);
     try
       if assigned( aLogLines) then

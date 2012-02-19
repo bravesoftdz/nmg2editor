@@ -21,7 +21,7 @@ object frmSettings: TfrmSettings
     Top = 0
     Width = 488
     Height = 172
-    ActivePage = TabSheet4
+    ActivePage = TabSheet1
     Align = alClient
     TabOrder = 0
     object TabSheet1: TTabSheet
@@ -63,6 +63,7 @@ object frmSettings: TfrmSettings
         Height = 17
         Caption = 'Is server'
         TabOrder = 2
+        OnClick = cbIsServerClick
       end
     end
     object TabSheet4: TTabSheet
@@ -90,14 +91,14 @@ object frmSettings: TfrmSettings
         Style = csDropDown
         ItemIndex = 0
         TabOrder = 0
-        Text = 'Hercules DJ Console Rmx MIDI'
+        Text = '2- MIDISPORT 4x4 In A'
         OnChange = mcbMidiInChange
         Items.Strings = (
-          'Hercules DJ Console Rmx MIDI'
           '2- MIDISPORT 4x4 In A'
           '2- MIDISPORT 4x4 In B'
           '2- MIDISPORT 4x4 In C'
           '2- MIDISPORT 4x4 In D'
+          'Hercules DJ Console Rmx MIDI'
           'Pro40 MIDI')
       end
       object mcbMidiOut: TMidiDeviceComboBox
@@ -112,21 +113,22 @@ object frmSettings: TfrmSettings
         OnChange = mcbMidiOutChange
         Items.Strings = (
           'Microsoft GS Wavetable Synth'
-          'Hercules DJ Console Rmx MIDI'
           '2- MIDISPORT 4x4 Out A'
-          '2- MIDISPORT 4x4 Out C'
           '2- MIDISPORT 4x4 Out B'
+          '2- MIDISPORT 4x4 Out C'
           '2- MIDISPORT 4x4 Out D'
+          'Hercules DJ Console Rmx MIDI'
           'Pro40 MIDI')
         DeviceType = mdtOutput
       end
-      object cbEnableMidi: TCheckBox
+      object cbMidiEnabled: TCheckBox
         Left = 72
         Top = 16
         Width = 97
         Height = 17
-        Caption = 'Enable midi'
+        Caption = 'Midi enabled'
         TabOrder = 2
+        OnClick = cbMidiEnabledClick
       end
     end
     object TabSheet3: TTabSheet
@@ -150,14 +152,15 @@ object frmSettings: TfrmSettings
         Anchors = [akLeft, akTop, akRight]
         TabOrder = 0
       end
-      object Button1: TButton
+      object bSelectRootFolder: TButton
         Left = 413
         Top = 22
         Width = 35
         Height = 25
         Anchors = [akTop, akRight]
-        Caption = 'Button1'
+        Caption = '...'
         TabOrder = 1
+        OnClick = bSelectRootFolderClick
       end
     end
     object TabSheet2: TTabSheet

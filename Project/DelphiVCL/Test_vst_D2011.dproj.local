@@ -1,17 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <BorlandProject>
 	<Transactions>
-    <Transaction>1899-12-30 00:00:00.000.dfm,C:\Documents and Settings\BVerhue.BVE-HOME\My Documents\Delphi\NM G2\Source\VST\UnitVstTestProj.dfm=C:\Documents and Settings\BVerhue.BVE-HOME\My Documents\Delphi\Unit1.dfm</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.dfm,C:\Documents and Settings\BVerhue.BVE-HOME\My Documents\Delphi\NM G2\Source\VST\UnitVstTestProj.dfm=C:\Documents and Settings\BVerhue.BVE-HOME\My Documents\Delphi\NM G2\Source\VST\UnitTestVst.dfm</Transaction>
     <Transaction>1899-12-30 00:00:00.000.dfm,C:\Documents and Settings\BVerhue.BVE-HOME\My Documents\Delphi\NM G2\Source\UnitParameterPages.dfm=</Transaction>
-    <Transaction>1899-12-30 00:00:00.000.dfm,C:\Documents and Settings\BVerhue.BVE-HOME\My Documents\Delphi\NM G2\Source\VST\UnitTestVst.dfm=C:\Documents and Settings\BVerhue.BVE-HOME\My Documents\Delphi\NM G2\Source\VST\UnitVstTestProj.dfm</Transaction>
-    <Transaction>1899-12-30 00:00:00.000.dproj,C:\Documents and Settings\BVerhue.BVE-HOME\My Documents\Delphi\NM G2\Source\VST\Test_vst.dproj=C:\Documents and Settings\BVerhue.BVE-HOME\My Documents\Delphi\NM G2\Source\VST\Test.dproj</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.506,C:\Users\Bruno\Delphi\NMG2\Source\VST\Test_vst.dproj=C:\Users\Bruno\Delphi\NMG2\Project\DelphiVCL\Test_vst_D2011.dproj</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.dfm,C:\Documents and Settings\BVerhue.BVE-HOME\My Documents\Delphi\Unit1.dfm=C:\Documents and Settings\BVerhue.BVE-HOME\My Documents\Delphi\NM G2\Source\VST\UnitVstTestProj.dfm</Transaction>
     <Transaction>1899-12-30 00:00:00.000.pas,C:\Documents and Settings\BVerhue.BVE-HOME\My Documents\Delphi\NM G2\Source\UnitParameterPages.pas=</Transaction>
-    <Transaction>1899-12-30 00:00:00.000.dproj,C:\Documents and Settings\BVerhue.BVE-HOME\My Documents\Delphi\NM G2\Source\VST\Test.dproj=C:\Documents and Settings\BVerhue.BVE-HOME\My Documents\Delphi\Project1.dproj</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.dproj,C:\Documents and Settings\BVerhue.BVE-HOME\My Documents\Delphi\NM G2\Source\VST\Test.dproj=C:\Documents and Settings\BVerhue.BVE-HOME\My Documents\Delphi\NM G2\Source\VST\Test_vst.dproj</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.pas,C:\Documents and Settings\BVerhue.BVE-HOME\My Documents\Delphi\Unit1.pas=C:\Documents and Settings\BVerhue.BVE-HOME\My Documents\Delphi\NM G2\Source\VST\UnitVstTestProj.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.dproj,C:\Documents and Settings\BVerhue.BVE-HOME\My Documents\Delphi\Project1.dproj=C:\Documents and Settings\BVerhue.BVE-HOME\My Documents\Delphi\NM G2\Source\VST\Test.dproj</Transaction>
     <Transaction>1899-12-30 00:00:00.000.554,=C:\Users\Bruno\Delphi\NMG2\Source\NMG2Controls\g2_usb.pas</Transaction>
-    <Transaction>1899-12-30 00:00:00.000.pas,C:\Documents and Settings\BVerhue.BVE-HOME\My Documents\Delphi\NM G2\Source\VST\UnitVstTestProj.pas=C:\Documents and Settings\BVerhue.BVE-HOME\My Documents\Delphi\Unit1.pas</Transaction>
-    <Transaction>1899-12-30 00:00:00.000.pas,C:\Documents and Settings\BVerhue.BVE-HOME\My Documents\Delphi\NM G2\Source\VST\UnitTestVst.pas=C:\Documents and Settings\BVerhue.BVE-HOME\My Documents\Delphi\NM G2\Source\VST\UnitVstTestProj.pas</Transaction>
     <Transaction>1899-12-30 00:00:00.000.pas,C:\Documents and Settings\BVerhue.BVE-HOME\My Documents\Delphi\NM G2\Source\UnitPatchSettings.pas=</Transaction>
     <Transaction>1899-12-30 00:00:00.000.dfm,C:\Documents and Settings\BVerhue.BVE-HOME\My Documents\Delphi\NM G2\Source\UnitPatchSettings.dfm=</Transaction>
-    <Transaction>2012-02-05 18:10:30.506,C:\Users\Bruno\Delphi\NMG2\Project\DelphiVCL\Test_vst_D2011.dproj=C:\Users\Bruno\Delphi\NMG2\Source\VST\Test_vst.dproj</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.pas,C:\Documents and Settings\BVerhue.BVE-HOME\My Documents\Delphi\NM G2\Source\VST\UnitVstTestProj.pas=C:\Documents and Settings\BVerhue.BVE-HOME\My Documents\Delphi\NM G2\Source\VST\UnitTestVst.pas</Transaction>
   </Transactions>
 </BorlandProject>

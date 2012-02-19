@@ -367,9 +367,9 @@ var
 
 
 initialization
-  LibUSBHandle := LoadLibrary( 'xx' + LIBUSB_DLL_NAME);
+  LibUSBHandle := LoadLibrary( LIBUSB_DLL_NAME);
   if LibUSBHandle <= 32 then
-    MessageBox(0,'Error: could not load ' + LIBUSB_DLL_NAME,  '', MB_OK)
+    MessageBox(0, LIBUSB_DLL_NAME + ' not found, USB functions are disabled',  '', MB_OK)
   else
   begin
     //Add := GetProcAddress(eBob42Handle, 'Add');

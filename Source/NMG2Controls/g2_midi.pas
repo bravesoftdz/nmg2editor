@@ -42,10 +42,13 @@ const
 type
   TG2Midi = class( TG2USB)
     private
+      FMidiEnabled : boolean;
       FMidiInput : TMidiInput;
       FMidiOutput : TMidiOutput;
       FSysExStream : TMemoryStream; // Buffer for sysex
       FLastMidiEvent : TMyMidiEvent;
+    protected
+      procedure   SetMidiEnabled( aValue : boolean);
     public
       constructor Create( AOwner: TComponent); override;
       destructor  Destroy; override;
@@ -65,6 +68,7 @@ type
       procedure   SysExPerformanceRequestByFileIndex( Bank, Perf: byte);
       procedure   SysExPerformanceRequest;
     published
+      property    MidiEnabled : boolean read FMidiEnabled write SetMidiEnabled;
       property    MidiInput : TMidiInput read FMidiInput;
       property    MidiOutput : TMidiOutput read FMidiOutput;
   end;
@@ -204,6 +208,21 @@ begin
      add_log_line( FMidiOutput.ProductName + ' <= ' + IntToHex( aMidiMessage, 2)
                                               + ' ' + IntToHex( aData1, 2)
                                               + ' ' + IntToHex( aData2, 2), LOGCMD_NUL);
+  end;
+end;
+
+procedure TG2Midi.SetMidiEnabled(aValue: boolean);
+begin
+  if aValue <> FMidiEnabled then begin
+    if aValue then begin
+      FMidiInput.OpenAndStart;
+      FMidiOutput.Open;
+      FMidiEnabled := aValue;
+    end else begin
+      FMidiEnabled := aValue;
+      FMidiInput.StopAndClose;
+      FMidiOutput.Close;
+    end;
   end;
 end;
 
@@ -356,7 +375,7 @@ begin
           if assigned(LogLines) then
             Lines := LogLines;
 
-          FSysExStream.SaveToFile('TestSysEx.bin');
+          //FSysExStream.SaveToFile('TestSysEx.bin');
           G2FileDataStream := TG2FileDataStream.LoadMidiData( self, FSysExStream, Lines);
 
           if G2FileDataStream is TG2FilePerformance then
@@ -482,6 +501,7 @@ constructor TG2Midi.Create(AOwner: TComponent);
 begin
   inherited;
 
+  FMidiEnabled := False;
   FMidiInput := TMidiInput.Create(self);
   FMidiOutput := TMidiOutput.Create(self);
   FSysExStream := TMemoryStream.Create;

@@ -80,7 +80,7 @@
 			<DCC_Optimize>False</DCC_Optimize>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
-			<DCC_UnitSearchPath>..\xml;..\..\Source\VST;..\..\Source\VST\CommonVST;..\..\Source\NMG2Controls;..\..\Source\NMG2Controls;..\..\Source\VST\CommonVST;..\..\Source\VST;..\..\Source\XML;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+			<DCC_UnitSearchPath>..\xml;..\..\Source\VST;..\..\Source\VST\CommonVST;..\..\Source\NMG2Controls;..\..\Source\NMG2Controls;..\..\Source\VST\CommonVST;..\..\Source\VST;..\..\Source\XML;..\..\..\midiio-dev-v7\h4ndy-midiio-dev-67754a8fdfa5;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
 			<VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
 			<VerInfo_Locale>1033</VerInfo_Locale>
 		</PropertyGroup>

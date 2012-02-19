@@ -1106,7 +1106,7 @@
     <DefaultValue>0</DefaultValue>
     <Definitions/>
     <Comments/>
-    <ButtonText>M;</ButtonText>
+    <ButtonText>Off;On;</ButtonText>
   </ParamDef>
   <ParamDef>
     <Id>107</Id>

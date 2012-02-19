@@ -898,6 +898,7 @@ begin
     if assigned(RootNode) then begin
       TCPSettingsNode := TXMLTCPSettingsType(RootNode.FindNode('TCP_settings'));
       if assigned(TCPSettingsNode) then begin
+        G2.IsServer := TCPSettingsNode.IsServer;
         G2.Host := TCPSettingsNode.IP;
         G2.Port := TCPSettingsNode.Port;
       end;
@@ -922,6 +923,7 @@ procedure TfrmG2Main.SaveIniXML;
 var Doc : TXMLDocument;
     RootNode : TDOMNode;
     TCPSettingsNode : TXMLTCPSettingsType;
+    MidiSettingsNode : TXMLMidiSettingsType;
     PatchManagerSettingsNode : TXMLPatchManagerSettingsType;
     FormSettingsNode : TXMLFormSettingsType;
 begin
@@ -936,18 +938,28 @@ begin
       Doc.AppendChild(RootNode);
     end;
 
-    TCPSettingsNode := TXMLTCPSettingsType(RootNode.FindNode('TCP_settings'));
-    if not assigned(TCPSettingsNode) then begin
-      TCPSettingsNode := TXMLTCPSettingsType(Doc.CreateElement('TCP_settings'));
+    TCPSettingsNode := TXMLTCPSettingsType( RootNode.FindNode('TCP_settings'));
+    if not assigned( TCPSettingsNode) then begin
+      TCPSettingsNode := TXMLTCPSettingsType( Doc.CreateElement('TCP_settings'));
       RootNode.AppendChild(TCPSettingsNode);
     end;
+    TCPSettingsNode.IsServer := G2.IsServer;
     TCPSettingsNode.IP := G2.Host;
     TCPSettingsNode.Port := G2.Port;
 
-    FormSettingsNode := TXMLFormSettingsType(RootNode.FindNode('MainForm'));
-    if not assigned(FormSettingsNode) then begin
-      FormSettingsNode := TXMLFormSettingsTYpe(Doc.CreateElement('MainForm'));
-      RootNode.AppendChild(FormSettingsNode);
+    MidiSettingsNode := TXMLMidiSettingsType( RootNode.FindNode('MIDI_settings'));
+    if not assigned( MidiSettingsNode) then begin
+      MidiSettingsNode := TXMLMidiSettingsType( Doc.CreateElement('MIDI_settings'));
+      RootNode.AppendChild( MidiSettingsNode);
+    end;
+    MidiSettingsNode.MidiEnabled := G2.MidiEnabled;
+    MidiSettingsNode.MidiInDevice := G2.MidiInput.ProductName;
+    MidiSettingsNode.MidiOutDevice := G2.MidiOutput.ProductName;
+
+    FormSettingsNode := TXMLFormSettingsType( RootNode.FindNode('MainForm'));
+    if not assigned( FormSettingsNode) then begin
+      FormSettingsNode := TXMLFormSettingsTYpe( Doc.CreateElement('MainForm'));
+      RootNode.AppendChild( FormSettingsNode);
     end;
     FormSettingsNode.PosX := Left;
     FormSettingsNode.PosY := Top;

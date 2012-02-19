@@ -1240,7 +1240,7 @@ object frmG2Main: TfrmG2Main
       OnExecute = aSynthSettingsExecute
     end
     object aPerformanceSettings: TAction
-      Category = 'Settings'
+      Category = 'View'
       Caption = 'Performance settings'
       ShortCut = 16466
       OnExecute = aPerformanceSettingsExecute
@@ -1253,7 +1253,7 @@ object frmG2Main: TfrmG2Main
     end
     object aSettings: TAction
       Category = 'Settings'
-      Caption = 'Settings'
+      Caption = 'Application settings'
       OnExecute = aSettingsExecute
     end
     object aEditTools: TAction

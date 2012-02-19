@@ -4456,15 +4456,18 @@ begin
 
       if FImageList.Count > 0 then
         DrawCenter( ExtCanvas, Rect, FImageList.Items[0])
-      else
-        if FButtonText.Count > 0 then begin
-          LabelText := string(ParamLabel);
-          if LabelText = '' then
-            LabelText := FButtonText[0];
-
-          TextCenter( ExtCanvas, Rect, LabelText);
-        end else
-          TextCenter( ExtCanvas, Rect, '');
+      else begin
+        LabelText := '';
+        if assigned(Parameter) then
+          LabelText := Parameter.SelectedButtonText
+        else
+          if FButtonText.Count > 0 then begin
+            LabelText := string(ParamLabel);
+            if LabelText = '' then
+              LabelText := FButtonText[0];
+          end;
+        TextCenter( ExtCanvas, Rect, LabelText);
+      end;
 
       if Selected then
         ExtCanvas.Brush.Color := CL_SELECTED_PARAM
@@ -4549,6 +4552,7 @@ end;
 
 procedure TG2GraphButtonFlat.PaintOn( ExtCanvas : TCanvas; ExtBoundsRect : TRect);
 var Rect : TRect;
+    LabelText : string;
 begin
   //AddLogLine('Paint button flat');
 
@@ -4561,12 +4565,24 @@ begin
   ExtCanvas.Brush.Color := CL_BTN_FACE;
   ExtCanvas.FillRect(Rect);
 
-  if Value < FButtonText.Count then begin
+  {if Value < FButtonText.Count then begin
     TextCenter( ExtCanvas, Rect, FButtonText[Value])
   end else
     if Value < FImageList.Count then begin
       DrawCenter( ExtCanvas, Rect, FImageList.Items[Value])
-    end;
+    end;}
+
+  if (FImageList.Count > 0) and (Value < FImageList.Count) then begin
+    DrawCenter( ExtCanvas, Rect, FImageList.Items[Value])
+  end else begin
+    LabelText := '';
+    if assigned(Parameter) then
+      LabelText := Parameter.SelectedButtonText
+    else
+      if Value < FButtonText.Count then
+        LabelText := FButtonText[Value];
+    TextCenter( ExtCanvas, Rect, LabelText)
+  end;
 
   if Selected then
     ExtCanvas.Pen.Color := CL_SELECTED_PARAM
@@ -4634,6 +4650,7 @@ procedure TG2GraphButtonRadio.PaintOn(ExtCanvas: TCanvas;  ExtBoundsRect: TRect)
 var ExtRect, Rect : TRect;
     Bitmap : TBitmap;
     i : integer;
+    LabelText : string;
 begin
   ExtRect := SubRect( GetRelToParentRect, ExtBoundsRect);
 
@@ -4676,10 +4693,15 @@ begin
           Bitmap.Canvas.FillRect( Rect);
           if i < FImageList.Count then
             DrawCenter( Bitmap.Canvas, Rect, FImageList.Items[i]);
-        end else
-          if i < FButtonText.Count then begin
-            TextCenter( Bitmap.Canvas, Rect, FButtonText[i]);
-          end;
+        end else begin
+          LabelText := '';
+          if assigned(Parameter) then
+            LabelText := Parameter.ButtonText[i]
+          else
+            if i < FButtonText.Count then
+              LabelText := FButtonText[i];
+          TextCenter( Bitmap.Canvas, Rect, LabelText);
+        end;
 
         if FBevel then begin
           if Selected then

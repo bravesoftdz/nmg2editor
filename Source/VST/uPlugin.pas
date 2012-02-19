@@ -39,7 +39,7 @@ type
      FSelectedSlot : byte;
      FMemStream : TMemoryStream;
      FNumPrograms, FNumParameters,
-     FNumGlobalKnobs, FNumVariationParams : integer;
+     FNumGlobalKnobs, FNumGlobalButtons, FNumVariationParams : integer;
      constructor Create(audioMaster: TAudioMasterCallbackFunc);
      destructor  Destroy; override;
      function    GetLibraryPath: AnsiString;
@@ -50,6 +50,8 @@ type
      function    getParameter(index: Longint): Single; override;
      function    getChunk(var data: pointer; isPreset: Boolean): longint; override;
      function    setChunk(data: pointer; byteSize: longint; isPreset: Boolean): longint; override;
+
+     function    GetStatusText : string;
 
      procedure   processAudio(const inputs, outputs: TArrayOfSingleArray; sampleframes: Integer); override;
      procedure   editorIdle(Sender: TObject);
@@ -126,8 +128,9 @@ begin
   // define number of programs and parameters
   FNumPrograms := 4;
   FNumGlobalKnobs := 120;
+  FNumGlobalButtons := 120;
   FNumVariationParams := 4;
-  FNumParameters := FNumGlobalKnobs + FNumVariationParams;
+  FNumParameters := FNumGlobalKnobs + FNumGlobalButtons + FNumVariationParams;
 
   FMemStream := TMemoryStream.Create;
   ClearBuffer;
@@ -250,6 +253,8 @@ begin
     ClearBuffer;
   except
     on E:Exception do begin
+      FG2.LastError := E.Message;
+      EditorNeedsUpdate := True;
       FG2.add_log_line( 'SetChunk : ' + E.Message, LOGCMD_NUL);
       FG2.save_log;
     end;
@@ -257,9 +262,12 @@ begin
 end;
 
 procedure APlugin.initializeParameters;
-var i, j, Page, PageColumn, Param : integer;
+var i, j, Page, PageColumn, ParamIndex : integer;
     name : AnsiString;
     value : single;
+    Module : TG2FileModule;
+    Param, ButtonParam : TG2FileParameter;
+    Knob : TGlobalKnob;
 begin
   // initialize your parameters here:
   FG2.LogLevel := 1;
@@ -270,15 +278,15 @@ begin
     FG2.add_log_line( 'Initialize parameters', LOGCMD_NUL);
 
     for i := 0 to FNumGlobalKnobs - 1 do begin
-      Value := FG2.Performance.GlobalKnobList.Items[i].KnobValue / 127;
+      Value := FG2.Performance.GlobalKnobList.Items[i].KnobFloatValue;
 
       inherited setParameter( i , Value);
 
-      Param := i mod 8;
+      ParamIndex := i mod 8;
       PageColumn := (i div 8) mod 3;
       Page := (i div 8) div 3;;
 
-      Name := 'Page ' + chr(65 + Page) + IntToStr(PageColumn) + ' Knob ' + IntTostr(Param);
+      Name := 'Page ' + chr(65 + Page) + IntToStr(PageColumn) + ' Knob ' + IntTostr(ParamIndex);
       j := 1;
       while (j <= Length(Name)) and (j <= 30) do begin
         ParameterProperties[i].name[j-1] := Name[j];
@@ -287,12 +295,18 @@ begin
       ParameterProperties[i].name[j-1] := #0;
     end;
 
-    for i := 0 to FNumVariationParams - 1 do begin
-      Value := FG2.GetSlot(i).GetPatch.ActiveVariation / 7;
+    for i := 0 to FNumGlobalButtons - 1 do begin
 
-      inherited setParameter( i , Value);
+      Knob := FG2.Performance.GlobalKnobList.Items[i];
+      Value := Knob.KnobButtonFloatValue;
 
-      Name := 'Variation slot ' + IntToStr( i + 1);
+      inherited setParameter( FNumGlobalKnobs + i , Value);
+
+      ParamIndex := i mod 8;
+      PageColumn := (i div 8) mod 3;
+      Page := (i div 8) div 3;;
+
+      Name := 'Page ' + chr(65 + Page) + IntToStr(PageColumn) + ' Btn ' + IntTostr(ParamIndex);
       j := 1;
       while (j <= Length(Name)) and (j <= 30) do begin
         ParameterProperties[ FNumGlobalKnobs + i].name[j-1] := Name[j];
@@ -300,8 +314,23 @@ begin
       end;
       ParameterProperties[ FNumGlobalKnobs + i].name[j-1] := #0;
     end;
+
+    for i := 0 to FNumVariationParams - 1 do begin
+      Value := FG2.GetSlot(i).GetPatch.ActiveVariation / 7;
+
+      inherited setParameter( FNumGlobalKnobs + FNumGlobalButtons +  i , Value);
+
+      Name := 'Variation slot ' + IntToStr( i + 1);
+      j := 1;
+      while (j <= Length(Name)) and (j <= 30) do begin
+        ParameterProperties[ FNumGlobalKnobs + FNumGlobalButtons +  i].name[j-1] := Name[j];
+        inc(j);
+      end;
+      ParameterProperties[ FNumGlobalKnobs + FNumGlobalButtons +  i].name[j-1] := #0;
+    end;
   except on E:Exception do
     begin
+      FG2.LastError := E.Message;
       FG2.add_log_line( E.Message, LOGCMD_ERR);
     end;
   end;
@@ -373,21 +402,37 @@ begin
     if index < FNumGlobalKnobs then begin
       Knob := FG2.Performance.GlobalKnobList.Items[ index];
       if assigned(Knob) and (Knob.IsAssigned = 1) then
-        Result := Knob.KnobValue / 127
-      else
-        Result := 0;;
+        Result := Knob.KnobFloatValue;
     end else
-      if index < (FNumGlobalKnobs + FNumVariationParams) then begin
-        Result := FG2.GetSlot( index - FNumGlobalKnobs).GetPatch.ActiveVariation / 7;
-      end;
+      if index < (FNumGlobalKnobs + FNumGlobalButtons) then begin
+        Knob := FG2.Performance.GlobalKnobList.Items[ index - FNumGlobalKnobs];
+        if assigned(Knob) and (Knob.IsAssigned = 1) then
+          Result := Knob.KnobButtonFloatValue / 127;
+      end else
+        if index < (FNumGlobalKnobs + FNumGlobalButtons + FNumVariationParams) then
+          Result := FG2.GetSlot( index - FNumGlobalKnobs - FNumGlobalButtons).GetPatch.ActiveVariation / 7;
   end;
 
   //  addLogline('  Result =  ' + FloatToStr(Result));
 end;
 
+function APlugin.GetStatusText: string;
+begin
+  if FG2.USBActive then
+    Result := '[Online]'
+  else
+    Result := '[Offline]';
+
+  Result := Result + '  [Port:' + IntToStr(FG2.Port) + ']';
+  Result := Result + '  [IP:' + FG2.Host + ']';
+  if FG2.LastError <> '' then
+    Result := Result + '  Err:' + FG2.LastError;
+end;
+
 procedure APlugin.setParameter(index: Integer; value: Single);
 var Knob : TGlobalKnob;
     Patch : TG2USBPatch;
+    ButtonParam : TG2FileParameter;
 begin
   try
     // Parameter change from Host
@@ -396,10 +441,6 @@ begin
       if index < FNumGlobalKnobs then begin
         Knob := FG2.Performance.GlobalKnobList.Items[ index];
         if assigned(Knob) and (Knob.IsAssigned = 1) then begin
-          //Knob.KnobValue := trunc( (Knob.KnobHighValue - Knob.KnobLowValue) * Value);
-          //Patch := FG2.Patch[ Knob.SlotIndex];
-          //Patch.SetParameterAutomated( TLocationType(Knob.Location), Knob.ModuleIndex, Knob.ParamIndex, Patch.ActiveVariation,
-          //                 trunc((Knob.KnobHighValue - Knob.KnobLowValue) * Value));
           FG2.GetSlot( Knob.SlotIndex).SendSetParamMessage( Knob.Location,
                                                             Knob.ModuleIndex, Knob.ParamIndex,
                                                             trunc((Knob.KnobHighValue - Knob.KnobLowValue) * Value),
@@ -407,11 +448,23 @@ begin
           editorNeedsUpdate := True;
         end
       end else
-        if index < FNumGlobalKnobs + FNumVariationParams then begin
-          // FG2.Patch[ index - FNumGlobalKnobs].SetVariation( trunc(Value * 7));
-          FG2.GetSlot( index - FNumGlobalKnobs).SendSelectVariationMessage( trunc(Value * 7));
-          editorNeedsUpdate := True;
-        end;
+        if index < FNumGlobalKnobs + FNumGlobalButtons then begin
+          Knob := FG2.Performance.GlobalKnobList.Items[ index - FNumGlobalKnobs];
+          if assigned(Knob) and (Knob.IsAssigned = 1) and assigned(Knob.Parameter) then begin
+            ButtonParam := Knob.Parameter.ButtonParam;
+            if assigned(ButtonParam) then begin
+              FG2.GetSlot( Knob.SlotIndex).SendSetParamMessage( Knob.Location,
+                                                                Knob.ModuleIndex, ButtonParam.ParamIndex,
+                                                                trunc((ButtonParam.HighValue - ButtonParam.LowValue) * Value),
+                                                                FG2.GetSlot( Knob.SlotIndex).GetPatch.ActiveVariation);
+              editorNeedsUpdate := True;
+            end;
+          end;
+        end else
+          if index < FNumGlobalKnobs + FNumGlobalButtons + FNumVariationParams then begin
+            FG2.GetSlot( index - FNumGlobalButtons - FNumGlobalKnobs).SendSelectVariationMessage( trunc(Value * 7));
+            editorNeedsUpdate := True;
+          end;
     end;
   except on E:Exception do begin
      FG2.add_log_line('SetParameter : ' + E.Message, LOGCMD_NUL);

@@ -109,6 +109,7 @@ type
     function Get_DefaultValue: Integer;
     function Get_Definitions: AnsiString;
     function Get_Comments: AnsiString;
+    function Get_ButtonText: AnsiString;
   public
     property Id: Integer read Get_Id;
     property ParamType: Integer read Get_ParamType;
@@ -118,6 +119,7 @@ type
     property DefaultValue: Integer read Get_DefaultValue;
     property Definitions: AnsiString read Get_Definitions;
     property Comments: AnsiString read Get_Comments;
+    property ButtonText: AnsiString read Get_ButtonText;
   end;
 
   TXMLTCPSettingsListType = class(TDOMElementList)
@@ -130,11 +132,14 @@ type
 
   TXMLTCPSettingsType = class(TDOMElement)
   protected
+    function Get_IsServer : boolean;
+    procedure Set_IsServer( aValue : boolean);
     function Get_IP: string;
     function Get_Port: integer;
     procedure Set_IP( aValue : string);
     procedure Set_Port( aValue : integer);
   public
+    property IsServer: boolean read Get_IsServer write Set_IsServer;
     property IP: string read Get_IP write Set_IP;
     property Port: integer read Get_Port write Set_Port;
   end;
@@ -174,6 +179,20 @@ type
     property ExternalSortCol : integer read Get_ExternalSortCol write Set_ExternalSortCol;
     property InternalSortCol : integer read Get_InternalSortCol write Set_InternalSortCol;
     property SelectedTab : integer read Get_SelectedTab write Set_SelectedTab;
+  end;
+
+  TXMLMidiSettingsType = class(TDOMElement)
+  protected
+    function Get_MidiEnabled: boolean;
+    procedure Set_MidiEnabled( aValue : boolean);
+    function Get_MidiInDevice: string;
+    procedure Set_MidiInDevice( aValue : string);
+    function Get_MidiOutDevice: string;
+    procedure Set_MidiOutDevice( aValue : string);
+  public
+    property MidiEnabled: boolean read Get_MidiEnabled write Set_MidiEnabled;
+    property MidiInDevice : string read Get_MidiInDevice write Set_MidiInDevice;
+    property MidiOutDevice : string read Get_MidiOutDevice write Set_MidiOutDevice;
   end;
 
 implementation
@@ -390,44 +409,94 @@ end;
 
 { TXMLParamDefType }
 
-function TXMLParamDefType.Get_Comments: AnsiString;
+function TXMLParamDefType.Get_ButtonText: AnsiString;
+var Node : TDomNode;
 begin
-  Result := AnsiString(FindNode('Comments').FirstChild.NodeValue);
+  Node := FindNode('ButtonText');
+  if assigned(Node) then
+    Result := AnsiString(Node.TextContent)
+  else
+    Result := '';
+end;
+
+function TXMLParamDefType.Get_Comments: AnsiString;
+var Node : TDomNode;
+begin
+  Node := FindNode('Comments');
+  if assigned(Node) then
+    Result := AnsiString(Node.TextContent)
+  else
+    Result := '';
 end;
 
 function TXMLParamDefType.Get_DefaultValue: Integer;
+var Node : TDomNode;
 begin
-  Result := GetInt(FindNode('DefaultValue').FirstChild.NodeValue);
+  Node := FindNode('DefaultValue');
+  if assigned(Node) and (Node.TextContent <> '') then
+    Result := GetInt(Node.TextContent)
+  else
+    Result := 0;
 end;
 
 function TXMLParamDefType.Get_Definitions: AnsiString;
+var Node : TDomNode;
 begin
-  Result := AnsiString(FindNode('Definitions').FirstChild.NodeValue);
+  Node := FindNode('Definitions');
+  if assigned(Node) then
+    Result := AnsiString(Node.TextContent)
+  else
+    Result := '';
 end;
 
 function TXMLParamDefType.Get_HighValue: Integer;
+var Node : TDomNode;
 begin
-  Result := GetInt(FindNode('HighValue').FirstChild.NodeValue);
+  Node := FindNode('HighValue');
+  if assigned(Node) and (Node.TextContent <> '') then
+    Result := GetInt(Node.TextContent)
+  else
+    Result := 0;
 end;
 
 function TXMLParamDefType.Get_Id: Integer;
+var Node : TDomNode;
 begin
-  Result := GetInt(FindNode('Id').FirstChild.NodeValue);
+  Node := FindNode('Id');
+  if assigned(Node) and (Node.TextContent <> '') then
+    Result := GetInt(Node.TextContent)
+  else
+    Result := -1;
 end;
 
 function TXMLParamDefType.Get_LowValue: Integer;
+var Node : TDomNode;
 begin
-  Result := GetInt(FindNode('LowValue').FirstChild.NodeValue);
+  Node := FindNode('LowValue');
+  if assigned(Node) and (Node.TextContent <> '') then
+    Result := GetInt(Node.TextContent)
+  else
+    Result := 0;
 end;
 
 function TXMLParamDefType.Get_ParamType: Integer;
+var Node : TDomNode;
 begin
-  Result := GetInt(FindNode('ParamType').FirstChild.NodeValue);
+  Node := FindNode('ParamType');
+  if assigned(Node) and (Node.TextContent <> '') then
+    Result := GetInt(Node.TextContent)
+  else
+    Result := -1;
 end;
 
 function TXMLParamDefType.Get_RangeType: AnsiString;
+var Node : TDomNode;
 begin
-  Result := AnsiString(FindNode('RangeType').FirstChild.NodeValue);
+  Node := FindNode('RangeType');
+  if assigned(Node) then
+    Result := AnsiString(Node.TextContent)
+  else
+    Result := '';
 end;
 
 { TXMLTCPSettings }
@@ -437,14 +506,30 @@ begin
   Result := GetAttribute('IP');
 end;
 
+function TXMLTCPSettingsType.Get_IsServer: boolean;
+begin
+  if GetAttribute('IsServer') = '' then
+    Result := True
+  else
+    Result := StrToBool(GetAttribute('IsServer'));
+end;
+
 function TXMLTCPSettingsType.Get_Port: integer;
 begin
-  Result := GetInt(GetAttribute('Port'));
+  if GetAttribute('Port') = '' then
+    Result := 2501
+  else
+    Result := GetInt(GetAttribute('Port'));
 end;
 
 procedure TXMLTCPSettingsType.Set_IP(aValue: string);
 begin
   SetAttribute('IP', aValue);
+end;
+
+procedure TXMLTCPSettingsType.Set_IsServer(aValue: boolean);
+begin
+  SetAttribute('IsServer', BoolToStr(aValue));
 end;
 
 procedure TXMLTCPSettingsType.Set_Port(aValue: integer);
@@ -558,5 +643,39 @@ begin
   SetAttribute('SelectedTab', IntToStr(aValue));
 end;
 
+{ TXMLMidiSettingsType }
+
+function TXMLMidiSettingsType.Get_MidiEnabled: boolean;
+begin
+  if GetAttribute('MidiEnabled') = '' then
+    Result := False
+  else
+    Result := StrToBool(GetAttribute('MidiEnabled'));
+end;
+
+function TXMLMidiSettingsType.Get_MidiInDevice: string;
+begin
+  Result := GetAttribute('MidiInDevice');
+end;
+
+function TXMLMidiSettingsType.Get_MidiOutDevice: string;
+begin
+  Result := GetAttribute('MidiOutDevice');
+end;
+
+procedure TXMLMidiSettingsType.Set_MidiEnabled(aValue: boolean);
+begin
+  SetAttribute('MidiEnabled', BoolToStr(aValue));
+end;
+
+procedure TXMLMidiSettingsType.Set_MidiInDevice(aValue: string);
+begin
+  SetAttribute('MidiInDevice', aValue);
+end;
+
+procedure TXMLMidiSettingsType.Set_MidiOutDevice(aValue: string);
+begin
+  SetAttribute('MidiOutDevice', aValue);
+end;
 
 end.

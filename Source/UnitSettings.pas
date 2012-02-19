@@ -34,7 +34,7 @@ uses
   IdBaseComponent, IdComponent, IdUDPBase,
   IdUDPClient, StdCtrls, IdSocketHandle, IdUDPServer, IdGlobal, ExtCtrls,
   g2_types, g2_database, g2_file, OSCUtils, ComCtrls, DOM, XMLRead, XMLWrite,
-  MidiDeviceComboBox;
+  MidiDeviceComboBox, FileCtrl;
 
 type
   TfrmSettings = class(TForm)
@@ -56,14 +56,14 @@ type
     TabSheet3: TTabSheet;
     eRootFolder: TEdit;
     Label5: TLabel;
-    Button1: TButton;
+    bSelectRootFolder: TButton;
     TabSheet4: TTabSheet;
     mcbMidiIn: TMidiDeviceComboBox;
     mcbMidiOut: TMidiDeviceComboBox;
     Label6: TLabel;
     Label7: TLabel;
     cbIsServer: TCheckBox;
-    cbEnableMidi: TCheckBox;
+    cbMidiEnabled: TCheckBox;
     procedure Button2Click(Sender: TObject);
     procedure IdUDPServer1Status(ASender: TObject; const AStatus: TIdStatus;
       const AStatusText: string);
@@ -72,12 +72,17 @@ type
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure mcbMidiInChange(Sender: TObject);
     procedure mcbMidiOutChange(Sender: TObject);
+    procedure cbIsServerClick(Sender: TObject);
+    procedure cbMidiEnabledClick(Sender: TObject);
+    procedure bSelectRootFolderClick(Sender: TObject);
   private
     { Private declarations }
+    FDisableControls : boolean;
   public
     { Public declarations }
     procedure LoadIniXML;
     procedure udpServerDeviceUDPRead(AThread: TIdUDPListenerThread; AData: TIdBytes; ABinding: TIdSocketHandle);
+    procedure UpdateControls;
   end;
 
 var
@@ -93,18 +98,22 @@ procedure TfrmSettings.FormCreate(Sender: TObject);
 begin
   LoadIniXML;
   IdUDPServer1.OnUDPRead := udpServerDeviceUDPRead;
+  FDisableControls := False;
 end;
 
 procedure TfrmSettings.FormShow(Sender: TObject);
 begin
   eHost.Text := frmG2Main.G2.Host;
   ePort.Text := IntTostr(frmG2Main.G2.Port);
+  UpdateControls;
 end;
 
 procedure TfrmSettings.LoadIniXML;
 var Doc : TXMLDocument;
     RootNode : TDOMNode;
+    mi, mo : integer;
     PatchManagerSettingsNode : TXMLPatchManagerSettingsType;
+    MidiSettingsNode : TXMLMidiSettingsType;
     FormSettingsNode : TXMLFormSettingsType;
 begin
   if not FileExists('G2_editor_ini.xml') then
@@ -121,6 +130,46 @@ begin
         eRootFolder.Text := PatchManagerSettingsNode.BaseFolder;
       end;
 
+      MidiSettingsNode := TXMLMidiSettingsType( RootNode.FindNode('MIDI_settings'));
+      if assigned( MidiSettingsNode) then begin
+        cbMidiEnabled.Checked := False;
+
+        mi := 0;
+        while (mi<mcbMidiIn.Items.Count) and (mcbMidiIn.Items[mi] <> MidiSettingsNode.MidiInDevice) do
+          inc(mi);
+
+        mo := 0;
+        while (mo<mcbMidiOut.Items.Count) and (mcbMidiOut.Items[mo] <> MidiSettingsNode.MidiOutDevice) do
+          inc(mo);
+
+        if (mi<mcbMidiIn.Items.Count) and (mo<mcbMidiOut.Items.Count) then begin
+          try
+            try
+              mcbMidiIn.ItemIndex := mi;
+              frmG2Main.G2.MidiInput.ChangeDevice( mcbMidiIn.SelectedDeviceID, False);
+              try
+                mcbMidiOut.ItemIndex := mo;
+                frmG2Main.G2.MidiOutput.ChangeDevice( mcbMidiOut.SelectedDeviceID, False);
+                frmG2Main.G2.MidiEnabled := MidiSettingsNode.MidiEnabled;
+              except on E:Exception do begin
+                  ShowMessage( E.Message);
+                  frmG2Main.G2.MidiEnabled := False;
+               end;
+              end;
+            except on E:Exception do begin
+                ShowMessage( E.Message);
+                frmG2Main.G2.MidiEnabled := False;
+              end;
+            end;
+
+          finally
+            cbMidiEnabled.Checked := frmG2Main.G2.MidiEnabled;
+          end;
+        end else
+          frmG2Main.G2.MidiEnabled := False;
+
+      end;
+
       FormSettingsNode := TXMLFormSettingsType(RootNode.FindNode('SettingsForm'));
       if assigned(FormSettingsNode) then begin
         Left := FormSettingsNode.PosX;
@@ -129,21 +178,51 @@ begin
         Height := FormSettingsNode.SizeY;
         Visible := FormSettingsNode.Visible;
       end;
+
     end;
   finally
     Doc.Free;
   end;
 end;
 
-
 procedure TfrmSettings.mcbMidiInChange(Sender: TObject);
 begin
-  frmG2Main.G2.MidiInput.ChangeDevice( mcbMidiIn.SelectedDeviceID);
+  if FDisableControls then
+    exit;
+
+  frmG2Main.G2.MidiInput.ChangeDevice( mcbMidiIn.SelectedDeviceID, cbMidiEnabled.Checked);
 end;
 
 procedure TfrmSettings.mcbMidiOutChange(Sender: TObject);
 begin
-  frmG2Main.G2.MidiOutput.ChangeDevice( mcbMidiOut.SelectedDeviceID)
+  if FDisableControls then
+    exit;
+
+  frmG2Main.G2.MidiOutput.ChangeDevice( mcbMidiOut.SelectedDeviceID, cbMidiEnabled.Checked)
+end;
+
+procedure TfrmSettings.cbMidiEnabledClick(Sender: TObject);
+begin
+  if FDisableControls then
+    exit;
+
+  try
+    frmG2Main.G2.MidiEnabled := cbMidiEnabled.Checked;
+  finally
+    UpdateControls;
+  end;
+end;
+
+procedure TfrmSettings.cbIsServerClick(Sender: TObject);
+begin
+  if FDisableControls then
+    exit;
+
+  try
+    frmG2Main.G2.IsServer := cbIsServer.Checked;
+  finally
+    UpdateControls;
+  end;
 end;
 
 procedure TfrmSettings.FormClose(Sender: TObject; var Action: TCloseAction);
@@ -188,6 +267,51 @@ begin
   finally
      OSCPacket.Free;
   end;
+end;
+
+procedure TfrmSettings.UpdateControls;
+begin
+  FDisableControls := True;
+  try
+    // TCP-IP
+    cbIsServer.Checked := frmG2Main.G2.IsServer;
+    if cbIsServer.Checked then begin
+      eHost.Enabled := False;
+    end else
+      eHost.Enabled := True;
+
+    cbMidiEnabled.Checked := frmG2Main.G2.MidiEnabled;
+    if cbMidiEnabled.Checked then begin
+      try
+        frmG2Main.G2.MidiInput.ChangeDevice( mcbMidiIn.SelectedDeviceID, False);
+        frmG2Main.G2.MidiOutput.ChangeDevice( mcbMidiOut.SelectedDeviceID, False);
+        frmG2Main.G2.MidiEnabled := True;
+      except on E:Exception do
+        ShowMessage( E.Message);
+      end;
+    end else begin
+      frmG2Main.G2.MidiEnabled := False;
+    end;
+  finally
+    FDisableControls := False;
+  end;
+end;
+
+procedure TfrmSettings.bSelectRootFolderClick(Sender: TObject);
+const
+     SELDIRHELP = 1000;
+var
+   dir: String;
+begin
+   dir := 'C:';
+   if SelectDirectory(
+        dir,
+        [sdAllowCreate,
+        sdPerformCreate,
+        sdPrompt],
+        SELDIRHELP
+      ) then
+   eRootFolder.Text := dir;
 end;
 
 procedure TfrmSettings.Button2Click(Sender: TObject);

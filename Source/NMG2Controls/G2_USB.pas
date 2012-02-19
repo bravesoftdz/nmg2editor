@@ -1835,6 +1835,7 @@ begin
         end;
       except on E:Exception do begin
           FTCPErrorMessage := E.Message;
+          LastError := E.Message;
           add_log_line( E.Message, LOGCMD_ERR);
         end;
 
