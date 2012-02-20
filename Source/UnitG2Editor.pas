@@ -68,6 +68,9 @@ unit UnitG2Editor;
 // Midi, send receieve sysex
 // Static binding of libusb.dll (optional loading)
 // Add ini file for VST
+// Version control paramdef.xml, moduledef.xml
+// doubling bug in patch manager
+// store/retrieve functions patch manager also with midi only connection
 
 
 // Set parameter functions to g2_file
