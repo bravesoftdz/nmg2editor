@@ -1089,15 +1089,22 @@ object frmG2Main: TfrmG2Main
     object Paste1: TMenuItem
       Action = aPaste
     end
-    object Delete1: TMenuItem
-      Action = aDelete
-    end
     object N4: TMenuItem
       Caption = '-'
     end
     object miModuleRename: TMenuItem
       Caption = 'Rename'
       OnClick = miModuleRenameClick
+    end
+    object miModuleAssignKnobs: TMenuItem
+      Caption = 'Assign'
+      OnClick = miModuleAssignKnobsClick
+    end
+    object miModuleAssignGlobalKnobs: TMenuItem
+      Caption = 'Global assign'
+    end
+    object N9: TMenuItem
+      Caption = '-'
     end
     object Properties1: TMenuItem
       Caption = 'Properties'
@@ -1106,6 +1113,12 @@ object frmG2Main: TfrmG2Main
     object Def1: TMenuItem
       Caption = 'Module def.'
       OnClick = Def1Click
+    end
+    object N10: TMenuItem
+      Caption = '-'
+    end
+    object Delete1: TMenuItem
+      Action = aDelete
     end
   end
   object puVariationMenu: TPopupMenu

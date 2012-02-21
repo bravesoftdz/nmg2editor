@@ -476,12 +476,14 @@ type
     function    MessDeleteModules( aLocation : TLocationType): boolean; override;
     function    MessMoveModules: boolean; virtual;
     function    MessSetModuleColor( aLocation: TLocationType; aModuleIndex, aColor : byte): boolean; override;
-    function    MessAssignKnob(aLocation : TLocationType; aModule, aParam, aKnob: integer): boolean;
-    function    MessDeAssignKnob(aKnob: integer): boolean;
-    function    MessAssignMidiCC(aLocation: TLocationType; aModule, aParam, aMidiCC: integer): boolean;
+    function    MessAssignKnob( aLocation : TLocationType; aModule, aParam, aKnob: integer): boolean;
+    function    MessDeAssignKnob( aKnob: integer): boolean;
+    function    MessModuleAssignKnobs( aModule : TG2FileModule; aPageIndex : integer): boolean;
+    function    MessModuleAssignGlobalKnobs( aModule : TG2FileModule; aPageIndex : integer): boolean;
+    function    MessAssignMidiCC( aLocation: TLocationType; aModule, aParam, aMidiCC: integer): boolean;
     function    MessDeassignMidiCC( aMidiCC: integer): boolean;
     function    MessAssignGlobalKnob( aLocation : TLocationType; aModule, aParam, aKnob: integer): boolean;
-    function    MessDeassignGlobalKnob(aKnob: integer): boolean;
+    function    MessDeassignGlobalKnob( aKnob: integer): boolean;
     function    MessSetModuleParamLabels( aLocation : TLocationType; aModuleIndex, aParamIndex : byte; aName : AnsiString): boolean; override;
     function    MessSetModuleLabel( aLocation : TLocationType; aModuleIndex : byte; aName : AnsiString): boolean; override;
   end;
@@ -2612,6 +2614,20 @@ begin
   inherited MessCopyModules( aSrcePatch, aFromLocation, aToLocation);
 
   MemStream := CreateCopyModulesMessage( aSrcePatch, aFromLocation, aToLocation, True);
+  Result := SendCmdMessage( MemStream);
+end;
+
+function TG2USBPatch.MessModuleAssignGlobalKnobs(aModule: TG2FileModule; aPageIndex: integer): boolean;
+var MemStream : TG2SendMessage;
+begin
+  MemStream := CreateModuleAssignGlobalKnobs( aModule, aPageIndex);
+  Result := SendCmdMessage( MemStream);
+end;
+
+function TG2USBPatch.MessModuleAssignKnobs( aModule: TG2FileModule; aPageIndex: integer): boolean;
+var MemStream : TG2SendMessage;
+begin
+  MemStream := CreateModuleAssignKnobs( aModule, aPageIndex);
   Result := SendCmdMessage( MemStream);
 end;
 

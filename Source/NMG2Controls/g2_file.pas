@@ -189,6 +189,7 @@ type
     procedure   SetSelected( aValue: boolean); virtual;
     function    GetNewCol : TBits7; virtual;
     function    GetNewRow : TBits7; virtual;
+    function    GetAssignableKnobCount : integer;
   public
     //constructor Create( AOwner: TComponent); {FMX override;} override;
     constructor Create( aPatchPart : TG2FilePatchPart); virtual;
@@ -237,6 +238,7 @@ type
     property    NewCol : TBits7 read GetNewCol;
     property    NewUprate : TBits1 read FNewUprate write FNewUprate;
     property    SelectedParam : TG2FileParameter read GetSelectedParam write SetSelectedParam;
+    property    AssignableKnobCount : integer read GetAssignableKnobCount;
   end;
 
   TModuleList = class( TObjectList)
@@ -1085,7 +1087,7 @@ type
   public
     constructor Create( aPatch : TG2FilePatch; aLocation : TLocationType; aModuleIndex : integer);
     destructor  Destroy; override;
-    procedure   InitParam( aModuleName : AnsiString; aParamIndex : byte; aParamType : TParamType; aParamName, aDefaultParamLabel : AnsiString; aLowValue, aHighValue, aDefaultValue : byte; aDefaultKnob, aButtonParamIndex : integer; aButtonText : string);
+    procedure   InitParam( aModuleName : AnsiString; aParamIndex : byte; aParamType : TParamType; aParamName, aDefaultParamLabel : AnsiString; aLowValue, aHighValue, aDefaultValue : byte; aDefaultKnob, aButtonParamIndex : integer; aButtonText : AnsiString);
     procedure   AssignKnob( aKnobIndex : integer);
     procedure   DeassignKnob( aKnobIndex : integer);
     procedure   AssignGlobalKnob( aPerf : TG2FilePerformance; aSlotIndex : byte; aKnobIndex : integer);
@@ -1789,6 +1791,15 @@ begin
   FModuleName := aValue;
 //FMX  Caption := FModuleName;
 //  Invalidate;
+end;
+
+function TG2FileModule.GetAssignableKnobCount: integer;
+var i : integer;
+begin
+  Result := 0;
+  for i := 0 to Length(FParams) - 1 do
+    if FParams[i].FDefaultKnob >= 0 then
+      inc(Result);
 end;
 
 function TG2FileModule.GetColor: integer;
@@ -6396,7 +6407,7 @@ end;
 procedure TG2FileParameter.InitParam( aModuleName : AnsiString; aParamIndex : byte; aParamType : TParamType;
                                       aParamName, aDefaultParamLabel : AnsiString;
                                       aLowValue, aHighValue, aDefaultValue : byte;
-                                      aDefaultKnob, aButtonParamIndex : integer; aButtonText : string);
+                                      aDefaultKnob, aButtonParamIndex : integer; aButtonText : AnsiString);
 var i : integer;
 begin
   FParamType := aParamType;
@@ -6410,7 +6421,7 @@ begin
   FModuleName := aModuleName;
   FDefaultKnob := aDefaultKnob;
   FButtonParamIndex := aButtonParamIndex;
-  FButtonText.DelimitedText := aButtonText;
+  FButtonText.DelimitedText := string(aButtonText);
 
   if assigned(FPatch) then begin
     // Check for associated knob
@@ -6490,7 +6501,7 @@ var ParamValue : byte;
 begin
   if FButtonText.Count > 0 then begin
     if FButtonText.Count = 1 then begin
-      Result := ParamLabel;
+      Result := string(ParamLabel);
       if Result = '' then
         Result := FButtonText[0];
     end else begin

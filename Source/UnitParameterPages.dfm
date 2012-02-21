@@ -4,7 +4,7 @@ object frmParameterPages: TfrmParameterPages
   BorderStyle = bsSizeToolWin
   Caption = 'Parameter pages'
   ClientHeight = 130
-  ClientWidth = 573
+  ClientWidth = 613
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -19,7 +19,7 @@ object frmParameterPages: TfrmParameterPages
   PixelsPerInch = 96
   TextHeight = 13
   object skP1: TG2GraphKnob
-    Left = 23
+    Left = 27
     Top = 64
     Width = 22
     Height = 22
@@ -39,7 +39,7 @@ object frmParameterPages: TfrmParameterPages
   end
   object skP2: TG2GraphKnob
     Tag = 1
-    Left = 81
+    Left = 90
     Top = 64
     Width = 22
     Height = 22
@@ -59,7 +59,7 @@ object frmParameterPages: TfrmParameterPages
   end
   object skP3: TG2GraphKnob
     Tag = 2
-    Left = 140
+    Left = 154
     Top = 64
     Width = 22
     Height = 22
@@ -79,7 +79,7 @@ object frmParameterPages: TfrmParameterPages
   end
   object skP4: TG2GraphKnob
     Tag = 3
-    Left = 198
+    Left = 218
     Top = 64
     Width = 22
     Height = 22
@@ -99,7 +99,7 @@ object frmParameterPages: TfrmParameterPages
   end
   object skP5: TG2GraphKnob
     Tag = 4
-    Left = 256
+    Left = 280
     Top = 64
     Width = 22
     Height = 22
@@ -119,7 +119,7 @@ object frmParameterPages: TfrmParameterPages
   end
   object skP6: TG2GraphKnob
     Tag = 5
-    Left = 314
+    Left = 343
     Top = 64
     Width = 22
     Height = 22
@@ -139,7 +139,7 @@ object frmParameterPages: TfrmParameterPages
   end
   object skP7: TG2GraphKnob
     Tag = 6
-    Left = 373
+    Left = 405
     Top = 64
     Width = 22
     Height = 22
@@ -159,7 +159,7 @@ object frmParameterPages: TfrmParameterPages
   end
   object skP8: TG2GraphKnob
     Tag = 7
-    Left = 429
+    Left = 469
     Top = 64
     Width = 22
     Height = 22
@@ -180,7 +180,7 @@ object frmParameterPages: TfrmParameterPages
   object Disp1A: TG2GraphDisplay
     Left = 8
     Top = 31
-    Width = 52
+    Width = 60
     Height = 27
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWhite
@@ -199,9 +199,9 @@ object frmParameterPages: TfrmParameterPages
     TextFunction = 1001
   end
   object Disp2A: TG2GraphDisplay
-    Left = 66
+    Left = 72
     Top = 31
-    Width = 52
+    Width = 60
     Height = 27
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWhite
@@ -220,9 +220,9 @@ object frmParameterPages: TfrmParameterPages
     TextFunction = 1001
   end
   object Disp3A: TG2GraphDisplay
-    Left = 124
+    Left = 136
     Top = 31
-    Width = 52
+    Width = 60
     Height = 27
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWhite
@@ -241,9 +241,9 @@ object frmParameterPages: TfrmParameterPages
     TextFunction = 1001
   end
   object Disp4A: TG2GraphDisplay
-    Left = 182
+    Left = 199
     Top = 31
-    Width = 52
+    Width = 60
     Height = 27
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWhite
@@ -262,9 +262,9 @@ object frmParameterPages: TfrmParameterPages
     TextFunction = 1001
   end
   object Disp5A: TG2GraphDisplay
-    Left = 240
+    Left = 262
     Top = 31
-    Width = 52
+    Width = 60
     Height = 27
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWhite
@@ -283,9 +283,9 @@ object frmParameterPages: TfrmParameterPages
     TextFunction = 1001
   end
   object Disp6A: TG2GraphDisplay
-    Left = 298
+    Left = 325
     Top = 31
-    Width = 52
+    Width = 60
     Height = 27
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWhite
@@ -304,9 +304,9 @@ object frmParameterPages: TfrmParameterPages
     TextFunction = 1001
   end
   object Disp7A: TG2GraphDisplay
-    Left = 356
+    Left = 388
     Top = 31
-    Width = 52
+    Width = 60
     Height = 27
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWhite
@@ -325,9 +325,9 @@ object frmParameterPages: TfrmParameterPages
     TextFunction = 1001
   end
   object Disp8A: TG2GraphDisplay
-    Left = 414
+    Left = 451
     Top = 31
-    Width = 52
+    Width = 60
     Height = 27
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWhite
@@ -348,7 +348,7 @@ object frmParameterPages: TfrmParameterPages
   object Disp1B: TG2GraphDisplay
     Left = 8
     Top = 8
-    Width = 52
+    Width = 60
     Height = 17
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
@@ -366,9 +366,9 @@ object frmParameterPages: TfrmParameterPages
     TextFunction = 1000
   end
   object disp2B: TG2GraphDisplay
-    Left = 66
+    Left = 72
     Top = 8
-    Width = 52
+    Width = 60
     Height = 17
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
@@ -386,9 +386,9 @@ object frmParameterPages: TfrmParameterPages
     TextFunction = 1000
   end
   object Disp3B: TG2GraphDisplay
-    Left = 124
+    Left = 136
     Top = 8
-    Width = 52
+    Width = 60
     Height = 17
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
@@ -406,9 +406,9 @@ object frmParameterPages: TfrmParameterPages
     TextFunction = 1000
   end
   object Disp4B: TG2GraphDisplay
-    Left = 182
+    Left = 199
     Top = 8
-    Width = 52
+    Width = 60
     Height = 17
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
@@ -426,9 +426,9 @@ object frmParameterPages: TfrmParameterPages
     TextFunction = 1000
   end
   object Disp5B: TG2GraphDisplay
-    Left = 240
+    Left = 262
     Top = 8
-    Width = 52
+    Width = 60
     Height = 17
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
@@ -446,9 +446,9 @@ object frmParameterPages: TfrmParameterPages
     TextFunction = 1000
   end
   object Disp6B: TG2GraphDisplay
-    Left = 298
+    Left = 325
     Top = 8
-    Width = 52
+    Width = 60
     Height = 17
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
@@ -466,9 +466,9 @@ object frmParameterPages: TfrmParameterPages
     TextFunction = 1000
   end
   object Disp7B: TG2GraphDisplay
-    Left = 356
+    Left = 388
     Top = 8
-    Width = 52
+    Width = 60
     Height = 17
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
@@ -486,9 +486,9 @@ object frmParameterPages: TfrmParameterPages
     TextFunction = 1000
   end
   object Disp8B: TG2GraphDisplay
-    Left = 414
+    Left = 451
     Top = 8
-    Width = 52
+    Width = 60
     Height = 17
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
@@ -508,7 +508,7 @@ object frmParameterPages: TfrmParameterPages
   object bfP1: TG2GraphButtonFlat
     Left = 8
     Top = 103
-    Width = 52
+    Width = 60
     Height = 16
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
@@ -518,7 +518,7 @@ object frmParameterPages: TfrmParameterPages
     Color = 13684944
     Value = 0
     LowValue = 0
-    HighValue = 0
+    HighValue = 255
     ParentColor = False
     ParentFont = False
     HightlightColor = clAqua
@@ -529,9 +529,9 @@ object frmParameterPages: TfrmParameterPages
   end
   object bfP2: TG2GraphButtonFlat
     Tag = 1
-    Left = 66
+    Left = 72
     Top = 103
-    Width = 52
+    Width = 60
     Height = 16
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
@@ -552,9 +552,9 @@ object frmParameterPages: TfrmParameterPages
   end
   object bfP3: TG2GraphButtonFlat
     Tag = 2
-    Left = 124
+    Left = 136
     Top = 103
-    Width = 52
+    Width = 60
     Height = 16
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
@@ -575,9 +575,9 @@ object frmParameterPages: TfrmParameterPages
   end
   object bfP4: TG2GraphButtonFlat
     Tag = 3
-    Left = 182
+    Left = 199
     Top = 103
-    Width = 52
+    Width = 60
     Height = 16
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
@@ -598,9 +598,9 @@ object frmParameterPages: TfrmParameterPages
   end
   object bfP5: TG2GraphButtonFlat
     Tag = 4
-    Left = 240
+    Left = 262
     Top = 103
-    Width = 52
+    Width = 60
     Height = 16
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
@@ -621,9 +621,9 @@ object frmParameterPages: TfrmParameterPages
   end
   object bfP6: TG2GraphButtonFlat
     Tag = 5
-    Left = 298
+    Left = 325
     Top = 103
-    Width = 52
+    Width = 60
     Height = 16
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
@@ -644,9 +644,9 @@ object frmParameterPages: TfrmParameterPages
   end
   object bfP7: TG2GraphButtonFlat
     Tag = 6
-    Left = 356
+    Left = 388
     Top = 103
-    Width = 52
+    Width = 60
     Height = 16
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
@@ -667,9 +667,9 @@ object frmParameterPages: TfrmParameterPages
   end
   object bfP8: TG2GraphButtonFlat
     Tag = 7
-    Left = 414
+    Left = 451
     Top = 103
-    Width = 52
+    Width = 60
     Height = 16
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
@@ -689,7 +689,7 @@ object frmParameterPages: TfrmParameterPages
     ButtonCount = 0
   end
   object Panel1: TPanel
-    Left = 481
+    Left = 521
     Top = 0
     Width = 92
     Height = 130
@@ -698,7 +698,7 @@ object frmParameterPages: TfrmParameterPages
     Color = clAppWorkSpace
     ParentBackground = False
     TabOrder = 0
-    ExplicitHeight = 124
+    ExplicitLeft = 481
     object obParam: TG2GraphButtonRadio
       Left = 13
       Top = 23

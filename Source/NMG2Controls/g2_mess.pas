@@ -351,6 +351,8 @@ uses
     function    CreateDeleteConnectionMessage( aCable: TG2FileCable): TG2SendMessage;
     function    CreateAssignKnobMessage( aLocation : TLocationType; aModule, aParam, aKnob: integer): TG2SendMessage;
     function    CreateDeassignKnobMessage( aKnob: integer): TG2SendMessage;
+    function    CreateModuleAssignKnobs( aModule : TG2FileModule; aPageIndex : integer): TG2SendMessage;
+    function    CreateModuleAssignGlobalKnobs( aModule : TG2FileModule; aPageIndex : integer): TG2SendMessage;
     function    CreateAssignGlobalKnobMessage( aLocation : TLocationType; aModule, aParam, aKnob: integer): TG2SendMessage;
     function    CreateDeassignGlobalKnobMessage( aKnob: integer): TG2SendMessage;
     function    CreateAssignMidiCCMessage( aLocation : TLocationType; aModule, aParam, aMidiCC: integer): TG2SendMessage;
@@ -3929,6 +3931,7 @@ end;
 
 function TG2MessPatch.CreateAssignKnobMessage( aLocation : TLocationType; aModule, aParam, aKnob: integer): TG2SendMessage;
 var i : integer;
+    Knob : TKnob;
 begin
   //if aKnob >= FKnobList.FKnobCount then
   if aKnob >= KnobList.Count then
@@ -3938,7 +3941,6 @@ begin
   if KnobList.Items[ aKnob].IsAssigned = 1 then
     raise Exception.Create('Knob ' + IntToStr(aKnob) + ' already assigned.');
 
-  // Create the add cable message
   Result := CreatePatchMessage;
 
   // Is the parameter already assigned?
@@ -3948,8 +3950,20 @@ begin
     AddAssignKnobMessage( FUndoMessage, aLocation, aModule, aParam, i);
     AddDeassignKnobMessage( Result, i);
   end;
+
+  if i <> aKnob then begin
+    // Is the knob already assigned to another parameter?
+    Knob := GetKnob( aKnob);
+    if assigned(Knob) and (Knob.IsAssigned = 1) then begin
+      // Send a deassign message first
+      AddAssignKnobMessage( FUndoMessage, TLocationType(Knob.Location), Knob.ModuleIndex, Knob.ParamIndex, aKnob);
+      AddDeassignKnobMessage( Result, aKnob);
+    end;
+  end;
+
   AddDeassignKnobMessage( FUndoMessage, aKnob);
   AddAssignKnobMessage( Result, aLocation, aModule, aParam, aKnob);
+
   AddSelectParamPageMessage( Result, aKnob div 8);
 
   (G2 as TG2MEss).dump_buffer( PStaticByteBuffer(Result.Memory)^[0], Result.Size);
@@ -3968,6 +3982,92 @@ begin
   AddDeAssignKnobMessage( Result, aKnob);
 
   (G2 as TG2Mess).dump_buffer( PStaticByteBuffer(Result.Memory)^[0], Result.Size);
+end;
+
+function TG2MessPatch.CreateModuleAssignKnobs( aModule: TG2FileModule; aPageIndex: integer): TG2SendMessage;
+var Knob : TKnob;
+    i, KnobCount, NewKnobIndex, CurrentKnobIndex : integer;
+begin
+  Result := nil;
+  KnobCount := aModule.AssignableKnobCount;
+  if KnobCount > 0 then begin
+
+    Result := CreatePatchMessage;
+
+    for i := 0 to aModule.ParameterCount - 1 do begin
+      NewKnobIndex := aModule.Parameter[i].DefaultKnob;
+      if NewKnobIndex >= 0 then begin
+        NewKnobIndex := NewKnobIndex + aPageIndex * 8;
+
+        // Is the parameter already assigned to a knob?
+        CurrentKnobIndex := FindKnob( aModule.Location, aModule.ModuleIndex, aModule.Parameter[i].ParamIndex);
+        if CurrentKnobIndex <> -1 then begin
+          // Send a deassign message first
+          AddAssignKnobMessage( FUndoMessage, aModule.Location, aModule.ModuleIndex, aModule.Parameter[i].ParamIndex, CurrentKnobIndex);
+          AddDeassignKnobMessage( Result, CurrentKnobIndex);
+        end;
+
+        // Is another parameter already assigned to this knob?
+        if CurrentKnobIndex <> NewKnobIndex then begin
+          Knob := GetKnob( NewKnobIndex);
+          if assigned(Knob) and (Knob.IsAssigned = 1) then begin
+            // Send a deassign message first
+            AddAssignKnobMessage( FUndoMessage, TLocationType(Knob.Location), Knob.ModuleIndex, Knob.ParamIndex, NewKnobIndex);
+            AddDeassignKnobMessage( Result, NewKnobIndex);
+          end;
+        end;
+
+        AddDeassignKnobMessage( FUndoMessage, NewKnobIndex);
+        AddAssignKnobMessage( Result, aModule.Location, aModule.ModuleIndex, aModule.Parameter[i].ParamIndex, NewKnobIndex);
+      end;
+    end;
+    AddSelectParamPageMessage( Result, aPageIndex);
+
+    (G2 as TG2MEss).dump_buffer( PStaticByteBuffer(Result.Memory)^[0], Result.Size);
+  end;
+end;
+
+function TG2MessPatch.CreateModuleAssignGlobalKnobs(aModule: TG2FileModule; aPageIndex: integer): TG2SendMessage;
+var Knob : TGlobalKnob;
+    i, KnobCount, NewKnobIndex, CurrentKnobIndex : integer;
+begin
+  Result := nil;
+  KnobCount := aModule.AssignableKnobCount;
+  if KnobCount > 0 then begin
+
+    Result := CreatePatchMessage;
+
+    for i := 0 to aModule.ParameterCount - 1 do begin
+
+      NewKnobIndex := aModule.Parameter[i].DefaultKnob;
+      if NewKnobIndex >= 0 then begin
+
+        NewKnobIndex := NewKnobIndex + aPageIndex * 8;
+
+        // Is the parameter already assigned to a knob?
+        CurrentKnobIndex := Performance.GlobalKnobList.FindGlobalKnobIndex( GetSlot.SlotIndex, aModule.Location, aModule.ModuleIndex, aModule.Parameter[i].ParamIndex);
+        if CurrentKnobIndex <> -1 then begin
+          // Send a deassign message first
+          AddAssignGlobalKnobMessage( FUndoMessage, aModule.Location, aModule.ModuleIndex, aModule.Parameter[i].ParamIndex, CurrentKnobIndex);
+          AddDeassignGlobalKnobMessage( Result, CurrentKnobIndex);
+        end;
+
+        if CurrentKnobIndex <> NewKnobIndex then begin
+          Knob := Performance.GetGlobalKnob( NewKnobIndex);
+          if assigned(Knob) and (Knob.IsAssigned = 1) then begin
+            // Send a deassign message first
+            AddAssignGlobalKnobMessage( FUndoMessage, TLocationType(Knob.Location), Knob.ModuleIndex, Knob.ParamIndex, NewKnobIndex);
+            AddDeassignGlobalKnobMessage( Result, NewKnobIndex);
+          end;
+        end;
+        AddDeassignGlobalKnobMessage( FUndoMessage, NewKnobIndex);
+        AddAssignGlobalKnobMessage( Result, aModule.Location, aModule.ModuleIndex, aModule.Parameter[i].ParamIndex, NewKnobIndex);
+      end;
+    end;
+    AddSelectGlobalParamPageMessage( Result, aPageIndex);
+
+    (G2 as TG2MEss).dump_buffer( PStaticByteBuffer(Result.Memory)^[0], Result.Size);
+  end;
 end;
 
 function TG2MessPatch.CreateAssignMidiCCMessage( aLocation: TLocationType; aModule, aParam, aMidiCC: integer): TG2SendMessage;
@@ -4012,6 +4112,7 @@ begin
 
   // Is the parameter already assigned?
   i := Perf.GlobalKnobList.FindGlobalKnobIndex( GetSlot.SlotIndex, aLocation, aModule, aParam);
+
   if (i <> -1) then begin
     // Send a deassign message first
     Knob := Perf.GetGlobalKnob(i);
@@ -4020,6 +4121,17 @@ begin
     end;
     AddDeassignGlobalKnobMessage( Result, i);
   end;
+
+  if i <> aKnob then begin
+    // Is the knob already assigned to another parameter?
+    Knob := Perf.GetGlobalKnob( aKnob);
+    if assigned(Knob) and (Knob.IsAssigned = 1) then begin
+      // Send a deassign message first
+      AddAssignGlobalKnobMessage( FUndoMessage, TLocationType(Knob.Location), Knob.ModuleIndex, Knob.ParamIndex, aKnob);
+      AddDeassignGlobalKnobMessage( Result, aKnob);
+    end;
+  end;
+
   AddAssignGlobalKnobMessage( Result, aLocation, aModule, aParam, aKnob);
   AddDeassignGlobalKnobMessage( FUndoMessage, aKnob);
   AddSelectGlobalParamPageMessage( Result, aKnob div 8);

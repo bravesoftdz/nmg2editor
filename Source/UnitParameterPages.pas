@@ -249,10 +249,10 @@ end;
 
 procedure TfrmParameterPages.UpdateControls;
 var i : integer;
-    Patch : TG2Patch;
     Perf : TG2Performance;
-    Knob : TKnob;
+    Patch : TG2Patch;
     Module : TG2FileModule;
+    Knob : TKnob;
 begin
   if btGlobalPages.Value = 0 then begin
 
@@ -263,11 +263,8 @@ begin
         FKnobArray[i].SetParameter( Knob.Parameter as TG2GraphParameter);
         FDispKnobArray[i].SetParameter( Knob.Parameter as TG2GraphParameter);
         FDispModuleArray[i].SetParameter( Knob.Parameter as TG2GraphParameter);
-        if Knob.Parameter.ButtonParamIndex <> -1 then begin
-          Module := Patch.Modules[ Knob.Location, Knob.ModuleIndex];
-          if assigned(Module) then
-            FButtonArray[i].SetParameter( Module.Parameter[ Knob.Parameter.ButtonParamIndex]);
-        end;
+        if assigned(Knob.Parameter.ButtonParam) then
+          FButtonArray[i].SetParameter( Knob.Parameter.ButtonParam);
       end else begin
         FKnobArray[i].SetParameter( nil);
         FDispKnobArray[i].SetParameter( nil);
@@ -285,6 +282,8 @@ begin
         FKnobArray[i].SetParameter( Knob.Parameter as TG2GraphParameter);
         FDispKnobArray[i].SetParameter( Knob.Parameter as TG2GraphParameter);
         FDispModuleArray[i].SetParameter( Knob.Parameter as TG2GraphParameter);
+        if assigned(Knob.Parameter.ButtonParam) then
+          FButtonArray[i].SetParameter( Knob.Parameter.ButtonParam);
       end else begin
         FKnobArray[i].SetParameter( nil);
         FDispKnobArray[i].SetParameter( nil);

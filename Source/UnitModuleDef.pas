@@ -115,7 +115,7 @@ begin
   // Make a list of all posible parameter attributes
   slParamAttr.Clear;
   for m := 0 to G2_module_def.FModuleDefList.Count - 1 do begin
-    lbModules.Items.Add(G2_module_def.FModuleDefList.ModuleDef[m].LongName);
+    lbModules.Items.Add(string(G2_module_def.FModuleDefList.ModuleDef[m].LongName));
     lbModules.Items.Objects[m] := G2_module_def.FModuleDefList.ModuleDef[m];
     if G2_module_def.FModuleDefList.ModuleDef[m].Params <> nil then
       for p := 0 to G2_module_def.FModuleDefList.ModuleDef[m].Params.Count - 1 do begin
@@ -165,7 +165,7 @@ begin
 
   if FModuleIndex <> -1 then begin
     LoadModule;
-    eModuleName.Text := G2_module_def.FModuleDefList.ModuleDef[FModuleIndex].LongName;
+    eModuleName.Text := string(G2_module_def.FModuleDefList.ModuleDef[FModuleIndex].LongName);
     if G2_module_def.FModuleDefList.ModuleDef[FModuleIndex].Params <> nil then begin
       sgParams.ColCount := slParamAttr.Count + 1;
       sgParams.RowCount := G2_module_def.FModuleDefList.ModuleDef[FModuleIndex].Params.Count + 1;

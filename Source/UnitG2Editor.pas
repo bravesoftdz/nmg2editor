@@ -62,15 +62,18 @@ unit UnitG2Editor;
 // TODO List v2.1
 // ==============
 
-// Solve compiler warnings
-// Assign whole module to parameter page
-// Buttons on parameter pages
-// Midi, send receieve sysex
 // Static binding of libusb.dll (optional loading)
+// Buttons on parameter pages
+// Assign whole module to parameter page
+
+// Solve compiler warnings
+// Midi, send receieve sysex
 // Add ini file for VST
 // Version control paramdef.xml, moduledef.xml
 // doubling bug in patch manager
 // store/retrieve functions patch manager also with midi only connection
+// Patch parameter button labels
+// Module editor in seperate app.
 
 
 // Set parameter functions to g2_file
@@ -276,6 +279,10 @@ type
     Sendpatchsysex1: TMenuItem;
     Sendperformancesysex1: TMenuItem;
     N8: TMenuItem;
+    miModuleAssignKnobs: TMenuItem;
+    miModuleAssignGlobalKnobs: TMenuItem;
+    N9: TMenuItem;
+    N10: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure cbModeClick(Sender: TObject);
     procedure aPatchSettingsExecute(Sender: TObject);
@@ -352,6 +359,7 @@ type
     procedure aExtractModuleInfoExecute(Sender: TObject);
     procedure aSendPartchSysexExecute(Sender: TObject);
     procedure aSendPerfSysexExecute(Sender: TObject);
+    procedure miModuleAssignKnobsClick(Sender: TObject);
   private
     { Private declarations }
     procedure DialogKey(var Msg: TWMKey); message CM_DIALOGKEY;
@@ -370,6 +378,8 @@ type
     procedure DeAssignKnob( Sender: TObject);
     procedure AssignGlobalKnob( Sender: TObject);
     procedure DeAssignGlobalKnob( Sender: TObject);
+    procedure ModuleAssignKnobs( Sender: TObject);
+    procedure ModuleAssignGlobalKnobs( Sender: TObject);
     procedure GetPatchversion;
     procedure UpdateControls;
     procedure SetSelectedModuleColor( aColor : byte);
@@ -377,6 +387,7 @@ type
     procedure LoadImageMap( aBitmap : TBitmap;aCols, aRows: integer; aImageList : TImageList);
 
     procedure CreateAddModuleMenu;
+    procedure CreateModuleMenu;
     procedure CreateParamMenu;
 
     procedure CopyPatchSelection;
@@ -826,7 +837,9 @@ begin
   // Load module and parameter xml database
   G2.LoadModuleDefs('');
   G2.USBActive := True;
+
   CreateAddModuleMenu;
+  CreateModuleMenu;
   CreateParamMenu;
 
   UpdateControls;
@@ -1502,6 +1515,56 @@ begin
   end;
 end;
 
+procedure TfrmG2Main.CreateModuleMenu;
+var i, j, Param : integer;
+    aMenuItem, aSubMenuItem : TMenuItem;
+begin
+  // Assign knobs
+  for i := 0 to 4 do begin
+
+    aMenuItem := TMenuItem.Create( puModuleMenu);
+    aMenuItem.Caption := 'Page ' + chr(65 + i);
+    miModuleAssignKnobs.Add(aMenuItem);
+    for j := 0 to 2 do begin
+      aSubMenuItem := TMenuItem.Create( puModuleMenu);
+      aSubMenuItem.Caption := 'Column ' + IntToStr(j+1);
+      aSubMenuItem.Tag := i * 3 + j;
+      aSubMenuItem.OnClick := ModuleAssignKnobs;
+      aMenuItem.Add(aSubMenuItem);
+    end;
+  end;
+
+  // Assign global knobs
+  for i := 0 to 4 do begin
+    aMenuItem := TMenuItem.Create( puModuleMenu);
+    aMenuItem.Caption := 'Page ' + chr(65 + i);
+    miModuleAssignGlobalKnobs.Add(aMenuItem);
+    for j := 0 to 2 do begin
+      aSubMenuItem := TMenuItem.Create( puModuleMenu);
+      aSubMenuItem.Caption := 'Column ' + IntToStr(j+1);
+      aSubMenuItem.Tag := i * 3 + j;
+      aSubMenuItem.OnClick := ModuleAssignGlobalKnobs;
+      aMenuItem.Add(aSubMenuItem);
+    end;
+  end;
+end;
+
+procedure TfrmG2Main.ModuleAssignGlobalKnobs(Sender: TObject);
+var Module : TG2GraphModule;
+begin
+  Module := TG2GraphModule(puModuleMenu.Tag);
+
+  G2.SelectedPatch.MessModuleAssignGlobalKnobs( Module, (Sender as TMenuItem).Tag);
+end;
+
+procedure TfrmG2Main.ModuleAssignKnobs(Sender: TObject);
+var Module : TG2GraphModule;
+begin
+  Module := TG2GraphModule(puModuleMenu.Tag);
+
+  G2.SelectedPatch.MessModuleAssignKnobs( Module, (Sender as TMenuItem).Tag);
+end;
+
 procedure TfrmG2Main.ModuleClick(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X,  Y: Integer; Module: TG2FileModule);
 var P : TPoint;
 begin
@@ -1562,72 +1625,10 @@ begin
     AddModule( Tag);
 end;
 
-// ==== Connector menu =========================================================
-
-procedure TfrmG2Main.ConnectorClick(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X,  Y: Integer; Connector: TG2FileConnector);
-var P : TPoint;
-    aMenuItem : TMenuItem;
-    i : integer;
+procedure TfrmG2Main.miModuleAssignKnobsClick(Sender: TObject);
 begin
-  if Button = mbRight then begin
-    GetCursorPos(P);
-
-    while miDeleteCable.Count > 0 do begin
-      miDeleteCable.Items[0].Free;
-    end;
-
-    for i := 0 to Connector.CableCount - 1 do begin
-      aMenuItem := TMenuItem.Create( puConnectorMenu);
-      if Connector.Cables[i].FromConnector = Connector then
-        aMenuItem.Caption := 'Cable to ' + string(G2.SelectedPatch.GetModuleLabel( Connector.Module.Location, Connector.Cables[i].ModuleTo))
-      else
-        aMenuItem.Caption := 'Cable to ' + string(G2.SelectedPatch.GetModuleLabel( Connector.Module.Location, Connector.Cables[i].ModuleFrom));
-      aMenuItem.Tag := integer(Connector.Cables[i]);
-      aMenuItem.OnClick := miDeleteCablesClick;
-      miDeleteCable.Add(aMenuItem);
-    end;
-
-    puConnectorMenu.Popup( P.X, P.Y);
-    puConnectorMenu.Tag := integer(Connector);
-  end;
 end;
 
-procedure TfrmG2Main.miDeleteAllCablesClick(Sender: TObject);
-var Connector : TG2FileConnector;
-   i : integer;
-begin
-  Connector := TG2FileConnector(puConnectorMenu.Tag);
-  for i := 0 to Connector.CableCount - 1 do // TODO : Could be made more efficient (all in one message)
-    G2.SelectedPatch.MessDeleteConnection( FLocation, Connector.Cables[0]);
-end;
-
-procedure TfrmG2Main.miDeleteCablesClick(Sender: TObject);
-begin
-  with Sender as TMenuItem do
-    G2.SelectedPatch.MessDeleteConnection( FLocation, TG2FileCable(tag));
-end;
-
-// ==== Communication menu =====================================================
-
-procedure TfrmG2Main.aSendControllerSnapshotExecute(Sender: TObject);
-begin
-  G2.SelectedSlot.SendControllerSnapshotMessage;
-end;
-
-procedure TfrmG2Main.aSendPartchSysexExecute(Sender: TObject);
-begin
-  G2.SysExSendPatch( G2.SelectedSlotIndex);
-end;
-
-procedure TfrmG2Main.aSendPerfSysexExecute(Sender: TObject);
-begin
-  G2.SysExSendPerformance;
-end;
-
-procedure TfrmG2Main.aMidiDumpExecute(Sender: TObject);
-begin
-  G2.SendDumpMidiMessage;
-end;
 
 // ==== Parameter menu =========================================================
 
@@ -1858,6 +1859,74 @@ end;
 begin
   FG2.USBNote($20); // play a test note
 end;}
+
+// ==== Connector menu =========================================================
+
+procedure TfrmG2Main.ConnectorClick(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X,  Y: Integer; Connector: TG2FileConnector);
+var P : TPoint;
+    aMenuItem : TMenuItem;
+    i : integer;
+begin
+  if Button = mbRight then begin
+    GetCursorPos(P);
+
+    while miDeleteCable.Count > 0 do begin
+      miDeleteCable.Items[0].Free;
+    end;
+
+    for i := 0 to Connector.CableCount - 1 do begin
+      aMenuItem := TMenuItem.Create( puConnectorMenu);
+      if Connector.Cables[i].FromConnector = Connector then
+        aMenuItem.Caption := 'Cable to ' + string(G2.SelectedPatch.GetModuleLabel( Connector.Module.Location, Connector.Cables[i].ModuleTo))
+      else
+        aMenuItem.Caption := 'Cable to ' + string(G2.SelectedPatch.GetModuleLabel( Connector.Module.Location, Connector.Cables[i].ModuleFrom));
+      aMenuItem.Tag := integer(Connector.Cables[i]);
+      aMenuItem.OnClick := miDeleteCablesClick;
+      miDeleteCable.Add(aMenuItem);
+    end;
+
+    puConnectorMenu.Popup( P.X, P.Y);
+    puConnectorMenu.Tag := integer(Connector);
+  end;
+end;
+
+procedure TfrmG2Main.miDeleteAllCablesClick(Sender: TObject);
+var Connector : TG2FileConnector;
+   i : integer;
+begin
+  Connector := TG2FileConnector(puConnectorMenu.Tag);
+  for i := 0 to Connector.CableCount - 1 do // TODO : Could be made more efficient (all in one message)
+    G2.SelectedPatch.MessDeleteConnection( FLocation, Connector.Cables[0]);
+end;
+
+procedure TfrmG2Main.miDeleteCablesClick(Sender: TObject);
+begin
+  with Sender as TMenuItem do
+    G2.SelectedPatch.MessDeleteConnection( FLocation, TG2FileCable(tag));
+end;
+
+// ==== Communication menu =====================================================
+
+procedure TfrmG2Main.aSendControllerSnapshotExecute(Sender: TObject);
+begin
+  G2.SelectedSlot.SendControllerSnapshotMessage;
+end;
+
+procedure TfrmG2Main.aSendPartchSysexExecute(Sender: TObject);
+begin
+  G2.SysExSendPatch( G2.SelectedSlotIndex);
+end;
+
+procedure TfrmG2Main.aSendPerfSysexExecute(Sender: TObject);
+begin
+  G2.SysExSendPerformance;
+end;
+
+procedure TfrmG2Main.aMidiDumpExecute(Sender: TObject);
+begin
+  G2.SendDumpMidiMessage;
+end;
+
 // ==== Functions ==============================================================
 
 procedure TfrmG2Main.CopyPatchSelection;
