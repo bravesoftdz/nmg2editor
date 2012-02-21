@@ -63,6 +63,13 @@ const
   Unreserved = ALPHA + DIGIT + ['-', '.', '_', '~'];
   ValidPathChars = Unreserved + SubDelims + ['@', ':', '/'];
 
+{$if CompilerVersion <= 18.5}
+function CharInSet(C: AnsiChar; const CharSet: TSysCharSet): Boolean;
+begin
+  Result := C in CharSet;
+end;
+{$ifend}
+
 function Escape(const s: String; const Allowed: TSysCharSet): String;
 var
   i, L: Integer;

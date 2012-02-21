@@ -174,6 +174,13 @@ implementation
 var
   Xml11Pg: PByteArray = nil;
 
+{$if CompilerVersion <= 18.5}
+function CharInSet(C: WideChar; const CharSet: TSysCharSet): Boolean;
+begin
+  Result := C in CharSet;
+end;
+{$ifend}
+
 function Xml11NamePages: PByteArray;
 var
   I: Integer;
