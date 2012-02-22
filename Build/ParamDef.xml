@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<ParamDefList xmlns="http://www.yourtargetnamespace.com">
+<ParamDefList xmlns="http://www.yourtargetnamespace.com" version="0.21">
   <ParamDef>
     <Id>0</Id>
     <ParamType>2</ParamType>
@@ -1826,6 +1826,16 @@
     <RangeType>Vowel</RangeType>
     <LowValue>0</LowValue>
     <HighValue>8</HighValue>
+    <DefaultValue>0</DefaultValue>
+    <Definitions/>
+    <Comments/>
+  </ParamDef>
+  <ParamDef>
+    <Id>177</Id>
+    <ParamType>2</ParamType>
+    <RangeType>SeqOffOn</RangeType>
+    <LowValue>0</LowValue>
+    <HighValue>1</HighValue>
     <DefaultValue>0</DefaultValue>
     <Definitions/>
     <Comments/>

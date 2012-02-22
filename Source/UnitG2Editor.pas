@@ -65,16 +65,16 @@ unit UnitG2Editor;
 // Static binding of libusb.dll (optional loading)
 // Buttons on parameter pages
 // Assign whole module to parameter page
+// Patch parameter button labels
+// Version control paramdef.xml, moduledef.xml
+// doubling bug in patch manager
 
 // Solve compiler warnings
 // Midi, send receieve sysex
 // Add ini file for VST
-// Version control paramdef.xml, moduledef.xml
-// doubling bug in patch manager
 // store/retrieve functions patch manager also with midi only connection
-// Patch parameter button labels
 // Module editor in seperate app.
-
+// VST clear knob assignmenst on patch change
 
 // Set parameter functions to g2_file
 // Make Set..InPatch functions private
@@ -775,6 +775,8 @@ end;
 procedure TfrmG2Main.FormCreate(Sender: TObject);
 var ModuleMap : TBitmap;
 begin
+  Caption := 'NMG2 Editor ' + VERSION;
+
   FDisableControls := False;
   FOldSplitterPos := Splitter1.Height;
 

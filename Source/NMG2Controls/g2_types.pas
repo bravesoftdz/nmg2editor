@@ -38,6 +38,8 @@ uses
   math;
 
 const
+  VERSION = '0.21';
+
   NMORPHS = 8;
   NVARIATIONS = 9;
   NSLOTS = 4;

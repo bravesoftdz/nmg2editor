@@ -19,9 +19,11 @@ type
   TXMLModuleDefListType = class(TDOMElementList)
   protected
     function Get_ModuleDef(Index: Integer): TXMLModuleDefType;
-   public
-     constructor Create(ANode: TDOMNode); overload;
-     property ModuleDef[Index: Integer]: TXMLModuleDefType read Get_ModuleDef;
+    function Get_FileVersion : string;
+  public
+    constructor Create(ANode: TDOMNode); overload;
+    property ModuleDef[Index: Integer]: TXMLModuleDefType read Get_ModuleDef;
+    property FileVersion : string read Get_FileVersion;
   end;
 
   TXMLModuleDefType = class(TDOMElement)
@@ -94,9 +96,11 @@ type
   TXMLParamDefListType = class(TDOMElementList)
   protected
     function Get_ParamDef(Index: Integer): TXMLParamDefType;
+    function Get_FileVersion : string;
   public
     constructor Create(ANode: TDOMNode); overload;
     property ParamDef[Index: Integer]: TXMLParamDefType read Get_ParamDef; default;
+    property FileVersion : string read Get_FileVersion;
   end;
 
   TXMLParamDefType = class(TDOMElement)
@@ -216,6 +220,17 @@ function TXMLModuleDefListType.Get_ModuleDef(Index: Integer): TXMLModuleDefType;
 begin
   Result := TXMLModuleDefType(Item[Index]);
 end;
+
+function TXMLModuleDefListType.Get_FileVersion: string;
+var n : TDOMNode;
+begin
+  n := FNode.Attributes.GetNamedItem('version');
+  if n <> nil then
+    Result := n.NodeValue
+  else
+    Result := '';
+end;
+
 
 { TXMLModuleDefType }
 
@@ -405,6 +420,16 @@ end;
 function TXMLParamDefListType.Get_ParamDef(Index: Integer): TXMLParamDefType;
 begin
   Result := TXMLParamDefType(Item[Index]);
+end;
+
+function TXMLParamDefListType.Get_FileVersion: string;
+var n : TDOMNode;
+begin
+  n := FNode.Attributes.GetNamedItem('version');
+  if n <> nil then
+    Result := n.NodeValue
+  else
+    Result := '';
 end;
 
 { TXMLParamDefType }

@@ -40,7 +40,7 @@ uses
 {$ELSE}
   Contnrs,
 {$ENDIF}
-  Windows, Classes, SysUtils, DOM, XMLRead, g2_types, g2_database;
+  Windows, Classes, Dialogs, SysUtils, DOM, XMLRead, g2_types, g2_database;
 
 const
   MIDI_BLOCK_SIZE = 479;//419; // The number of whole octets in  a full size MIDI packet
@@ -4905,12 +4905,12 @@ end;
 procedure TG2FilePatch.InitParameters;
 var i : integer;
 
-  procedure AddParam( ModuleIndex : byte; ModuleName : AnsiString; ParamIndex : byte; ParamName : AnsiString; LowValue, HighValue, DefaultValue: byte);
+  procedure AddParam( ModuleIndex : byte; ModuleName : AnsiString; ParamIndex : byte; ParamName : AnsiString; LowValue, HighValue, DefaultValue: byte; ButtonText : string);
   begin
     i := Length(FParams);
     SetLength(FParams, i + 1);
     FParams[i] := CreateParameter( ModuleIndex);
-    FParams[i].InitParam( ModuleName, ParamIndex, ptParam, ParamName, '', LowValue, HighValue, DefaultValue, -1, -1, '');
+    FParams[i].InitParam( ModuleName, ParamIndex, ptParam, ParamName, '', LowValue, HighValue, DefaultValue, -1, -1, ButtonText);
   end;
 
 begin
@@ -4919,39 +4919,39 @@ begin
 
   SetLength(FParams, 0);
 
-  AddParam( PATCH_VOLUME,      'Vol',      VOLUME_LEVEL,  'VolLevel',   0, 127, 100);
-  AddParam( PATCH_VOLUME,      'Vol',      VOLUME_MUTE,   'VolMute',    0,   1,   0);
-  AddParam( PATCH_GLIDE,       'Glide',    GLIDE_TYPE,    'GlideType',  0,   2,   0);
-  AddParam( PATCH_GLIDE,       'Glide',    GLIDE_SPEED,   'GlideSpeed', 0, 127,   0);
-  AddParam( PATCH_BEND,        'Bend',     BEND_ON_OFF,   'BendOnOff',  0,   1,   0);
-  AddParam( PATCH_BEND,        'Bend',     BEND_RANGE,    'BendRange',  0, 127,   0);
-  AddParam( PATCH_VIBRATO,     'Vibrato',  VIBRATO_MOD,   'VibrMod',    0,   2,   0);
-  AddParam( PATCH_VIBRATO,     'Vibrato',  VIBRATO_DEPTH, 'VibrDepth',  0, 127,   0);
-  AddParam( PATCH_VIBRATO,     'Vibrato',  VIBRATO_RATE,  'VibrRate',   0, 127,   0);
-  AddParam( PATCH_ARPEGGIATOR, 'Arp',      ARP_ON_OFF,    'ArpOnOff',   0,   1,   0);
-  AddParam( PATCH_ARPEGGIATOR, 'Arp',      ARP_SPEED,     'ArpSpeed',   0,   3,   0);
-  AddParam( PATCH_ARPEGGIATOR, 'Arp',      ARP_DIRECTION, 'ArpDir',     0,   3,   0);
-  AddParam( PATCH_ARPEGGIATOR, 'Arp',      ARP_OCTAVES,   'ArpOct',     0,   3,   0);
-  AddParam( PATCH_SUSTAIN,     'Sustain',  SUSTAIN_PEDAL, 'Sustain',    0,   1,   0);
-  AddParam( PATCH_SUSTAIN,     'Oct Shft', OCTAVE_SHIFT,  'Oct.Shft',   0,   0,   0);
+  AddParam( PATCH_VOLUME,      'Vol',      VOLUME_LEVEL,  'VolLevel',   0, 127, 100, '');
+  AddParam( PATCH_VOLUME,      'Vol',      VOLUME_MUTE,   'VolMute',    0,   1,   0, 'Off;On');
+  AddParam( PATCH_GLIDE,       'Glide',    GLIDE_TYPE,    'GlideType',  0,   2,   0, 'Auto;Normal;Off');
+  AddParam( PATCH_GLIDE,       'Glide',    GLIDE_SPEED,   'GlideSpeed', 0, 127,   0, '');
+  AddParam( PATCH_BEND,        'Bend',     BEND_ON_OFF,   'BendOnOff',  0,   1,   0, 'Off;On');
+  AddParam( PATCH_BEND,        'Bend',     BEND_RANGE,    'BendRange',  0, 127,   0, '');
+  AddParam( PATCH_VIBRATO,     'Vibrato',  VIBRATO_MOD,   'VibrMod',    0,   2,   0, 'Wheel;AfTouch;Off');
+  AddParam( PATCH_VIBRATO,     'Vibrato',  VIBRATO_DEPTH, 'VibrDepth',  0, 127,   0, '');
+  AddParam( PATCH_VIBRATO,     'Vibrato',  VIBRATO_RATE,  'VibrRate',   0, 127,   0, '');
+  AddParam( PATCH_ARPEGGIATOR, 'Arp',      ARP_ON_OFF,    'ArpOnOff',   0,   1,   0, 'Off;On');
+  AddParam( PATCH_ARPEGGIATOR, 'Arp',      ARP_SPEED,     'ArpSpeed',   0,   3,   0, '1/8;1/8T;1/16;1/16T');
+  AddParam( PATCH_ARPEGGIATOR, 'Arp',      ARP_DIRECTION, 'ArpDir',     0,   3,   0, 'Up;Dn;UpDn;Rnd');
+  AddParam( PATCH_ARPEGGIATOR, 'Arp',      ARP_OCTAVES,   'ArpOct',     0,   3,   0, '1;2;3;4');
+  AddParam( PATCH_SUSTAIN,     'Sustain',  SUSTAIN_PEDAL, 'Sustain',    0,   1,   0, 'Off;On');
+  AddParam( PATCH_SUSTAIN,     'Oct Shft', OCTAVE_SHIFT,  'Oct.Shft',   0,   0,   0, '-2;-1;0;1;2');
 
-  AddParam( PATCH_MORPH,       'Morph',    0,             'Wheel',      0,   127,   0);
-  AddParam( PATCH_MORPH,       'Morph',    1,             'Vel',        0,   127,   0);
-  AddParam( PATCH_MORPH,       'Morph',    2,             'Keyb',       0,   127,   0);
-  AddParam( PATCH_MORPH,       'Morph',    3,             'Aft.Tch',    0,   127,   0);
-  AddParam( PATCH_MORPH,       'Morph',    4,             'Sust.Pd',    0,   127,   0);
-  AddParam( PATCH_MORPH,       'Morph',    5,             'Ctrl.Pd',    0,   127,   0);
-  AddParam( PATCH_MORPH,       'Morph',    6,             'P.Stick',    0,   127,   0);
-  AddParam( PATCH_MORPH,       'Morph',    7,             'G.Wh 2',     0,   127,   0);
+  AddParam( PATCH_MORPH,       'Morph',    0,             'Wheel',      0,   127,   0, '');
+  AddParam( PATCH_MORPH,       'Morph',    1,             'Vel',        0,   127,   0, '');
+  AddParam( PATCH_MORPH,       'Morph',    2,             'Keyb',       0,   127,   0, '');
+  AddParam( PATCH_MORPH,       'Morph',    3,             'Aft.Tch',    0,   127,   0, '');
+  AddParam( PATCH_MORPH,       'Morph',    4,             'Sust.Pd',    0,   127,   0, '');
+  AddParam( PATCH_MORPH,       'Morph',    5,             'Ctrl.Pd',    0,   127,   0, '');
+  AddParam( PATCH_MORPH,       'Morph',    6,             'P.Stick',    0,   127,   0, '');
+  AddParam( PATCH_MORPH,       'Morph',    7,             'G.Wh2',      0,   127,   0, '');
 
-  AddParam( PATCH_MORPH,       'Morph',    8,             'Wheel',      0,   1,   0);
-  AddParam( PATCH_MORPH,       'Morph',    9,             'Vel',        0,   1,   0);
-  AddParam( PATCH_MORPH,       'Morph',    10,            'Keyb',       0,   1,   0);
-  AddParam( PATCH_MORPH,       'Morph',    11,            'Aft.Tch',    0,   1,   0);
-  AddParam( PATCH_MORPH,       'Morph',    12,            'Sust.Pd',    0,   1,   0);
-  AddParam( PATCH_MORPH,       'Morph',    13,            'Ctrl.Pd',    0,   1,   0);
-  AddParam( PATCH_MORPH,       'Morph',    14,            'P.Stick',    0,   1,   0);
-  AddParam( PATCH_MORPH,       'Morph',    15,            'G.Wh 2',     0,   1,   0);
+  AddParam( PATCH_MORPH,       'Morph',    8,             'Wheel',      0,   1,   0, 'Knob;Wheel');
+  AddParam( PATCH_MORPH,       'Morph',    9,             'Vel',        0,   1,   0, 'Knob;Vel');
+  AddParam( PATCH_MORPH,       'Morph',    10,            'Keyb',       0,   1,   0, 'Knob;Keyb');
+  AddParam( PATCH_MORPH,       'Morph',    11,            'Aft.Tch',    0,   1,   0, 'Knob;Aft.Tch');
+  AddParam( PATCH_MORPH,       'Morph',    12,            'Sust.Pd',    0,   1,   0, 'Knob;Sust.Pd');
+  AddParam( PATCH_MORPH,       'Morph',    13,            'Ctrl.Pd',    0,   1,   0, 'Knob;Ctrl.Pd');
+  AddParam( PATCH_MORPH,       'Morph',    14,            'P.Stick',    0,   1,   0, 'Knob;P.Stick');
+  AddParam( PATCH_MORPH,       'Morph',    15,            'G.Wh2',      0,   1,   0, 'Knob;G.Wh2');
 
   // Module params should already be initialized;
   InitKnobs;
@@ -7909,9 +7909,14 @@ begin
 
   ReadXMLFile( FXMLModuleDefs, FModuleDefsFileName);
   FModuleDefList := TXMLModuleDefListType.Create( FXMLModuleDefs.FirstChild);
+  if FModuleDefList.FileVersion <> VERSION then
+    ShowMessage('Warning, ModuleDef.xml version differs from application.');
 
   ReadXMLFile( FXMLParamDefs, FParamDefsFileName);
   FParamDefList := TXMLParamDefListType.Create( FXMLParamDefs.FirstChild);
+
+  if FParamDefList.FileVersion <> VERSION then
+    ShowMessage('Warning, ParamDef.xml version differs from application.');
 end;
 
 function TG2File.TextFunction( No : integer; Param1, Param2, Param3 : byte): string;

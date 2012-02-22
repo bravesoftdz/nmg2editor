@@ -1244,7 +1244,9 @@ begin
                                   patch_name := '';
                                   while MemStream.Read(b, 1) = 1 do begin
                                     case b of
-                                    $01 :;
+                                    $01 : begin
+                                            i := 1;
+                                          end;
                                     $02 : begin
                                             with NextBankListCmd do begin
                                               Cmd   := b;
@@ -1300,6 +1302,8 @@ begin
                                         BankItem.Patch := aPatch;
                                         BankItem.PatchName := patch_name;
                                         BankItem.Category := aCategory;
+                                        if (aMode = 0) and (aBank = 0) and (aPatch = 0) then
+                                          BankList.Clear;
                                         BankList.AddBankItem( BankItem);
 
                                         patch_name := '';
@@ -1317,6 +1321,8 @@ begin
                                           BankItem.Bank := aBank;
                                           BankItem.Patch := aPatch;
                                           BankItem.PatchName := patch_name;
+                                          if (aMode = 0) and (aBank = 0) and (aPatch = 0) then
+                                            BankList.Clear;
                                           BankItem.Category := aCategory;
                                           BankList.AddBankItem( BankItem);
 

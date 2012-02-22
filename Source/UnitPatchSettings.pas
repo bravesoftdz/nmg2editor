@@ -113,9 +113,9 @@ begin
   obArpOctaves.Parameter        := Patch.Parameter[ PATCH_ARPEGGIATOR, ARP_OCTAVES];
   obArpDir.Parameter            := Patch.Parameter[ PATCH_ARPEGGIATOR, ARP_DIRECTION];
   obArpSpeed.Parameter          := Patch.Parameter[ PATCH_ARPEGGIATOR, ARP_SPEED];
-  obVibratoMod.Parameter        := Patch.Parameter[ PATCH_ARPEGGIATOR, ARP_SPEED];
   obGlideType.Parameter         := Patch.Parameter[ PATCH_GLIDE, GLIDE_TYPE];
   kGlideSpeed.Parameter         := Patch.Parameter[ PATCH_GLIDE, GLIDE_SPEED];
+  obVibratoMod.Parameter        := Patch.Parameter[ PATCH_VIBRATO, VIBRATO_MOD];
   kVibratoRate.Parameter        := Patch.Parameter[ PATCH_VIBRATO, VIBRATO_RATE];
   kVibratoDepth.Parameter       := Patch.Parameter[ PATCH_VIBRATO, VIBRATO_DEPTH];
 end;

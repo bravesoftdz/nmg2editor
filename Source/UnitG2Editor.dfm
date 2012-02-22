@@ -1,7 +1,7 @@
 object frmG2Main: TfrmG2Main
   Left = 0
   Top = 0
-  Caption = 'G2 Editor v0.21'
+  Caption = 'NMG2 Editor'
   ClientHeight = 605
   ClientWidth = 1067
   Color = clBtnFace
