@@ -35,6 +35,14 @@ uses UnitG2Editor;
 
 {$R *.dfm}
 
+{$if CompilerVersion <= 18.5}
+function CharInSet(C: AnsiChar; const CharSet: TSysCharSet): Boolean;
+begin
+  Result := C in CharSet;
+end;
+{$ifend}
+
+
 procedure TfrmLog.bClearClick(Sender: TObject);
 begin
   frmG2Main.G2.ClearLog;
