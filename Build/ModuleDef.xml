@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0"?>
 <ModuleDefList xmlns="http://www.yourtargetnamespace.com" version="0.21">
   <ModuleDef>
     <ModuleType>1</ModuleType>
@@ -307,51 +307,65 @@
         <Name>FreqCoarse</Name>
         <DefaultValue>64</DefaultValue>
         <Id>56</Id>
+        <DefaultKnob>0</DefaultKnob>
+        <ButtonParam>4</ButtonParam>
       </Param>
       <Param>
         <Name>FreqFine</Name>
         <DefaultValue>64</DefaultValue>
         <Id>57</Id>
+        <DefaultKnob>1</DefaultKnob>
+        <ButtonParam>2</ButtonParam>
       </Param>
       <Param>
         <Name>KBT</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
+        <ButtonParam>2</ButtonParam>
       </Param>
       <Param>
         <Name>PitchMod</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>2</DefaultKnob>
       </Param>
       <Param>
         <Name>FreqMode</Name>
         <DefaultValue>0</DefaultValue>
         <Id>59</Id>
+        <ButtonParam>4</ButtonParam>
       </Param>
       <Param>
         <Name>FmAmount</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>3</DefaultKnob>
+        <ButtonParam>9</ButtonParam>
       </Param>
       <Param>
         <Name>Shape</Name>
         <DefaultValue>0</DefaultValue>
         <Id>141</Id>
+        <DefaultKnob>4</DefaultKnob>
       </Param>
       <Param>
         <Name>ShapeMod</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>5</DefaultKnob>
       </Param>
       <Param>
         <Name>Active</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
+        <DefaultKnob>6</DefaultKnob>
+        <ButtonParam>8</ButtonParam>
       </Param>
       <Param>
         <Name>FmMode</Name>
         <DefaultValue>0</DefaultValue>
         <Id>52</Id>
+        <ButtonParam>9</ButtonParam>
       </Param>
     </Params>
     <Modes>
@@ -400,41 +414,53 @@
         <Name>FreqCoarse</Name>
         <DefaultValue>64</DefaultValue>
         <Id>56</Id>
+        <DefaultKnob>0</DefaultKnob>
+        <ButtonParam>3</ButtonParam>
       </Param>
       <Param>
         <Name>FreqFine</Name>
         <DefaultValue>64</DefaultValue>
         <Id>57</Id>
+        <DefaultKnob>1</DefaultKnob>
+        <ButtonParam>2</ButtonParam>
       </Param>
       <Param>
         <Name>KBT</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
+        <ButtonParam>2</ButtonParam>
       </Param>
       <Param>
         <Name>FreqMode</Name>
         <DefaultValue>0</DefaultValue>
         <Id>59</Id>
+        <ButtonParam>3</ButtonParam>
       </Param>
       <Param>
         <Name>FmAmount</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>3</DefaultKnob>
+        <ButtonParam>6</ButtonParam>
       </Param>
       <Param>
         <Name>Active</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
+        <DefaultKnob>4</DefaultKnob>
+        <ButtonParam>5</ButtonParam>
       </Param>
       <Param>
         <Name>FmMode</Name>
         <DefaultValue>0</DefaultValue>
         <Id>52</Id>
+        <ButtonParam>6</ButtonParam>
       </Param>
       <Param>
         <Name>PitchMod</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>2</DefaultKnob>
       </Param>
     </Params>
     <Modes>
@@ -538,41 +564,52 @@
         <Name>FreqCoarse</Name>
         <DefaultValue>64</DefaultValue>
         <Id>56</Id>
+        <DefaultKnob>0</DefaultKnob>
+        <ButtonParam>4</ButtonParam>
       </Param>
       <Param>
         <Name>FreqFine</Name>
         <DefaultValue>64</DefaultValue>
         <Id>57</Id>
+        <DefaultKnob>1</DefaultKnob>
+        <ButtonParam>2</ButtonParam>
       </Param>
       <Param>
         <Name>KBT</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
+        <ButtonParam>2</ButtonParam>
       </Param>
       <Param>
         <Name>PitchMod</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>2</DefaultKnob>
       </Param>
       <Param>
         <Name>FreqMode</Name>
         <DefaultValue>0</DefaultValue>
         <Id>59</Id>
+        <ButtonParam>4</ButtonParam>
       </Param>
       <Param>
         <Name>Decay</Name>
         <DefaultValue>80</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>3</DefaultKnob>
       </Param>
       <Param>
         <Name>Moisture</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>4</DefaultKnob>
       </Param>
       <Param>
         <Name>Active</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
+        <DefaultKnob>5</DefaultKnob>
+        <ButtonParam>7</ButtonParam>
       </Param>
     </Params>
   </ModuleDef>
@@ -1309,26 +1346,33 @@
         <Name>FreqCoarse</Name>
         <DefaultValue>64</DefaultValue>
         <Id>56</Id>
+        <DefaultKnob>0</DefaultKnob>
+        <ButtonParam>3</ButtonParam>
       </Param>
       <Param>
         <Name>FreqFine</Name>
         <DefaultValue>64</DefaultValue>
         <Id>57</Id>
+        <DefaultKnob>1</DefaultKnob>
+        <ButtonParam>2</ButtonParam>
       </Param>
       <Param>
         <Name>KBT</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
+        <ButtonParam>2</ButtonParam>
       </Param>
       <Param>
         <Name>FreqMode</Name>
         <DefaultValue>0</DefaultValue>
         <Id>58</Id>
+        <ButtonParam>3</ButtonParam>
       </Param>
       <Param>
         <Name>PitchMod</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>2</DefaultKnob>
       </Param>
     </Params>
   </ModuleDef>
@@ -1410,26 +1454,32 @@
         <Name>Color</Name>
         <DefaultValue>64</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>1</DefaultKnob>
       </Param>
       <Param>
         <Name>Freq</Name>
         <DefaultValue>64</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>0</DefaultKnob>
       </Param>
       <Param>
         <Name>Active</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
+        <DefaultKnob>2</DefaultKnob>
+        <ButtonParam>2</ButtonParam>
       </Param>
       <Param>
         <Name>FreqMod</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>3</DefaultKnob>
       </Param>
       <Param>
         <Name>ColorMod</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>4</DefaultKnob>
       </Param>
     </Params>
   </ModuleDef>
@@ -1493,11 +1543,14 @@
         <Name>Color</Name>
         <DefaultValue>0</DefaultValue>
         <Id>100</Id>
+        <DefaultKnob>0</DefaultKnob>
       </Param>
       <Param>
         <Name>Active</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
+        <DefaultKnob>1</DefaultKnob>
+        <ButtonParam>1</ButtonParam>
       </Param>
     </Params>
   </ModuleDef>
@@ -2819,81 +2872,99 @@
         <Name>Masterfreq</Name>
         <DefaultValue>42</DefaultValue>
         <Id>23</Id>
+        <DefaultKnob>0</DefaultKnob>
       </Param>
       <Param>
         <Name>SlaveRatio</Name>
         <DefaultValue>15</DefaultValue>
         <Id>25</Id>
+        <DefaultKnob>3</DefaultKnob>
       </Param>
       <Param>
         <Name>MasterDecay</Name>
         <DefaultValue>46</DefaultValue>
         <Id>35</Id>
+        <DefaultKnob>1</DefaultKnob>
       </Param>
       <Param>
         <Name>SlaveDecay</Name>
         <DefaultValue>50</DefaultValue>
         <Id>35</Id>
+        <DefaultKnob>4</DefaultKnob>
       </Param>
       <Param>
         <Name>MasterLevel</Name>
         <DefaultValue>120</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>2</DefaultKnob>
       </Param>
       <Param>
         <Name>SlaveLevel</Name>
         <DefaultValue>102</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>5</DefaultKnob>
       </Param>
       <Param>
         <Name>NoiseFltFreq</Name>
         <DefaultValue>57</DefaultValue>
         <Id>24</Id>
+        <DefaultKnob>6</DefaultKnob>
       </Param>
       <Param>
         <Name>NoiseFltRes</Name>
         <DefaultValue>32</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>7</DefaultKnob>
       </Param>
       <Param>
         <Name>NoiseFltSweep</Name>
         <DefaultValue>39</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>8</DefaultKnob>
       </Param>
       <Param>
         <Name>NoiseFltDecay</Name>
         <DefaultValue>49</DefaultValue>
         <Id>35</Id>
+        <DefaultKnob>9</DefaultKnob>
       </Param>
       <Param>
         <Name>NoiseFltMode</Name>
         <DefaultValue>1</DefaultValue>
         <Id>90</Id>
+        <DefaultKnob>10</DefaultKnob>
+        <ButtonParam>10</ButtonParam>
       </Param>
       <Param>
         <Name>BendAmount</Name>
         <DefaultValue>68</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>11</DefaultKnob>
       </Param>
       <Param>
         <Name>BendDecay</Name>
         <DefaultValue>61</DefaultValue>
         <Id>35</Id>
+        <DefaultKnob>12</DefaultKnob>
       </Param>
       <Param>
         <Name>Click</Name>
         <DefaultValue>79</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>13</DefaultKnob>
       </Param>
       <Param>
         <Name>Noise</Name>
         <DefaultValue>115</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>14</DefaultKnob>
       </Param>
       <Param>
         <Name>Active</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
+        <DefaultKnob>15</DefaultKnob>
+        <ButtonParam>15</ButtonParam>
       </Param>
     </Params>
   </ModuleDef>
@@ -4255,26 +4326,34 @@
         <Name>FreqCoarse</Name>
         <DefaultValue>64</DefaultValue>
         <Id>56</Id>
+        <DefaultKnob>0</DefaultKnob>
+        <ButtonParam>3</ButtonParam>
       </Param>
       <Param>
         <Name>FreqFine</Name>
         <DefaultValue>64</DefaultValue>
         <Id>57</Id>
+        <DefaultKnob>1</DefaultKnob>
+        <ButtonParam>2</ButtonParam>
       </Param>
       <Param>
         <Name>KBT</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
+        <ButtonParam>2</ButtonParam>
       </Param>
       <Param>
         <Name>FreqMode</Name>
         <DefaultValue>0</DefaultValue>
         <Id>59</Id>
+        <ButtonParam>3</ButtonParam>
       </Param>
       <Param>
         <Name>Active</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
+        <DefaultKnob>2</DefaultKnob>
+        <ButtonParam>4</ButtonParam>
       </Param>
     </Params>
     <Modes>
@@ -4315,31 +4394,41 @@
         <Name>FreqCoarse</Name>
         <DefaultValue>64</DefaultValue>
         <Id>56</Id>
+        <DefaultKnob>0</DefaultKnob>
+        <ButtonParam>6</ButtonParam>
       </Param>
       <Param>
         <Name>FreqFine</Name>
         <DefaultValue>64</DefaultValue>
         <Id>57</Id>
+        <DefaultKnob>1</DefaultKnob>
+        <ButtonParam>2</ButtonParam>
       </Param>
       <Param>
         <Name>KBT</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
+        <ButtonParam>2</ButtonParam>
       </Param>
       <Param>
         <Name>PitchMod</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>2</DefaultKnob>
       </Param>
       <Param>
         <Name>WaveForm</Name>
         <DefaultValue>2</DefaultValue>
         <Id>118</Id>
+        <DefaultKnob>3</DefaultKnob>
+        <ButtonParam>4</ButtonParam>
       </Param>
       <Param>
         <Name>Active</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
+        <DefaultKnob>4</DefaultKnob>
+        <ButtonParam>5</ButtonParam>
       </Param>
       <Param>
         <Name>FreqMode</Name>
@@ -4652,41 +4741,52 @@
         <Name>FreqCoarse</Name>
         <DefaultValue>64</DefaultValue>
         <Id>56</Id>
+        <DefaultKnob>0</DefaultKnob>
+        <ButtonParam>4</ButtonParam>
       </Param>
       <Param>
         <Name>FreqFine</Name>
         <DefaultValue>64</DefaultValue>
         <Id>57</Id>
+        <DefaultKnob>1</DefaultKnob>
+        <ButtonParam>2</ButtonParam>
       </Param>
       <Param>
         <Name>KBT</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
+        <ButtonParam>2</ButtonParam>
       </Param>
       <Param>
         <Name>PitchMod</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>2</DefaultKnob>
       </Param>
       <Param>
         <Name>FreqMode</Name>
         <DefaultValue>0</DefaultValue>
         <Id>59</Id>
+        <ButtonParam>4</ButtonParam>
       </Param>
       <Param>
         <Name>Width</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>3</DefaultKnob>
       </Param>
       <Param>
         <Name>WidthMod</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>4</DefaultKnob>
       </Param>
       <Param>
         <Name>Active</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
+        <DefaultKnob>5</DefaultKnob>
+        <ButtonParam>7</ButtonParam>
       </Param>
     </Params>
   </ModuleDef>
@@ -7439,6 +7539,7 @@
         <Name>Note</Name>
         <DefaultValue>64</DefaultValue>
         <Id>56</Id>
+        <DefaultKnob>0</DefaultKnob>
       </Param>
     </Params>
   </ModuleDef>
@@ -7839,56 +7940,72 @@
         <Name>FreqCoarse</Name>
         <DefaultValue>64</DefaultValue>
         <Id>56</Id>
+        <DefaultKnob>0</DefaultKnob>
+        <ButtonParam>4</ButtonParam>
       </Param>
       <Param>
         <Name>FreqFine</Name>
         <DefaultValue>64</DefaultValue>
         <Id>57</Id>
+        <DefaultKnob>1</DefaultKnob>
+        <ButtonParam>2</ButtonParam>
       </Param>
       <Param>
         <Name>KBT</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
+        <ButtonParam>2</ButtonParam>
       </Param>
       <Param>
         <Name>PitchMod</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>2</DefaultKnob>
       </Param>
       <Param>
         <Name>FreqMode</Name>
         <DefaultValue>0</DefaultValue>
         <Id>59</Id>
+        <ButtonParam>4</ButtonParam>
       </Param>
       <Param>
         <Name>FmAmount</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>6</DefaultKnob>
+        <ButtonParam>6</ButtonParam>
       </Param>
       <Param>
         <Name>FmMode</Name>
         <DefaultValue>0</DefaultValue>
         <Id>52</Id>
+        <ButtonParam>6</ButtonParam>
       </Param>
       <Param>
         <Name>Shape</Name>
         <DefaultValue>0</DefaultValue>
         <Id>141</Id>
+        <DefaultKnob>4</DefaultKnob>
       </Param>
       <Param>
         <Name>ShapeMod</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>5</DefaultKnob>
       </Param>
       <Param>
         <Name>WaveForm</Name>
         <DefaultValue>0</DefaultValue>
         <Id>120</Id>
+        <DefaultKnob>3</DefaultKnob>
+        <ButtonParam>9</ButtonParam>
       </Param>
       <Param>
         <Name>Active</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
+        <DefaultKnob>7</DefaultKnob>
+        <ButtonParam>10</ButtonParam>
       </Param>
     </Params>
   </ModuleDef>
@@ -7934,71 +8051,89 @@
         <Name>FreqCoarse</Name>
         <DefaultValue>64</DefaultValue>
         <Id>56</Id>
+        <DefaultKnob>0</DefaultKnob>
+        <ButtonParam>4</ButtonParam>
       </Param>
       <Param>
         <Name>FreqFine</Name>
         <DefaultValue>64</DefaultValue>
         <Id>57</Id>
+        <DefaultKnob>1</DefaultKnob>
+        <ButtonParam>2</ButtonParam>
       </Param>
       <Param>
         <Name>KBT</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
+        <ButtonParam>2</ButtonParam>
       </Param>
       <Param>
         <Name>PitchMod</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>2</DefaultKnob>
       </Param>
       <Param>
         <Name>FreqMode</Name>
         <DefaultValue>0</DefaultValue>
         <Id>59</Id>
+        <ButtonParam>4</ButtonParam>
       </Param>
       <Param>
         <Name>SqrLevel</Name>
         <DefaultValue>127</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>3</DefaultKnob>
       </Param>
       <Param>
         <Name>PWMod</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>5</DefaultKnob>
       </Param>
       <Param>
         <Name>SawLevel</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>6</DefaultKnob>
       </Param>
       <Param>
         <Name>SawPhase</Name>
         <DefaultValue>0</DefaultValue>
         <Id>131</Id>
+        <DefaultKnob>7</DefaultKnob>
       </Param>
       <Param>
         <Name>SubOctLevel</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>9</DefaultKnob>
+        <ButtonParam>13</ButtonParam>
       </Param>
       <Param>
         <Name>Active</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
+        <DefaultKnob>10</DefaultKnob>
+        <ButtonParam>10</ButtonParam>
       </Param>
       <Param>
         <Name>SqrPW</Name>
         <DefaultValue>0</DefaultValue>
         <Id>141</Id>
+        <DefaultKnob>4</DefaultKnob>
       </Param>
       <Param>
         <Name>PhaseMod</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>8</DefaultKnob>
       </Param>
       <Param>
         <Name>Soft</Name>
         <DefaultValue>0</DefaultValue>
         <Id>106</Id>
+        <ButtonParam>13</ButtonParam>
       </Param>
     </Params>
   </ModuleDef>
@@ -9152,36 +9287,46 @@
         <Name>FreqCoarse</Name>
         <DefaultValue>64</DefaultValue>
         <Id>56</Id>
+        <DefaultKnob>0</DefaultKnob>
+        <ButtonParam>3</ButtonParam>
       </Param>
       <Param>
         <Name>FreqFine</Name>
         <DefaultValue>64</DefaultValue>
         <Id>57</Id>
+        <DefaultKnob>1</DefaultKnob>
+        <ButtonParam>2</ButtonParam>
       </Param>
       <Param>
         <Name>KBT</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
+        <ButtonParam>2</ButtonParam>
       </Param>
       <Param>
         <Name>FreqMode</Name>
         <DefaultValue>0</DefaultValue>
         <Id>59</Id>
+        <ButtonParam>3</ButtonParam>
       </Param>
       <Param>
         <Name>PhaseMod</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>3</DefaultKnob>
       </Param>
       <Param>
         <Name>Active</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
+        <DefaultKnob>4</DefaultKnob>
+        <ButtonParam>5</ButtonParam>
       </Param>
       <Param>
         <Name>FreqMod</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>2</DefaultKnob>
       </Param>
     </Params>
     <Modes>
@@ -9759,46 +9904,59 @@
         <Name>FreqCoarse</Name>
         <DefaultValue>64</DefaultValue>
         <Id>56</Id>
+        <DefaultKnob>0</DefaultKnob>
+        <ButtonParam>2</ButtonParam>
       </Param>
       <Param>
         <Name>FreqFine</Name>
         <DefaultValue>64</DefaultValue>
         <Id>57</Id>
+        <DefaultKnob>1</DefaultKnob>
+        <ButtonParam>3</ButtonParam>
       </Param>
       <Param>
         <Name>FreqMode</Name>
         <DefaultValue>0</DefaultValue>
         <Id>59</Id>
+        <ButtonParam>2</ButtonParam>
       </Param>
       <Param>
         <Name>KBT</Name>
         <DefaultValue>0</DefaultValue>
         <Id>106</Id>
+        <ButtonParam>3</ButtonParam>
       </Param>
       <Param>
         <Name>PitchMod</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>2</DefaultKnob>
       </Param>
       <Param>
         <Name>Decay</Name>
         <DefaultValue>64</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>3</DefaultKnob>
       </Param>
       <Param>
         <Name>Click</Name>
         <DefaultValue>64</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>4</DefaultKnob>
       </Param>
       <Param>
         <Name>Punch</Name>
         <DefaultValue>0</DefaultValue>
         <Id>106</Id>
+        <DefaultKnob>5</DefaultKnob>
+        <ButtonParam>7</ButtonParam>
       </Param>
       <Param>
         <Name>Active</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
+        <DefaultKnob>6</DefaultKnob>
+        <ButtonParam>8</ButtonParam>
       </Param>
     </Params>
   </ModuleDef>
@@ -9891,6 +10049,8 @@
         <Name>Mode</Name>
         <DefaultValue>0</DefaultValue>
         <Id>99</Id>
+        <DefaultKnob>0</DefaultKnob>
+        <ButtonParam>0</ButtonParam>
       </Param>
     </Params>
   </ModuleDef>
@@ -9920,16 +10080,22 @@
         <Name>Rate</Name>
         <DefaultValue>64</DefaultValue>
         <Id>79</Id>
+        <DefaultKnob>0</DefaultKnob>
+        <ButtonParam>3</ButtonParam>
       </Param>
       <Param>
         <Name>PolyMono</Name>
         <DefaultValue>0</DefaultValue>
         <Id>134</Id>
+        <DefaultKnob>1</DefaultKnob>
+        <ButtonParam>1</ButtonParam>
       </Param>
       <Param>
         <Name>OutputType</Name>
         <DefaultValue>0</DefaultValue>
         <Id>3</Id>
+        <DefaultKnob>3</DefaultKnob>
+        <ButtonParam>2</ButtonParam>
       </Param>
       <Param>
         <Name>Range</Name>
@@ -9940,16 +10106,22 @@
         <Name>Active</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
+        <DefaultKnob>4</DefaultKnob>
+        <ButtonParam>4</ButtonParam>
       </Param>
       <Param>
         <Name>Edge</Name>
         <DefaultValue>4</DefaultValue>
         <Id>152</Id>
+        <DefaultKnob>2</DefaultKnob>
+        <ButtonParam>5</ButtonParam>
       </Param>
       <Param>
         <Name>StepProb</Name>
         <DefaultValue>3</DefaultValue>
         <Id>142</Id>
+        <DefaultKnob>5</DefaultKnob>
+        <ButtonParam>6</ButtonParam>
       </Param>
     </Params>
   </ModuleDef>
@@ -9983,36 +10155,48 @@
         <Name>Rate</Name>
         <DefaultValue>64</DefaultValue>
         <Id>79</Id>
+        <DefaultKnob>0</DefaultKnob>
+        <ButtonParam>7</ButtonParam>
       </Param>
       <Param>
         <Name>PolyMono</Name>
         <DefaultValue>0</DefaultValue>
         <Id>134</Id>
+        <DefaultKnob>4</DefaultKnob>
+        <ButtonParam>1</ButtonParam>
       </Param>
       <Param>
         <Name>KBT</Name>
         <DefaultValue>0</DefaultValue>
         <Id>67</Id>
+        <DefaultKnob>3</DefaultKnob>
+        <ButtonParam>2</ButtonParam>
       </Param>
       <Param>
         <Name>RateMod</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>1</DefaultKnob>
       </Param>
       <Param>
         <Name>StepProb</Name>
         <DefaultValue>127</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>2</DefaultKnob>
       </Param>
       <Param>
         <Name>Active</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
+        <DefaultKnob>6</DefaultKnob>
+        <ButtonParam>5</ButtonParam>
       </Param>
       <Param>
         <Name>OutputType</Name>
         <DefaultValue>0</DefaultValue>
         <Id>3</Id>
+        <DefaultKnob>5</DefaultKnob>
+        <ButtonParam>6</ButtonParam>
       </Param>
       <Param>
         <Name>Range</Name>
@@ -10023,6 +10207,8 @@
         <Name>Edge</Name>
         <DefaultValue>4</DefaultValue>
         <Id>152</Id>
+        <DefaultKnob>7</DefaultKnob>
+        <ButtonParam>8</ButtonParam>
       </Param>
     </Params>
   </ModuleDef>
@@ -10060,27 +10246,36 @@
         <Name>StepProb</Name>
         <DefaultValue>127</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>0</DefaultKnob>
       </Param>
       <Param>
         <Name>PolyMono</Name>
         <DefaultValue>0</DefaultValue>
         <Id>134</Id>
+        <DefaultKnob>1</DefaultKnob>
+        <ButtonParam>1</ButtonParam>
       </Param>
       <Param>
         <Name>Dice</Name>
         <DefaultValue>0</DefaultValue>
         <Id>106</Id>
         <ParamLabel>Dice</ParamLabel>
+        <DefaultKnob>2</DefaultKnob>
+        <ButtonParam>2</ButtonParam>
       </Param>
       <Param>
         <Name>OutputType</Name>
         <DefaultValue>0</DefaultValue>
         <Id>3</Id>
+        <DefaultKnob>3</DefaultKnob>
+        <ButtonParam>3</ButtonParam>
       </Param>
       <Param>
         <Name>Active</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
+        <DefaultKnob>4</DefaultKnob>
+        <ButtonParam>4</ButtonParam>
       </Param>
     </Params>
   </ModuleDef>
@@ -10122,21 +10317,27 @@
         <Name>StepProb</Name>
         <DefaultValue>64</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>0</DefaultKnob>
       </Param>
       <Param>
         <Name>StepProbMod</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>1</DefaultKnob>
       </Param>
       <Param>
         <Name>Active</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
+        <DefaultKnob>2</DefaultKnob>
+        <ButtonParam>2</ButtonParam>
       </Param>
       <Param>
         <Name>PolyMono</Name>
         <DefaultValue>0</DefaultValue>
         <Id>134</Id>
+        <DefaultKnob>3</DefaultKnob>
+        <ButtonParam>3</ButtonParam>
       </Param>
     </Params>
   </ModuleDef>
@@ -10178,26 +10379,34 @@
         <Name>StepProb</Name>
         <DefaultValue>127</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>0</DefaultKnob>
       </Param>
       <Param>
         <Name>OutputType</Name>
         <DefaultValue>0</DefaultValue>
         <Id>3</Id>
+        <DefaultKnob>1</DefaultKnob>
+        <ButtonParam>1</ButtonParam>
       </Param>
       <Param>
         <Name>Active</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
+        <DefaultKnob>2</DefaultKnob>
+        <ButtonParam>2</ButtonParam>
       </Param>
       <Param>
         <Name>PolyMono</Name>
         <DefaultValue>0</DefaultValue>
         <Id>134</Id>
+        <DefaultKnob>3</DefaultKnob>
+        <ButtonParam>3</ButtonParam>
       </Param>
       <Param>
         <Name>StepProbMod</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>4</DefaultKnob>
       </Param>
     </Params>
     <Modes>
@@ -10250,36 +10459,45 @@
         <Name>PatternA</Name>
         <DefaultValue>64</DefaultValue>
         <Id>145</Id>
+        <DefaultKnob>0</DefaultKnob>
       </Param>
       <Param>
         <Name>PatternB</Name>
         <DefaultValue>64</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>1</DefaultKnob>
       </Param>
       <Param>
         <Name>StepProb</Name>
         <DefaultValue>127</DefaultValue>
         <Id>145</Id>
+        <DefaultKnob>3</DefaultKnob>
       </Param>
       <Param>
         <Name>LoopCount</Name>
         <DefaultValue>15</DefaultValue>
         <Id>143</Id>
+        <DefaultKnob>2</DefaultKnob>
       </Param>
       <Param>
         <Name>StepProbMod</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>4</DefaultKnob>
       </Param>
       <Param>
         <Name>OutputType</Name>
         <DefaultValue>0</DefaultValue>
         <Id>3</Id>
+        <DefaultKnob>5</DefaultKnob>
+        <ButtonParam>5</ButtonParam>
       </Param>
       <Param>
         <Name>Active</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
+        <DefaultKnob>6</DefaultKnob>
+        <ButtonParam>6</ButtonParam>
       </Param>
     </Params>
     <Modes>

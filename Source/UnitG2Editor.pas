@@ -1556,7 +1556,8 @@ var Module : TG2GraphModule;
 begin
   Module := TG2GraphModule(puModuleMenu.Tag);
 
-  G2.SelectedPatch.MessModuleAssignGlobalKnobs( Module, (Sender as TMenuItem).Tag);
+  if Module.AssignableKnobCount > 0 then
+    G2.SelectedPatch.MessModuleAssignGlobalKnobs( Module, (Sender as TMenuItem).Tag);
 end;
 
 procedure TfrmG2Main.ModuleAssignKnobs(Sender: TObject);
@@ -1564,7 +1565,8 @@ var Module : TG2GraphModule;
 begin
   Module := TG2GraphModule(puModuleMenu.Tag);
 
-  G2.SelectedPatch.MessModuleAssignKnobs( Module, (Sender as TMenuItem).Tag);
+  if Module.AssignableKnobCount > 0 then
+    G2.SelectedPatch.MessModuleAssignKnobs( Module, (Sender as TMenuItem).Tag);
 end;
 
 procedure TfrmG2Main.ModuleClick(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X,  Y: Integer; Module: TG2FileModule);

@@ -77,6 +77,7 @@ end;
 procedure TfrmModuleDef.Button1Click(Sender: TObject);
 begin
   UpdateModuleDef;
+  frmG2Main.G2.LoadModuleDefs('');
 end;
 
 procedure TfrmModuleDef.FormCreate(Sender: TObject);
@@ -212,7 +213,7 @@ begin
     end;
   end;
 
-  new_filename := 'ModuleDef_new.xml';
+  new_filename := 'ModuleDef.xml';
   WriteXMLFile( G2_module_def.FXMLModuleDefs, new_filename);
 end;
 

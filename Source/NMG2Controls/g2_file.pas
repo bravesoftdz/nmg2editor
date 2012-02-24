@@ -7907,10 +7907,16 @@ begin
   if not(FileExists( FParamDefsFileName)) then
     raise Exception.Create('Parameter definitions xml file not found : ' + FParamDefsFileName);
 
+  if assigned(FXMLModuleDefs) then
+    FXMLModuleDefs.Free;
+
   ReadXMLFile( FXMLModuleDefs, FModuleDefsFileName);
   FModuleDefList := TXMLModuleDefListType.Create( FXMLModuleDefs.FirstChild);
   if FModuleDefList.FileVersion <> VERSION then
     ShowMessage('Warning, ModuleDef.xml version differs from application.');
+
+  if assigned(FXMLParamDefs) then
+    FXMLParamDefs.Free;
 
   ReadXMLFile( FXMLParamDefs, FParamDefsFileName);
   FParamDefList := TXMLParamDefListType.Create( FXMLParamDefs.FirstChild);

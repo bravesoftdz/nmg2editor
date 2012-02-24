@@ -42,8 +42,6 @@ object frmModuleDef: TfrmModuleDef
     Align = alClient
     Caption = 'Panel3'
     TabOrder = 1
-    ExplicitLeft = 8
-    ExplicitWidth = 582
     object Panel1: TPanel
       Left = 1
       Top = 1
@@ -51,9 +49,6 @@ object frmModuleDef: TfrmModuleDef
       Height = 41
       Align = alTop
       TabOrder = 0
-      ExplicitLeft = 17
-      ExplicitTop = 0
-      ExplicitWidth = 580
       object Label1: TLabel
         Left = 23
         Top = 14
@@ -80,10 +75,6 @@ object frmModuleDef: TfrmModuleDef
       DefaultRowHeight = 16
       Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goColSizing, goEditing]
       TabOrder = 1
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 590
-      ExplicitHeight = 192
     end
     object Panel2: TPanel
       Left = 1
@@ -92,9 +83,6 @@ object frmModuleDef: TfrmModuleDef
       Height = 33
       Align = alBottom
       TabOrder = 2
-      ExplicitLeft = 0
-      ExplicitTop = 315
-      ExplicitWidth = 590
       DesignSize = (
         519
         33)
@@ -107,7 +95,6 @@ object frmModuleDef: TfrmModuleDef
         Caption = 'Update'
         TabOrder = 0
         OnClick = Button1Click
-        ExplicitLeft = 499
       end
       object Button2: TButton
         Left = 272
@@ -491,8 +478,6 @@ object frmModuleDef: TfrmModuleDef
         80808080808080808080808080808080808080804E4E4E000000}
       BackgroundColor = clWindow
       RackColor = clGray
-      ExplicitTop = 48
-      ExplicitWidth = 580
     end
   end
   object G2_module_def: TG2
