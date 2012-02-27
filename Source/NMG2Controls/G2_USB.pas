@@ -122,6 +122,7 @@ type
     // Critical section to ensure a single access on the connection at a time
     FClientContextCriticalSection: TCriticalSection;
     FClient: TClient;
+    FInitialized : boolean;
   public
     constructor Create(AConnection: TIdTCPConnection; AYarn: TIdYarn; AList: TThreadList = nil); override;
     destructor Destroy; override;
@@ -132,6 +133,7 @@ type
     procedure ServerSendClientResponseMessage( MemStream : TMemoryStream);
   public
     property Client: TClient read FClient write FClient;
+    property Initialized : boolean read FInitialized write FInitialized;
   end;
 
   TG2USB = class;
@@ -1250,10 +1252,13 @@ begin
 end;
 
 procedure TG2USB.USBProcessResponseMessage( ResponseMessage : TG2ResponseMessage);
+var Size : byte;
 begin
-  if ResponseMessage.IsEmbedded then
-    ResponseMessage.Position := 1 // Skip first byte if embedded
-  else
+  if ResponseMessage.IsEmbedded then begin
+    ResponseMessage.Position := 1; // Skip first byte if embedded
+    Size := PStaticByteBuffer(ResponseMessage.Memory)^[0] shr 4;
+    ResponseMessage.Size := Size;
+  end else
     ResponseMessage.Position := 0;
 
   if not ProcessResponseMessage( ResponseMessage, 0) then
@@ -1459,8 +1464,9 @@ begin
   try
     for i := 0 to LClients.Count -1 do begin
       LClientContext := TClientContext(LClients[i]);
-      // Don't send led data to vst's
-      if not( ResponseMessage.IsLedData and (LClientContext.Client.ClientType = ctVST)) then begin
+      // Don't send led data to vst's or client editors that are not initialized yet.
+      if not( ResponseMessage.IsLedData and
+              ((LClientContext.Client.ClientType = ctVST) or (not LClientContext.Initialized))) then begin
 
         LClientContext.Lock;
         try
@@ -1996,7 +2002,7 @@ begin
   // If it's a message the server can answer, then send the responsemessage here
   // only to the client that asked for it, else send it through to the G2.
 
-  ResponseMessage := CreateResponseMessage( ClientMessage.FMessage);
+  ResponseMessage := CreateResponseMessage( ClientMessage.FMessage, ClientMessage.FClientContext.FInitialized);
 
   if ResponseMessage <> nil then begin
 

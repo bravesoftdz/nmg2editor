@@ -63,10 +63,10 @@ type
       procedure   SysExSendPatch( aSlot : byte);
       procedure   SysExSendPerformance;
       procedure   SysExAllControllersRequest;
-      procedure   SysExPatchRequestByFileIndex( Bank, Patch: byte);
-      procedure   SysExPatchRequestBySlot( Slot: byte);
-      procedure   SysExPerformanceRequestByFileIndex( Bank, Perf: byte);
+      procedure   SysExPatchRequestBySlot( aSlot : byte);
       procedure   SysExPerformanceRequest;
+      procedure   SysExPatchRequestByFileIndex( aBank, aPatch: byte);
+      procedure   SysExPerformanceRequestByFileIndex( aBank, aPerf: byte);
     published
       property    MidiEnabled : boolean read FMidiEnabled write SetMidiEnabled;
       property    MidiInput : TMidiInput read FMidiInput;
@@ -106,17 +106,17 @@ begin
   SysEx[5] := $04;
   SysEx[6] := $F7;
 
-  // TODO SendMidiLong(@SysEx[0], 7);
+  SendMidiLong(@SysEx[0], 7);
 end;
 
-procedure TG2Midi.SysExPatchRequestByFileIndex(Bank, Patch: byte);
+procedure TG2Midi.SysExPatchRequestByFileIndex( aBank, aPatch: byte);
 var
   SysEx : packed array of byte;
 begin
-  if (Bank < 1) or (Bank > 32) then
+  if (aBank < 1) or (aBank > 32) then
     raise Exception.Create('Bank must be in the range 1-32.');
 
-  if (Patch < 1) or (Bank > 128) then
+  if (aPatch < 1) or (aBank > 128) then
     raise Exception.Create('Patch must be in the range 1-128.');
 
   SetLength(SysEx, 10);
@@ -125,19 +125,19 @@ begin
   SysEx[2] := $7F;
   SysEx[3] := $0A;
   SysEx[4] := $31;
-  SysEx[5] := Bank;
-  SysEx[6] := Patch;
+  SysEx[5] := aBank;
+  SysEx[6] := aPatch;
   SysEx[7] := $F7;
 
-  // TODO SendMidiLong(@SysEx[0], 8);
+  SendMidiLong(@SysEx[0], 8);
 end;
 
-procedure TG2Midi.SysExPatchRequestBySlot(Slot: byte);
+procedure TG2Midi.SysExPatchRequestBySlot( aSlot: byte);
 var
   SysEx : packed array of byte;
 begin
-  if (Slot<1) or (Slot>4) then
-    raise Exception.Create('Slot must be in the range 1-4.');
+  if (aSlot<0) or (aSlot>3) then
+    raise Exception.Create('Slot must be in the range 0-3.');
 
   SetLength(SysEx, 10);
   SysEx[0] := $F0;
@@ -145,21 +145,21 @@ begin
   SysEx[2] := $7F;
   SysEx[3] := $0A;
   SysEx[4] := $30;
-  SysEx[5] := Slot - 1;
+  SysEx[5] := aSlot;
   SysEx[6] := $00;
   SysEx[7] := $F7;
 
-  // TODO SendMidiLong(@SysEx[0], 8);
+  SendMidiLong(@SysEx[0], 8);
 end;
 
-procedure TG2Midi.SysExPerformanceRequestByFileIndex(Bank, Perf: byte);
+procedure TG2Midi.SysExPerformanceRequestByFileIndex( aBank, aPerf : byte);
 var
   SysEx : packed array of byte;
 begin
-  if (Bank < 1) or (Bank > 8) then
+  if (aBank < 1) or (aBank > 8) then
     raise Exception.Create('Bank must be in the range 1-8.');
 
-  if (Perf < 1) or (Perf > 128) then
+  if (aPerf < 1) or (aPerf > 128) then
     raise Exception.Create('Perf must be in the range 1-128.');
 
   SetLength(SysEx, 10);
@@ -168,11 +168,11 @@ begin
   SysEx[2] := $7F;
   SysEx[3] := $0A;
   SysEx[4] := $39;
-  SysEx[5] := Bank;
-  SysEx[6] := Perf;
+  SysEx[5] := aBank;
+  SysEx[6] := aPerf;
   SysEx[7] := $F7;
 
-  // TODO SendMidiLong(@SysEx[0], 8);
+  SendMidiLong(@SysEx[0], 8);
 end;
 
 procedure TG2Midi.SysExPerformanceRequest;
@@ -190,7 +190,7 @@ begin
   SysEx[6] := $00;
   SysEx[7] := $F7;
 
-  // TODO SendMidiLong(@SysEx[0], 8);
+  SendMidiLong(@SysEx[0], 8);
 end;
 
 procedure TG2Midi.SendMidiLong( aSysex: Pointer; aMsgLength: Word);
@@ -213,16 +213,18 @@ end;
 
 procedure TG2Midi.SetMidiEnabled(aValue: boolean);
 begin
-  if aValue <> FMidiEnabled then begin
-    if aValue then begin
+  if aValue then begin
+    if FMidiInput.State = misClosed then
       FMidiInput.OpenAndStart;
+    if FMidiOutput.State = mosClosed then
       FMidiOutput.Open;
-      FMidiEnabled := aValue;
-    end else begin
-      FMidiEnabled := aValue;
+    FMidiEnabled := aValue;
+  end else begin
+    FMidiEnabled := aValue;
+    if FMidiInput.State = misOpen then
       FMidiInput.StopAndClose;
+    if FMidiOutput.State = mosOpen then
       FMidiOutput.Close;
-    end;
   end;
 end;
 
@@ -306,7 +308,7 @@ begin
 
   add_log_line('Block : ' + IntToStr(blok) + ' ' + Line, LOGCMD_NUL);
 
-  SendMidiLong(@SysEx[0], i-4);
+  SendMidiLong( @SysEx[0], i-4);
 end;
 
 procedure TG2Midi.SysExSendPatch( aSlot : byte);
@@ -348,8 +350,9 @@ begin
 
     if thisEvent.Sysex <> nil then begin
 
-      //if copy(midistring, 1, 12) = 'F0337F0A2000' then begin
-        // Patch dump
+      if (copy(midistring, 1, 12) = 'F0337F0A2000')   // Patch dump
+        or (copy(midistring, 1, 12) = 'F0337F0A2800') // Perf dump
+          then begin
 
         // Welk blok?
         block := ord(thisEvent.Sysex[8])*256 + ord(thisEvent.Sysex[9]);
@@ -385,38 +388,8 @@ begin
               GetSlot(0).SendSetPatchMessage( '', G2FileDataStream as TG2FilePatch)
             else
               raise Exception.Create('Unknown data type');
-
-          //LoadPatchFromMidiStream(SysExStream);
-        end;
-      {end;
-
-      if copy(midistring, 1, 12) = 'F0337F0A2800' then begin
-        // Performance dump
-
-        // Welk blok?
-        block := ord(thisEvent.Sysex[8])*256 + ord(thisEvent.Sysex[9]);
-        total := ord(thisEvent.Sysex[10])*256 + ord(thisEvent.Sysex[11]);
-
-        add_log_line('Receiving sysex performance, block ' + IntToStr(block) + ' of ' + IntToStr(total), LOGCMD_NUL);
-
-        if block = 0 then begin
-          // Eerste blok
-          FSysExStream.Clear;
-        end;
-
-        for i := 0 to thisEvent.SysexLength - 1 do begin
-          C := ord(thisEvent.Sysex[i]);
-          FSysExStream.Write(C, 1);
-        end;
-
-        if block = total - 1 then begin
-          // Laatste blok
-          FSysExStream.Position := 0;
-          //LoadPerfFromMidiStream(SysExStream);
         end;
       end;
-
-      add_log_line('Receiving sysex performance ready.', LOGCMD_NUL);}
     end else begin
       add_log_line( MidiToString(thisEvent), LOGCMD_NUL);
 
@@ -439,7 +412,8 @@ begin
   end;
 end;
 
-{function TG2Midi.TranslateMidi(MidiEventIn: TMyMidiEvent): integer;
+{ Maybe something for later
+function TG2Midi.TranslateMidi(MidiEventIn: TMyMidiEvent): integer;
 var channel : byte;
     c : integer;
 begin

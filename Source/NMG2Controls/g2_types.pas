@@ -344,6 +344,8 @@ function  IntToByte( i : integer): byte;
 function  ByteToInt( b : byte): integer;
 function  max( v1, v2 : integer): integer;
 function  min( v1, v2 : integer): integer;
+function  ConvertFwSlahsToBwSlash( filename : string): string;
+function  ConvertBwSlahsToFwSlash( filename : string): string;
 
 {$IFNDEF G2_VST}
 function  InRange(value: string; min, max: integer): integer;
@@ -385,6 +387,28 @@ var
                                           $00FFFFFF);
 
 implementation
+
+function ConvertFwSlahsToBwSlash( filename : string): string;
+var i : integer;
+begin
+  Result := filename;
+  i := pos('/', Result);
+  while i > 0 do begin
+    Result[i] := '\';
+    i := Pos('/', Result);
+  end;
+end;
+
+function ConvertBwSlahsToFwSlash( filename : string): string;
+var i : integer;
+begin
+  Result := filename;
+  i := pos('\', Result);
+  while i > 0 do begin
+    Result[i] := '/';
+    i := Pos('\', Result);
+  end;
+end;
 
 function CrcClavia( Seed: Integer; aVal: Integer): Word;
 var

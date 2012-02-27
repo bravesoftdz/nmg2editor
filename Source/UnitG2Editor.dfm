@@ -956,17 +956,32 @@ object frmG2Main: TfrmG2Main
       object Mididump1: TMenuItem
         Action = aMidiDump
       end
+      object Sendcontrolersnapshot1: TMenuItem
+        Action = aSendControllerSnapshot
+      end
+      object N8: TMenuItem
+        Caption = '-'
+      end
+      object Getactivepatchsysex1: TMenuItem
+        Action = aGetActivePatchSysex
+      end
+      object Getactiveperfsysex1: TMenuItem
+        Action = aGetActivePerfSysex
+      end
+      object Getpatchsysexfrombank1: TMenuItem
+        Action = aGetPatchSysexFromBank
+      end
+      object Getperfsysexfrombank1: TMenuItem
+        Action = aGetPerfSysexFromBank
+      end
+      object N15: TMenuItem
+        Caption = '-'
+      end
       object Sendpatchsysex1: TMenuItem
         Action = aSendPartchSysex
       end
       object Sendperformancesysex1: TMenuItem
         Action = aSendPerfSysex
-      end
-      object N8: TMenuItem
-        Caption = '-'
-      end
-      object Sendcontrolersnapshot1: TMenuItem
-        Action = aSendControllerSnapshot
       end
     end
     object Settings2: TMenuItem
@@ -1335,6 +1350,8 @@ object frmG2Main: TfrmG2Main
     object aMidiDump: TAction
       Category = 'Midi'
       Caption = 'Midi dump'
+      SecondaryShortCuts.Strings = (
+        'CTRL+1')
       OnExecute = aMidiDumpExecute
     end
     object aSendControllerSnapshot: TAction
@@ -1350,14 +1367,38 @@ object frmG2Main: TfrmG2Main
     object aSendPartchSysex: TAction
       Category = 'Midi'
       Caption = 'Send patch sysex'
-      ShortCut = 113
+      ShortCut = 116
       OnExecute = aSendPartchSysexExecute
     end
     object aSendPerfSysex: TAction
       Category = 'Midi'
       Caption = 'Send performance sysex'
-      ShortCut = 114
+      ShortCut = 117
       OnExecute = aSendPerfSysexExecute
+    end
+    object aGetPatchSysexFromBank: TAction
+      Category = 'Midi'
+      Caption = 'Get patch sysex from bank'
+      ShortCut = 114
+      OnExecute = aGetPatchSysexFromBankExecute
+    end
+    object aGetPerfSysexFromBank: TAction
+      Category = 'Midi'
+      Caption = 'Get perf sysex from bank'
+      ShortCut = 115
+      OnExecute = aGetPerfSysexFromBankExecute
+    end
+    object aGetActivePatchSysex: TAction
+      Category = 'Midi'
+      Caption = 'Get active patch sysex'
+      ShortCut = 112
+      OnExecute = aGetActivePatchSysexExecute
+    end
+    object aGetActivePerfSysex: TAction
+      Category = 'Midi'
+      Caption = 'Get active performance sysex'
+      ShortCut = 113
+      OnExecute = aGetActivePerfSysexExecute
     end
   end
   object ResponseTimer: TTimer

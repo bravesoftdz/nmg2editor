@@ -340,9 +340,16 @@ begin
   lvInternal.Align := alClient;
 
   lvInternal.Clear;
-  for i := 0 to frmG2Main.G2.BankList.Count - 1 do begin
-    if frmG2Main.G2.BankList[i].Mode = 0 then
-      AddSlot( frmG2Main.G2.BankList[i]);
+
+  if frmG2Main.G2.USBActive then begin
+    for i := 0 to frmG2Main.G2.BankList.Count - 1 do begin
+      if frmG2Main.G2.BankList[i].Mode = 0 then
+        AddSlot( frmG2Main.G2.BankList[i]);
+    end;
+
+  end else begin
+    // No usb, just fill the list with bank and slot no's
+
   end;
 end;
 

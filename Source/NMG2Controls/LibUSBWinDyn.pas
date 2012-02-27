@@ -326,8 +326,8 @@ var
   usb_interrupt_write : function( dev: pusb_dev_handle;ep : longword; var bytes; size, timeout: longword): longword; cdecl = nil;
   usb_interrupt_read : function( dev: pusb_dev_handle;ep : longword; var bytes; size, timeout: longword): longword; cdecl = nil;
   usb_control_msg : function( dev: pusb_dev_handle;requesttype, request, value, index: longword;var bytes;size, timeout: longword): longword; cdecl = nil;
-  usb_set_configuration : function( dev: pusb_dev_handle;configuration: longword): longword; cdecl = nil;
-  usb_claim_interface : function( dev: pusb_dev_handle;iinterface: longword): longword;  cdecl = nil; // was interface, a pascal reserved word
+  usb_set_configuration : function( dev: pusb_dev_handle;configuration: longword): integer; cdecl = nil;
+  usb_claim_interface : function( dev: pusb_dev_handle;iinterface: longword): integer;  cdecl = nil; // was interface, a pascal reserved word
   usb_release_interface : function( dev: pusb_dev_handle;iinterface: longword): longword; cdecl = nil;
   usb_set_altinterface : function( dev: pusb_dev_handle;alternate: longword): longword; cdecl = nil;
   usb_resetep : function( dev: pusb_dev_handle;ep: longword): longword; cdecl = nil;

@@ -127,7 +127,7 @@ begin
     if assigned(RootNode) then begin
       PatchManagerSettingsNode := TXMLPatchManagerSettingsType(RootNode.FindNode('PatchManagerSettings'));
       if assigned(PatchManagerSettingsNode) then begin
-        eRootFolder.Text := PatchManagerSettingsNode.BaseFolder;
+        eRootFolder.Text := String(PatchManagerSettingsNode.BaseFolder);
       end;
 
       MidiSettingsNode := TXMLMidiSettingsType( RootNode.FindNode('MIDI_settings'));
@@ -298,20 +298,25 @@ begin
 end;
 
 procedure TfrmSettings.bSelectRootFolderClick(Sender: TObject);
-const
-     SELDIRHELP = 1000;
-var
-   dir: String;
+var FDir : string;
 begin
-   dir := 'C:';
-   if SelectDirectory(
-        dir,
-        [sdAllowCreate,
-        sdPerformCreate,
-        sdPrompt],
-        SELDIRHELP
-      ) then
-   eRootFolder.Text := dir;
+if Win32MajorVersion >= 6 then
+  with TFileOpenDialog.Create(nil) do
+    try
+      Title := 'Select Directory';
+      Options := [fdoPickFolders, fdoPathMustExist, fdoForceFileSystem]; // YMMV
+      OkButtonLabel := 'Select';
+      DefaultFolder := FDir;
+      FileName := FDir;
+      if Execute then
+        eRootFolder.Text := FileName;
+    finally
+      Free;
+    end
+else
+  if SelectDirectory('Select Directory', ExtractFileDrive(FDir), FDir,
+             [sdNewUI, sdNewFolder]) then
+    eRootFolder.Text := FDir;
 end;
 
 procedure TfrmSettings.Button2Click(Sender: TObject);

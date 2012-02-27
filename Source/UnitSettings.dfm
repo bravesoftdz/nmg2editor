@@ -91,14 +91,15 @@ object frmSettings: TfrmSettings
         Style = csDropDown
         ItemIndex = 0
         TabOrder = 0
-        Text = '2- MIDISPORT 4x4 In A'
+        Text = 'UM-ONE'
         OnChange = mcbMidiInChange
         Items.Strings = (
+          'UM-ONE'
+          'Hercules DJ Console Rmx MIDI'
           '2- MIDISPORT 4x4 In A'
           '2- MIDISPORT 4x4 In B'
           '2- MIDISPORT 4x4 In C'
           '2- MIDISPORT 4x4 In D'
-          'Hercules DJ Console Rmx MIDI'
           'Pro40 MIDI')
       end
       object mcbMidiOut: TMidiDeviceComboBox
@@ -113,11 +114,12 @@ object frmSettings: TfrmSettings
         OnChange = mcbMidiOutChange
         Items.Strings = (
           'Microsoft GS Wavetable Synth'
-          '2- MIDISPORT 4x4 Out A'
-          '2- MIDISPORT 4x4 Out B'
-          '2- MIDISPORT 4x4 Out C'
-          '2- MIDISPORT 4x4 Out D'
+          'UM-ONE'
           'Hercules DJ Console Rmx MIDI'
+          '2- MIDISPORT 4x4 Out A'
+          '2- MIDISPORT 4x4 Out C'
+          '2- MIDISPORT 4x4 Out B'
+          '2- MIDISPORT 4x4 Out D'
           'Pro40 MIDI')
         DeviceType = mdtOutput
       end
@@ -236,7 +238,7 @@ object frmSettings: TfrmSettings
     OnStatus = IdUDPServer1Status
     Bindings = <>
     DefaultPort = 5678
-    Left = 440
-    Top = 8
+    Left = 280
+    Top = 48
   end
 end

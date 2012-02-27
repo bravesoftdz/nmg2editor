@@ -170,8 +170,8 @@ type
 
   TXMLPatchManagerSettingsType = class(TDOMElement)
   protected
-    function Get_BaseFolder: string;
-    procedure Set_BaseFolder( aValue : string);
+    function Get_BaseFolder: AnsiString;
+    procedure Set_BaseFolder( aValue : AnsiString);
     function Get_ExternalSortCol: integer;
     procedure Set_ExternalSortCol( aValue : integer);
     function Get_InternalSortCol: integer;
@@ -179,7 +179,7 @@ type
     function Get_SelectedTab: integer;
     procedure Set_SelectedTab( aValue : integer);
   public
-    property BaseFolder: string read Get_BaseFolder write Set_BaseFolder;
+    property BaseFolder: AnsiString read Get_BaseFolder write Set_BaseFolder;
     property ExternalSortCol : integer read Get_ExternalSortCol write Set_ExternalSortCol;
     property InternalSortCol : integer read Get_InternalSortCol write Set_InternalSortCol;
     property SelectedTab : integer read Get_SelectedTab write Set_SelectedTab;
@@ -628,7 +628,7 @@ end;
 
 { TXMLPatchManagerSettingsType }
 
-function TXMLPatchManagerSettingsType.Get_BaseFolder: string;
+function TXMLPatchManagerSettingsType.Get_BaseFolder: AnsiString;
 begin
   Result := GetAttribute('BaseFolder');
 end;
@@ -648,7 +648,7 @@ begin
   Result := GetInt(GetAttribute('SelectedTab'));
 end;
 
-procedure TXMLPatchManagerSettingsType.Set_BaseFolder(aValue: string);
+procedure TXMLPatchManagerSettingsType.Set_BaseFolder(aValue: AnsiString);
 begin
   SetAttribute('BaseFolder', aValue);
 end;

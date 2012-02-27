@@ -283,6 +283,15 @@ type
     miModuleAssignGlobalKnobs: TMenuItem;
     N9: TMenuItem;
     N10: TMenuItem;
+    aGetPatchSysexFromBank: TAction;
+    aGetPerfSysexFromBank: TAction;
+    aGetActivePatchSysex: TAction;
+    aGetActivePerfSysex: TAction;
+    Getpatchsysexfrombank1: TMenuItem;
+    Getperfsysexfrombank1: TMenuItem;
+    Getactivepatchsysex1: TMenuItem;
+    Getactiveperfsysex1: TMenuItem;
+    N15: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure cbModeClick(Sender: TObject);
     procedure aPatchSettingsExecute(Sender: TObject);
@@ -356,10 +365,13 @@ type
     procedure aSendControllerSnapshotExecute(Sender: TObject);
     procedure aMidiDumpExecute(Sender: TObject);
     procedure Def1Click(Sender: TObject);
-    procedure aExtractModuleInfoExecute(Sender: TObject);
     procedure aSendPartchSysexExecute(Sender: TObject);
     procedure aSendPerfSysexExecute(Sender: TObject);
     procedure miModuleAssignKnobsClick(Sender: TObject);
+    procedure aGetPatchSysexFromBankExecute(Sender: TObject);
+    procedure aGetPerfSysexFromBankExecute(Sender: TObject);
+    procedure aGetActivePatchSysexExecute(Sender: TObject);
+    procedure aGetActivePerfSysexExecute(Sender: TObject);
   private
     { Private declarations }
     procedure DialogKey(var Msg: TWMKey); message CM_DIALOGKEY;
@@ -386,6 +398,7 @@ type
     function  GetPatchWindowHeight: integer;
     procedure LoadImageMap( aBitmap : TBitmap;aCols, aRows: integer; aImageList : TImageList);
 
+    procedure UpdateActions;
     procedure CreateAddModuleMenu;
     procedure CreateModuleMenu;
     procedure CreateParamMenu;
@@ -412,6 +425,7 @@ type
 
 var
   frmG2Main: TfrmG2Main;
+  Initialized : boolean;
 
 implementation
 
@@ -736,39 +750,6 @@ begin
   (FSlot.Patch as TG2Patch).MessSetPatchDescription( FPatchDescription);
 end;
 
-procedure TfrmG2Main.UpdateControls;
-var i : integer;
-begin
-  for i := 0 to 3 do begin
-    if assigned(FSlotPanel[i]) then begin
-
-      if G2.SelectedSlotIndex = i then begin
-        FSlotPanel[i].Color := CL_CLAVIA_BLUE;
-        FSlotPanel[i].FlbSlotName.Font.Color := CL_CLAVIA_RED;
-        FSlotPanel[i].FlbVariation.Font.Color := CL_CLAVIA_RED;
-        FSlotPanel[i].FlbVolume.Font.Color := CL_CLAVIA_RED;
-      end else begin
-        if G2.Slot[i].Enabled = 1 then
-          FSlotPanel[i].Color := CL_CLAVIA_RED
-        else
-          FSlotPanel[i].Color := clGray;
-        FSlotPanel[i].FlbSlotName.Font.Color := CL_CLAVIA_BLUE;
-        FSlotPanel[i].FlbVariation.Font.Color := CL_CLAVIA_BLUE;
-        FSlotPanel[i].FlbVolume.Font.Color := CL_CLAVIA_BLUE;
-      end;
-
-      FSlotPanel[i].UpdateControls;
-    end;
-  end;
-
-  if assigned(frmEditorTools) and frmEditorTools.Visible then
-    frmEditorTools.UpdateControls;
-
-
-  if assigned(frmSeqGrid) and frmSeqGrid.Visible then
-    frmSeqGrid.Update;
-end;
-
 // ==== Main app ===============================================================
 // =============================================================================
 
@@ -843,6 +824,8 @@ begin
   CreateAddModuleMenu;
   CreateModuleMenu;
   CreateParamMenu;
+
+  Initialized := True;
 
   UpdateControls;
 end;
@@ -990,7 +973,7 @@ begin
       PatchManagerSettingsNode := TXMLPatchManagerSettingsType(Doc.CreateElement('PatchManagerSettings'));
       RootNode.AppendChild(PatchManagerSettingsNode);
     end;
-    PatchManagerSettingsNode.BaseFolder := frmSettings.eRootFolder.Text;
+    PatchManagerSettingsNode.BaseFolder := AnsiString(frmSettings.eRootFolder.Text);
     PatchManagerSettingsNode.SelectedTab := frmPatchManager.TabControl1.TabIndex;
     PatchManagerSettingsNode.ExternalSortCol := frmPatchManager.FExternalSortCol;
     PatchManagerSettingsNode.InternalSortCol := frmPatchManager.FInternalSortCol;
@@ -1054,6 +1037,95 @@ begin
   finally
     Doc.Free;
   end;
+end;
+
+procedure TfrmG2Main.UpdateActions;
+begin
+  if not Initialized then
+    exit;
+
+  if G2.USBActive then begin
+    if G2.IsServer then begin
+      // USB only
+      aSynthSettings.Enabled := True;
+      aMidiDump.Enabled := True;
+      // Midi
+      aSendPartchSysex.Enabled := True;
+      aSendPerfSysex.Enabled := True;
+      aGetPatchSysexFromBank.Enabled := True;
+      aGetPerfSysexFromBank.Enabled := True;
+      aGetActivePatchSysex.Enabled := True;
+      aGetActivePerfSysex.Enabled := True;
+    end else begin
+      aSynthSettings.Enabled := True;
+      aMidiDump.Enabled := True;
+      // Midi
+      aSendPartchSysex.Enabled := False;
+      aSendPerfSysex.Enabled := False;
+      aGetPatchSysexFromBank.Enabled := False;
+      aGetPerfSysexFromBank.Enabled := False;
+      aGetActivePatchSysex.Enabled := False;
+      aGetActivePerfSysex.Enabled := False;
+    end;
+  end else
+    if G2.IsServer then begin
+      aSynthSettings.Enabled := False;
+      aMidiDump.Enabled := False;
+      // Midi
+      aSendPartchSysex.Enabled := True;
+      aSendPerfSysex.Enabled := True;
+      aGetPatchSysexFromBank.Enabled := True;
+      aGetPerfSysexFromBank.Enabled := True;
+      aGetActivePatchSysex.Enabled := True;
+      aGetActivePerfSysex.Enabled := True;
+    end else begin
+      aSynthSettings.Enabled := True;
+      aMidiDump.Enabled := True;
+      // Midi
+      aSendPartchSysex.Enabled := False;
+      aSendPerfSysex.Enabled := False;
+      aGetPatchSysexFromBank.Enabled := False;
+      aGetPerfSysexFromBank.Enabled := False;
+      aGetActivePatchSysex.Enabled := False;
+      aGetActivePerfSysex.Enabled := False;
+    end;
+end;
+
+procedure TfrmG2Main.UpdateControls;
+var i : integer;
+begin
+  if not Initialized then
+    exit;
+
+  for i := 0 to 3 do begin
+    if assigned(FSlotPanel[i]) then begin
+
+      if G2.SelectedSlotIndex = i then begin
+        FSlotPanel[i].Color := CL_CLAVIA_BLUE;
+        FSlotPanel[i].FlbSlotName.Font.Color := CL_CLAVIA_RED;
+        FSlotPanel[i].FlbVariation.Font.Color := CL_CLAVIA_RED;
+        FSlotPanel[i].FlbVolume.Font.Color := CL_CLAVIA_RED;
+      end else begin
+        if G2.Slot[i].Enabled = 1 then
+          FSlotPanel[i].Color := CL_CLAVIA_RED
+        else
+          FSlotPanel[i].Color := clGray;
+        FSlotPanel[i].FlbSlotName.Font.Color := CL_CLAVIA_BLUE;
+        FSlotPanel[i].FlbVariation.Font.Color := CL_CLAVIA_BLUE;
+        FSlotPanel[i].FlbVolume.Font.Color := CL_CLAVIA_BLUE;
+      end;
+
+      FSlotPanel[i].UpdateControls;
+    end;
+  end;
+
+  if assigned(frmEditorTools) and frmEditorTools.Visible then
+    frmEditorTools.UpdateControls;
+
+  if assigned(frmSeqGrid) and frmSeqGrid.Visible then
+    frmSeqGrid.Update;
+
+  UpdateActions;
 end;
 
 function TfrmG2Main.GetPatchWindowHeight: integer;
@@ -1381,10 +1453,53 @@ begin
   Application.Terminate;
 end;
 
-procedure TfrmG2Main.aExtractModuleInfoExecute(Sender: TObject);
+procedure TfrmG2Main.aGetActivePatchSysexExecute(Sender: TObject);
 begin
+  G2.SysExPatchRequestBySlot( G2.SelectedSlotIndex);
 end;
 
+procedure TfrmG2Main.aGetActivePerfSysexExecute(Sender: TObject);
+begin
+  G2.SysExPerformanceRequest;
+end;
+
+procedure TfrmG2Main.aGetPatchSysexFromBankExecute(Sender: TObject);
+var Bank, Slot, c : integer;
+    sBank, sSlot : string;
+begin
+  if InputQuery('Sysex req.', 'Bank', sBank) then begin
+    val(sBank, Bank, C);
+    if C = 0 then begin
+      if InputQuery('Sysex req.', 'Slot', sSlot) then begin
+        val(sSlot, Slot, C);
+        if C = 0 then begin
+          G2.SysExPatchRequestByFileIndex( Bank, Slot);
+        end else
+          raise Exception.Create('Invalid input');
+      end;
+    end else
+     raise Exception.Create('Invalid input');
+  end;
+end;
+
+procedure TfrmG2Main.aGetPerfSysexFromBankExecute(Sender: TObject);
+var Bank, Slot, c : integer;
+    sBank, sSlot : string;
+begin
+  if InputQuery('Sysex req.', 'Bank', sBank) then begin
+    val(sBank, Bank, C);
+    if C = 0 then begin
+      if InputQuery('Sysex req.', 'Slot', sSlot) then begin
+        val(sSlot, Slot, C);
+        if C = 0 then begin
+          G2.SysExPerformanceRequestByFileIndex( Bank, Slot);
+        end else
+          raise Exception.Create('Invalid input');
+      end;
+    end else
+     raise Exception.Create('Invalid input');
+  end;
+end;
 
 // ==== Edit menu ==============================================================
 
@@ -2130,5 +2245,8 @@ procedure TfrmG2Main.G2DeassignKnob(Sender: TObject; SenderID: Integer; Slot : b
 begin
   frmParameterPages.UpdateControls;
 end;
+
+initialization
+  Initialized := False;
 
 end.

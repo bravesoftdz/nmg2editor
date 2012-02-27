@@ -181,7 +181,7 @@ uses
     function    CreateUnknown2ResponseMessage: TG2ResponseMessage;
     function    CreateGetGlobalKnobsResponseMessage: TG2ResponseMessage;
 
-    function    CreateResponseMessage( ClientMessage : TG2SendMessage): TG2ResponseMessage;
+    function    CreateResponseMessage( ClientMessage : TG2SendMessage; var Initialized : boolean): TG2ResponseMessage;
     function    ProcessResponseMessage( MemStream : TMemoryStream; Param : byte): boolean;
     function    ProcessSendMessage( MemStream : TMemoryStream; SenderID : integer): boolean;
 
@@ -967,10 +967,10 @@ begin
   Result.WriteMessage( $7f); // Ok
 end;
 
-function TG2Mess.CreateResponseMessage( ClientMessage : TG2SendMessage): TG2ResponseMessage;
+function TG2Mess.CreateResponseMessage( ClientMessage : TG2SendMessage; var Initialized : boolean): TG2ResponseMessage;
 // Process a message from a client and create a response
 var Size : integer;
-    Cmd, R, bh, bl, Version, SubCmd, SlotIndex : byte;
+    Cmd, R, bh, bl, Version, SubCmd, SlotIndex, b : byte;
 begin
   Result := nil;
 
@@ -1006,6 +1006,9 @@ begin
                              end;
                         S_START_STOP_COM :
                             begin
+                              ClientMessage.Read( b, 1);
+                              Initialized := b = START_COMM;
+
                               Result := CreateOkResponseMessage;
                             end;
                         Q_SYNTH_SETTINGS :
@@ -1469,7 +1472,7 @@ begin
   // Return True if processed
   Result := False;
 
-  if (MemStream.Size - MemStream.Position) < 6 then begin
+  if (MemStream.Size - MemStream.Position) < 4 then begin
     MemStream.Position := MemStream.Size;
     exit;
   end;
@@ -1528,6 +1531,11 @@ begin
 
                     if assigned( FOnAfterRetrievePatch) then
                       FOnAfterRetrievePatch( self, SenderID, Slot, Bank, Patch);
+                  end;
+                Q_LIST_NAMES :
+                  begin
+                    MemStream.Read( b, 1);
+                    Result := True;
                   end
                 else
                   MemStream.Position := MemStream.Size; // Todo
@@ -1593,7 +1601,7 @@ end;
 
 function TG2Mess.CreateGetSynthSettingsMessage: TG2SendMessage;
 begin
-  add_log_line('Syntch settings', LOGCMD_HDR);
+  add_log_line('Synth settings', LOGCMD_HDR);
 
   Result := TG2SendMessage.Create;
   Result.WriteMessage( $01);
