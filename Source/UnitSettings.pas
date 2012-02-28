@@ -64,6 +64,8 @@ type
     Label7: TLabel;
     cbIsServer: TCheckBox;
     cbMidiEnabled: TCheckBox;
+    eTimerBroadcastLedMessages: TEdit;
+    Label8: TLabel;
     procedure Button2Click(Sender: TObject);
     procedure IdUDPServer1Status(ASender: TObject; const AStatus: TIdStatus;
       const AStatusText: string);
@@ -105,6 +107,7 @@ procedure TfrmSettings.FormShow(Sender: TObject);
 begin
   eHost.Text := frmG2Main.G2.Host;
   ePort.Text := IntTostr(frmG2Main.G2.Port);
+  eTimerBroadcastLedMessages.Text := IntTostr(frmG2Main.G2.TimerBroadcastLedMessages);
   UpdateControls;
 end;
 
@@ -229,6 +232,7 @@ procedure TfrmSettings.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
   frmG2Main.G2.Host := eHost.Text;
   frmG2Main.G2.Port := StrToInt(ePort.Text);
+  frmG2Main.G2.TimerBroadcastLedMessages := StrToInt(eTimerBroadcastLedMessages.Text);
 end;
 
 procedure TfrmSettings.udpServerDeviceUDPRead(AThread: TIdUDPListenerThread; AData: TIdBytes; ABinding: TIdSocketHandle);
@@ -270,6 +274,7 @@ begin
 end;
 
 procedure TfrmSettings.UpdateControls;
+var c, ledtimer : integer;
 begin
   FDisableControls := True;
   try
@@ -279,6 +284,10 @@ begin
       eHost.Enabled := False;
     end else
       eHost.Enabled := True;
+
+    val( eTimerBroadcastLedMessages.Text, ledtimer, c);
+    if c = 0 then
+      frmG2Main.G2.TimerBroadcastLedMessages := ledtimer;
 
     cbMidiEnabled.Checked := frmG2Main.G2.MidiEnabled;
     if cbMidiEnabled.Checked then begin

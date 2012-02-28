@@ -902,6 +902,7 @@ begin
         G2.IsServer := TCPSettingsNode.IsServer;
         G2.Host := TCPSettingsNode.IP;
         G2.Port := TCPSettingsNode.Port;
+        G2.TimerBroadcastLedMessages := TCPSettingsNode.TimerBroadcastLedMessages;
       end;
 
       FormSettingsNode := TXMLFormSettingsType(RootNode.FindNode('MainForm'));
@@ -947,6 +948,7 @@ begin
     TCPSettingsNode.IsServer := G2.IsServer;
     TCPSettingsNode.IP := G2.Host;
     TCPSettingsNode.Port := G2.Port;
+    TCPSettingsNode.TimerBroadcastLedMessages := G2.TimerBroadcastLedMessages;
 
     MidiSettingsNode := TXMLMidiSettingsType( RootNode.FindNode('MIDI_settings'));
     if not assigned( MidiSettingsNode) then begin

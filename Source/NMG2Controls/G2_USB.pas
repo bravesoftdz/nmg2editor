@@ -123,6 +123,7 @@ type
     FClientContextCriticalSection: TCriticalSection;
     FClient: TClient;
     FInitialized : boolean;
+    FLastWrite : integer;
   public
     constructor Create(AConnection: TIdTCPConnection; AYarn: TIdYarn; AList: TThreadList = nil); override;
     destructor Destroy; override;
@@ -134,6 +135,7 @@ type
   public
     property Client: TClient read FClient write FClient;
     property Initialized : boolean read FInitialized write FInitialized;
+    property LastWrite : integer read FLastWrite write FLastWrite;
   end;
 
   TG2USB = class;
@@ -282,6 +284,8 @@ type
       FidClientReadThread    : TIdClientReadThread;
       FClientCriticalSection : TCriticalSection;
 
+      FTimerBroadcastLedMessages : integer;
+
       function    GetUSBActive : boolean;
       procedure   SetUSBActive(const value : boolean);
 {$IFDEF unix}
@@ -373,6 +377,7 @@ type
       property    Host : string read FHost write FHost;
       property    USBActive : boolean read GetUSBActive write SetUSBActive;
       property    ProcessLedData : boolean read FProcessLedData write FProcessLedData;
+      property    TimerBroadcastLedMessages : integer read FTimerBroadcastLedMessages write FTimerBroadcastLedMessages default 500;
       property    OnUSBError : TUSBErrorEvent read FOnUSBError write FOnUSBError;
       property    OnUSBActiveChange : TUSBActiveChangeEvent read FOnUSBActiveChange write FOnUSBActiveChange;
       property    OnAfterG2Init : TAfterG2InitEvent read FOnAfterG2Init write FOnAfterG2Init;
@@ -1311,6 +1316,7 @@ begin
   inherited Create(AConnection, AYarn, AList);
   // create the critical section
   FClientContextCriticalSection := TCriticalSection.Create;
+  FLastWrite := 0;
 end;
 
 destructor TClientContext.Destroy;
@@ -1434,7 +1440,7 @@ begin
       LBuffer.Free;
     end;
   end else
-    sleep(10);
+    sleep(5);
 end;
 
 procedure TG2ProcessClientSendMessage.DoNotify;
@@ -1464,9 +1470,20 @@ begin
   try
     for i := 0 to LClients.Count -1 do begin
       LClientContext := TClientContext(LClients[i]);
-      // Don't send led data to vst's or client editors that are not initialized yet.
-      if not( ResponseMessage.IsLedData and
-              ((LClientContext.Client.ClientType = ctVST) or (not LClientContext.Initialized))) then begin
+      if ResponseMessage.IsLedData then begin
+        // Don't send led data to vst's or client editors that are not initialized yet.
+        if (LClientContext.Client.ClientType <> ctVST) and (LClientContext.Initialized)
+           and (GetTickCount - LClientContext.LastWrite > FTimerBroadcastLedMessages) then begin
+
+          LClientContext.Lock;
+          try
+            LClientContext.LastWrite := GetTickCount;
+            LClientContext.ServerSendClientResponseMessage( ResponseMessage);
+          finally
+            LClientContext.Unlock;
+          end;
+        end;
+      end else begin
 
         LClientContext.Lock;
         try
@@ -1586,19 +1603,26 @@ begin
             begin
               LMessage.Clear;
               // Process the message received from the server
-              // Synchronize doesn't work with dll's, so a critical section is used (lock)
               FG2.Lock;
               try
                 FG2.idTCPClient.IOHandler.ReadStream(LMessage, LProtocol.DataSize);
               finally
                 FG2.Unlock;
               end;
+              // Synchronize doesn't work with dll's, so a critical section is used (lock) for VST
+{$IFDEF G2_VST}
               // Don't us the critical section around these procedures, because
               // they can send messages back to the server in the same critical section.
               case LProtocol.MessageType of
                 mdtSendMessage     : DoClientProcessServerSendMessage;
                 mdtResponseMessage : DoClientProcessServerResponseMessage;
               end;
+{$ELSE}
+              case LProtocol.MessageType of
+                mdtSendMessage     : Synchronize(DoClientProcessServerSendMessage);
+                mdtResponseMessage : Synchronize(DoClientProcessServerResponseMessage);
+              end;
+{$ENDIF}
             end;
         end;
       end;

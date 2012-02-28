@@ -2,7 +2,7 @@ object frmSettings: TfrmSettings
   Left = 0
   Top = 0
   Caption = 'Settings'
-  ClientHeight = 172
+  ClientHeight = 185
   ClientWidth = 488
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -20,12 +20,14 @@ object frmSettings: TfrmSettings
     Left = 0
     Top = 0
     Width = 488
-    Height = 172
+    Height = 185
     ActivePage = TabSheet1
     Align = alClient
     TabOrder = 0
+    ExplicitHeight = 172
     object TabSheet1: TTabSheet
       Caption = 'TCP-IP'
+      ExplicitHeight = 144
       object Label3: TLabel
         Left = 16
         Top = 56
@@ -40,16 +42,23 @@ object frmSettings: TfrmSettings
         Height = 13
         Caption = 'Host'
       end
+      object Label8: TLabel
+        Left = 16
+        Top = 122
+        Width = 144
+        Height = 13
+        Caption = 'Timer broadcast led messages'
+      end
       object ePort: TEdit
-        Left = 86
+        Left = 184
         Top = 53
-        Width = 91
+        Width = 89
         Height = 21
         TabOrder = 0
         Text = '2501'
       end
       object eHost: TEdit
-        Left = 88
+        Left = 184
         Top = 88
         Width = 89
         Height = 21
@@ -57,13 +66,21 @@ object frmSettings: TfrmSettings
         Text = '127.0.0.1'
       end
       object cbIsServer: TCheckBox
-        Left = 86
+        Left = 182
         Top = 22
         Width = 91
         Height = 17
         Caption = 'Is server'
         TabOrder = 2
         OnClick = cbIsServerClick
+      end
+      object eTimerBroadcastLedMessages: TEdit
+        Left = 184
+        Top = 119
+        Width = 89
+        Height = 21
+        TabOrder = 3
+        Text = '500'
       end
     end
     object TabSheet4: TTabSheet
@@ -99,8 +116,7 @@ object frmSettings: TfrmSettings
           '2- MIDISPORT 4x4 In A'
           '2- MIDISPORT 4x4 In B'
           '2- MIDISPORT 4x4 In C'
-          '2- MIDISPORT 4x4 In D'
-          'Pro40 MIDI')
+          '2- MIDISPORT 4x4 In D')
       end
       object mcbMidiOut: TMidiDeviceComboBox
         Left = 72
@@ -119,8 +135,7 @@ object frmSettings: TfrmSettings
           '2- MIDISPORT 4x4 Out A'
           '2- MIDISPORT 4x4 Out C'
           '2- MIDISPORT 4x4 Out B'
-          '2- MIDISPORT 4x4 Out D'
-          'Pro40 MIDI')
+          '2- MIDISPORT 4x4 Out D')
         DeviceType = mdtOutput
       end
       object cbMidiEnabled: TCheckBox
@@ -138,7 +153,7 @@ object frmSettings: TfrmSettings
       ImageIndex = 2
       DesignSize = (
         480
-        144)
+        157)
       object Label5: TLabel
         Left = 16
         Top = 27
@@ -219,7 +234,7 @@ object frmSettings: TfrmSettings
         Left = 0
         Top = 59
         Width = 480
-        Height = 85
+        Height = 98
         Align = alClient
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
@@ -238,7 +253,7 @@ object frmSettings: TfrmSettings
     OnStatus = IdUDPServer1Status
     Bindings = <>
     DefaultPort = 5678
-    Left = 280
+    Left = 384
     Top = 48
   end
 end

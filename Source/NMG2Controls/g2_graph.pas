@@ -1520,6 +1520,10 @@ begin
   if assigned(FPatch) and FPatch.Visible then
     FPatchPart := FPatch.PatchPart[ ord(FLocation)];
 
+    if assigned(FG2Graph)  then
+      FG2Graph.Lock;
+    try
+
     for i := 0 to ControlCount - 1 do begin
       if Controls[i] is TG2GraphModulePanel then begin
         ModulePanel := (Controls[i] as TG2GraphModulePanel);
@@ -1536,6 +1540,10 @@ begin
           if RectOverlap( DropDown.BoundsRect, PS.rcPaint) then
             DropDown.PaintOn( FExtBitmap.Canvas, PS.rcPaint);
       end;
+    end;
+    finally
+      if assigned(FG2Graph)  then
+        FG2Graph.UnLock;
     end;
 
   PaintCables( FExtBitmap, PS.rcPaint);

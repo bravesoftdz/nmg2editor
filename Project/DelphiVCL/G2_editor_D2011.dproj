@@ -67,7 +67,7 @@
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Cfg_2)'!=''">
 			<Version>7.0</Version>
-			<DCC_Define>DEBUG;$(DCC_Define)</DCC_Define>
+			<DCC_Define>DEBUG;VST;$(DCC_Define)</DCC_Define>
 			<DCC_ExeOutput>..\Build</DCC_ExeOutput>
 			<DCC_DcuOutput>..\Build\Dcu</DCC_DcuOutput>
 			<DCC_ObjOutput>..\Build\Dcu</DCC_ObjOutput>

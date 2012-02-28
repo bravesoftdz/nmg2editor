@@ -142,10 +142,13 @@ type
     function Get_Port: integer;
     procedure Set_IP( aValue : string);
     procedure Set_Port( aValue : integer);
+    function Get_TimerBroadcastLedMessages : integer;
+    procedure Set_TimerBroadcastLedMessages( aValue : integer);
   public
     property IsServer: boolean read Get_IsServer write Set_IsServer;
     property IP: string read Get_IP write Set_IP;
     property Port: integer read Get_Port write Set_Port;
+    property TimerBroadcastLedMessages : integer read Get_TimerBroadcastLedMessages write Set_TimerBroadcastLedMessages;
   end;
 
   TXMLFormSettingsType = class(TDOMElement)
@@ -547,6 +550,14 @@ begin
     Result := GetInt(GetAttribute('Port'));
 end;
 
+function TXMLTCPSettingsType.Get_TimerBroadcastLedMessages: integer;
+begin
+  if GetAttribute('TimerBroadcastLedMessages') = '' then
+    Result := 500
+  else
+    Result := GetInt(GetAttribute('TimerBroadcastLedMessages'));
+end;
+
 procedure TXMLTCPSettingsType.Set_IP(aValue: string);
 begin
   SetAttribute('IP', aValue);
@@ -560,6 +571,11 @@ end;
 procedure TXMLTCPSettingsType.Set_Port(aValue: integer);
 begin
   SetAttribute('Port', IntToStr(aValue));
+end;
+
+procedure TXMLTCPSettingsType.Set_TimerBroadcastLedMessages(aValue: integer);
+begin
+  SetAttribute('TimerBroadcastLedMessages', IntToStr(aValue));
 end;
 
 { TXMLTCPSettingsListType }
