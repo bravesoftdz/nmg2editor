@@ -474,6 +474,7 @@ type
 
     procedure   SendUndoMessage;
 
+    procedure   SetParamValue( aLocation : TLocationType; aModuleIndex : byte; aParameterIndex : byte; aVariation : byte; aValue: byte); override;
     function    MessSetPatchDescription( FPatchDescription : TPatchDescription): boolean;
     function    MessAddModule( aLocation : TLocationType; aModuleType, aCol, aRow: byte): boolean; override;
     function    MessCopyModules( aSrcePatch : TG2FilePatchPart; aFromLocation, aToLocation : TLocationType): boolean; override;
@@ -2615,6 +2616,12 @@ begin
     MemStream := PopUndoStack;
     (G2 as TG2USB).SendCmdMessage( MemStream);
   end;
+end;
+
+procedure TG2USBPatch.SetParamValue( aLocation: TLocationType; aModuleIndex, aParameterIndex, aVariation : byte; aValue: byte);
+begin
+  (Slot as TG2USBSlot).SendSetParamMessage( ord(aLocation), aModuleIndex, aParameterIndex, aValue, aVariation);
+  inherited SetParamValue( aLocation, aModuleIndex, aParameterIndex, aVariation, aValue);
 end;
 
 function TG2USBPatch.MessSetPatchDescription( FPatchDescription : TPatchDescription): boolean;

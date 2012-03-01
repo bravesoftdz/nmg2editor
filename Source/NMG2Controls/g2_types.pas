@@ -64,7 +64,7 @@ const
   CL_DISPLAY_BACKGRND    = $00555555;
   CL_BTN_FACE            = $00D0D0D0;
   CL_BTN_BORDER          = $00404040;
-  CL_CLAVIA_RED          = $006550DC;//$001620D1;
+  CL_CLAVIA_RED          = $005A5692;//$006550DC;//$001620D1;
   CL_CLAVIA_BLUE         = $00531F00;
 
   // Module dimensions

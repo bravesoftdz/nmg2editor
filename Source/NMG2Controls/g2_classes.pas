@@ -56,12 +56,12 @@ type
     function    GetSlot : TG2Slot;
     function    GetPerformance : TG2Performance;
 
-    procedure   SetParameterValue( aLocation : TLocationType; aModuleIndex : byte; aParameterIndex : byte; aVariation : byte; aValue: byte); override;
-    procedure   SetParameterAutomated( aLocation : TLocationType; aModuleIndex : byte; aParameterIndex : byte; aVariation : byte; aValue: byte);
+    //procedure   SetParameterValue( aLocation : TLocationType; aModuleIndex : byte; aParameterIndex : byte; aVariation : byte; aValue: byte); override;
+    //procedure   SetParameterAutomated( aLocation : TLocationType; aModuleIndex : byte; aParameterIndex : byte; aVariation : byte; aValue: byte);
     procedure   SetModeValue( aLocation : TLocationType; aModuleIndex : byte; aParameterIndex : byte; aValue: byte); override;
     procedure   SetMorphValue( aLocation : TLocationType; aModuleIndex : byte; aParameterIndex : byte; aMorphIndex : byte; aValue: byte; aVariation : byte); override;
 
-    procedure   InitParameterValue( aLocation : TLocationType; aModuleIndex, aParameterIndex, aVariation, aValue : byte); override;
+    //procedure   InitParameterValue( aLocation : TLocationType; aModuleIndex, aParameterIndex, aVariation, aValue : byte); override;
     procedure   InitModeValue( aLocation : TLocationType; aModuleIndex, aParameterIndex, aValue: byte); override;
   end;
 
@@ -201,7 +201,7 @@ begin
     Slot.SendSetMorphMessage( ord(aLocation), aModuleIndex, aParameterIndex, aMorphIndex, aValue, 0, aVariation);
 end;
 
-procedure TG2Patch.SetParameterAutomated(aLocation: TLocationType; aModuleIndex, aParameterIndex, aVariation, aValue: byte);
+{procedure TG2Patch.SetParameterAutomated(aLocation: TLocationType; aModuleIndex, aParameterIndex, aVariation, aValue: byte);
 var Slot : TG2Slot;
 begin
   // Parameter sent from VST host to G2 Vst client
@@ -224,18 +224,18 @@ begin
   end;
   // No event calling to prevent feedback loops
   // Knob is repainted with timer in VST to reduce cpu load
-end;
+end;}
 
-procedure TG2Patch.SetParameterValue( aLocation: TLocationType; aModuleIndex, aParameterIndex, aVariation : byte; aValue: byte);
+{procedure TG2Patch.SetParameterValue( aLocation: TLocationType; aModuleIndex, aParameterIndex, aVariation : byte; aValue: byte);
 var Slot : TG2Slot;
 begin
   Slot := GetSlot;
 
   Slot.SendSetParamMessage( ord(aLocation), aModuleIndex, aParameterIndex, aValue, aVariation);
   InitParameterValue( aLocation, aModuleIndex, aParameterIndex, aVariation, aValue);
-end;
+end;}
 
-procedure TG2Patch.InitParameterValue( aLocation : TLocationType; aModuleIndex,  aParameterIndex, aVariation, aValue: byte);
+{procedure TG2Patch.InitParameterValue( aLocation : TLocationType; aModuleIndex,  aParameterIndex, aVariation, aValue: byte);
 var Param : TG2FileParameter;
     Module : TG2FileModule;
 begin
@@ -263,7 +263,7 @@ begin
     if assigned(G2.OnParameterChange) then
       G2.OnParameterChange( self, G2.ID, Slot.SlotIndex, aVariation, aLocation, aModuleIndex, aParameterIndex, aValue);
   end;
-end;
+end;}
 
 procedure TG2Patch.InitModeValue( aLocation : TLocationType; aModuleIndex, aParameterIndex, aValue: byte);
 var Param : TG2FileParameter;

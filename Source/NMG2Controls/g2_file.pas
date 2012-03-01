@@ -273,7 +273,7 @@ type
     FCableColor    : TBits3;
     FModuleFrom    : TBits8;
     FConnectorFrom : TBits6;
-    FLinkType      : TBits1;
+    FLinkType      : TBits1; // Guess 0 - input to input; 1 - output to input
     FModuleTo      : TBits8;
     FConnectorTo   : TBits6;
 
@@ -906,8 +906,8 @@ type
     function    GetModuleName( aLocation : TLocationType; aModuleIndex : byte): AnsiString;
 
     function    GetParameterValue( aLocation : TLocationType; aModuleIndex : byte; aParamIndex : byte; aVariation : byte): byte;
-    procedure   SetParameterValue( aLocation : TLocationType; aModuleIndex : byte; aParamIndex : byte; aVariation : byte; aValue: byte); virtual;
-    procedure   InitParameterValue( aLocation : TLocationType; aModuleIndex, aParamIndex, aVariation, aValue : byte); virtual;
+    procedure   SetParamInPatch( aLocation : TLocationType; aModuleIndex : byte; aParamIndex : byte; aVariation : byte; aValue: byte); virtual;
+    procedure   SetParamValue( aLocation : TLocationType; aModuleIndex, aParamIndex, aVariation, aValue : byte); virtual;
     procedure   InitModeValue( aLocation : TLocationType; aModuleIndex, aParamIndex, aValue : byte); virtual;
     function    GetModeValue( aLocation : TLocationType; aModuleIndex : byte; aParamIndex : byte): byte;
     procedure   SetModeValue( aLocation : TLocationType; aModuleIndex : byte; aParamIndex : byte; aValue: byte); virtual;
@@ -5554,16 +5554,19 @@ begin
     end;
 end;
 
-procedure TG2FilePatch.SetParameterValue( aLocation : TLocationType; aModuleIndex : byte; aParamIndex : byte; aVariation : byte; aValue: byte);
+procedure TG2FilePatch.SetParamInPatch( aLocation : TLocationType; aModuleIndex : byte; aParamIndex : byte; aVariation : byte; aValue: byte);
 var ParamSet : TParamSet;
     Params : TParams;
+    Param : TG2FileParameter;
+    Module : TG2FileModule;
 begin
   if ( aLocation = ltFX) or ( aLocation = ltVA) then begin
     ParamSet := FPatchPart[ord(aLocation)].FindParamSet( aModuleIndex);
     if assigned(ParamSet) then begin
       Params := ParamSet.FindVariation(aVariation);
-      if assigned(Params) then
+      if assigned(Params) then begin
         Params.FParamValues[ aParamIndex] := aValue;
+      end;
     end;
   end else
     if aLocation = ltPatch then begin
@@ -5623,16 +5626,38 @@ begin
           end;
       end;
     end;
+
+  if assigned(G2) then begin
+    if (G2.CLientType <> ctVST) then begin
+
+      Param := nil;
+      Module := nil;
+      if (aLocation = ltFX) or (aLocation = ltVA)  then
+        Module := Modules[ord(aLocation), aModuleIndex];
+
+      if aLocation = ltPatch then
+        Param := Parameter[aModuleIndex, aParamIndex]
+      else
+        if assigned(Module) then
+          Param := Module.Parameter[aParamIndex];
+
+      if assigned(Param) then
+        Param.InvalidateControl;
+    end;
+
+    if assigned(G2.OnParameterChange) then
+      G2.OnParameterChange( self, G2.ID, Slot.SlotIndex, aVariation, aLocation, aModuleIndex, aParamIndex, aValue);
+  end;
+
 end;
 
-procedure TG2FilePatch.InitParameterValue( aLocation : TLocationType; aModuleIndex, aParamIndex, aVariation, aValue : byte);
+procedure TG2FilePatch.SetParamValue( aLocation : TLocationType; aModuleIndex, aParamIndex, aVariation, aValue : byte);
 begin
   //raise Exception.Create('Call of abstract function.');
-  SetParameterValue( aLocation, aModuleIndex, aParamIndex, aVariation, aValue);
+  SetParamInPatch( aLocation, aModuleIndex, aParamIndex, aVariation, aValue);
 
-
-  if assigned(G2.OnParameterChange) then
-    G2.OnParameterChange( self, G2.ID, Slot.SlotIndex, aVariation, aLocation, aModuleIndex, aParamIndex, aValue);
+  {if assigned(G2.OnParameterChange) then
+    G2.OnParameterChange( self, G2.ID, Slot.SlotIndex, aVariation, aLocation, aModuleIndex, aParamIndex, aValue);}
 end;
 
 procedure TG2FilePatch.InitModeValue( aLocation : TLocationType; aModuleIndex, aParamIndex, aValue : byte);
@@ -6331,7 +6356,7 @@ begin
       end;
 
       for Variation := FromVariation to ToVariation do begin
-        FPatch.SetParameterValue( FLocation, FModuleIndex, FParamIndex, Variation, Value)
+        FPatch.SetParamValue( FLocation, FModuleIndex, FParamIndex, Variation, Value)
       end;
     end else
       FPatch.SetModeValue( FLocation, FModuleIndex, FParamIndex, Value);

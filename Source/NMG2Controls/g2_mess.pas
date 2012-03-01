@@ -320,7 +320,10 @@ uses
     procedure   AddMoveModuleMessage( SendMessage : TG2SendMessage; aModule : TG2FileModule; aCol, aRow : byte);
     procedure   AddDeleteModuleMessage( SendMessage : TG2SendMessage; aLocation : TLocationType; aModuleIndex : byte);
     procedure   AddConnectionMessage( SendMessage : TG2SendMessage; aFromConnector, aToConnector : TG2FileConnector);
-    procedure   AddDeleteConnectionMessage( SendMessage : TG2SendMessage; aFromConnector, aToConnector : TG2FileConnector);
+    procedure   AddDeleteConnectionMessage( SendMessage : TG2SendMessage; aLocation : TLocationType;
+                                                   aFromModuleIndex : byte; aFromConnectorKind : TConnectorKind; aFromConnectorIndex : byte;
+                                                   aToModuleIndex : byte; aToConnectorKind : TConnectorKind; aToConnectorIndex : byte);
+    //procedure   AddDeleteConnectionMessage( SendMessage : TG2SendMessage; aFromConnector, aToConnector : TG2FileConnector);
     procedure   AddDeleteCableMessage( SendMessage : TG2SendMessage; aCable: TG2FileCable);
     procedure   AddAssignKnobMessage( SendMessage : TG2SendMessage; aLocation : TLocationType; aModule, aParam, aKnobIndex: integer);
     procedure   AddDeAssignKnobMessage( SendMessage : TG2SendMessage; aKnobIndex: integer);
@@ -2211,7 +2214,8 @@ begin
               Result := True;
 
               if aModuleIndex <> 0 then
-                FPatch.InitParameterValue(TLocationType(aLocation), aModuleIndex, aParamIndex, aVariation, aValue);
+                //FPatch.InitParameterValue(TLocationType(aLocation), aModuleIndex, aParamIndex, aVariation, aValue);
+                FPatch.SetParamInPatch(TLocationType(aLocation), aModuleIndex, aParamIndex, aVariation, aValue);
             end;
       C_CURRENT_NOTE_2 :
             begin // Current note
@@ -2421,7 +2425,8 @@ begin
                         MemStream.Position := MemStream.Size;
                         Result := True;
 
-                        Patch.InitParameterValue( TLocationType(aLocation), aModuleIndex, aParameterIndex, aVariation, aValue);
+                        //Patch.InitParameterValue( TLocationType(aLocation), aModuleIndex, aParameterIndex, aVariation, aValue);
+                        Patch.SetParamInPatch( TLocationType(aLocation), aModuleIndex, aParameterIndex, aVariation, aValue);
                       end;
                 S_SET_MODE :
                       begin
@@ -2817,7 +2822,7 @@ begin
   end;
 end;
 
-procedure TG2MessPatch.AddDeleteConnectionMessage( SendMessage : TG2SendMessage; aFromConnector, aToConnector : TG2FileConnector);
+{procedure TG2MessPatch.AddDeleteConnectionMessage( SendMessage : TG2SendMessage; aFromConnector, aToConnector : TG2FileConnector);
 var FromModule, ToModule : TG2FileModule;
     Location : TLocationType;
     BitWriter : TBitWriter;
@@ -2851,11 +2856,45 @@ begin
     BitWriter.Free;
     MemStream.Free;
   end;
+end;}
+
+procedure TG2MessPatch.AddDeleteConnectionMessage( SendMessage : TG2SendMessage; aLocation : TLocationType;
+                                                   aFromModuleIndex : byte; aFromConnectorKind : TConnectorKind; aFromConnectorIndex : byte;
+                                                   aToModuleIndex : byte; aToConnectorKind : TConnectorKind; aToConnectorIndex : byte);
+var BitWriter : TBitWriter;
+    MemStream : TG2Message;
+begin
+  MemStream := TG2Message.Create;
+  BitWriter := TBitWriter.Create;
+  try
+
+    // Create the delete cable message
+    BitWriter.WriteBits( MemStream, S_DEL_CABLE, 8);
+    BitWriter.WriteBits( MemStream, 1, 7); // Unknown
+    BitWriter.WriteBits( MemStream, ord(aLocation), 1);
+    BitWriter.WriteBits( MemStream, aFromModuleIndex, 8);
+    BitWriter.WriteBits( MemStream, Ord(aFromConnectorKind), 2);
+    BitWriter.WriteBits( MemStream, aFromConnectorIndex, 6);
+    BitWriter.WriteBits( MemStream, aToModuleIndex, 8);
+    BitWriter.WriteBits( MemStream, Ord(aToConnectorKind), 2);
+    BitWriter.WriteBits( MemStream, aToConnectorIndex, 6);
+
+    SendMessage.Add( MemStream);
+  finally
+    BitWriter.Free;
+    MemStream.Free;
+  end;
 end;
 
 procedure TG2MessPatch.AddDeleteCableMessage( SendMessage : TG2SendMessage; aCable: TG2FileCable);
 begin
-  AddDeleteConnectionMessage( SendMessage, aCable.FromConnector, aCable.ToConnector);
+  AddDeleteConnectionMessage( SendMessage, aCable.FromConnector.Module.Location,
+                              aCable.FromConnector.Module.ModuleIndex,
+                              aCable.FromConnector.ConnectorKind,
+                              aCable.FromConnector.ConnectorIndex,
+                              aCable.ToConnector.Module.ModuleIndex,
+                              aCable.ToConnector.ConnectorKind,
+                              aCable.ToConnector.ConnectorIndex);
 end;
 
 procedure TG2MessPatch.AddAssignKnobMessage( SendMessage : TG2SendMessage; aLocation : TLocationType; aModule, aParam, aKnobIndex: integer);
@@ -3449,12 +3488,33 @@ begin
         Chunk.Flush;
       end;
 
+      // Create undo add cables messages
+
       // Write cablechunk
       Chunk.WriteBits( ord(aToLocation),  2);
       Chunk.WriteBits( aSrcePatch.CableList.Unknown,    12); // Unknown
       Chunk.WriteBits( aSrcePatch.CableList.Count,      10); // CableCount
       for i := 0 to aSrcePatch.CableList.Count - 1 do begin
         Cable := aSrcePatch.CableList[i];
+
+        if Cable.LinkType = 0 then
+          AddDeleteConnectionMessage( FUndoMessage,
+                                      aToLocation,
+                                      GetNewModuleIndex(Cable.ModuleFrom),
+                                      ckInput,
+                                      Cable.ConnectorFrom,
+                                      GetNewModuleIndex(Cable.ModuleTo),
+                                      ckInput,
+                                      Cable.ConnectorTo)
+        else
+          AddDeleteConnectionMessage( FUndoMessage,
+                                      aToLocation,
+                                      GetNewModuleIndex(Cable.ModuleFrom),
+                                      ckOutput,
+                                      Cable.ConnectorFrom,
+                                      GetNewModuleIndex(Cable.ModuleTo),
+                                      ckInput,
+                                      Cable.ConnectorTo);
 
         Chunk.WriteBits( Cable.CableColor, 3);
         Chunk.WriteBits( GetNewModuleIndex(Cable.ModuleFrom), 8);
@@ -3901,10 +3961,23 @@ begin
   if aFromConnector.Module.Location <> aToConnector.Module.Location then
     raise Exception.Create('Modules are in different patch locations.');
 
+  if (aFromConnector.ConnectorKind = ckOutput) and (aToConnector.ConnectorKind = ckOutput) then
+    raise Exception.Create('Cannot connect an output to an output.');
+
+  //if (aFromConnector.ConnectorKind = ckInput) and (aToConnector.ConnectorKind = ckInput) then
+  //  raise Exception.Create('Cannot connect an input to an input.');
+
   // Create the add cable message
   Result := CreatePatchMessage;
 
-  AddDeleteConnectionMessage( FUndoMessage, aFromConnector, aToConnector);
+  AddDeleteConnectionMessage( FUndoMessage,
+                              aFromConnector.Module.Location,
+                              aFromConnector.Module.ModuleIndex,
+                              aFromConnector.ConnectorKind,
+                              aFromConnector.ConnectorIndex,
+                              aToConnector.Module.ModuleIndex,
+                              aToConnector.ConnectorKind,
+                              aToConnector.ConnectorIndex);
   AddConnectionMessage( Result, aFromConnector, aToConnector);
 
   // Add messages for uprate changes and cable color changes

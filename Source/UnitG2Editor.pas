@@ -68,14 +68,19 @@ unit UnitG2Editor;
 // Patch parameter button labels
 // Version control paramdef.xml, moduledef.xml
 // doubling bug in patch manager
+// Midi, send receieve sysex
 
 // Solve compiler warnings
-// Midi, send receieve sysex
 // Add ini file for VST
 // store/retrieve functions patch manager also with midi only connection
 // Module editor in seperate app.
 // VST clear knob assignmenst on patch change
+// Copy patch->Undo->Cables are not deleted
+// Delete Cable too...->Message not send?
+// Cable colors (uprate)
 
+
+// Morph value showing on sliders and buttons
 // Set parameter functions to g2_file
 // Make Set..InPatch functions private
 // Auto assign midi
