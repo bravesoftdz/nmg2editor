@@ -3,10 +3,13 @@ unit UnitModuleDef;
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.Grids, Vcl.ExtCtrls,
-  DOM, XMLWrite, g2_types, g2_database, g2_graph, g2_file, g2_mess, g2_usb, g2_classes,
-  Vcl.ActnList, Vcl.PlatformDefaultStyleActnCtrls, Vcl.ActnMan;
+  Windows, Messages, SysUtils, Variants, Classes, Graphics,
+  Controls, Forms, Dialogs, StdCtrls, Grids, ExtCtrls,
+  ActnList, ActnMan, XPStyleActnCtrls,
+{$IFDEF G2_VER200_up}
+  PlatformDefaultStyleActnCtrls,
+{$ENDIF}
+  DOM, XMLWrite, g2_types, g2_database, g2_graph, g2_file, g2_mess, g2_usb, g2_classes;
 
 type
   TfrmModuleDef = class(TForm)

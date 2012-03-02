@@ -20,7 +20,8 @@ uses
   UnitConnSettings in '..\..\Source\UnitConnSettings.pas' {frmCommSettings},
   UnitEditorTools in '..\..\Source\UnitEditorTools.pas' {frmEditorTools},
   UnitPatchManager in '..\..\Source\UnitPatchManager.pas' {frmPatchManager},
-  UnitSettings in '..\..\Source\UnitSettings.pas' {frmSettings};
+  UnitSettings in '..\..\Source\UnitSettings.pas' {frmSettings},
+  UnitModuleDef in '..\..\Source\UnitModuleDef.pas' {frmModuleDef};
 
 {$R *.res}
 
@@ -42,5 +43,6 @@ begin
   Application.CreateForm(TfrmEditorTools, frmEditorTools);
   Application.CreateForm(TfrmPatchManager, frmPatchManager);
   Application.CreateForm(TfrmSettings, frmSettings);
+  Application.CreateForm(TfrmModuleDef, frmModuleDef);
   Application.Run;
 end.

@@ -253,9 +253,15 @@ begin
 end;
 
 procedure TSearchThread.AddFile;
+var sr : TSearchRec;
 begin
   if frmPatchManager.TabControl1.TabIndex = 0 then
+  {$IFDEF G2_VER200_up}
+    // Don't know exactly in what version this was changed
     frmPatchManager.AddFile(FCurrPath, FCurrSr.Name, FCurrSr.TimeStamp);
+  {$ELSE}
+    frmPatchManager.AddFile(FCurrPath, FCurrSr.Name, FileDateToDateTime(FCurrSr.Time));
+  {$ENDIF}
 end;
 
 procedure TfrmPatchManager.aSearchExecute(Sender: TObject);

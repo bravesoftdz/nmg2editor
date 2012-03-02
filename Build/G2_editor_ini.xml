@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <G2_Editor_settings>
   <TCP_settings IP="127.0.0.1" Port="2501" IsServer="-1" TimerBroadcastLedMessages="500"/>
-  <MainForm PosX="252" PosY="12" SizeX="1140" SizeY="605" Visible="-1"/>
+  <MainForm PosX="252" PosY="12" SizeX="1140" SizeY="835" Visible="-1"/>
   <PatchManagerSettings BaseFolder="C:\Users\Bruno\Documents\Nord Modular Patches\G2 Patches\" SelectedTab="2" ExternalSortCol="0" InternalSortCol="1"/>
   <PatchManagerForm PosX="1206" PosY="204" SizeX="387" SizeY="738" Visible="0"/>
   <SettingsForm PosX="684" PosY="263" SizeX="504" SizeY="219" Visible="0"/>

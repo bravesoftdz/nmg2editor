@@ -478,6 +478,8 @@ object frmModuleDef: TfrmModuleDef
         80808080808080808080808080808080808080804E4E4E000000}
       BackgroundColor = clWindow
       RackColor = clGray
+      DoubleBuffered = False
+      ParentDoubleBuffered = False
     end
   end
   object G2_module_def: TG2
@@ -496,7 +498,7 @@ object frmModuleDef: TfrmModuleDef
   object ActionManager1: TActionManager
     Left = 448
     Top = 16
-    StyleName = 'Platform Default'
+    StyleName = 'XP Style'
     object aExtractModuleInfo: TAction
       Caption = 'Extract module info'
       OnExecute = aExtractModuleInfoExecute
