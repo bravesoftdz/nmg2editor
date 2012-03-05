@@ -704,6 +704,8 @@ function TVstTemplateEditor.getRect(var rect: PERect): longint;
 begin
  r.top := 0;
  r.left := 0;
+ r.bottom := 602;
+ r.right := 271;
  if assigned(Editor) then
  begin
   r.bottom := Editor.ClientHeight;

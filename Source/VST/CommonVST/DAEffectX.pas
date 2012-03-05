@@ -371,13 +371,13 @@ type
       stepFloat        : single;
       smallStepFloat   : single;
       largeStepFloat   : single;
-      vLabel           : array[0..63] of char;
+      vLabel           : array[0..63] of AnsiChar;
       flags            : longint;    // see below
       minInteger       : longint;
       maxInteger       : longint;
       stepInteger      : longint;
       largeStepInteger : longint;
-      shortLabel       : array[0..7] of char;   // recommended: 6 + delimiter
+      shortLabel       : array[0..7] of AnsiChar;   // recommended: 6 + delimiter
 
       // the following are for remote controller display purposes.
       // note that the kVstParameterSupportsDisplayIndex flag must be set.
@@ -396,9 +396,9 @@ type
       category         : smallint;     // 0: no category, else group index + 1
       numParametersInCategory : smallint;
       reserved         : smallint;
-      categoryLabel    : array[0..23] of char;    // for instance, "Osc 1"
+      categoryLabel    : array[0..23] of AnsiChar;    // for instance, "Osc 1"
 
-      future           : array[0..15] of char;
+      future           : array[0..15] of AnsiChar;
     end;
 
 //---Parameter Properties Flags--------------------
@@ -419,10 +419,10 @@ const
 type
     PVstPinProperties = ^VstPinProperties;
     VstPinProperties = packed record
-      vLabel          : array[0..63] of char;
+      vLabel          : array[0..63] of AnsiChar;
       flags           : longint;              // see pin properties flags
       arrangementType : longint;
-      shortLabel      : array[0..7] of char;  // recommended: 6 + delimiter
+      shortLabel      : array[0..7] of AnsiChar;  // recommended: 6 + delimiter
       future          : array[0..47] of byte;
     end;
 
@@ -464,7 +464,7 @@ type
     PMidiProgramName = ^MidiProgramName;
     MidiProgramName = packed record
       thisProgramIndex      : longint;  // >= 0. fill struct for this program index.
-      name                  : array[0..63] of char;
+      name                  : array[0..63] of AnsiChar;
       midiProgram           : shortint;	// -1:off, 0-127
       midiBankMsb           : shortint;	// -1:off, 0-127
       midiBankLsb           : shortint;	// -1:off, 0-127
@@ -483,7 +483,7 @@ type
     PMidiProgramCategory = ^MidiProgramCategory;
     MidiProgramCategory = packed record
       thisCategoryIndex   : longint;      // >= 0. fill struct for this category index.
-      name                : array[0..63] of char;
+      name                : array[0..63] of AnsiChar;
       parentCategoryIndex : longint;      // -1:no parent category
       flags               : longint;      // reserved, none defined yet, zero.
     end;
@@ -494,7 +494,7 @@ type
     MidiKeyName = packed record
       thisProgramIndex : longint;    // >= 0. fill struct for this program index.
       thisKeyNumber    : longint;    // 0 - 127. fill struct for this key number.
-      keyName          : array[0..63] of char;
+      keyName          : array[0..63] of AnsiChar;
       reserved         : longint;    // zero
       flags            : longint;    // reserved, none defined yet, zero.
     end;
@@ -523,7 +523,7 @@ type
       elevation : single;               // rad         -PI/2...PI/2	10.f for LFE channel
       radius    : single;               // meter                          0.f for LFE channel
       reserved  : single;               // 0.
-      name      : array[0..63] of char; // for new setups, new names should be given (L/R/C... won't do)
+      name      : array[0..63] of AnsiChar; // for new setups, new names should be given (L/R/C... won't do)
       vType     : longint;              // speaker type
       future    : array[0..27] of byte;
     end;
@@ -671,7 +671,7 @@ const
 type
     PVstOfflineTask = ^VstOfflineTask;
     VstOfflineTask = packed record
-      processName: array[0..95] of char;  // set by plug
+      processName: array[0..95] of AnsiChar;  // set by plug
 
       // audio access
       readPosition: Double;               // set by plug/host
@@ -699,12 +699,12 @@ type
       numDestinationChannels: longint;    // set by host or plug
       sourceFormat: longint;              // set by host
       destinationFormat: longint;         // set by plug
-      outputText: array[0..511] of char;  // set by plug or host
+      outputText: array[0..511] of AnsiChar;  // set by plug or host
 
       // progress notification
       progress: Double;                   // set by plug
       progressMode: longint;              // reserved for future
-      progressText: array[0..99] of char; // set by plug
+      progressText: array[0..99] of AnsiChar; // set by plug
 
       flags: longint;         // set by host and plug; see VstOfflineTaskFlags
       returnValue: longint;   // reserved for future
@@ -754,7 +754,7 @@ type
       flags: longint;		  	// see enum VstAudioFileFlags
       hostOwned: pointer;	  	// any data private to host
       plugOwned: pointer;	  	// any data private to plugin
-      name: array[0..99] of char; 	// file title
+      name: array[0..99] of AnsiChar; 	// file title
       uniqueId: longint;	  	// uniquely identify a file during a session
       sampleRate: Double;	  	// file sample rate
       numChannels: longint; 	        // number of channels (1 for mono, 2 for stereo...)
@@ -801,7 +801,7 @@ type
     PVstAudioFileMarker = ^VstAudioFileMarker;
     VstAudioFileMarker = packed record
       position: Double;
-      name: array[0..31] of char;
+      name: array[0..31] of AnsiChar;
       vType: longint;
       id: longint;
       reserved: longint;
@@ -815,7 +815,7 @@ type
 type
     PVstWindow = ^VstWindow;
     VstWindow = packed record
-      title: array[0..127] of char;    // title
+      title: array[0..127] of AnsiChar;    // title
       xPos: smallint;                  // position and size
       yPos: smallint;
       width: smallint;
@@ -923,12 +923,12 @@ const
 type
     PVstFileType = ^VstFileType;
     VstFileType = packed record
-      name      : array[0..127] of char;
-      macType   : array[0..7] of char;
-      dosType   : array[0..7] of char;
-      unixType  : array[0..7] of char;
-      mimeType1 : array[0..127] of char;
-      mimeType2 : array[0..127] of char;
+      name      : array[0..127] of AnsiChar;
+      macType   : array[0..7] of AnsiChar;
+      dosType   : array[0..7] of AnsiChar;
+      unixType  : array[0..7] of AnsiChar;
+      mimeType1 : array[0..127] of AnsiChar;
+      mimeType2 : array[0..127] of AnsiChar;
     end;
 
     PVstFileSelect = ^VstFileSelect;
@@ -941,7 +941,7 @@ type
       nbFileTypes          : longint;         // nb of fileTypes to used
       fileTypes            : PVstFileType;    // list of fileTypes
 
-      title                : array[0..1023] of char;  // text display in the file selector's title
+      title                : array[0..1023] of AnsiChar;  // text display in the file selector's title
 
       initialPath          : pAnsiChar;   // initial path
 
@@ -975,7 +975,7 @@ type
       pluginUniqueID : longint;               // UniqueID of the plugin
       pluginVersion  : longint;               // Plugin Version
       numElements    : longint;	              // Number of Programs (Bank) or Parameters (Program)
-      future         : array[0..47] of char;
+      future         : array[0..47] of AnsiChar;
     end;
 
 

@@ -78,7 +78,7 @@ type
       version: longint;		// (example 1100 for version 1.1.0.0)
       processReplacing: TProcessReplacingProc;
 
-      future: array[0..59] of char;	// pls zero
+      future: array[0..59] of AnsiChar;	// pls zero
     end;
 
 

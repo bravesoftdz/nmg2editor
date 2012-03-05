@@ -244,7 +244,8 @@ begin
                             v := Editor.getRect(pe);
                             PPERect(ptr)^ := pe;
                           end;
-    effEditOpen        :  if Assigned(editor) then  v := Editor.Open(ptr);
+    effEditOpen        :  if Assigned(editor) then
+                             v := Editor.Open(ptr);
     effEditClose       :  if Assigned(editor) then  Editor.Close;
     effEditIdle        :  if Assigned(editor) then  Editor.Idle;
 

@@ -52,7 +52,7 @@ type
       fxVersion  : longint;
 
       numParams  : longint;
-      prgName    : array[0..27] of char;
+      prgName    : array[0..27] of AnsiChar;
       params     : pointer; //array[0..0] of single;    // variable no. of parameters
     end;
 
@@ -69,7 +69,7 @@ type
       fxVersion   : longint;
 
       numPrograms : longint;
-      prgName     : array[0..27] of char;
+      prgName     : array[0..27] of AnsiChar;
 
       chunkSize   : longint;
       chunk       : pointer; //array[0..7] of char;    // variable

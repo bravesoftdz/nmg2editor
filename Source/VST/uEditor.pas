@@ -96,6 +96,14 @@ type
     bfP6: TG2GraphButtonFlat;
     bfP7: TG2GraphButtonFlat;
     bfP8: TG2GraphButtonFlat;
+    Disp1C: TG2GraphDisplay;
+    Disp2C: TG2GraphDisplay;
+    Disp3C: TG2GraphDisplay;
+    Disp4C: TG2GraphDisplay;
+    Disp5C: TG2GraphDisplay;
+    Disp6C: TG2GraphDisplay;
+    Disp7C: TG2GraphDisplay;
+    Disp8C: TG2GraphDisplay;
     procedure UpdaterTimer(Sender: TObject);
     procedure rbPageColumnClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -111,6 +119,7 @@ type
     FDispKnobArray   : array[0..7] of TG2GraphDisplay;
     FDispModuleArray : array[0..7] of TG2GraphDisplay;
     FButtonArray     : array[0..7] of TG2GraphButtonFlat;
+    FDispButtonArray : array[0..7] of TG2GraphDisplay;
     procedure OnEditorOpen(var Msg: TMessage); message WM_EDITOROPEN;
   public
     procedure UpdateControls;
@@ -126,6 +135,9 @@ uses SysUtils, uPlugin;
 
 procedure TPluginEditorWindow.Button1Click(Sender: TObject);
 begin
+  if (not assigned(Effect)) or (not assigned((Effect as APlugin).FG2)) then
+    exit;
+
   (Effect as APlugin).FG2.save_log;
 end;
 
@@ -168,14 +180,23 @@ begin
   FButtonArray[5] := bfP6;
   FButtonArray[6] := bfP7;
   FButtonArray[7] := bfP8;
+
+  FDispButtonArray[0] := Disp1C;
+  FDispButtonArray[1] := Disp2C;
+  FDispButtonArray[2] := Disp3C;
+  FDispButtonArray[3] := Disp4C;
+  FDispButtonArray[4] := Disp5C;
+  FDispButtonArray[5] := Disp6C;
+  FDispButtonArray[6] := Disp7C;
+  FDispButtonArray[7] := Disp8C;
 end;
 
 procedure TPluginEditorWindow.UpdaterTimer(Sender: TObject);
 begin
- try
-   if (not assigned(Effect)) or not(Effect.editorNeedsUpdate) then
-     exit;
+  if (not assigned(Effect)) or not(Effect.editorNeedsUpdate) or (not assigned((Effect as APlugin).FG2)) then
+    exit;
 
+ try
     Effect.editorNeedsUpdate := false;
     UpdateControls;
   except on E:Exception do begin
@@ -191,8 +212,11 @@ var i, j : integer;
     Knob : TGlobalKnob;
     Module : TG2FileModule;
     Param, ButtonParam : TG2FileParameter;
-    Status : string;
+    Status : String;
 begin
+  if (not assigned(Effect)) or (not assigned((Effect as APlugin).FG2)) then
+    exit;
+
   FDisableControls := true;
   (Effect as APlugin).FG2.Lock;
   try
@@ -218,6 +242,7 @@ begin
           FDispKnobArray[i].Line[1] := Param.TextFunction(1001, 1, 2);
           FDispModuleArray[i].Line[0] := Param.TextFunction(1002, 0, 1);
           FButtonArray[i].ButtonText.Clear;
+          FDispButtonArray[i].Line[0] := '';
           if assigned(Param.ButtonParam) then begin
             ButtonParam := Param.ButtonParam;
             for j := 0 to ButtonParam.ButtonTextCount - 1 do
@@ -225,12 +250,14 @@ begin
             FButtonArray[i].Value := ButtonParam.GetParameterValue;
             FButtonArray[i].LowValue := ButtonParam.LowValue;
             FButtonArray[i].HighValue := ButtonParam.HighValue;
+            FDispButtonArray[i].Line[0] := ButtonParam.TextFunction(1002, 0, 1);
           end;
         end else begin
           FKnobArray[i].Value := 0;
           FDispKnobArray[i].Line[0] := '';
           FDispKnobArray[i].Line[1] := '';
           FDispModuleArray[i].Line[0] := '';
+          FDispButtonArray[i].Line[0] := '';
           FButtonArray[i].ButtonText.Clear;
         end;
       end;
@@ -417,14 +444,8 @@ end;
 
 procedure TPluginEditorWindow.OnEditorOpen(var Msg: TMessage);
 begin
-  try
-    Effect := TVstTemplate(Msg.WParam);
-    Effect.editorNeedsUpdate := True;
-  except on E:Exception do begin
-     (Effect as APlugin).FG2.add_log_line('OnEditorOpen : ' + E.Message, LOGCMD_NUL);
-     (Effect as APlugin).FG2.save_log;
-    end;
-  end;
+  Effect := TVstTemplate(Msg.WParam);
+  Effect.editorNeedsUpdate := True;
 end;
 
 end.

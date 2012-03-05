@@ -51,7 +51,7 @@ type
      function    getChunk(var data: pointer; isPreset: Boolean): longint; override;
      function    setChunk(data: pointer; byteSize: longint; isPreset: Boolean): longint; override;
 
-     function    GetStatusText : string;
+     function    GetStatusText : String;
 
      procedure   processAudio(const inputs, outputs: TArrayOfSingleArray; sampleframes: Integer); override;
      procedure   editorIdle(Sender: TObject);
@@ -113,7 +113,7 @@ begin
    multipass, metapass, _1in1out, _1in2out, _2in1out, _2in2out,
    _2in4out, _4in2out, _4in4out, _4in8out, _8in4out, _8in8out,
    midiProgramNames, conformsToWindowRules, bypass }
-  canDos := [receiveVstEvents, receiveVstMidiEvent, sendVstEvents, sendVstMidiEvent];
+  canDos := [receiveVstEvents{, receiveVstMidiEvent}, sendVstEvents{, sendVstMidiEvent}];
 
   // define some plugin properties
  { prIsSynth, prHasVu, prHasClip, prCanMono,
@@ -190,26 +190,124 @@ begin
   FMemStream.Write(i, SizeOf(i));
 end;
 
+procedure APlugin.initializeParameters;
+var i, j, Page, PageColumn, ParamIndex : integer;
+    name : AnsiString;
+    value : single;
+    Module : TG2FileModule;
+    Param, ButtonParam : TG2FileParameter;
+    Knob : TGlobalKnob;
+begin
+  // initialize your parameters here:
+  if (not assigned(FG2)) then
+    exit;
+
+  try
+    FG2.LogLevel := 1;
+    FG2.add_log_line( 'Initialize parameters', LOGCMD_NUL);
+
+    FG2.LoadModuleDefs(GetLibraryPath);
+    //FG2.USBActive := True;
+
+    if FG2.USBActive then begin
+
+
+      for i := 0 to FNumGlobalKnobs - 1 do begin
+        Value := FG2.Performance.GlobalKnobList.Items[i].KnobFloatValue;
+
+        inherited setParameter( i , Value);
+
+        ParamIndex := i mod 8;
+        PageColumn := (i div 8) mod 3;
+        Page := (i div 8) div 3;;
+
+        Name := 'Page ' + chr(65 + Page) + IntToStr(PageColumn) + ' Knob ' + IntTostr(ParamIndex);
+        j := 1;
+        while (j <= Length(Name)) and (j <= 30) do begin
+          ParameterProperties[i].name[j-1] := Name[j];
+          inc(j);
+        end;
+        ParameterProperties[i].name[j-1] := #0;
+      end;
+
+      for i := 0 to FNumGlobalButtons - 1 do begin
+
+        Knob := FG2.Performance.GlobalKnobList.Items[i];
+        Value := Knob.KnobButtonFloatValue;
+
+        inherited setParameter( FNumGlobalKnobs + i , Value);
+
+        ParamIndex := i mod 8;
+        PageColumn := (i div 8) mod 3;
+        Page := (i div 8) div 3;;
+
+        Name := 'Page ' + chr(65 + Page) + IntToStr(PageColumn) + ' Btn ' + IntTostr(ParamIndex);
+        j := 1;
+        while (j <= Length(Name)) and (j <= 30) do begin
+          ParameterProperties[ FNumGlobalKnobs + i].name[j-1] := Name[j];
+          inc(j);
+        end;
+        ParameterProperties[ FNumGlobalKnobs + i].name[j-1] := #0;
+      end;
+
+      for i := 0 to FNumVariationParams - 1 do begin
+        Value := FG2.GetSlot(i).GetPatch.ActiveVariation / 7;
+
+        inherited setParameter( FNumGlobalKnobs + FNumGlobalButtons +  i , Value);
+
+        Name := 'Variation slot ' + IntToStr( i + 1);
+        j := 1;
+        while (j <= Length(Name)) and (j <= 30) do begin
+          ParameterProperties[ FNumGlobalKnobs + FNumGlobalButtons +  i].name[j-1] := Name[j];
+          inc(j);
+        end;
+        ParameterProperties[ FNumGlobalKnobs + FNumGlobalButtons +  i].name[j-1] := #0;
+      end;
+    end;
+  except on E:Exception do
+    begin
+      FG2.LastError := E.Message;
+      FG2.add_log_line( E.Message, LOGCMD_ERR);
+    end;
+  end;
+end;
+
 function APlugin.getChunk(var data: pointer; isPreset: Boolean): longint;
 begin
-  FG2.add_log_line('getChunk', LOGCMD_NUL);
-  if isPreset then begin
-    // Save a patch
+  data := nil;
+  Result := 0;
 
-    FMemStream.Clear;
-    FG2.GetSlot( FSelectedSlot).GetPatch.SaveToFile( FMemStream);
-    FMemStream.Position := 0;
-    data := FMemStream.Memory;
-    result := FMemStream.Size;
+  if (not assigned(FG2)) or (not FG2.USBActive) then
+    exit;
 
-  end else begin
-    // Save a performance
+  try
+    FG2.add_log_line('getChunk', LOGCMD_NUL);
+    if isPreset then begin
+      // Save a patch
 
-    FMemStream.Clear;
-    FG2.Performance.SaveToFile( FMemStream);
-    FMemStream.Position := 0;
-    data := FMemStream.Memory;
-    result := FMemStream.Size;
+      FMemStream.Clear;
+      FG2.GetSlot( FSelectedSlot).GetPatch.SaveToFile( FMemStream);
+      FMemStream.Position := 0;
+      data := FMemStream.Memory;
+      result := FMemStream.Size;
+
+    end else begin
+      // Save a performance
+
+      FMemStream.Clear;
+      FG2.Performance.SaveToFile( FMemStream);
+      FMemStream.Position := 0;
+      data := FMemStream.Memory;
+      result := FMemStream.Size;
+    end;
+
+  except
+    on E:Exception do begin
+      FG2.LastError := E.Message;
+      EditorNeedsUpdate := True;
+      FG2.add_log_line( 'GetChunk : ' + E.Message, LOGCMD_NUL);
+      FG2.save_log;
+    end;
   end;
 end;
 
@@ -217,8 +315,12 @@ function APlugin.setChunk(data: pointer; byteSize: Integer; isPreset: Boolean): 
 var aPatch : TG2USBPatch;
     aPerf : TG2FilePerformance;
 begin
-  FG2.add_log_line('setChunk', LOGCMD_NUL);
+  Result := 0;
+  if (not assigned(FG2)) or (not FG2.USBActive) then
+    exit;
+
   try
+    FG2.add_log_line('setChunk', LOGCMD_NUL);
     if isPreset then begin
       // Load a patch
 
@@ -257,81 +359,6 @@ begin
       EditorNeedsUpdate := True;
       FG2.add_log_line( 'SetChunk : ' + E.Message, LOGCMD_NUL);
       FG2.save_log;
-    end;
-  end;
-end;
-
-procedure APlugin.initializeParameters;
-var i, j, Page, PageColumn, ParamIndex : integer;
-    name : AnsiString;
-    value : single;
-    Module : TG2FileModule;
-    Param, ButtonParam : TG2FileParameter;
-    Knob : TGlobalKnob;
-begin
-  // initialize your parameters here:
-  FG2.LogLevel := 1;
-  try
-    FG2.LoadModuleDefs(GetLibraryPath);
-    FG2.USBActive := True;
-
-    FG2.add_log_line( 'Initialize parameters', LOGCMD_NUL);
-
-    for i := 0 to FNumGlobalKnobs - 1 do begin
-      Value := FG2.Performance.GlobalKnobList.Items[i].KnobFloatValue;
-
-      inherited setParameter( i , Value);
-
-      ParamIndex := i mod 8;
-      PageColumn := (i div 8) mod 3;
-      Page := (i div 8) div 3;;
-
-      Name := 'Page ' + chr(65 + Page) + IntToStr(PageColumn) + ' Knob ' + IntTostr(ParamIndex);
-      j := 1;
-      while (j <= Length(Name)) and (j <= 30) do begin
-        ParameterProperties[i].name[j-1] := Name[j];
-        inc(j);
-      end;
-      ParameterProperties[i].name[j-1] := #0;
-    end;
-
-    for i := 0 to FNumGlobalButtons - 1 do begin
-
-      Knob := FG2.Performance.GlobalKnobList.Items[i];
-      Value := Knob.KnobButtonFloatValue;
-
-      inherited setParameter( FNumGlobalKnobs + i , Value);
-
-      ParamIndex := i mod 8;
-      PageColumn := (i div 8) mod 3;
-      Page := (i div 8) div 3;;
-
-      Name := 'Page ' + chr(65 + Page) + IntToStr(PageColumn) + ' Btn ' + IntTostr(ParamIndex);
-      j := 1;
-      while (j <= Length(Name)) and (j <= 30) do begin
-        ParameterProperties[ FNumGlobalKnobs + i].name[j-1] := Name[j];
-        inc(j);
-      end;
-      ParameterProperties[ FNumGlobalKnobs + i].name[j-1] := #0;
-    end;
-
-    for i := 0 to FNumVariationParams - 1 do begin
-      Value := FG2.GetSlot(i).GetPatch.ActiveVariation / 7;
-
-      inherited setParameter( FNumGlobalKnobs + FNumGlobalButtons +  i , Value);
-
-      Name := 'Variation slot ' + IntToStr( i + 1);
-      j := 1;
-      while (j <= Length(Name)) and (j <= 30) do begin
-        ParameterProperties[ FNumGlobalKnobs + FNumGlobalButtons +  i].name[j-1] := Name[j];
-        inc(j);
-      end;
-      ParameterProperties[ FNumGlobalKnobs + FNumGlobalButtons +  i].name[j-1] := #0;
-    end;
-  except on E:Exception do
-    begin
-      FG2.LastError := E.Message;
-      FG2.add_log_line( E.Message, LOGCMD_ERR);
     end;
   end;
 end;
@@ -395,9 +422,13 @@ var Knob : TKnob;
 begin
   // Host queries parameter
 
+  Result := 0;
+
+  if (not assigned(FG2)) or (not FG2.USBActive) then
+    exit;
+
   //addLogline('getParameter, index = ' + IntToStr(index));
 
-  Result := 0;
   if (index >= 0) and (index < FNumParameters) then begin
     if index < FNumGlobalKnobs then begin
       Knob := FG2.Performance.GlobalKnobList.Items[ index];
@@ -416,8 +447,12 @@ begin
   //  addLogline('  Result =  ' + FloatToStr(Result));
 end;
 
-function APlugin.GetStatusText: string;
+function APlugin.GetStatusText: String;
 begin
+  Result := '';
+  if not assigned(FG2) then
+    exit;
+
   if FG2.USBActive then
     Result := '[Online]'
   else
@@ -434,6 +469,9 @@ var Knob : TGlobalKnob;
     Patch : TG2USBPatch;
     ButtonParam : TG2FileParameter;
 begin
+  if (not assigned(FG2)) or (not FG2.USBActive) then
+    exit;
+
   try
     // Parameter change from Host
 

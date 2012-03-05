@@ -376,6 +376,7 @@ type
       property    Port : integer read FPort write FPort;
       property    Host : string read FHost write FHost;
       property    USBActive : boolean read GetUSBActive write SetUSBActive;
+      property    Initialized : boolean read FInitialized;
       property    ProcessLedData : boolean read FProcessLedData write FProcessLedData;
       property    TimerBroadcastLedMessages : integer read FTimerBroadcastLedMessages write FTimerBroadcastLedMessages default 500;
       property    OnUSBError : TUSBErrorEvent read FOnUSBError write FOnUSBError;
@@ -1247,8 +1248,8 @@ end;
 
 procedure TG2USB.USBProcessSendMessage( ClientSendMessage : TClientSendMessage);
 begin
+  // Responseless messages that originate from the server are already processed in patch
   if not((ClientSendMessage.FClientContext = nil) and not(ClientSendMessage.FMessage.HasResponse)) then begin
-    // Only forward responseless messages to clients comming from server (to prevent loopbacks)
     ClientSendMessage.FMessage.Position := 0;
     if not ProcessSendMessage( ClientSendMessage.FMessage, ClientSendMessage.FMessageSender.ID) then
        add_log_line( DateTimeToStr(Now) + ' Send message not processed.', LOGCMD_ERR);
@@ -1504,6 +1505,7 @@ procedure TG2USB.ServerBroadcastSendMessage( ClientSendMessage : TClientSendMess
 var i : integer;
     LClients: TList;
     LClientContext: TClientContext;
+    SenderIsThisClient : boolean;
 begin
   if not assigned(FIdTCPServer) then
     exit;
@@ -1514,11 +1516,16 @@ begin
     for i := 0 to LClients.Count -1 do begin
       LClientContext := TClientContext(LClients[i]);
 
-      LClientContext.Lock;
-      try
-        LClientContext.ServerSendClientSendMessage( ClientSendMessage);
-      finally
-        LClientContext.Unlock;
+      SenderIsThisClient := (ClientSendMessage.FClientContext <> nil)
+                        and (LClientContext.FClient.ID = ClientSendMessage.FClientContext.FClient.ID);
+      // Don't send responseless messages back to sender
+      if not(SenderIsThisClient and not(ClientSendMessage.FMessage.HasResponse)) then begin
+        LClientContext.Lock;
+        try
+          LClientContext.ServerSendClientSendMessage( ClientSendMessage);
+        finally
+          LClientContext.Unlock;
+        end;
       end;
     end;
   finally

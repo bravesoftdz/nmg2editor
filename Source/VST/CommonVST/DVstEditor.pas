@@ -11,7 +11,7 @@ type
   public
     procedure Edit; override;
     procedure ExecuteVerb(Index: Integer); override;
-    function GetVerb(Index: Integer): string; override;
+    function GetVerb(Index: Integer): AnsiString; override;
     function GetVerbCount: Integer; override;
   end;
 
@@ -22,7 +22,7 @@ begin
   ExecuteVerb(0);
 end;
 
-function TVSTHostEditor.GetVerb(Index: Integer): string;
+function TVSTHostEditor.GetVerb(Index: Integer): AnsiString;
 begin
   case Index of
     0: Result := 'Load PlugIn';

@@ -365,7 +365,7 @@ var
   LibUSBHandle: Cardinal;
 
 
-
+{$IFNDEF G2_VST}
 initialization
   LibUSBHandle := LoadLibrary( LIBUSB_DLL_NAME);
   if LibUSBHandle <= 32 then
@@ -421,4 +421,5 @@ initialization
 
 finalization
   FreeLibrary(LibUSBHandle)
+{$ENDIF}
 end.

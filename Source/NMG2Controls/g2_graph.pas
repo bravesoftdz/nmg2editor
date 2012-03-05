@@ -1090,7 +1090,12 @@ begin
   Rect.Right := PS.rcPaint.Right - PS.rcPaint.Left;
   Rect.Bottom := PS.rcPaint.Bottom - PS.rcPaint.Top;
 
-  Canvas.CopyRect( PS.rcPaint, FExtBitmap.Canvas, Rect);
+  Canvas.Lock;
+  try
+    Canvas.CopyRect( PS.rcPaint, FExtBitmap.Canvas, Rect);
+  finally
+    Canvas.UnLock;
+  end;
 
   EndPaint(Handle, PS);
 end;
@@ -5405,7 +5410,6 @@ begin
         MorphParameter := GetMorph;
         if assigned(MorphParameter) then begin
 
-//          DrawDisk( Bitmap, mx, my, r, 3, Color, bsSolid);
           Bitmap.Canvas.Brush.Style := bsSolid;
           Bitmap.Canvas.Brush.Color := Color;
           Bitmap.Canvas.Pen.Color := Color;
@@ -5436,22 +5440,20 @@ begin
           end;
           Fastbitmap.CopyFromBitmap(Bitmap);
         end else begin // Non selected morph
-//          DrawDisk( Bitmap, mx, my, r, 3, CL_KNOB_MORPH, bsSolid);
             Fastbitmap.CopyFromBitmap(Bitmap);
             Fastbitmap.DrawAntialisedDisk(mx, my, r, 3, CL_KNOB_MORPH, bsSolid);
         end;
       end else begin // No morph
-//        DrawDisk( Bitmap, mx, my, r, 3, Color, bsSolid);
         Fastbitmap.CopyFromBitmap(Bitmap);
         Fastbitmap.DrawAntialisedDisk(mx, my, r, 3, Color, bsSolid);
       end;
 
-//      DrawWuLine( BitMap, p1, p2, clBlack);
       Fastbitmap.DrawAntialisedLine(p1.x, p1.y, p2.x, p2.y, clBlack);
-//      DrawDisk( Bitmap, mx, my, r, 2, clBlack, bsClear);
-
       Fastbitmap.DrawAntialisedDisk(mx, my, r, 2, clBlack, bsClear);
       Fastbitmap.CopyToBitmap(Bitmap);
+
+      //DrawWuLine( BitMap, p1, p2, clBlack);
+      //DrawDisk( Bitmap, mx, my, r, 2, clBlack, bsClear);
 
       if FType in [ktReset, ktResetMedium] then begin
 
