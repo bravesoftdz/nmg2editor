@@ -193,9 +193,7 @@ object frmParameterPages: TfrmParameterPages
     HighValue = 0
     ParentColor = False
     ParentFont = False
-    Lines.Strings = (
-      ''
-      '')
+    LineCount = 2
     TextFunction = 1001
   end
   object Disp2A: TG2GraphDisplay
@@ -214,9 +212,7 @@ object frmParameterPages: TfrmParameterPages
     HighValue = 0
     ParentColor = False
     ParentFont = False
-    Lines.Strings = (
-      ''
-      '')
+    LineCount = 2
     TextFunction = 1001
   end
   object Disp3A: TG2GraphDisplay
@@ -235,9 +231,7 @@ object frmParameterPages: TfrmParameterPages
     HighValue = 0
     ParentColor = False
     ParentFont = False
-    Lines.Strings = (
-      ''
-      '')
+    LineCount = 2
     TextFunction = 1001
   end
   object Disp4A: TG2GraphDisplay
@@ -256,9 +250,7 @@ object frmParameterPages: TfrmParameterPages
     HighValue = 0
     ParentColor = False
     ParentFont = False
-    Lines.Strings = (
-      ''
-      '')
+    LineCount = 2
     TextFunction = 1001
   end
   object Disp5A: TG2GraphDisplay
@@ -277,9 +269,7 @@ object frmParameterPages: TfrmParameterPages
     HighValue = 0
     ParentColor = False
     ParentFont = False
-    Lines.Strings = (
-      ''
-      '')
+    LineCount = 2
     TextFunction = 1001
   end
   object Disp6A: TG2GraphDisplay
@@ -298,9 +288,7 @@ object frmParameterPages: TfrmParameterPages
     HighValue = 0
     ParentColor = False
     ParentFont = False
-    Lines.Strings = (
-      ''
-      '')
+    LineCount = 2
     TextFunction = 1001
   end
   object Disp7A: TG2GraphDisplay
@@ -319,9 +307,7 @@ object frmParameterPages: TfrmParameterPages
     HighValue = 0
     ParentColor = False
     ParentFont = False
-    Lines.Strings = (
-      ''
-      '')
+    LineCount = 2
     TextFunction = 1001
   end
   object Disp8A: TG2GraphDisplay
@@ -340,9 +326,7 @@ object frmParameterPages: TfrmParameterPages
     HighValue = 0
     ParentColor = False
     ParentFont = False
-    Lines.Strings = (
-      ''
-      '')
+    LineCount = 2
     TextFunction = 1001
   end
   object Disp1B: TG2GraphDisplay
@@ -361,8 +345,7 @@ object frmParameterPages: TfrmParameterPages
     HighValue = 0
     ParentColor = False
     ParentFont = False
-    Lines.Strings = (
-      '')
+    LineCount = 1
     TextFunction = 1000
   end
   object disp2B: TG2GraphDisplay
@@ -381,8 +364,7 @@ object frmParameterPages: TfrmParameterPages
     HighValue = 0
     ParentColor = False
     ParentFont = False
-    Lines.Strings = (
-      '')
+    LineCount = 1
     TextFunction = 1000
   end
   object Disp3B: TG2GraphDisplay
@@ -401,8 +383,7 @@ object frmParameterPages: TfrmParameterPages
     HighValue = 0
     ParentColor = False
     ParentFont = False
-    Lines.Strings = (
-      '')
+    LineCount = 1
     TextFunction = 1000
   end
   object Disp4B: TG2GraphDisplay
@@ -421,8 +402,7 @@ object frmParameterPages: TfrmParameterPages
     HighValue = 0
     ParentColor = False
     ParentFont = False
-    Lines.Strings = (
-      '')
+    LineCount = 1
     TextFunction = 1000
   end
   object Disp5B: TG2GraphDisplay
@@ -441,8 +421,7 @@ object frmParameterPages: TfrmParameterPages
     HighValue = 0
     ParentColor = False
     ParentFont = False
-    Lines.Strings = (
-      '')
+    LineCount = 1
     TextFunction = 1000
   end
   object Disp6B: TG2GraphDisplay
@@ -461,8 +440,7 @@ object frmParameterPages: TfrmParameterPages
     HighValue = 0
     ParentColor = False
     ParentFont = False
-    Lines.Strings = (
-      '')
+    LineCount = 1
     TextFunction = 1000
   end
   object Disp7B: TG2GraphDisplay
@@ -481,8 +459,7 @@ object frmParameterPages: TfrmParameterPages
     HighValue = 0
     ParentColor = False
     ParentFont = False
-    Lines.Strings = (
-      '')
+    LineCount = 1
     TextFunction = 1000
   end
   object Disp8B: TG2GraphDisplay
@@ -501,8 +478,7 @@ object frmParameterPages: TfrmParameterPages
     HighValue = 0
     ParentColor = False
     ParentFont = False
-    Lines.Strings = (
-      '')
+    LineCount = 1
     TextFunction = 1000
   end
   object bfP1: TG2GraphButtonFlat
@@ -698,7 +674,6 @@ object frmParameterPages: TfrmParameterPages
     Color = clAppWorkSpace
     ParentBackground = False
     TabOrder = 0
-    ExplicitLeft = 481
     object obParam: TG2GraphButtonRadio
       Left = 13
       Top = 23

@@ -117,7 +117,7 @@ uses
   Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, StdCtrls, ExtCtrls,  ActnList, ImgList,
   g2_types, g2_database, g2_file, g2_mess, g2_usb, g2_graph, g2_classes,
-  graph_util_vcl, Menus, Buttons, DOM, XMLRead, XMLWrite;
+  graph_util_vcl, Menus, Buttons, DOM, XMLRead, XMLWrite, g2_midi;
 
 type
   TSlotPanel = class(TG2GraphPanel)
@@ -566,7 +566,7 @@ begin
   FG2dVoices := TG2GraphDisplay.Create(self);
   FG2dVoices.Parent := Self;
   FG2dVoices.SetBounds( 598, 8, 45, 17);
-  FG2dVoices.Lines[0] := '0';
+  FG2dVoices.Line[0] := '0';
   FG2dVoices.Color := CL_DISPLAY_BACKGRND;
 
   FG2idVoiceMode := TG2GraphButtonIncDec.Create(self);

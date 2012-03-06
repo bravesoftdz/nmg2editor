@@ -196,13 +196,12 @@ begin
   if (not assigned(Effect)) or not(Effect.editorNeedsUpdate) or (not assigned((Effect as APlugin).FG2)) then
     exit;
 
+ Updater.Enabled := False;
  try
     Effect.editorNeedsUpdate := false;
     UpdateControls;
-  except on E:Exception do begin
-     (Effect as APlugin).FG2.add_log_line('Update timer : ' + E.Message, LOGCMD_NUL);
-     (Effect as APlugin).FG2.save_log;
-    end;
+  finally
+    Updater.Enabled := True;
   end;
 end;
 
@@ -218,7 +217,7 @@ begin
     exit;
 
   FDisableControls := true;
-  (Effect as APlugin).FG2.Lock;
+  //(Effect as APlugin).FG2.Lock;
   try
     try
       lbStatus.Caption := (Effect as APlugin).GetStatusText;
@@ -267,7 +266,7 @@ begin
       end;
     end;
   finally
-    (Effect as APlugin).FG2.UnLock;
+    //(Effect as APlugin).FG2.UnLock;
     FDisableControls := false;
   end;
 end;
@@ -330,7 +329,7 @@ begin
 
   if Sender is TG2GraphButtonFlat then
     try
-      G2.Lock;
+      //G2.Lock;
       with (Sender) as TG2GraphButtonFlat do begin
 
         KnobIndex := GetKnobIndexOffset + tag;
@@ -378,13 +377,14 @@ begin
         end;
       end;
     finally
-      G2.Unlock;
+      //G2.Unlock;
     end;
 end;
 
 procedure TPluginEditorWindow.skPChange(Sender: TObject);
 var KnobIndex : integer;
     Knob : TGlobalKnob;
+    KnobFloatValue : single;
     G2 : TG2USB;
 begin
   if FDisableControls then
@@ -394,7 +394,7 @@ begin
 
   if Sender is TG2GraphKnob then
     try
-      G2.Lock;
+      //G2.Lock;
       with (Sender) as TG2GraphKnob do begin
 
         KnobIndex := GetKnobIndexOffset + tag;
@@ -402,7 +402,14 @@ begin
         if not assigned(Knob) then
           exit;
 
-        case tag of
+        if Knob.KnobHighValue - Knob.KnobLowValue <> 0 then
+          KnobFloatValue := Value / (Knob.KnobHighValue - Knob.KnobLowValue)
+        else
+          KnobFloatValue := 0;
+
+        (Effect as APlugin).setParameterAutomated( KnobIndex, KnobFloatValue);
+
+        {case tag of
         0 : begin
              Knob.KnobValue := Value;
              (Effect as APlugin).setParameterAutomated( KnobIndex, Knob.KnobFloatValue);
@@ -435,10 +442,10 @@ begin
              Knob.KnobValue := Value;
              (Effect as APlugin).setParameterAutomated( KnobIndex, Knob.KnobFloatValue);
             end;
-        end;
+        end;}
       end;
     finally
-      G2.Unlock;
+      //G2.Unlock;
     end;
 end;
 
@@ -446,6 +453,7 @@ procedure TPluginEditorWindow.OnEditorOpen(var Msg: TMessage);
 begin
   Effect := TVstTemplate(Msg.WParam);
   Effect.editorNeedsUpdate := True;
+  Updater.Enabled := True;
 end;
 
 end.

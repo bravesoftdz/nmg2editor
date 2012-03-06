@@ -1027,12 +1027,14 @@ object frmG2Main: TfrmG2Main
     Host = '127.0.0.1'
     USBActive = False
     ProcessLedData = True
+    TimerBroadcastLedMessages = 0
     OnUSBActiveChange = G2USBActiveChange
     OnAfterG2Init = G2AfterG2Init
     OnAddClient = G2AddClient
     OnDeleteClient = G2DeleteClient
     OnBeforeSendMessage = G2BeforeSendMessage
     OnReceiveResponseMessage = G2ReceiveResponseMessage
+    MidiEnabled = False
     ScrollboxVA = sbVA
     scrollboxFX = sbFX
     SelectedSlotIndex = 0

@@ -529,12 +529,19 @@ type
 
   TG2GraphDisplay = class( TG2GraphChildControl)
   private
-    FLines : TStrings;
+    // TStrings gives problems in VST?
+    //FLines : TStrings;
+    FLine1,
+    FLine2,
+    FLine3,
+    FLine4 : AnsiString;
+    FLineCount : integer;
     FTextFunction : integer;
   protected
-    function    GetLine( LineNo : integer): string;
-    procedure   SetLine( LineNo : integer; aValue : string);
-    procedure   SetLines( aValue : TStrings);
+    function    GetLine( LineNo : integer): AnsiString;
+    procedure   SetLine( LineNo : integer; aValue : AnsiString);
+    //procedure   SetLines( aValue : TStrings);
+    procedure   SetLineCount( aValue : integer);
     procedure   SetTextFunction( aValue : integer);
   public
     constructor Create( AOwner: TComponent); override;
@@ -542,9 +549,10 @@ type
     procedure   PaintOn( ExtCanvas : TCanvas; ExtBoundsRect : TRect); override;
     function    ParseProperties( fs: TModuleDefStream; aName : AnsiString): boolean; override;
 
-    property    Line[ index : integer] : string read GetLine write SetLine;
+    property    Line[ index : integer] : AnsiString read GetLine write SetLine;
   published
-    property    Lines : TStrings read FLines write SetLines;
+    //property    Lines : TStrings read FLines write SetLines;
+    property    LineCount : integer read FLineCount write SetLineCount;
     property    TextFunction : integer read FTextFunction write SetTextFunction;
     property    Font;
     property    Color;
@@ -4001,7 +4009,7 @@ end;
 constructor TG2GraphDisplay.Create(AOwner: TComponent);
 begin
   inherited;
-  FLines := TStringList.Create;
+  //FLines := TStringList.Create;
 
   FMouseInput := False;
 
@@ -4010,7 +4018,12 @@ begin
   Font.Style := [fsBold];
   Font.Color := clWhite;
 
-  FLines.Add(Name);
+  //FLines.Add(Name);
+  FLine1 := '';
+  FLine2 := '';
+  FLine3 := '';
+  FLine4 := '';
+  FLineCount := 1;
 
   Color := CL_DISPLAY_BACKGRND;
 
@@ -4022,35 +4035,57 @@ end;
 
 destructor TG2GraphDisplay.Destroy;
 begin
-  FLines.Free;
+  //FLines.Free;
   inherited;
 end;
 
-function TG2GraphDisplay.GetLine(LineNo: integer): string;
+function TG2GraphDisplay.GetLine(LineNo: integer): AnsiString;
 begin
   if assigned(FParameter) then
     Result := IntToStr(FParameter.GetParameterValue) // TODO Implement textfunction
   else
-    if LineNo < FLines.Count then
-      Result := FLines[ LineNo]
+    case LineNo of
+    0 : Result := FLine1;
+    1 : Result := FLine2;
+    2 : Result := FLine3;
+    3 : Result := FLine4;
     else
       Result := '';
+    end;
+    {if LineNo < FLines.Count then
+      Result := FLines[ LineNo]
+    else
+      Result := '';}
 end;
 
-procedure TG2GraphDisplay.SetLine(LineNo: integer; aValue: string);
+procedure TG2GraphDisplay.SetLine(LineNo: integer; aValue: AnsiString);
 begin
-  while LineNo > (FLines.Count - 1) do begin
+  {while LineNo > (FLines.Count - 1) do begin
     FLines.Add('');
   end;
-  FLines[ LineNo] := aValue;
+  FLines[ LineNo] := aValue;}
+  case LineNo of
+  0 : FLine1 := aValue;
+  1 : FLine2 := aValue;
+  2 : FLine3 := aValue;
+  3 : FLine4 := aValue;
+  end;
   Invalidate;
 end;
 
-procedure TG2GraphDisplay.SetLines( aValue: TStrings);
+procedure TG2GraphDisplay.SetLineCount(aValue: integer);
+begin
+  if (aValue > 0) and (aValue <=4) then
+    FLineCount := aValue
+  else
+    raise Exception.Create('Linecount must be between 1 and 4.');
+end;
+
+{procedure TG2GraphDisplay.SetLines( aValue: TStrings);
 begin
   FLines.Assign( aValue);
   Invalidate;
-end;
+end;}
 
 procedure TG2GraphDisplay.SetTextFunction( aValue: integer);
 begin
@@ -4066,8 +4101,12 @@ var Rect, LineRect : TRect;
 begin
   Rect := SubRect( GetRelToParentRect, ExtBoundsRect);
 
-  if FLines.Count > 0 then
+  {if FLines.Count > 0 then
     LineHeight := (ClientRect.Bottom - ClientRect.Top) div FLines.Count
+  else
+    LineHeight := (ClientRect.Bottom - ClientRect.Top);}
+  if FLineCount > 0 then
+    LineHeight := (ClientRect.Bottom - ClientRect.Top) div FLineCount
   else
     LineHeight := (ClientRect.Bottom - ClientRect.Top);
 
@@ -4086,10 +4125,12 @@ begin
     LineRect.Top := 0;
     LineRect.Bottom := LineRect.Top + LineHeight + 1;
 
-    for i := 0 to FLines.Count - 1 do begin
+    //for i := 0 to FLines.Count - 1 do begin
+    for i := 0 to FLineCount - 1 do begin
       Bitmap.Canvas.FillRect( LineRect);
       if assigned(FParameter) then
-        TextCenter( Bitmap.Canvas, LineRect, FParameter.TextFunction(FTextFunction, i, FLines.Count))
+        //TextCenter( Bitmap.Canvas, LineRect, FParameter.TextFunction(FTextFunction, i, FLines.Count))
+        TextCenter( Bitmap.Canvas, LineRect, FParameter.TextFunction(FTextFunction, i, FLineCount))
       else
         TextCenter( Bitmap.Canvas, LineRect, Line[i]);
       LineRect.Top := LineRect.Top + LineHeight;

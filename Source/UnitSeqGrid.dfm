@@ -29,7 +29,7 @@ object frmSeqGrid: TfrmSeqGrid
     Color = clSilver
     Value = 0
     LowValue = 0
-    HighValue = 0
+    HighValue = 255
     OnMouseUp = BtnMouseUp
     ParentColor = False
     ParentFont = False
@@ -54,7 +54,7 @@ object frmSeqGrid: TfrmSeqGrid
     Color = clSilver
     Value = 0
     LowValue = 0
-    HighValue = 0
+    HighValue = 255
     OnMouseUp = BtnMouseUp
     ParentColor = False
     ParentFont = False
@@ -79,7 +79,7 @@ object frmSeqGrid: TfrmSeqGrid
     Color = clSilver
     Value = 0
     LowValue = 0
-    HighValue = 0
+    HighValue = 255
     OnMouseUp = BtnMouseUp
     ParentColor = False
     ParentFont = False
@@ -104,7 +104,7 @@ object frmSeqGrid: TfrmSeqGrid
     Color = clSilver
     Value = 0
     LowValue = 0
-    HighValue = 0
+    HighValue = 255
     OnMouseUp = BtnMouseUp
     ParentColor = False
     ParentFont = False
@@ -129,7 +129,7 @@ object frmSeqGrid: TfrmSeqGrid
     Color = clSilver
     Value = 0
     LowValue = 0
-    HighValue = 0
+    HighValue = 255
     OnMouseUp = BtnMouseUp
     ParentColor = False
     ParentFont = False
@@ -154,7 +154,7 @@ object frmSeqGrid: TfrmSeqGrid
     Color = clSilver
     Value = 0
     LowValue = 0
-    HighValue = 0
+    HighValue = 255
     OnMouseUp = BtnMouseUp
     ParentColor = False
     ParentFont = False
@@ -179,7 +179,7 @@ object frmSeqGrid: TfrmSeqGrid
     Color = clSilver
     Value = 0
     LowValue = 0
-    HighValue = 0
+    HighValue = 255
     OnMouseUp = BtnMouseUp
     ParentColor = False
     ParentFont = False
@@ -204,7 +204,7 @@ object frmSeqGrid: TfrmSeqGrid
     Color = clSilver
     Value = 0
     LowValue = 0
-    HighValue = 0
+    HighValue = 255
     OnMouseUp = BtnMouseUp
     ParentColor = False
     ParentFont = False
@@ -229,7 +229,7 @@ object frmSeqGrid: TfrmSeqGrid
     Color = clSilver
     Value = 0
     LowValue = 0
-    HighValue = 0
+    HighValue = 255
     OnMouseUp = BtnMouseUp
     ParentColor = False
     ParentFont = False
@@ -254,7 +254,7 @@ object frmSeqGrid: TfrmSeqGrid
     Color = clSilver
     Value = 0
     LowValue = 0
-    HighValue = 0
+    HighValue = 255
     OnMouseUp = BtnMouseUp
     ParentColor = False
     ParentFont = False
@@ -279,7 +279,7 @@ object frmSeqGrid: TfrmSeqGrid
     Color = clSilver
     Value = 0
     LowValue = 0
-    HighValue = 0
+    HighValue = 255
     OnMouseUp = BtnMouseUp
     ParentColor = False
     ParentFont = False
@@ -304,7 +304,7 @@ object frmSeqGrid: TfrmSeqGrid
     Color = clSilver
     Value = 0
     LowValue = 0
-    HighValue = 0
+    HighValue = 255
     OnMouseUp = BtnMouseUp
     ParentColor = False
     ParentFont = False
@@ -329,7 +329,7 @@ object frmSeqGrid: TfrmSeqGrid
     Color = clSilver
     Value = 0
     LowValue = 0
-    HighValue = 0
+    HighValue = 255
     OnMouseUp = BtnMouseUp
     ParentColor = False
     ParentFont = False
@@ -354,7 +354,7 @@ object frmSeqGrid: TfrmSeqGrid
     Color = clSilver
     Value = 0
     LowValue = 0
-    HighValue = 0
+    HighValue = 255
     OnMouseUp = BtnMouseUp
     ParentColor = False
     ParentFont = False
@@ -379,7 +379,7 @@ object frmSeqGrid: TfrmSeqGrid
     Color = clSilver
     Value = 0
     LowValue = 0
-    HighValue = 0
+    HighValue = 255
     OnMouseUp = BtnMouseUp
     ParentColor = False
     ParentFont = False
@@ -404,7 +404,7 @@ object frmSeqGrid: TfrmSeqGrid
     Color = clSilver
     Value = 0
     LowValue = 0
-    HighValue = 0
+    HighValue = 255
     OnMouseUp = BtnMouseUp
     ParentColor = False
     ParentFont = False
@@ -428,7 +428,7 @@ object frmSeqGrid: TfrmSeqGrid
     Color = clSilver
     Value = 0
     LowValue = 0
-    HighValue = 0
+    HighValue = 255
     OnMouseUp = bLeftMouseUp
     ParentColor = False
     ParentFont = False
@@ -454,7 +454,7 @@ object frmSeqGrid: TfrmSeqGrid
     Color = clSilver
     Value = 0
     LowValue = 0
-    HighValue = 0
+    HighValue = 255
     OnMouseUp = bRightMouseUp
     ParentColor = False
     ParentFont = False
@@ -480,7 +480,7 @@ object frmSeqGrid: TfrmSeqGrid
     Color = clSilver
     Value = 0
     LowValue = 0
-    HighValue = 0
+    HighValue = 255
     OnMouseUp = bRndMouseUp
     ParentColor = False
     ParentFont = False
@@ -506,7 +506,7 @@ object frmSeqGrid: TfrmSeqGrid
     Color = clSilver
     Value = 0
     LowValue = 0
-    HighValue = 0
+    HighValue = 255
     OnMouseUp = bClrMouseUp
     ParentColor = False
     ParentFont = False
@@ -532,7 +532,7 @@ object frmSeqGrid: TfrmSeqGrid
     Color = clSilver
     Value = 0
     LowValue = 0
-    HighValue = 0
+    HighValue = 255
     OnMouseUp = bUpMouseUp
     ParentColor = False
     ParentFont = False
@@ -558,7 +558,7 @@ object frmSeqGrid: TfrmSeqGrid
     Color = clSilver
     Value = 0
     LowValue = 0
-    HighValue = 0
+    HighValue = 255
     OnMouseUp = bDownMouseUp
     ParentColor = False
     ParentFont = False
@@ -584,7 +584,7 @@ object frmSeqGrid: TfrmSeqGrid
     Color = clSilver
     Value = 0
     LowValue = 0
-    HighValue = 0
+    HighValue = 255
     OnMouseUp = bNoteMouseUp
     ParentColor = False
     ParentFont = False
@@ -608,7 +608,7 @@ object frmSeqGrid: TfrmSeqGrid
     Color = clSilver
     Value = 0
     LowValue = 0
-    HighValue = 0
+    HighValue = 255
     OnMouseUp = bNoteMouseUp
     ParentColor = False
     ParentFont = False
@@ -632,7 +632,7 @@ object frmSeqGrid: TfrmSeqGrid
     Color = clSilver
     Value = 0
     LowValue = 0
-    HighValue = 0
+    HighValue = 255
     OnMouseUp = bNoteMouseUp
     ParentColor = False
     ParentFont = False
@@ -656,7 +656,7 @@ object frmSeqGrid: TfrmSeqGrid
     Color = clSilver
     Value = 0
     LowValue = 0
-    HighValue = 0
+    HighValue = 255
     OnMouseUp = bNoteMouseUp
     ParentColor = False
     ParentFont = False
@@ -680,7 +680,7 @@ object frmSeqGrid: TfrmSeqGrid
     Color = clSilver
     Value = 0
     LowValue = 0
-    HighValue = 0
+    HighValue = 255
     OnMouseUp = bNoteMouseUp
     ParentColor = False
     ParentFont = False
@@ -704,7 +704,7 @@ object frmSeqGrid: TfrmSeqGrid
     Color = clSilver
     Value = 0
     LowValue = 0
-    HighValue = 0
+    HighValue = 255
     OnMouseUp = bNoteMouseUp
     ParentColor = False
     ParentFont = False
@@ -728,7 +728,7 @@ object frmSeqGrid: TfrmSeqGrid
     Color = clSilver
     Value = 0
     LowValue = 0
-    HighValue = 0
+    HighValue = 255
     OnMouseUp = bNoteMouseUp
     ParentColor = False
     ParentFont = False
@@ -752,7 +752,7 @@ object frmSeqGrid: TfrmSeqGrid
     Color = clSilver
     Value = 0
     LowValue = 0
-    HighValue = 0
+    HighValue = 255
     OnMouseUp = bNoteMouseUp
     ParentColor = False
     ParentFont = False
@@ -776,7 +776,7 @@ object frmSeqGrid: TfrmSeqGrid
     Color = clSilver
     Value = 0
     LowValue = 0
-    HighValue = 0
+    HighValue = 255
     OnMouseUp = bNoteMouseUp
     ParentColor = False
     ParentFont = False
@@ -800,7 +800,7 @@ object frmSeqGrid: TfrmSeqGrid
     Color = clSilver
     Value = 0
     LowValue = 0
-    HighValue = 0
+    HighValue = 255
     OnMouseUp = bNoteMouseUp
     ParentColor = False
     ParentFont = False
@@ -824,7 +824,7 @@ object frmSeqGrid: TfrmSeqGrid
     Color = clSilver
     Value = 0
     LowValue = 0
-    HighValue = 0
+    HighValue = 255
     OnMouseUp = bNoteMouseUp
     ParentColor = False
     ParentFont = False
@@ -848,7 +848,7 @@ object frmSeqGrid: TfrmSeqGrid
     Color = clSilver
     Value = 0
     LowValue = 0
-    HighValue = 0
+    HighValue = 255
     OnMouseUp = bNoteMouseUp
     ParentColor = False
     ParentFont = False
@@ -875,8 +875,7 @@ object frmSeqGrid: TfrmSeqGrid
     HighValue = 0
     ParentColor = False
     ParentFont = False
-    Lines.Strings = (
-      '')
+    LineCount = 1
     TextFunction = 0
   end
   object DrawGrid1: TDrawGrid

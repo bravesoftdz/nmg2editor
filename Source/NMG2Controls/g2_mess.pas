@@ -46,6 +46,7 @@ uses
   TStartStopCommunicationEvent = procedure(Sender: TObject; SenderID : integer; Stop : byte) of object;
   TPerfSettingsUpdateEvent = procedure(Sender: TObject; SenderID : integer; PerfMode : boolean) of object;
   TAfterRetrievePatch = procedure(Sender: TObject; SenderID : integer; aSlot, aBank, aPatch : byte) of object;
+  TParamChangeMessEvent = procedure(Sender: TObject; SenderID : integer; Slot, Variation : byte; Location : TLocationType; ModuleIndex, ParamIndex : byte; aValue : byte) of object;
 
   TG2MessPerformance = class;
   TG2MessSlot = class;
@@ -136,6 +137,7 @@ uses
     FOnStartStopCommunication : TStartStopCommunicationEvent;
     FOnPerfSettingsUpdate     : TPerfSettingsUpdateEvent;
     FOnAfterRetrievePatch     : TAfterRetrievePatch;
+    FOnParamChangeMessage     : TParamChangeMessEvent;
 
     FErrorMessage        : boolean;
     FErrorMessageNo      : integer;
@@ -227,6 +229,7 @@ uses
     property    OnPerfSettingsUpdate : TPerfSettingsUpdateEvent read FOnPerfSettingsUpdate write FOnPerfSettingsUpdate;
     property    OnSynthSettingsUpdate : TSynthSettingsUpdateEvent read FOnSynthSettingsUpdate write FOnSynthSettingsUpdate;
     property    OnAfterRetrievePatch : TAfterRetrievePatch read FOnAfterRetrievePatch write FOnAfterRetrievePatch;
+    property    OnParamChangeMessage : TParamChangeMessEvent read FOnParamChangeMessage write FOnParamChangeMessage;
   end;
 
   TG2MessPerformance = class( TG2FilePerformance)
@@ -2425,8 +2428,10 @@ begin
                         MemStream.Position := MemStream.Size;
                         Result := True;
 
-                        //Patch.InitParameterValue( TLocationType(aLocation), aModuleIndex, aParameterIndex, aVariation, aValue);
                         Patch.SetParamInPatch( TLocationType(aLocation), aModuleIndex, aParameterIndex, aVariation, aValue);
+
+                        if assigned(G2) and assigned((G2 as TG2Mess).FOnParamChangeMessage) then
+                          (G2 as TG2Mess).FOnParamChangeMessage( self, SenderID, SlotIndex, aVariation, TLocationType(aLocation), aModuleIndex, aParameterIndex, aValue);
                       end;
                 S_SET_MODE :
                       begin

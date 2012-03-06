@@ -58,7 +58,7 @@ type
 
      procedure   ClearBuffer;
 
-     procedure   OnParamChange( Sender: TObject; SenderID : integer; Slot, Variation : byte; Location : TLocationType; ModuleIndex, ParamIndex : byte; Value : byte);
+     procedure   OnParamChangeMessage( Sender: TObject; SenderID : integer; Slot, Variation : byte; Location : TLocationType; ModuleIndex, ParamIndex : byte; Value : byte);
      procedure   OnAssignGlobalKnob(Sender: TObject; SenderID : integer; KnobIndex : integer);
      procedure   OnDeassignGlobalKnob(Sender: TObject; SenderID : integer; KnobIndex : integer);
      procedure   OnPatchUpdate(Sender: TObject; SenderID : integer; PatchIndex : integer);
@@ -98,12 +98,6 @@ begin
   FG2.Port := DEFAULT_PORT;
   FG2.Host := '127.0.0.1';
   FSelectedSlot := 0;
-
-  FG2.OnParameterChange := OnParamChange;
-  FG2.OnAssignGlobalKnob := OnAssignGlobalKnob;
-  FG2.OnDeassignGlobalKnob := OnDeassignGlobalKnob;
-  FG2.OnPatchUpdate := OnPatchUpdate;
-  FG2.OnVariationChange := OnVariationChange;
 
   // define what the plugin "can do"
   // the following canDos are defined:
@@ -169,6 +163,12 @@ begin
   // connect event handlers
   OnParameterChange := ParameterChanged;
   OnEditorIdle := EditorIdle;
+
+  FG2.OnParamChangeMessage := OnParamChangeMessage;
+  FG2.OnAssignGlobalKnob := OnAssignGlobalKnob;
+  FG2.OnDeassignGlobalKnob := OnDeassignGlobalKnob;
+  FG2.OnPatchUpdate := OnPatchUpdate;
+  FG2.OnVariationChange := OnVariationChange;
 end;
 
 destructor APlugin.Destroy;
@@ -207,10 +207,13 @@ begin
     FG2.add_log_line( 'Initialize parameters', LOGCMD_NUL);
 
     FG2.LoadModuleDefs(GetLibraryPath);
-    //FG2.USBActive := True;
+    FG2.USBActive := True;
 
     if FG2.USBActive then begin
 
+      repeat
+        sleep(100)
+      until FG2.Initialized;
 
       for i := 0 to FNumGlobalKnobs - 1 do begin
         Value := FG2.Performance.GlobalKnobList.Items[i].KnobFloatValue;
@@ -479,10 +482,11 @@ begin
       if index < FNumGlobalKnobs then begin
         Knob := FG2.Performance.GlobalKnobList.Items[ index];
         if assigned(Knob) and (Knob.IsAssigned = 1) then begin
-          FG2.GetSlot( Knob.SlotIndex).SendSetParamMessage( Knob.Location,
+          {FG2.GetSlot( Knob.SlotIndex).SendSetParamMessage( Knob.Location,
                                                             Knob.ModuleIndex, Knob.ParamIndex,
                                                             trunc((Knob.KnobHighValue - Knob.KnobLowValue) * Value),
-                                                            FG2.GetSlot( Knob.SlotIndex).GetPatch.ActiveVariation);
+                                                            FG2.GetSlot( Knob.SlotIndex).GetPatch.ActiveVariation);}
+          Knob.KnobValue := trunc((Knob.KnobHighValue - Knob.KnobLowValue) * Value);
           editorNeedsUpdate := True;
         end
       end else
@@ -550,7 +554,7 @@ begin
   end;
 end;
 
-procedure APlugin.OnParamChange(Sender: TObject; SenderID : integer; Slot, Variation: byte;  Location: TLocationType; ModuleIndex, ParamIndex, Value: byte);
+procedure APlugin.OnParamChangeMessage(Sender: TObject; SenderID : integer; Slot, Variation: byte;  Location: TLocationType; ModuleIndex, ParamIndex, Value: byte);
 var KnobIndex : integer;
     Knob : TGlobalKnob;
 begin

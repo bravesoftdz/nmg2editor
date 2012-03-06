@@ -31,7 +31,8 @@ requires
   vcl,
   xmlrtl,
   IndyCore,
-  IndySystem;
+  IndySystem,
+  MidiComponents2010;
 
 contains
   g2_graph in '..\..\Source\NMG2Controls\g2_graph.pas',

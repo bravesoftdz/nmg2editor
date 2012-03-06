@@ -5646,7 +5646,7 @@ begin
     end;
 
     if assigned(G2.OnParameterChange) then
-      G2.OnParameterChange( self, G2.ID, Slot.SlotIndex, aVariation, aLocation, aModuleIndex, aParamIndex, aValue);
+      G2.OnParameterChange( self, FG2.ID, Slot.SlotIndex, aVariation, aLocation, aModuleIndex, aParamIndex, aValue);
   end;
 
 end;
