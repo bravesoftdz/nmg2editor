@@ -30,32 +30,7 @@ uses Windows, Forms, DAudioEffectX, Messages, ExtCtrls,
 
 type
   TPluginEditorWindow = class(TForm)
-    Ctrl: TLabel;
     Updater: TTimer;
-    Panel2: TPanel;
-    Label1: TLabel;
-    Label3: TLabel;
-    rbVariationA: TG2GraphButtonRadio;
-    eNameA: TEdit;
-    Panel4: TPanel;
-    Label2: TLabel;
-    Label4: TLabel;
-    rbVariationD: TG2GraphButtonRadio;
-    eNameD: TEdit;
-    Panel5: TPanel;
-    Label5: TLabel;
-    Label6: TLabel;
-    rbVariationC: TG2GraphButtonRadio;
-    eNameC: TEdit;
-    Panel6: TPanel;
-    Label7: TLabel;
-    Label8: TLabel;
-    rbVariationB: TG2GraphButtonRadio;
-    eNameB: TEdit;
-    Label10: TLabel;
-    Label11: TLabel;
-    Label12: TLabel;
-    Label13: TLabel;
     G2GraphPanel1: TG2GraphPanel;
     skP1: TG2GraphKnob;
     skP2: TG2GraphKnob;
@@ -65,23 +40,6 @@ type
     skP6: TG2GraphKnob;
     skP7: TG2GraphKnob;
     skP8: TG2GraphKnob;
-    Disp1A: TG2GraphDisplay;
-    Disp2A: TG2GraphDisplay;
-    Disp3A: TG2GraphDisplay;
-    Disp4A: TG2GraphDisplay;
-    Disp5A: TG2GraphDisplay;
-    Disp6A: TG2GraphDisplay;
-    Disp7A: TG2GraphDisplay;
-    Disp8A: TG2GraphDisplay;
-    Disp1B: TG2GraphDisplay;
-    disp2B: TG2GraphDisplay;
-    Disp3B: TG2GraphDisplay;
-    Disp4B: TG2GraphDisplay;
-    Disp5B: TG2GraphDisplay;
-    Disp6B: TG2GraphDisplay;
-    Disp7B: TG2GraphDisplay;
-    Disp8B: TG2GraphDisplay;
-    Button1: TButton;
     G2GraphPanel2: TG2GraphPanel;
     rbPage: TG2GraphButtonRadio;
     rbPageColumn: TG2GraphButtonRadio;
@@ -96,6 +54,22 @@ type
     bfP6: TG2GraphButtonFlat;
     bfP7: TG2GraphButtonFlat;
     bfP8: TG2GraphButtonFlat;
+    Disp1A: TG2GraphDisplay;
+    Disp2A: TG2GraphDisplay;
+    Disp3A: TG2GraphDisplay;
+    Disp4A: TG2GraphDisplay;
+    Disp5A: TG2GraphDisplay;
+    Disp6A: TG2GraphDisplay;
+    Disp7A: TG2GraphDisplay;
+    Disp8A: TG2GraphDisplay;
+    Disp1B: TG2GraphDisplay;
+    Disp2B: TG2GraphDisplay;
+    Disp3B: TG2GraphDisplay;
+    Disp4B: TG2GraphDisplay;
+    Disp5B: TG2GraphDisplay;
+    Disp6B: TG2GraphDisplay;
+    Disp7B: TG2GraphDisplay;
+    Disp8B: TG2GraphDisplay;
     Disp1C: TG2GraphDisplay;
     Disp2C: TG2GraphDisplay;
     Disp3C: TG2GraphDisplay;
@@ -104,6 +78,30 @@ type
     Disp6C: TG2GraphDisplay;
     Disp7C: TG2GraphDisplay;
     Disp8C: TG2GraphDisplay;
+    G2GraphPanel3: TG2GraphPanel;
+    rbVariationA: TG2GraphButtonRadio;
+    eNameA: TEdit;
+    G2GraphLabel2: TG2GraphLabel;
+    G2GraphLabel3: TG2GraphLabel;
+    G2GraphLabel4: TG2GraphLabel;
+    G2GraphPanel4: TG2GraphPanel;
+    rbVariationB: TG2GraphButtonRadio;
+    eNameB: TEdit;
+    G2GraphLabel5: TG2GraphLabel;
+    G2GraphLabel6: TG2GraphLabel;
+    G2GraphLabel7: TG2GraphLabel;
+    G2GraphPanel5: TG2GraphPanel;
+    rbVariationC: TG2GraphButtonRadio;
+    eNameC: TEdit;
+    G2GraphLabel8: TG2GraphLabel;
+    G2GraphLabel9: TG2GraphLabel;
+    G2GraphLabel10: TG2GraphLabel;
+    G2GraphPanel6: TG2GraphPanel;
+    rbVariationD: TG2GraphButtonRadio;
+    eNameD: TEdit;
+    G2GraphLabel11: TG2GraphLabel;
+    G2GraphLabel12: TG2GraphLabel;
+    G2GraphLabel13: TG2GraphLabel;
     procedure UpdaterTimer(Sender: TObject);
     procedure rbPageColumnClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -217,7 +215,6 @@ begin
     exit;
 
   FDisableControls := true;
-  //(Effect as APlugin).FG2.Lock;
   try
     try
       lbStatus.Caption := (Effect as APlugin).GetStatusText;
@@ -240,8 +237,8 @@ begin
           FDispKnobArray[i].Line[0] := Param.TextFunction(1001, 0, 2);
           FDispKnobArray[i].Line[1] := Param.TextFunction(1001, 1, 2);
           FDispModuleArray[i].Line[0] := Param.TextFunction(1002, 0, 1);
-          FButtonArray[i].ButtonText.Clear;
           FDispButtonArray[i].Line[0] := '';
+          FButtonArray[i].ButtonText.Clear;
           if assigned(Param.ButtonParam) then begin
             ButtonParam := Param.ButtonParam;
             for j := 0 to ButtonParam.ButtonTextCount - 1 do
@@ -249,7 +246,7 @@ begin
             FButtonArray[i].Value := ButtonParam.GetParameterValue;
             FButtonArray[i].LowValue := ButtonParam.LowValue;
             FButtonArray[i].HighValue := ButtonParam.HighValue;
-            FDispButtonArray[i].Line[0] := ButtonParam.TextFunction(1002, 0, 1);
+            FDispButtonArray[i].Line[0] := ButtonParam.TextFunction(1001, 0, 1);
           end;
         end else begin
           FKnobArray[i].Value := 0;
@@ -266,7 +263,6 @@ begin
       end;
     end;
   finally
-    //(Effect as APlugin).FG2.UnLock;
     FDisableControls := false;
   end;
 end;
@@ -329,7 +325,6 @@ begin
 
   if Sender is TG2GraphButtonFlat then
     try
-      //G2.Lock;
       with (Sender) as TG2GraphButtonFlat do begin
 
         KnobIndex := GetKnobIndexOffset + tag;
@@ -377,7 +372,6 @@ begin
         end;
       end;
     finally
-      //G2.Unlock;
     end;
 end;
 
@@ -394,7 +388,6 @@ begin
 
   if Sender is TG2GraphKnob then
     try
-      //G2.Lock;
       with (Sender) as TG2GraphKnob do begin
 
         KnobIndex := GetKnobIndexOffset + tag;
@@ -445,7 +438,6 @@ begin
         end;}
       end;
     finally
-      //G2.Unlock;
     end;
 end;
 

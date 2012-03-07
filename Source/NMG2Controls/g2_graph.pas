@@ -1089,7 +1089,7 @@ begin
       Control := Controls[i] as TG2GraphChildControl;
       if RectOverlap( Control.BoundsRect, PS.rcPaint) then
         Control.PaintOn( FExtBitmap.Canvas, PS.rcPaint);
-      Msg.Result := 0;
+      //Msg.Result := 0;
     end;
   end;
 
