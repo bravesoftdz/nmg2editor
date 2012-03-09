@@ -113,7 +113,7 @@ begin
  { prIsSynth, prHasVu, prHasClip, prCanMono,
    prCanReplacing, prProgramsAreChunks,
    prNoSoundinStop, prIsAsync, prExtHasBuffer }
-  Properties := [prCanMono, prCanReplacing, prProgramsAreChunks];
+  Properties := [prCanMono, prCanReplacing, prProgramsAreChunks, prIsSynth];
 
   // define number of audio inputs and outputs
   numInputs := 2;
@@ -495,10 +495,11 @@ begin
           if assigned(Knob) and (Knob.IsAssigned = 1) and assigned(Knob.Parameter) then begin
             ButtonParam := Knob.Parameter.ButtonParam;
             if assigned(ButtonParam) then begin
-              FG2.GetSlot( Knob.SlotIndex).SendSetParamMessage( Knob.Location,
+              {FG2.GetSlot( Knob.SlotIndex).SendSetParamMessage( Knob.Location,
                                                                 Knob.ModuleIndex, ButtonParam.ParamIndex,
                                                                 trunc((ButtonParam.HighValue - ButtonParam.LowValue) * Value),
-                                                                FG2.GetSlot( Knob.SlotIndex).GetPatch.ActiveVariation);
+                                                                FG2.GetSlot( Knob.SlotIndex).GetPatch.ActiveVariation);}
+              Knob.KnobButtonValue :=trunc((ButtonParam.HighValue - ButtonParam.LowValue) * Value);
               editorNeedsUpdate := True;
             end;
           end;
@@ -535,14 +536,16 @@ end;
 
 procedure APlugin.OnVariationChange(Sender: TObject; SenderID : integer; Slot, Variation: integer);
 begin
-  if SenderID = FG2.ID then // Don't process messages that originate from this client
+  if SenderID = FG2.ID then begin// Don't process messages that originate from this client
+    editorNeedsUpdate := True;
     exit;
+  end;
 
   //addLogline('OnVariationChange');
   FG2.add_log_line('OnVariationChange', LOGCMD_NUL);
   try
     //if Assigned(audioMaster) then begin
-      //audioMaster(Effect, audioMasterAutomate, FNumGlobalKnobs + Slot, 0, nil, Variation / 7);  // value is in opt
+      audioMaster(Effect, audioMasterAutomate, FNumGlobalKnobs + FNumGlobalButtons + Slot, 0, nil, Variation / 7);  // value is in opt
       //FG2.add_log_line('Send audio master ' + IntToStr(FNumGlobalKnobs + Slot) + ', Value ' + FloatToStr(Variation / 7), LOGCMD_NUL);
       //SetParameterAutomated( FNumGlobalKnobs + Slot, Variation / 7);
     //end;
@@ -557,27 +560,50 @@ end;
 procedure APlugin.OnParamChangeMessage(Sender: TObject; SenderID : integer; Slot, Variation: byte;  Location: TLocationType; ModuleIndex, ParamIndex, Value: byte);
 var KnobIndex : integer;
     Knob : TGlobalKnob;
+    ButtonParam : TG2FileParameter;
+    i : integer;
 begin
   if SenderID = FG2.ID then // Don't process messages that originate from this client
     exit;
 
-  try
-    KnobIndex := FG2.Performance.GlobalKnobList.FindGlobalKnobIndex( Slot, Location, ModuleIndex, ParamIndex);
+  if not assigned(audioMaster) then
+    exit;
 
-    if KnobIndex = -1 then
-      exit;
-
-    Knob := FG2.Performance.GetGlobalKnob( KnobIndex);
-    if Assigned(audioMaster) and assigned(Knob) then begin
-      // Send parameter change to host
-      audioMaster(Effect, audioMasterAutomate, KnobIndex, 0, nil, Knob.KnobFloatValue);  // value is in opt
-      editorNeedsUpdate := True;
+  i := 0;
+  while i < 120 do begin
+    Knob := FG2.Performance.GlobalKnobList[i];
+    if assigned(Knob) and (Knob.IsAssigned = 1) and (Knob.SlotIndex = Slot) then begin
+      if (Knob.ModuleIndex = ModuleIndex) and (Knob.ParamIndex = ParamIndex) then begin
+        audioMaster(Effect, audioMasterAutomate, KnobIndex, 0, nil, Knob.KnobFloatValue);
+        editorNeedsUpdate := True;
+        break;
+      end else
+        if assigned(Knob.Parameter) and assigned(Knob.Parameter.ButtonParam) then begin
+          ButtonParam := Knob.Parameter.ButtonParam;
+          if (ButtonParam.ModuleIndex = ModuleIndex) and (ButtonParam.ParamIndex = ParamIndex) then begin
+            audioMaster(Effect, audioMasterAutomate, 120 + KnobIndex, 0, nil, Knob.KnobButtonFloatValue);
+            editorNeedsUpdate := True;
+            break;
+          end;
+        end;
     end;
-  except on E:Exception do begin
-     FG2.add_log_line( 'OnParamChange : ' + E.Message, LOGCMD_NUL);
-     FG2.save_log;
-    end;
+    inc(i);
   end;
+
+
+    {KnobIndex := FG2.Performance.GlobalKnobList.FindGlobalKnobIndex( Slot, Location, ModuleIndex, ParamIndex);
+
+    if KnobIndex <> -1 then begin
+
+      Knob := FG2.Performance.GetGlobalKnob( KnobIndex);
+      if Assigned(audioMaster) and assigned(Knob) then begin
+        // Send parameter change to host
+        audioMaster(Effect, audioMasterAutomate, KnobIndex, 0, nil, Knob.KnobFloatValue);  // value is in opt
+        editorNeedsUpdate := True;
+      end;
+    end else begin
+      // todo button param
+    end;}
 end;
 
 end.

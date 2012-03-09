@@ -121,7 +121,6 @@ type
     procedure OnEditorOpen(var Msg: TMessage); message WM_EDITOROPEN;
   public
     procedure UpdateControls;
-    //procedure ConnectControls;
     function  GetKnobIndexOffset : integer;
 
     property Effect: TVstTemplate read FEffect write FEffect;
@@ -291,24 +290,18 @@ begin
     with Sender as TG2GraphButtonRadio do
       case Tag of
       0 : begin
-           (Effect as APlugin).FG2.GetSlot(0).GetPatch.Variation := rbVariationA.Value;
-           (Effect as APlugin).setParameterAutomated((Effect as APlugin).FNumGlobalKnobs, rbVariationA.Value / 7);
+           (Effect as APlugin).setParameterAutomated( 240, rbVariationA.Value / 7);
           end;
       1 : begin
-           (Effect as APlugin).FG2.GetSlot(1).GetPatch.Variation := rbVariationB.Value;
-           (Effect as APlugin).setParameterAutomated((Effect as APlugin).FNumGlobalKnobs + 1, rbVariationB.Value / 7);
+           (Effect as APlugin).setParameterAutomated( 240 + 1, rbVariationB.Value / 7);
           end;
       2 : begin
-           (Effect as APlugin).FG2.GetSlot(2).GetPatch.Variation := rbVariationC.Value;
-           (Effect as APlugin).setParameterAutomated((Effect as APlugin).FNumGlobalKnobs + 2, rbVariationC.Value / 7);
+           (Effect as APlugin).setParameterAutomated( 240 + 2, rbVariationC.Value / 7);
           end;
       3 : begin
-           (Effect as APlugin).FG2.GetSlot(3).GetPatch.Variation := rbVariationD.Value;
-           (Effect as APlugin).setParameterAutomated((Effect as APlugin).FNumGlobalKnobs + 3, rbVariationD.Value / 7);
+           (Effect as APlugin).setParameterAutomated( 240 + 3, rbVariationD.Value / 7);
           end;
       end;
-
-    Effect.editorNeedsUpdate := True;
   end;
 end;
 
@@ -317,6 +310,7 @@ var KnobIndex : integer;
     Knob : TGlobalKnob;
     G2 : TG2USB;
     ButtonParam : TG2FileParameter;
+    ButtonFloatValue : single;
 begin
   if FDisableControls then
     exit;
@@ -324,54 +318,23 @@ begin
   G2 := (Effect as APlugin).FG2;
 
   if Sender is TG2GraphButtonFlat then
-    try
-      with (Sender) as TG2GraphButtonFlat do begin
+    with (Sender) as TG2GraphButtonFlat do begin
 
-        KnobIndex := GetKnobIndexOffset + tag;
-        Knob := G2.GetPerformance.GetGlobalKnob( KnobIndex);
-        if (not assigned(Knob)) or (Knob.IsAssigned = 0) or (not assigned(Knob.Parameter)) then
-          exit;
+      KnobIndex := GetKnobIndexOffset + tag;
+      Knob := G2.GetPerformance.GetGlobalKnob( KnobIndex);
+      if (not assigned(Knob)) or (Knob.IsAssigned = 0) or (not assigned(Knob.Parameter)) then
+        exit;
 
-        ButtonParam := Knob.Parameter.ButtonParam;
-        if not assigned(ButtonParam) then
-          exit;
+      ButtonParam := Knob.Parameter.ButtonParam;
+      if not assigned(ButtonParam) then
+        exit;
 
-        case tag of
-        0 : begin
-             Knob.KnobButtonValue := Value;
-             (Effect as APlugin).setParameterAutomated( KnobIndex + 120, Knob.KnobButtonFloatValue);
-            end;
-        1 : begin
-             Knob.KnobButtonValue := Value;
-             (Effect as APlugin).setParameterAutomated( KnobIndex + 120, Knob.KnobButtonFloatValue);
-            end;
-        2 : begin
-             Knob.KnobButtonValue := Value;
-             (Effect as APlugin).setParameterAutomated( KnobIndex + 120, Knob.KnobButtonFloatValue);
-            end;
-        3 : begin
-             Knob.KnobButtonValue := Value;
-             (Effect as APlugin).setParameterAutomated( KnobIndex + 120, Knob.KnobButtonFloatValue);
-            end;
-        4 : begin
-             Knob.KnobButtonValue := Value;
-             (Effect as APlugin).setParameterAutomated( KnobIndex + 120, Knob.KnobButtonFloatValue);
-            end;
-        5 : begin
-             Knob.KnobButtonValue := Value;
-             (Effect as APlugin).setParameterAutomated( KnobIndex + 120, Knob.KnobButtonFloatValue);
-            end;
-        6 : begin
-             Knob.KnobButtonValue := Value;
-             (Effect as APlugin).setParameterAutomated( KnobIndex + 120, Knob.KnobButtonFloatValue);
-            end;
-        7 : begin
-             Knob.KnobButtonValue := Value;
-             (Effect as APlugin).setParameterAutomated( KnobIndex + 120, Knob.KnobButtonFloatValue);
-            end;
-        end;
-      end;
-    finally
+      if ButtonParam.HighValue - ButtonParam.LowValue <> 0 then
+        ButtonFloatValue := Value / (ButtonParam.HighValue - ButtonParam.LowValue)
+      else
+        ButtonFloatValue := 0;
+
+      (Effect as APlugin).setParameterAutomated( KnobIndex + 120, ButtonFloatValue);
     end;
 end;
 
@@ -387,57 +350,20 @@ begin
   G2 := (Effect as APlugin).FG2;
 
   if Sender is TG2GraphKnob then
-    try
-      with (Sender) as TG2GraphKnob do begin
+    with (Sender) as TG2GraphKnob do begin
 
-        KnobIndex := GetKnobIndexOffset + tag;
-        Knob := G2.GetPerformance.GetGlobalKnob( KnobIndex);
-        if not assigned(Knob) then
-          exit;
+      KnobIndex := GetKnobIndexOffset + tag;
+      Knob := G2.GetPerformance.GetGlobalKnob( KnobIndex);
+      if (not assigned(Knob)) or (Knob.IsAssigned = 0) or (not assigned(Knob.Parameter)) then
+        exit;
 
-        if Knob.KnobHighValue - Knob.KnobLowValue <> 0 then
-          KnobFloatValue := Value / (Knob.KnobHighValue - Knob.KnobLowValue)
-        else
-          KnobFloatValue := 0;
+      if Knob.KnobHighValue - Knob.KnobLowValue <> 0 then
+        KnobFloatValue := Value / (Knob.KnobHighValue - Knob.KnobLowValue)
+      else
+        KnobFloatValue := 0;
 
-        (Effect as APlugin).setParameterAutomated( KnobIndex, KnobFloatValue);
+      (Effect as APlugin).setParameterAutomated( KnobIndex, KnobFloatValue);
 
-        {case tag of
-        0 : begin
-             Knob.KnobValue := Value;
-             (Effect as APlugin).setParameterAutomated( KnobIndex, Knob.KnobFloatValue);
-            end;
-        1 : begin
-             Knob.KnobValue := Value;
-             (Effect as APlugin).setParameterAutomated( KnobIndex, Knob.KnobFloatValue);
-            end;
-        2 : begin
-             Knob.KnobValue := Value;
-             (Effect as APlugin).setParameterAutomated( KnobIndex, Knob.KnobFloatValue);
-            end;
-        3 : begin
-             Knob.KnobValue := Value;
-             (Effect as APlugin).setParameterAutomated( KnobIndex, Knob.KnobFloatValue);
-            end;
-        4 : begin
-             Knob.KnobValue := Value;
-             (Effect as APlugin).setParameterAutomated( KnobIndex, Knob.KnobFloatValue);
-            end;
-        5 : begin
-             Knob.KnobValue := Value;
-             (Effect as APlugin).setParameterAutomated( KnobIndex, Knob.KnobFloatValue);
-            end;
-        6 : begin
-             Knob.KnobValue := Value;
-             (Effect as APlugin).setParameterAutomated( KnobIndex, Knob.KnobFloatValue);
-            end;
-        7 : begin
-             Knob.KnobValue := Value;
-             (Effect as APlugin).setParameterAutomated( KnobIndex, Knob.KnobFloatValue);
-            end;
-        end;}
-      end;
-    finally
     end;
 end;
 

@@ -2544,33 +2544,16 @@ end;
 
 procedure TG2USBSlot.SendSetParamMessage( aLocation, aModule, aParam, aValue, aVariation: byte);
 begin
-  // This gives eventually access violation errors in ableton vst (could be very many log messages!)
-  //add_log_line('Set param, location ' + IntToStr(aLocation) + ', module ' + IntToStr(aModule) + ', param ' + IntToStr(aParam) + ', value ' + IntToStr(aValue) + ', variation ' + IntToStr(aVariation) {+ ', slot ' + IntToStr(SlotIndex) + ', patch_version ' + IntToStr(FPatchVersion)}, LOGCMD_HDR);
-try
   AddParamUpdRec( S_SET_PARAM, aLocation, aModule, aParam, 0, aValue, 0, aVariation, nil);
-  except on E:Exception do begin
-      G2.add_log_line( E.Message + ' USBSetParameter, '// SlotIndex = '+ IntToStr(Int64(SlotIndex))
-                       + ', Location = ' + IntToStr(ord(aLocation))
-                       + ', ModuleIdnex = ' + IntToStr(aModule)
-                       + ', ParamIndex = ' + IntToStr(aParam)
-                       + ', Value = ' + IntToStr(aValue)
-                       + ', Variation = ' + IntToStr(aVariation), LOGCMD_NUL);
-      G2.save_log;
-    end;
-  end;
 end;
 
 procedure TG2USBSlot.SendSelParamMessage( aLocation, aModule, aParam: integer);
 begin
-  add_log_line('Select param, module ' + IntToStr(aModule) + ', param ' + IntToStr(aParam) + ', slot ' + IntToStr(SlotIndex) + ', patch_version ' + IntToStr(FPatchVersion), LOGCMD_HDR);
-
   AddParamUpdRec( S_SEL_PARAM, aLocation, aModule, aParam, 0, 0, 0, 0, nil);
 end;
 
 procedure TG2USBSlot.SendSetMorphMessage( aLocation, aModule, aParam, aMorph, aValue, aNegative, aVariation: byte);
 begin
-  add_log_line('Set morph, location ' + IntToStr(aLocation) + ', module ' + IntToStr(aModule) + ', param ' + IntToStr(aParam) + ', morph ' + IntToStr(aMorph) + ', value ' + IntToStr(aValue) + ', negative ' + IntToStr(aNegative) + ', variation ' + IntToStr(aVariation) + ', slot ' + IntToStr(SlotIndex) + ', patch_version ' + IntToStr(FPatchVersion), LOGCMD_HDR);
-
   AddParamUpdRec( S_SET_MORPH_RANGE, aLocation, aModule, aParam, aMorph, aValue, aNegative, aVariation, nil);
 end;
 
