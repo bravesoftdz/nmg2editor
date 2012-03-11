@@ -793,6 +793,7 @@ type
     destructor  Destroy; override;
     procedure   PaintOn( ExtCanvas : TCanvas; ExtBoundsRect : TRect); override;
     function    GetSliderRect: TRect;
+    function    GetMorphRect: TRect;
     procedure   SetBounds(ALeft: Integer; ATop: Integer;  AWidth: Integer; AHeight: Integer); override;
     function    ParseProperties( fs: TModuleDefStream; aName : AnsiString): boolean; override;
   published
@@ -2623,6 +2624,8 @@ begin
     end;}
     FStartX := X;
     FStartY := Y;
+    FOldX := Left;
+    FOldY := Top;
   end;
 
   inherited;
@@ -2722,7 +2725,7 @@ end;
 function TG2GraphModulePanel.GetNewCol: TBits7;
 var NewCol : integer;
 begin
-  NewCol := (ScrollPosX + FData.FOutlineRect.Left - FOldX) div UNITS_COL;
+  NewCol := (ScrollPosX + FData.FOutlineRect.Left - FOldX + FStartX) div UNITS_COL;
   if NewCol < 0 then
     Result := 0
   else
@@ -2732,7 +2735,7 @@ end;
 function TG2GraphModulePanel.GetNewRow: TBits7;
 var NewRow : integer;
 begin
-  NewRow := (ScrollPosY + FData.FOutlineRect.Top - FOldY) div UNITS_ROW;
+  NewRow := (ScrollPosY + FData.FOutlineRect.Top - FOldY + FStartY) div UNITS_ROW;
   if NewRow < 0 then
     Result := 0
   else
@@ -5355,21 +5358,21 @@ begin
     FStartY := Y;
     FStartValue := Value;
 
-    if (FType in [ktReset, ktResetMedium]) and PointInRect( X, Y, FCenterButtonRect) then begin
-      Value := (HighValue - LowValue + 1) div 2;
+    if (FType in [ktSlider, ktSeqSlider]) then begin
+      if (PointInRect( X, Y, GetSliderRect)) then
+        FSLiderSelected := True;
     end else
-      if PointInRect( X, Y, FIncBtnRect) then begin
-        if Value < HighValue then
-          Value := Value + 1;
+      if (FType in [ktReset, ktResetMedium]) and PointInRect( X, Y, FCenterButtonRect) then begin
+        Value := (HighValue - LowValue + 1) div 2;
       end else
-        if PointInRect( X, Y, FDecBtnRect) then begin
-          if Value > LowValue then
-            Value := Value - 1;
-        end else begin
-          if ( FType in [ktSlider, ktSeqSlider]) and (PointInRect( X, Y, GetSliderRect)) then begin
-            FSLiderSelected := True;
+        if PointInRect( X, Y, FIncBtnRect) then begin
+          if Value < HighValue then
+            Value := Value + 1;
+        end else
+          if PointInRect( X, Y, FDecBtnRect) then begin
+            if Value > LowValue then
+              Value := Value - 1;
           end;
-    end;
   end;
   inherited;
 end;
@@ -5389,12 +5392,21 @@ begin
         Value := CheckValueBounds( FStartValue + trunc((FHighValue - FLowValue) * FdX / 100));
     end else
       if ( FType in [ktSlider, ktSeqSlider]) and FSliderSelected then begin
-        if (FOrientation = otVertical) then begin
-          if (Height - FSliderSize > 0) then
-            Value := CheckValueBounds( FStartValue + trunc((FHighValue - FLowValue) * -FdY / (Height - FSliderSize)));
-        end else
-          if (Width - FSliderSize > 0) then
-            Value := CheckValueBounds( FStartValue + trunc((FHighValue - FLowValue) * FdX / (Width - FSliderSize)));
+        if ssCtrl in Shift then begin
+          if (FOrientation = otVertical) then begin
+            if (Height - FSliderSize > 0) then
+              SetMorphValue( CheckValueBounds( FStartValue + trunc((FHighValue - FLowValue) * -FdY / (Height - FSliderSize))) - Value);
+          end else
+            if (Width - FSliderSize > 0) then
+              SetMorphValue( CheckValueBounds( FStartValue + trunc((FHighValue - FLowValue) * FdX / (Width - FSliderSize))) - Value);
+        end else begin
+          if (FOrientation = otVertical) then begin
+            if (Height - FSliderSize > 0) then
+              Value := CheckValueBounds( FStartValue + trunc((FHighValue - FLowValue) * -FdY / (Height - FSliderSize)));
+          end else
+            if (Width - FSliderSize > 0) then
+              Value := CheckValueBounds( FStartValue + trunc((FHighValue - FLowValue) * FdX / (Width - FSliderSize)));
+        end;
       end;
     Invalidate;
   end;
@@ -5411,7 +5423,7 @@ procedure TG2GraphKnob.PaintOn( ExtCanvas : TCanvas; ExtBoundsRect : TRect);
 var mx, my, r : integer;
     rad, mrad, X, Y : single;
     p1, p2, p3 : TPoint;
-    Rect, IconRect : TRect;
+    Rect, IconRect, MorphRect : TRect;
     MorphParameter : TMorphParameter;
     FastBitmap : TFastbitmap;
     BitMap : TBitmap;
@@ -5537,8 +5549,24 @@ begin
           Bitmap.Canvas.Pen.Color := CL_SELECTED_PARAM
         else
           Bitmap.Canvas.Pen.Color := CL_DISPLAY_BACKGRND;
-        Bitmap.Canvas.Brush.Color := CL_BTN_FACE;
-        Bitmap.Canvas.Rectangle( ClientRect);
+
+        if HasMorph then begin
+          MorphParameter := GetMorph;
+          if assigned(MorphParameter) then begin
+             MorphRect := GetMorphRect;
+            Bitmap.Canvas.Brush.Color := CL_BTN_FACE;
+            Bitmap.Canvas.Rectangle( ClientRect);
+            Bitmap.Canvas.Brush.Color := CL_KNOB_MORPH_SELECTED;
+            Bitmap.Canvas.Rectangle( MorphRect);
+          end else begin
+            Bitmap.Canvas.Brush.Color := CL_KNOB_MORPH;
+            Bitmap.Canvas.Rectangle( ClientRect);
+          end;
+        end else begin
+          Bitmap.Canvas.Brush.Color := CL_BTN_FACE;
+          Bitmap.Canvas.Rectangle( ClientRect);
+        end;
+
         Bitmap.Canvas.Brush.Color := CL_DISPLAY_BACKGRND;
         Bitmap.Canvas.FillRect( GetSliderRect);
       end;
@@ -5633,6 +5661,43 @@ begin
     Result.Bottom := Height;
     Result.Left := SliderPos;
     Result.Right := Result.Left + FSLiderSize;
+  end;
+end;
+
+function TG2GraphKnob.GetMorphRect: TRect;
+var ValuePos, MorphPos : integer;
+begin
+  ValuePos := 0;
+  MorphPos := 0;
+  if FOrientation = otVertical then begin
+    if (HighValue - LowValue) <> 0 then begin
+      ValuePos := trunc( Height * Value / (HighValue - LowValue));
+      MorphPos := trunc( Height * MorphValue / (HighValue - LowValue));
+    end;
+    if MorphPos > ValuePos then begin
+      Result.Top := Height - ValuePos;
+      Result.Bottom := Height - MorphPos;
+    end else begin
+      Result.Top := Height - MorphPos;
+      Result.Bottom := Height - ValuePos;
+    end;
+    Result.Left := 0;
+    Result.Right := Width;
+  end else begin
+    if (HighValue - LowValue) <> 0 then begin
+      ValuePos := trunc(Width * Value / (HighValue - LowValue));
+      MorphPos := trunc(Width * MorphValue / (HighValue - LowValue));
+    end;
+
+    Result.Top := 0;
+    Result.Bottom := Height;
+    if MorphPos > ValuePos then begin
+      Result.Left := ValuePos;
+      Result.Right := MorphPos;
+    end else begin
+      Result.Left := MorphPos;
+      Result.Right := ValuePos;
+    end;
   end;
 end;
 

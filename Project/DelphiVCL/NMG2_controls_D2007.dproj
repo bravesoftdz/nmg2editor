@@ -20,10 +20,10 @@
     <DCC_DcuOutput>..\..\Dcu</DCC_DcuOutput>
     <DCC_ObjOutput>..\..\Dcu</DCC_ObjOutput>
     <DCC_HppOutput>..\..\Dcu</DCC_HppOutput>
-    <DCC_UnitSearchPath>..\..\Source\NMG2Controls;..\..\Source\XML</DCC_UnitSearchPath>
-    <DCC_ResourcePath>..\..\Source\NMG2Controls;..\..\Source\XML</DCC_ResourcePath>
-    <DCC_ObjPath>..\..\Source\NMG2Controls;..\..\Source\XML</DCC_ObjPath>
-    <DCC_IncludePath>..\..\Source\NMG2Controls;..\..\Source\XML</DCC_IncludePath>
+    <DCC_UnitSearchPath>..\..\..\midiio-dev-v7\h4ndy-midiio-dev-67754a8fdfa5;..\..\Source\XML;..\..\Source\NMG2Controls</DCC_UnitSearchPath>
+    <DCC_ResourcePath>..\..\..\midiio-dev-v7\h4ndy-midiio-dev-67754a8fdfa5;..\..\Source\XML;..\..\Source\NMG2Controls</DCC_ResourcePath>
+    <DCC_ObjPath>..\..\..\midiio-dev-v7\h4ndy-midiio-dev-67754a8fdfa5;..\..\Source\XML;..\..\Source\NMG2Controls</DCC_ObjPath>
+    <DCC_IncludePath>..\..\..\midiio-dev-v7\h4ndy-midiio-dev-67754a8fdfa5;..\..\Source\XML;..\..\Source\NMG2Controls</DCC_IncludePath>
   </PropertyGroup>
   <ProjectExtensions>
     <Borland.Personality>Delphi.Personality</Borland.Personality>
@@ -54,9 +54,42 @@
       
       
       
-      <Excluded_Packages Name="$(BDS)\bin\dclIndyCore100.bpl">Indy 10 Core Design Time</Excluded_Packages>
-      <Excluded_Packages Name="$(BDS)\bin\dclIndyProtocols100.bpl">Indy 10 Protocols Design Time</Excluded_Packages>
-      <Excluded_Packages Name="C:\Users\Bruno\Delphi\nmg2editor\Build\NMG2_controls_D2007.bpl">(untitled)</Excluded_Packages>
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      <Excluded_Packages Name="C:\Users\Public\Documents\RAD Studio\5.0\Bpl\NMG2_controls_D2007.bpl">(untitled)</Excluded_Packages>
       <Excluded_Packages Name="$(BDS)\bin\dclsoap100.bpl">CodeGear SOAP Components</Excluded_Packages>
       <Excluded_Packages Name="$(BDS)\bin\dclbde100.bpl">CodeGear BDE DB Components</Excluded_Packages>
       <Excluded_Packages Name="$(BDS)\bin\dclemacsedit100.bpl">CodeGear Editor Emacs Enhancements</Excluded_Packages>
@@ -66,6 +99,7 @@
       <Excluded_Packages Name="$(BDS)\Bin\dclib100.bpl">Borland InterBase Express Components</Excluded_Packages>
       <Excluded_Packages Name="$(BDS)\bin\dclwebsnap100.bpl">CodeGear WebSnap Components</Excluded_Packages>
       <Excluded_Packages Name="$(BDS)\bin\dclofficexp100.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
+      <Excluded_Packages Name="C:\Users\Public\Documents\RAD Studio\5.0\Bpl\MidiComponents2007.bpl">(untitled)</Excluded_Packages>
     </Excluded_Packages></Delphi.Personality></BorlandProject></BorlandProject>
   </ProjectExtensions>
   <Import Project="$(MSBuildBinPath)\Borland.Delphi.Targets" />
@@ -73,15 +107,20 @@
     <DelphiCompile Include="NMG2_controls_D2007.dpk">
       <MainSource>MainSource</MainSource>
     </DelphiCompile>
-    <DCCReference Include="..\..\Source\dclIndyCore100.dcp" />
-    <DCCReference Include="..\..\Source\dclIndyProtocols100.dcp" />
+    <DCCReference Include="..\..\Source\NMG2Controls\dclIndyCore100.dcp" />
+    <DCCReference Include="..\..\Source\NMG2Controls\dclIndyProtocols100.dcp" />
     <DCCReference Include="..\..\Source\NMG2Controls\fastbitmap.pas" />
     <DCCReference Include="..\..\Source\NMG2Controls\g2_classes.pas" />
+    <DCCReference Include="..\..\Source\NMG2Controls\g2_database.pas" />
     <DCCReference Include="..\..\Source\NMG2Controls\g2_file.pas" />
     <DCCReference Include="..\..\Source\NMG2Controls\g2_graph.pas" />
+    <DCCReference Include="..\..\Source\NMG2Controls\g2_mess.pas" />
+    <DCCReference Include="..\..\Source\NMG2Controls\g2_midi.pas" />
     <DCCReference Include="..\..\Source\NMG2Controls\g2_types.pas" />
     <DCCReference Include="..\..\Source\NMG2Controls\G2_USB.pas" />
-    <DCCReference Include="..\..\Source\rtl.dcp" />
-    <DCCReference Include="..\..\Source\vcl.dcp" />
+    <DCCReference Include="..\..\Source\NMG2Controls\graph_util_vcl.pas" />
+    <DCCReference Include="..\..\Source\NMG2Controls\MidiComponents2007.dcp" />
+    <DCCReference Include="..\..\Source\NMG2Controls\rtl.dcp" />
+    <DCCReference Include="..\..\Source\NMG2Controls\vcl.dcp" />
   </ItemGroup>
 </Project>

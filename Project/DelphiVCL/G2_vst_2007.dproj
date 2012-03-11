@@ -18,10 +18,10 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <Version>7.0</Version>
     <DCC_Define>DEBUG</DCC_Define>
-    <DCC_UnitSearchPath>..\..\Source\VST;..\..\Source\VST\CommonVST;..\..\Source\NMG2Controls\;..\Source\XML;..\..\Source\XML</DCC_UnitSearchPath>
-    <DCC_ResourcePath>..\..\Source\VST;..\..\Source\VST\CommonVST;..\..\Source\NMG2Controls\;..\Source\XML;..\..\Source\XML</DCC_ResourcePath>
-    <DCC_ObjPath>..\..\Source\VST;..\..\Source\VST\CommonVST;..\..\Source\NMG2Controls\;..\Source\XML;..\..\Source\XML</DCC_ObjPath>
-    <DCC_IncludePath>..\..\Source\VST;..\..\Source\VST\CommonVST;..\..\Source\NMG2Controls\;..\Source\XML;..\..\Source\XML</DCC_IncludePath>
+    <DCC_UnitSearchPath>..\..\Source\VST;..\..\Source\VST\CommonVST;..\..\Source\NMG2Controls\;..\..\Source\XML</DCC_UnitSearchPath>
+    <DCC_ResourcePath>..\..\Source\VST;..\..\Source\VST\CommonVST;..\..\Source\NMG2Controls\;..\..\Source\XML</DCC_ResourcePath>
+    <DCC_ObjPath>..\..\Source\VST;..\..\Source\VST\CommonVST;..\..\Source\NMG2Controls\;..\..\Source\XML</DCC_ObjPath>
+    <DCC_IncludePath>..\..\Source\VST;..\..\Source\VST\CommonVST;..\..\Source\NMG2Controls\;..\..\Source\XML</DCC_IncludePath>
     <DCC_ExeOutput>..\..\Build</DCC_ExeOutput>
     <DCC_DcuOutput>..\..\Build\Dcu</DCC_DcuOutput>
     <DCC_ObjOutput>..\..\Build\Dcu</DCC_ObjOutput>
@@ -32,84 +32,6 @@
     <Borland.ProjectType>VCLApplication</Borland.ProjectType>
     <BorlandProject>
 <BorlandProject><Delphi.Personality><Parameters><Parameters Name="UseLauncher">False</Parameters><Parameters Name="LoadAllSymbols">True</Parameters><Parameters Name="LoadUnspecifiedSymbols">False</Parameters><Parameters Name="HostApplication">C:\Program Files\Ableton\Live 8.2.1\Program\Live 8.2.1.exe</Parameters></Parameters><VersionInfo><VersionInfo Name="IncludeVerInfo">False</VersionInfo><VersionInfo Name="AutoIncBuild">False</VersionInfo><VersionInfo Name="MajorVer">1</VersionInfo><VersionInfo Name="MinorVer">0</VersionInfo><VersionInfo Name="Release">0</VersionInfo><VersionInfo Name="Build">0</VersionInfo><VersionInfo Name="Debug">False</VersionInfo><VersionInfo Name="PreRelease">False</VersionInfo><VersionInfo Name="Special">False</VersionInfo><VersionInfo Name="Private">False</VersionInfo><VersionInfo Name="DLL">False</VersionInfo><VersionInfo Name="Locale">1043</VersionInfo><VersionInfo Name="CodePage">1252</VersionInfo></VersionInfo><VersionInfoKeys><VersionInfoKeys Name="CompanyName"></VersionInfoKeys><VersionInfoKeys Name="FileDescription"></VersionInfoKeys><VersionInfoKeys Name="FileVersion">1.0.0.0</VersionInfoKeys><VersionInfoKeys Name="InternalName"></VersionInfoKeys><VersionInfoKeys Name="LegalCopyright"></VersionInfoKeys><VersionInfoKeys Name="LegalTrademarks"></VersionInfoKeys><VersionInfoKeys Name="OriginalFilename"></VersionInfoKeys><VersionInfoKeys Name="ProductName"></VersionInfoKeys><VersionInfoKeys Name="ProductVersion">1.0.0.0</VersionInfoKeys><VersionInfoKeys Name="Comments"></VersionInfoKeys></VersionInfoKeys><Excluded_Packages>
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
       
       
       
@@ -143,11 +65,31 @@
     <DelphiCompile Include="G2_vst_2007.dpr">
       <MainSource>MainSource</MainSource>
     </DelphiCompile>
+    <DCCReference Include="..uPlugin.pas" />
+    <DCCReference Include="..\..uPlugin.pas" />
+    <DCCReference Include="..\..\SouPlugin.pas" />
+    <DCCReference Include="..\..\SourceuPlugin.pas" />
+    <DCCReference Include="..\..\Source\uPlugin.pas" />
+    <DCCReference Include="..\..\Source\VSTuPlugin.pas" />
+    <DCCReference Include="..\..\Source\VST\uEditor.pas">
+      <Form>PluginEditorWindow</Form>
+    </DCCReference>
+    <DCCReference Include="..\..\Source\VST\uPlugin.pas" />
+    <DCCReference Include="..\..\Source\VSuPlugin.pas" />
+    <DCCReference Include="..\..\Source\VuPlugin.pas" />
+    <DCCReference Include="..\..\SourcuPlugin.pas" />
+    <DCCReference Include="..\..\SouruPlugin.pas" />
+    <DCCReference Include="..\..\SouuPlugin.pas" />
+    <DCCReference Include="..\..\SuPlugin.pas" />
+    <DCCReference Include="..\..\uPlugin.pas" />
+    <DCCReference Include="..\.uPlugin.pas" />
     <DCCReference Include="..\G2_Classes.pas" />
     <DCCReference Include="..\G2_file.pas" />
     <DCCReference Include="..\G2_Graph.pas" />
     <DCCReference Include="..\G2_Types.pas" />
     <DCCReference Include="..\G2_USB.pas" />
+    <DCCReference Include="..\uPlugin.pas" />
+    <DCCReference Include=".uPlugin.pas" />
     <DCCReference Include="uEditor.pas">
       <Form>PluginEditorWindow</Form>
     </DCCReference>

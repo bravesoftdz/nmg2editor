@@ -1015,6 +1015,8 @@ object frmG2Main: TfrmG2Main
     OnCreateModule = G2CreateModule
     OnAssignKnob = G2AssignKnob
     OnDeassignKnob = G2DeassignKnob
+    OnAssignGlobalKnob = G2AssignGlobalKnob
+    OnDeassignGlobalKnob = G2DeassignGlobalKnob
     OnSelectSlot = G2SelectSlot
     OnMidiCCReceive = G2MidiCCReceive
     OnPatchUpdate = G2PatchUpdate
@@ -1128,7 +1130,7 @@ object frmG2Main: TfrmG2Main
       OnClick = Properties1Click
     end
     object Def1: TMenuItem
-      Caption = 'Module def.'
+      Caption = 'Edit module def.'
       OnClick = Def1Click
     end
     object N10: TMenuItem
@@ -1401,6 +1403,11 @@ object frmG2Main: TfrmG2Main
       Caption = 'Get active performance sysex'
       ShortCut = 113
       OnExecute = aGetActivePerfSysexExecute
+    end
+    object aAnalyzePatch: TAction
+      Category = 'Tools'
+      Caption = 'Analyze patch'
+      OnExecute = aAnalyzePatchExecute
     end
   end
   object ResponseTimer: TTimer

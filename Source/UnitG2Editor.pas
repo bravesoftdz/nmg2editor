@@ -296,6 +296,7 @@ type
     Getactivepatchsysex1: TMenuItem;
     Getactiveperfsysex1: TMenuItem;
     N15: TMenuItem;
+    aAnalyzePatch: TAction;
     procedure FormCreate(Sender: TObject);
     procedure cbModeClick(Sender: TObject);
     procedure aPatchSettingsExecute(Sender: TObject);
@@ -311,7 +312,6 @@ type
     procedure aParameterPagesExecute(Sender: TObject);
     procedure aDownloadPatchExecute(Sender: TObject);
     procedure G2CreateModule(Sender: TObject; SenderID: Integer; Module: TG2FileModule);
-    procedure Delete1Click(Sender: TObject);
     procedure sbFXMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure sbVAMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure G2DeassignKnob(Sender: TObject; SenderID: Integer; Slot : byte; KnobIndex: Integer);
@@ -376,6 +376,10 @@ type
     procedure aGetPerfSysexFromBankExecute(Sender: TObject);
     procedure aGetActivePatchSysexExecute(Sender: TObject);
     procedure aGetActivePerfSysexExecute(Sender: TObject);
+    procedure aAnalyzePatchExecute(Sender: TObject);
+    procedure G2DeassignGlobalKnob(Sender: TObject; SenderID,
+      KnobIndex: Integer);
+    procedure G2AssignGlobalKnob(Sender: TObject; SenderID, KnobIndex: Integer);
   private
     { Private declarations }
     procedure DialogKey(var Msg: TWMKey); message CM_DIALOGKEY;
@@ -1509,6 +1513,11 @@ end;
 
 // ==== Edit menu ==============================================================
 
+procedure TfrmG2Main.aAnalyzePatchExecute(Sender: TObject);
+begin
+//
+end;
+
 procedure TfrmG2Main.aCopyExecute(Sender: TObject);
 begin
   CopyPatchSelection;
@@ -1736,14 +1745,6 @@ begin
   G2.SelectedPatch.MessAddModule( FLocation, aModuleType, FAddPoint.X div UNITS_COL, FAddPoint.y div UNITS_ROW );
 end;
 
-procedure TfrmG2Main.Delete1Click(Sender: TObject);
-var Module : TG2GraphModule;
-begin
-  Module := TG2GraphModule(puModuleMenu.Tag);
-
-  G2.SelectedPatch.MessDeleteModule( Module.Location, Module.ModuleIndex);
-end;
-
 procedure TfrmG2Main.DoAddModule( Sender: TObject);
 begin
   with Sender as TMenuItem do
@@ -1851,7 +1852,7 @@ procedure TfrmG2Main.AssignGlobalKnob(Sender: TObject);
 var Parameter : TG2GraphParameter;
 begin
   Parameter := TG2GraphParameter( puParamMenu.Tag);
-  G2.SelectedPatch.MessAssignGlobalKnob( Parameter.Location, Parameter.ModuleIndex, Parameter.ParamIndex, (Sender as TMenuItem).Tag);
+  G2.Patch[ Parameter.Patch.Slot.SlotIndex].MessAssignGlobalKnob( Parameter.Location, Parameter.ModuleIndex, Parameter.ParamIndex, (Sender as TMenuItem).Tag);
 end;
 
 procedure TfrmG2Main.DeAssignGlobalKnob(Sender: TObject);
@@ -1859,7 +1860,7 @@ var Parameter : TG2GraphParameter;
     KnobIndex : integer;
 begin
   Parameter := TG2GraphParameter( puParamMenu.Tag);
-  KnobIndex := G2.Performance.GlobalKnobList.FindGlobalKnobIndex( G2.SelectedSlotIndex, Parameter.Location, Parameter.ModuleIndex, Parameter.ParamIndex);
+  KnobIndex := G2.Performance.GlobalKnobList.FindGlobalKnobIndex( Parameter.Patch.Slot.SlotIndex, Parameter.Location, Parameter.ModuleIndex, Parameter.ParamIndex);
 
   if KnobIndex <> -1 then
     G2.SelectedPatch.MessDeassignGlobalKnob( KnobIndex);
@@ -2234,6 +2235,11 @@ begin
   FLastReceivedMidiCC := MidiCC;
 end;
 
+procedure TfrmG2Main.G2AssignGlobalKnob(Sender: TObject; SenderID, KnobIndex: Integer);
+begin
+  frmParameterPages.UpdateControls;
+end;
+
 procedure TfrmG2Main.G2AssignKnob(Sender: TObject; SenderID: Integer; Slot : byte; KnobIndex: Integer);
 begin
   frmParameterPages.UpdateControls;
@@ -2245,6 +2251,11 @@ begin
   (Module as TG2GraphModule).OnParameterClick := ParameterClick;
   (Module as TG2GraphModule).OnConnectorClick := ConnectorClick;
   FLocation := Module.Location;
+end;
+
+procedure TfrmG2Main.G2DeassignGlobalKnob(Sender: TObject; SenderID,  KnobIndex: Integer);
+begin
+  frmParameterPages.UpdateControls;
 end;
 
 procedure TfrmG2Main.G2DeassignKnob(Sender: TObject; SenderID: Integer; Slot : byte; KnobIndex: Integer);

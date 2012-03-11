@@ -70,7 +70,6 @@
 			<DCC_HppOutput>..\..\Build\Dcu</DCC_HppOutput>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
-			<DCC_ExeOutput>C:\Users\Bruno\Documents\Ableton\VST</DCC_ExeOutput>
 			<DCC_DcuOutput>..\..\Dcu</DCC_DcuOutput>
 			<VerInfo_AutoGenVersion>true</VerInfo_AutoGenVersion>
 			<Debugger_HostApplication>C:\Program Files (x86)\Steinberg\Cubase LE AI Elements 6\Cubase LE AI Elements 6.exe</Debugger_HostApplication>
@@ -121,7 +120,6 @@
 					<Excluded_Packages>
 						<Excluded_Packages Name="$(BDSBIN)\dcloffice2k160.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
 						<Excluded_Packages Name="$(BDSBIN)\dclofficexp160.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
-						<Excluded_Packages Name="C:\Users\Bruno\Delphi\NMG2\Build\NMG2_controls.bpl">File C:\Users\Bruno\Delphi\NMG2\Build\NMG2_controls.bpl not found</Excluded_Packages>
 					</Excluded_Packages>
 					<Source>
 						<Source Name="MainSource">G2_vst_D2011.dpr</Source>

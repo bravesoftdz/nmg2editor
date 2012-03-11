@@ -5,8 +5,8 @@ library G2_vst_2007;
 // anything here! Press Ctrl-F12 to access the main files!
 
 uses
-  uPlugin in 'uPlugin.pas',
-  uEditor in 'uEditor.pas' {PluginEditorWindow},
+  uPlugin in '..\..\Source\VST\uPlugin.pas',
+  uEditor in '..\..\Source\VST\uEditor.pas' {PluginEditorWindow},
   DAEffect;
 
 var Effect : APlugin;

@@ -1796,6 +1796,11 @@ var SubCmd, aSlot, b : byte;
     i : integer;
     perf_name : AnsiString;
     Chunk : TPatchChunk;
+    BitReader : TBitReader;
+    Module : TG2FileModule;
+    Param : TG2FileParameter;
+    GlobalKnob : TGlobalKnob;
+    aSlotIndex, aLocation, aModuleIndex, aParamIndex, aKnobIndex, aUnknown : byte;
 begin
   // Return True if processed
   Result := False;
@@ -1891,6 +1896,61 @@ begin
                   (Slot[i] as TG2MessSlot).FOnPatchUpdate( self, SenderID, i);
             end;
           end;
+    {S_ASS_GLOBAL_KNOB : // Assign knob in global page
+            begin
+              BitReader := TBitReader.Create;
+              try
+                aSlotIndex     := BitReader.ReadBits( MemStream, 4);
+                aLocation      := BitReader.ReadBits( MemStream, 2);
+                aUnknown       := BitReader.ReadBits( MemStream, 2);
+                aModuleIndex   := BitReader.ReadBits( MemStream, 8);
+                aParamIndex    := BitReader.ReadBits( MemStream, 8);
+                aUnknown       := BitReader.ReadBits( MemStream, 8);
+                aKnobIndex     := BitReader.ReadBits( MemStream, 8);
+
+                if TLocationType(aLocation) = ltPatch then begin
+                  Slot[aSlotIndex].Patch.Parameter[ aModuleIndex, aParamIndex].AssignGlobalKnob( self, aSlotIndex, aKnobIndex);
+                end else begin
+                  Module := Slot[aSlotIndex].Patch.GetModule( aLocation, aModuleIndex);
+                  if assigned( Module) then begin
+                    Module.Parameter[ aParamIndex].AssignGlobalKnob( self, aSlotIndex, aKnobIndex);
+                  end else
+                    add_log_line( 'ModuleIndex ' + IntToStr( aModuleIndex) + ' not found.', LOGCMD_ERR);
+                end;
+
+                if assigned(G2.OnAssignGlobalKnob) then
+                  G2.OnAssignGlobalKnob(self, G2.ID, aKnobIndex);
+              finally
+                BitReader.Free;
+              end;
+            end;
+    S_DEASS_GLOB_KNOB : // Deassign global knob
+            begin
+              Memstream.Read( aUnknown, 1);
+              Memstream.Read( aKnobIndex, 1);
+
+              GlobalKnob := GlobalKnobList.Items[ aKnobIndex];
+
+              if GlobalKnob.IsAssigned = 1 then begin
+                if GlobalKnob.Location = TBits2(ltPatch) then begin
+                  Param := Slot[aSlotIndex].Patch.Parameter[ GlobalKnob.ModuleIndex, GlobalKnob.ParamIndex];
+                  if assigned(Param) then
+                    Param.DeassignGlobalKnob( self, aKnobIndex);
+                end else begin
+                  Module := Slot[aSlotIndex].Patch.GetModule( GlobalKnob.Location, GlobalKnob.ModuleIndex);
+                  if assigned( Module) then begin
+                    Module.Parameter[ GlobalKnob.ParamIndex].DeassignGlobalKnob( self, aKnobIndex);
+                  end;
+                end;
+              end;
+
+              if assigned(G2.OnDeassignGlobalKnob) then
+                G2.OnDeassignGlobalKnob(self, G2.ID, aKnobIndex);
+            end;
+    S_SEL_GLOBAL_PAGE : // Select global parameter page
+            begin
+              // TODO
+            end;}
   end;
 end;
 
@@ -4203,7 +4263,7 @@ begin
   Perf := GetPerformance;
 
   // Is the parameter already assigned?
-  i := Perf.GlobalKnobList.FindGlobalKnobIndex( GetSlot.SlotIndex, aLocation, aModule, aParam);
+  i := Perf.GlobalKnobList.FindGlobalKnobIndex( Slot.SlotIndex, aLocation, aModule, aParam);
 
   if (i <> -1) then begin
     // Send a deassign message first
@@ -4294,7 +4354,8 @@ end;
 function TG2MessPatch.ProcessMessage( MemStream: TMemoryStream): boolean;
 var b, Cmd, aModuleIndex, aModuleType, aUnknown, aParamPage,
     aColor, aFromModuleIndex, aToModuleIndex, aParamIndex, aKnobIndex,
-    aFromConnectorIndex, aToConnectorIndex, aVoices, aMonoPoly, aMidiCC, aSlotIndex, aLength : byte;
+    aFromConnectorIndex, aToConnectorIndex, aVoices, aMonoPoly, aMidiCC, aSlotIndex, aLength,
+    aMorphIndex, aVariation, aValue, aNegative : byte;
     aFromConnectorKind, aToConnectorKind : TConnectorKind;
     Knob : TKnob;
     aLocation : TLocationType;
@@ -4389,9 +4450,9 @@ begin
                 RemoveFromLedList( aLocation, aModuleIndex);
                 DeleteModuleFromPatch( aLocation, Module);
 
-                if assigned(Perf) then begin
-                  Perf.DeleteModuleFromPerf( Slot.SlotIndex, aLocation, Module);
-                end;
+                //if assigned(Perf) then begin
+                //  Perf.DeleteModuleFromPerf( Slot.SlotIndex, aLocation, Module);
+                //end;
 
                 if assigned(G2) and assigned(G2.OnDeleteModule) then
                   G2.OnDeleteModule(self, G2.ID, aLocation, aModuleIndex);
@@ -4598,11 +4659,11 @@ begin
               aKnobIndex     := BitReader.ReadBits( MemStream, 8);
 
               if aLocation = ltPatch then begin
-                Parameter[ aModuleIndex, aParamIndex].AssignGlobalKnob( Perf, Slot.SlotIndex, aKnobIndex);
+                Parameter[ aModuleIndex, aParamIndex].AssignGlobalKnob( Perf, aSlotIndex, aKnobIndex);
               end else begin
                 Module := GetModule( ord(aLocation), aModuleIndex);
                 if assigned( Module) then begin
-                  Module.Parameter[ aParamIndex].AssignGlobalKnob( Perf, Slot.SlotIndex, aKnobIndex);
+                  Module.Parameter[ aParamIndex].AssignGlobalKnob( Perf, aSlotIndex, aKnobIndex);
                 end else
                   add_log_line( 'ModuleIndex ' + IntToStr( aModuleIndex) + ' not found.', LOGCMD_ERR);
               end;
@@ -4667,6 +4728,20 @@ begin
               aModuleIndex := BitReader.ReadBits( MemStream, 8);
               aName := ReadClaviaString(MemStream);
               SetModuleLabel( aLocation, aModuleIndex, aName);
+            end;
+      S_SET_MORPH_RANGE :
+            begin
+              aLocation := TLocationType(BitReader.ReadBits( MemStream, 8));
+              aModuleIndex := BitReader.ReadBits( MemStream, 8);
+              aParamIndex := BitReader.ReadBits( MemStream, 8);
+              aMorphIndex := BitReader.ReadBits( MemStream, 8);
+              aValue := BitReader.ReadBits( MemStream, 8);
+              aNegative := BitReader.ReadBits( MemStream, 8);
+              aVariation := BitReader.ReadBits( MemStream, 8);
+              if aNegative = 1 then
+                SetMorphValue( aLocation, aModuleIndex, aParamIndex, aMorphIndex, aValue - 256, aVariation)
+              else
+                SetMorphValue( aLocation, aModuleIndex, aParamIndex, aMorphIndex, aValue, aVariation);
             end;
       C_PATCH_DESCR,
       C_MODULE_LIST,

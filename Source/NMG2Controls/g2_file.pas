@@ -493,6 +493,7 @@ type
     procedure   AddNewMorphParam( aLocation, aModuleIndex, aParamIndex, aMorphIndex, aRange: byte);
     procedure   DelMorphParam( aLocation, aModuleIndex, aParamIndex, aMorphIndex: byte);
     function    FindMorphParam( aLocation : TLocationType; aModuleIndex, aParamIndex, aMorphIndex, aVariation : byte): TMorphParameter;
+    procedure   DeleteModule( aLocation, aModuleIndex : byte);
 
     function    AddMorphParam( aValue : TMorphParameter): integer;
     property    Items[ aIndex : integer]: TMorphParameter read GetMorphParam write SetMorphParam; default;
@@ -1134,6 +1135,7 @@ type
     property    ButtonTextCount : integer read GetButtonTextCount;
     property    SelectedButtonText: string read GetSelectedButtonText;
     property    ButtonParam : TG2FileParameter read GetButtonParam;
+    property    Patch : TG2FilePatch read FPatch;
   end;
 
   TG2FileSlot = class( TComponent)
@@ -1403,7 +1405,10 @@ begin
   if assigned(FPatchPart) then begin
     FPatchPart.DeselectModule( self);
 
-    FPatchPart.DeleteModule( FModuleIndex);
+    {if assigned(FPatchPart.FPatch) then
+      FPatchPart.FPatch.DeleteModule( FPatchPart.FLocation, FModuleIndex)
+    else
+      FPatchPart.DeleteModule( FModuleIndex);}
   end;
 
   for i := 0 to Length(FModes) - 1 do
@@ -3028,6 +3033,20 @@ begin
     Delete( i);
   end;
 end;
+
+procedure TVariation.DeleteModule( aLocation, aModuleIndex : byte);
+var i: integer;
+begin
+  i := 0;
+  while (i < Count) do begin
+    if ((Items[i].FLocation = aLocation) and
+        (Items[i].FModuleIndex = aModuleIndex)) then
+      Delete( i)
+    else
+      inc(i);
+  end;
+end;
+
 
 ////////////////////////////////////////////////////////////////////////////////
 //  TPatchSettings
@@ -4788,6 +4807,13 @@ begin
   FVersion   := 23;
   FPatchType := 0;
 
+  if assigned(FPerformance) and assigned(FSlot) then begin
+    for i := 0 to FPerformance.FGlobalKnobList.Count - 1 do
+      if FPerformance.FGlobalKnobList[i].SlotIndex = FSlot.SlotIndex then begin
+        FPerformance.FGlobalKnobList[i].Init;
+      end;
+  end;
+
   FPatchDescription.Init;
 
   for i := 0 to 1 do begin
@@ -5321,17 +5347,20 @@ end;
 
 procedure TG2FilePatch.DeleteModuleFromPatch( aLocation : TLocationType; aModule: TG2FileModule);
 var aModuleIndex : Byte;
+    i : integer;
 begin
   DeselectModule( aModule);
-
-  aModuleIndex := aModule.ModuleIndex;
-  FControllerList.DeleteModule( aModuleIndex);
-  FKnobList.DeleteModule( aModuleIndex, ord(aLocation));
 
   if assigned(FPerformance) and assigned(FSlot) then
     FPerformance.DeleteModuleFromPerf( FSlot.SlotIndex, aLocation, aModule);
 
-  FPatchPart[ord(aLocation)].DeleteModule( aModuleIndex);
+  aModuleIndex := aModule.ModuleIndex;
+
+  FPatchPart[ ord(aLocation)].DeleteModule( aModuleIndex);
+  FControllerList.DeleteModule( aModuleIndex);
+  FKnobList.DeleteModule( aModuleIndex, ord(aLocation));
+  for i := 0 to Length(FPatchSettings.FVariations) - 1 do
+    FPatchSettings.Variations[i].DeleteModule( ord(aLocation), aModuleIndex);
 end;
 
 procedure TG2FilePatch.SelectModule(aModule: TG2FileModule);

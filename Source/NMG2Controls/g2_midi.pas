@@ -385,7 +385,7 @@ begin
             (Performance as TG2USBPerformance).SendSetPerformanceMessage( '', G2FileDataStream as TG2FilePerformance)
           else
             if G2FileDataStream is TG2FilePatch then
-              GetSlot(0).SendSetPatchMessage( '', G2FileDataStream as TG2FilePatch)
+              (Performance.Slot[ Performance.SelectedSlot] as TG2USBSlot).SendSetPatchMessage( '', G2FileDataStream as TG2FilePatch)
             else
               raise Exception.Create('Unknown data type');
         end;

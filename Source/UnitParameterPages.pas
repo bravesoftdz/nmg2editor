@@ -259,6 +259,7 @@ begin
     Patch := frmG2Main.G2.SelectedPatch as TG2Patch;
     for i := 0 to 7 do begin
       Knob := Patch.GetKnob( GetKnobIndexOffset + i);
+      FDispModuleArray[i].TextFunction := 1000;
       if assigned(Knob) and (Knob.IsAssigned = 1) then begin
         FKnobArray[i].SetParameter( Knob.Parameter as TG2GraphParameter);
         FDispKnobArray[i].SetParameter( Knob.Parameter as TG2GraphParameter);
@@ -278,6 +279,7 @@ begin
     Perf := frmG2Main.G2.Performance;
     for i := 0 to 7 do begin
       Knob := Perf.GetGlobalKnob( GetKnobIndexOffset + i);
+      FDispModuleArray[i].TextFunction := 1002;
       if assigned(Knob) and (Knob.IsAssigned = 1) then begin
         FKnobArray[i].SetParameter( Knob.Parameter as TG2GraphParameter);
         FDispKnobArray[i].SetParameter( Knob.Parameter as TG2GraphParameter);
