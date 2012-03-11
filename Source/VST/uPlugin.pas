@@ -163,12 +163,6 @@ begin
   // connect event handlers
   OnParameterChange := ParameterChanged;
   OnEditorIdle := EditorIdle;
-
-  FG2.OnParamChangeMessage := OnParamChangeMessage;
-  FG2.OnAssignGlobalKnob := OnAssignGlobalKnob;
-  FG2.OnDeassignGlobalKnob := OnDeassignGlobalKnob;
-  FG2.OnPatchUpdate := OnPatchUpdate;
-  FG2.OnVariationChange := OnVariationChange;
 end;
 
 destructor APlugin.Destroy;
@@ -191,7 +185,8 @@ begin
 end;
 
 procedure APlugin.initializeParameters;
-var i, j, Page, PageColumn, ParamIndex : integer;
+var i, j, Page, PageColumn, ParamIndex, timer_start : integer;
+    timeout : boolean;
     name : AnsiString;
     value : single;
     Module : TG2FileModule;
@@ -203,7 +198,7 @@ begin
     exit;
 
   try
-    FG2.LogLevel := 1;
+    FG2.LogLevel := 0;
     FG2.add_log_line( 'Initialize parameters', LOGCMD_NUL);
 
     FG2.LoadModuleDefs(GetLibraryPath);
@@ -211,9 +206,21 @@ begin
 
     if FG2.USBActive then begin
 
+      timer_start := GetTickCount;
       repeat
-        sleep(100)
-      until FG2.Initialized;
+        sleep(100);
+        timeout := (GetTickCount - timer_start > 30000);
+      until FG2.Initialized or timeout;
+
+      if timeout then begin
+        FG2.LastError := 'Timeout initializing.';
+      end else begin
+        FG2.OnParamChangeMessage := OnParamChangeMessage;
+        FG2.OnAssignGlobalKnob := OnAssignGlobalKnob;
+        FG2.OnDeassignGlobalKnob := OnDeassignGlobalKnob;
+        FG2.OnPatchUpdate := OnPatchUpdate;
+        FG2.OnVariationChange := OnVariationChange;
+      end;
 
       for i := 0 to FNumGlobalKnobs - 1 do begin
         Value := FG2.Performance.GlobalKnobList.Items[i].KnobFloatValue;

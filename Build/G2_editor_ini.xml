@@ -1,12 +1,12 @@
 <?xml version="1.0"?>
 <G2_Editor_settings>
   <TCP_settings IP="127.0.0.1" Port="2501" IsServer="-1" TimerBroadcastLedMessages="500"/>
-  <MainForm PosX="58" PosY="78" SizeX="1188" SizeY="811" Visible="-1"/>
-  <PatchManagerSettings BaseFolder="C:\Users\Bruno\Documents\Nord Modular Patches\G2 Patches\" SelectedTab="2" ExternalSortCol="0" InternalSortCol="1"/>
+  <MainForm PosX="492" PosY="129" SizeX="1188" SizeY="811" Visible="-1"/>
   <PatchManagerForm PosX="731" PosY="170" SizeX="737" SizeY="824" Visible="0"/>
   <SettingsForm PosX="536" PosY="581" SizeX="504" SizeY="231" Visible="0"/>
   <ParameterPagesForm PosX="145" PosY="395" SizeX="633" SizeY="158" Visible="0"/>
   <PatchSettingsForm PosX="845" PosY="302" SizeX="608" SizeY="185" Visible="0"/>
   <EditorToolsForm PosX="50" PosY="50" SizeX="151" SizeY="261" Visible="0"/>
-  <MIDI_settings MidiEnabled="-1" MidiInDevice="2- MIDISPORT 4x4 In C" MidiOutDevice="2- MIDISPORT 4x4 Out C"/>
+  <MIDI_settings MidiEnabled="0" MidiInDevice="" MidiOutDevice=""/>
+  <PatchManagerSettings BaseFolder="" SelectedTab="0" ExternalSortCol="0" InternalSortCol="0"/>
 </G2_Editor_settings>

@@ -33,8 +33,11 @@ unit g2_midi;
 
 interface
 uses
-  Classes, SysUtils, MMSystem,
-  MidiType, MidiIn, MidiOut, g2_types, g2_file, g2_usb;
+  Classes, SysUtils,
+{$IFNDEF G2_VST}
+  MMSystem, MidiType, MidiIn, MidiOut,
+{$ENDIF}
+  g2_types, g2_file, g2_usb;
 
 const
   CHANNEL_MASK = $f;
@@ -43,16 +46,18 @@ type
   TG2Midi = class( TG2USB)
     private
       FMidiEnabled : boolean;
+      FSysExStream : TMemoryStream; // Buffer for sysex
+{$IFNDEF G2_VST}
       FMidiInput : TMidiInput;
       FMidiOutput : TMidiOutput;
-      FSysExStream : TMemoryStream; // Buffer for sysex
       FLastMidiEvent : TMyMidiEvent;
     protected
       procedure   SetMidiEnabled( aValue : boolean);
     public
+{$ENDIF}
       constructor Create( AOwner: TComponent); override;
       destructor  Destroy; override;
-
+{$IFNDEF G2_VST}
       procedure   OpenMidi;
       procedure   CloseMidi;
       procedure   ProcessMidiMessage;
@@ -67,14 +72,44 @@ type
       procedure   SysExPerformanceRequest;
       procedure   SysExPatchRequestByFileIndex( aBank, aPatch: byte);
       procedure   SysExPerformanceRequestByFileIndex( aBank, aPerf: byte);
+
     published
       property    MidiEnabled : boolean read FMidiEnabled write SetMidiEnabled;
       property    MidiInput : TMidiInput read FMidiInput;
       property    MidiOutput : TMidiOutput read FMidiOutput;
+{$ENDIF}
   end;
 
 implementation
 
+constructor TG2Midi.Create(AOwner: TComponent);
+begin
+  inherited;
+
+  FMidiEnabled := False;
+{$IFNDEF G2_VST}
+  FMidiInput := TMidiInput.Create(self);
+  FMidiOutput := TMidiOutput.Create(self);
+  FSysExStream := TMemoryStream.Create;
+
+  FMidiInput.OnMidiInput := DoMidiInput;
+{$ENDIF}
+end;
+
+destructor TG2Midi.Destroy;
+begin
+{$IFNDEF G2_VST}
+  CloseMidi;
+
+  FSYsExStream.Free;
+  FMidiOutput.Free;
+  FMidiInput.Free;
+{$ENDIF}
+  inherited;
+end;
+
+
+{$IFNDEF G2_VST}
 function MidiToString(MidiEvent: TMyMidiEvent): string;
 var channel, parameter, i : integer;
 begin
@@ -471,29 +506,6 @@ begin
   end;
 end;}
 
-constructor TG2Midi.Create(AOwner: TComponent);
-begin
-  inherited;
-
-  FMidiEnabled := False;
-  FMidiInput := TMidiInput.Create(self);
-  FMidiOutput := TMidiOutput.Create(self);
-  FSysExStream := TMemoryStream.Create;
-
-  FMidiInput.OnMidiInput := DoMidiInput;
-end;
-
-destructor TG2Midi.Destroy;
-begin
-  CloseMidi;
-
-  FSYsExStream.Free;
-  FMidiOutput.Free;
-  FMidiInput.Free;
-
-  inherited;
-end;
-
 procedure TG2Midi.OpenMidi;
 begin
   with FMidiInput do begin
@@ -517,8 +529,6 @@ begin
     Close;
   end;
 end;
-
-
-
+{$ENDIF}
 
 end.

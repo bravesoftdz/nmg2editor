@@ -61,7 +61,7 @@ v0.21 9-3-2012
 
 - Added version control to the "ModuleDef.xml" and "ParamDef.xml" files. If these files are of different version to the editor application or VST, you get a warning, for example: "Warning, ModuleDef.xml version differs from application."
 
-- Solved most of the compiler warnings and a number of bugs.
+- Solved a number of the compiler warnings and a number of bugs.
 
 
 v0.2 10-2-2012
