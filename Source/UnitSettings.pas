@@ -58,25 +58,25 @@ type
     Label5: TLabel;
     bSelectRootFolder: TButton;
     TabSheet4: TTabSheet;
-    mcbMidiIn: TMidiDeviceComboBox;
-    mcbMidiOut: TMidiDeviceComboBox;
     Label6: TLabel;
     Label7: TLabel;
     cbIsServer: TCheckBox;
     cbMidiEnabled: TCheckBox;
     eTimerBroadcastLedMessages: TEdit;
     Label8: TLabel;
+    cbMidiInDevices: TComboBox;
+    cbMidiOutDevices: TComboBox;
     procedure Button2Click(Sender: TObject);
     procedure IdUDPServer1Status(ASender: TObject; const AStatus: TIdStatus;
       const AStatusText: string);
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
-    procedure mcbMidiInChange(Sender: TObject);
-    procedure mcbMidiOutChange(Sender: TObject);
     procedure cbIsServerClick(Sender: TObject);
     procedure cbMidiEnabledClick(Sender: TObject);
     procedure bSelectRootFolderClick(Sender: TObject);
+    procedure cbMidiInDevicesSelect(Sender: TObject);
+    procedure cbMidiOutDevicesSelect(Sender: TObject);
   private
     { Private declarations }
     FDisableControls : boolean;
@@ -98,9 +98,17 @@ uses UnitG2Editor;
 
 procedure TfrmSettings.FormCreate(Sender: TObject);
 begin
-  LoadIniXML;
-  IdUDPServer1.OnUDPRead := udpServerDeviceUDPRead;
-  FDisableControls := False;
+  try
+    frmG2Main.G2.GetInDevices(cbMidiInDevices.Items);
+  finally
+    try
+      frmG2Main.G2.GetOutDevices(cbMidiOutDevices.Items);
+    finally
+      LoadIniXML;
+      IdUDPServer1.OnUDPRead := udpServerDeviceUDPRead;
+      FDisableControls := False;
+    end;
+  end;
 end;
 
 procedure TfrmSettings.FormShow(Sender: TObject);
@@ -138,21 +146,21 @@ begin
         cbMidiEnabled.Checked := False;
 
         mi := 0;
-        while (mi<mcbMidiIn.Items.Count) and (mcbMidiIn.Items[mi] <> MidiSettingsNode.MidiInDevice) do
+        while (mi<cbMidiInDevices.Items.Count) and (cbMidiInDevices.Items[mi] <> MidiSettingsNode.MidiInDevice) do
           inc(mi);
 
         mo := 0;
-        while (mo<mcbMidiOut.Items.Count) and (mcbMidiOut.Items[mo] <> MidiSettingsNode.MidiOutDevice) do
+        while (mo<cbMidiOutDevices.Items.Count) and (cbMidiOutDevices.Items[mo] <> MidiSettingsNode.MidiOutDevice) do
           inc(mo);
 
-        if (mi<mcbMidiIn.Items.Count) and (mo<mcbMidiOut.Items.Count) then begin
+        if (mi<cbMidiInDevices.Items.Count) and (mo<cbMidiOutDevices.Items.Count) then begin
           try
             try
-              mcbMidiIn.ItemIndex := mi;
-              frmG2Main.G2.MidiInput.ChangeDevice( mcbMidiIn.SelectedDeviceID, False);
+              cbMidiInDevices.ItemIndex := mi;
+              frmG2Main.G2.MidiInput.ChangeDevice( cbMidiInDevices.ItemIndex, False);
               try
-                mcbMidiOut.ItemIndex := mo;
-                frmG2Main.G2.MidiOutput.ChangeDevice( mcbMidiOut.SelectedDeviceID, False);
+                cbMidiOutDevices.ItemIndex := mo;
+                frmG2Main.G2.MidiOutput.ChangeDevice( cbMidiOutDevices.ItemIndex, False);
                 frmG2Main.G2.MidiEnabled := MidiSettingsNode.MidiEnabled;
               except on E:Exception do begin
                   ShowMessage( E.Message);
@@ -170,7 +178,6 @@ begin
           end;
         end else
           frmG2Main.G2.MidiEnabled := False;
-
       end;
 
       FormSettingsNode := TXMLFormSettingsType(RootNode.FindNode('SettingsForm'));
@@ -188,22 +195,6 @@ begin
   end;
 end;
 
-procedure TfrmSettings.mcbMidiInChange(Sender: TObject);
-begin
-  if FDisableControls then
-    exit;
-
-  frmG2Main.G2.MidiInput.ChangeDevice( mcbMidiIn.SelectedDeviceID, cbMidiEnabled.Checked);
-end;
-
-procedure TfrmSettings.mcbMidiOutChange(Sender: TObject);
-begin
-  if FDisableControls then
-    exit;
-
-  frmG2Main.G2.MidiOutput.ChangeDevice( mcbMidiOut.SelectedDeviceID, cbMidiEnabled.Checked)
-end;
-
 procedure TfrmSettings.cbMidiEnabledClick(Sender: TObject);
 begin
   if FDisableControls then
@@ -214,6 +205,28 @@ begin
   finally
     UpdateControls;
   end;
+end;
+
+procedure TfrmSettings.cbMidiInDevicesSelect(Sender: TObject);
+begin
+  if FDisableControls then
+    exit;
+
+  if cbMidiInDevices.ItemIndex > -1  then
+    frmG2Main.G2.MidiInput.ChangeDevice( cbMidiInDevices.ItemIndex, cbMidiEnabled.Checked)
+  else
+    cbMidiInDevices.Text := '';
+end;
+
+procedure TfrmSettings.cbMidiOutDevicesSelect(Sender: TObject);
+begin
+  if FDisableControls then
+    exit;
+
+  if cbMidiOutDevices.ItemIndex > -1  then
+    frmG2Main.G2.MidiOutput.ChangeDevice( cbMidiOutDevices.ItemIndex, cbMidiEnabled.Checked)
+  else
+    cbMidiOutDevices.Text := '';
 end;
 
 procedure TfrmSettings.cbIsServerClick(Sender: TObject);
@@ -292,8 +305,12 @@ begin
     cbMidiEnabled.Checked := frmG2Main.G2.MidiEnabled;
     if cbMidiEnabled.Checked then begin
       try
-        frmG2Main.G2.MidiInput.ChangeDevice( mcbMidiIn.SelectedDeviceID, False);
-        frmG2Main.G2.MidiOutput.ChangeDevice( mcbMidiOut.SelectedDeviceID, False);
+        if cbMidiInDevices.ItemIndex > -1 then
+          frmG2Main.G2.MidiInput.ChangeDevice( cbMidiInDevices.ItemIndex, False);
+
+        if cbMidiOutDevices.ItemIndex > -1 then
+          frmG2Main.G2.MidiOutput.ChangeDevice( cbMidiOutDevices.ItemIndex, False);
+
         frmG2Main.G2.MidiEnabled := True;
       except on E:Exception do
         ShowMessage( E.Message);

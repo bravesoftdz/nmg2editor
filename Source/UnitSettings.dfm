@@ -21,13 +21,11 @@ object frmSettings: TfrmSettings
     Top = 0
     Width = 488
     Height = 185
-    ActivePage = TabSheet1
+    ActivePage = TabSheet4
     Align = alClient
     TabOrder = 0
-    ExplicitHeight = 172
     object TabSheet1: TTabSheet
       Caption = 'TCP-IP'
-      ExplicitHeight = 144
       object Label3: TLabel
         Left = 16
         Top = 56
@@ -100,52 +98,30 @@ object frmSettings: TfrmSettings
         Height = 13
         Caption = 'Midi in'
       end
-      object mcbMidiIn: TMidiDeviceComboBox
-        Left = 72
-        Top = 48
-        Width = 185
-        Height = 21
-        Style = csDropDown
-        ItemIndex = 0
-        TabOrder = 0
-        Text = 'UM-ONE'
-        OnChange = mcbMidiInChange
-        Items.Strings = (
-          'UM-ONE'
-          'Hercules DJ Console Rmx MIDI'
-          '2- MIDISPORT 4x4 In A'
-          '2- MIDISPORT 4x4 In B'
-          '2- MIDISPORT 4x4 In C'
-          '2- MIDISPORT 4x4 In D')
-      end
-      object mcbMidiOut: TMidiDeviceComboBox
-        Left = 72
-        Top = 88
-        Width = 185
-        Height = 21
-        Style = csDropDown
-        ItemIndex = 0
-        TabOrder = 1
-        Text = 'Microsoft GS Wavetable Synth'
-        OnChange = mcbMidiOutChange
-        Items.Strings = (
-          'Microsoft GS Wavetable Synth'
-          'UM-ONE'
-          'Hercules DJ Console Rmx MIDI'
-          '2- MIDISPORT 4x4 Out A'
-          '2- MIDISPORT 4x4 Out C'
-          '2- MIDISPORT 4x4 Out B'
-          '2- MIDISPORT 4x4 Out D')
-        DeviceType = mdtOutput
-      end
       object cbMidiEnabled: TCheckBox
         Left = 72
         Top = 16
         Width = 97
         Height = 17
         Caption = 'Midi enabled'
-        TabOrder = 2
+        TabOrder = 0
         OnClick = cbMidiEnabledClick
+      end
+      object cbMidiInDevices: TComboBox
+        Left = 72
+        Top = 48
+        Width = 261
+        Height = 21
+        TabOrder = 1
+        OnSelect = cbMidiInDevicesSelect
+      end
+      object cbMidiOutDevices: TComboBox
+        Left = 72
+        Top = 88
+        Width = 261
+        Height = 21
+        TabOrder = 2
+        OnSelect = cbMidiOutDevicesSelect
       end
     end
     object TabSheet3: TTabSheet

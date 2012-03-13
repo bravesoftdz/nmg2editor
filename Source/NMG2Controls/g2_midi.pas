@@ -60,6 +60,8 @@ type
 {$IFNDEF G2_VST}
       procedure   OpenMidi;
       procedure   CloseMidi;
+      procedure   GetInDevices( sl : TStrings);
+      procedure   GetOutDevices( sl : TStrings);
       procedure   ProcessMidiMessage;
       procedure   SysExSend( aSlot: byte);
       procedure   SendMidiShort( aMidiMessage, aData1, aData2: Byte);
@@ -365,6 +367,44 @@ begin
   ProcessMidiMessage;
 end;
 
+procedure TG2Midi.GetInDevices(sl: TStrings);
+var DevMidiIn : TMidiInput;
+    lInCaps: TMidiInCaps;
+    i : integer;
+begin
+  DevMidiIn := TMidiInput.Create(self);
+  try
+    if DevMidiIn.NumDevs > 0 then begin
+      for i := 0 To (DevMidiIn.NumDevs-1) do begin
+        midiInGetDevCaps(i, @lInCaps, SizeOf(TMidiInCaps));
+        sl.Add(lInCaps.szPname)
+      end;
+    end;
+
+  finally
+    DevMidiIn.Free;
+  end;
+end;
+
+procedure TG2Midi.GetOutDevices(sl: TStrings);
+var lOutCaps: TMidiOutCaps;
+    DevMidiOut : TMidiOutput;
+    i : integer;
+begin
+  DevMidiOut := TMidiOutput.Create(self);
+  try
+
+    if DevMidiOut.NumDevs > 0 then begin
+      for i := 0 To (DevMidiOut.NumDevs-1) do begin
+        midiOutGetDevCaps(i, @lOutCaps, SizeOf(TMidiOutCaps));
+        sl.Add(lOutCaps.szPname);
+      end;
+    end;
+  finally
+    DevMidiOut.Free;
+  end;
+end;
+
 procedure TG2Midi.ProcessMidiMessage;
 var
 	thisEvent : TMyMidiEvent;
@@ -378,72 +418,56 @@ begin
 
     { Get the event as an object }
     thisEvent := FMidiInput.GetMidiEvent;
+    try
+      if thisEvent.Sysex <> nil then begin
 
-    midistring := MidiToString(thisEvent);
+        midistring := MidiToString(thisEvent);
+        add_log_line( midistring, LOGCMD_NUL);
 
-    add_log_line( midistring, LOGCMD_NUL);
+        if (copy(midistring, 1, 12) = 'F0337F0A2000')   // Patch dump
+          or (copy(midistring, 1, 12) = 'F0337F0A2800') // Perf dump
+            then begin
 
-    if thisEvent.Sysex <> nil then begin
+          // Welk blok?
+          block := ord(thisEvent.Sysex[8])*256 + ord(thisEvent.Sysex[9]);
+          total := ord(thisEvent.Sysex[10])*256 + ord(thisEvent.Sysex[11]);
 
-      if (copy(midistring, 1, 12) = 'F0337F0A2000')   // Patch dump
-        or (copy(midistring, 1, 12) = 'F0337F0A2800') // Perf dump
-          then begin
+          add_log_line('Receiving sysex patch, block ' + IntToStr(block) + ' of ' + IntToStr(total), LOGCMD_NUL);
 
-        // Welk blok?
-        block := ord(thisEvent.Sysex[8])*256 + ord(thisEvent.Sysex[9]);
-        total := ord(thisEvent.Sysex[10])*256 + ord(thisEvent.Sysex[11]);
+          if block = 0 then begin
+            // Eerste blok
+            FSysExStream.Clear;
+          end;
 
-        add_log_line('Receiving sysex patch, block ' + IntToStr(block) + ' of ' + IntToStr(total), LOGCMD_NUL);
+          for i := 0 to thisEvent.SysexLength - 1 do begin
+            C := ord(thisEvent.Sysex[i]);
+            FSysExStream.Write(C, 1);
+          end;
 
-        if block = 0 then begin
-          // Eerste blok
-          FSysExStream.Clear;
-        end;
+          if block = total - 1 then begin
+            // Laatste blok
+            FSysExStream.Position := 0;
 
-        for i := 0 to thisEvent.SysexLength - 1 do begin
-          C := ord(thisEvent.Sysex[i]);
-          FSysExStream.Write(C, 1);
-        end;
+            Lines := nil;
+            if assigned(LogLines) then
+              Lines := LogLines;
 
-        if block = total - 1 then begin
-          // Laatste blok
-          FSysExStream.Position := 0;
+            //FSysExStream.SaveToFile('TestSysEx.bin');
+            G2FileDataStream := TG2FileDataStream.LoadMidiData( self, FSysExStream, Lines);
 
-          Lines := nil;
-          if assigned(LogLines) then
-            Lines := LogLines;
-
-          //FSysExStream.SaveToFile('TestSysEx.bin');
-          G2FileDataStream := TG2FileDataStream.LoadMidiData( self, FSysExStream, Lines);
-
-          if G2FileDataStream is TG2FilePerformance then
-            (Performance as TG2USBPerformance).SendSetPerformanceMessage( '', G2FileDataStream as TG2FilePerformance)
-          else
-            if G2FileDataStream is TG2FilePatch then
-              (Performance.Slot[ Performance.SelectedSlot] as TG2USBSlot).SendSetPatchMessage( '', G2FileDataStream as TG2FilePatch)
+            if G2FileDataStream is TG2FilePerformance then
+              (Performance as TG2USBPerformance).SendSetPerformanceMessage( '', G2FileDataStream as TG2FilePerformance)
             else
-              raise Exception.Create('Unknown data type');
+              if G2FileDataStream is TG2FilePatch then
+                (Performance.Slot[ Performance.SelectedSlot] as TG2USBSlot).SendSetPatchMessage( '', G2FileDataStream as TG2FilePatch)
+              else
+                raise Exception.Create('Unknown data type');
+          end;
         end;
       end;
-    end else begin
-      add_log_line( MidiToString(thisEvent), LOGCMD_NUL);
-
-      // Save last event for Knob assignment
-      FlastMidiEvent.MidiMessage := thisEvent.MidiMessage;
-      FlastMidiEvent.Data1 := thisEvent.Data1;
-      FLastMidiEvent.Data2 := thisEvent.Data2;
-      FLastMidiEvent.Time := thisEvent.Time;
-
-      FreeMem( FLastMidiEvent.Sysex, FLastMidiEvent.SysexLength);
-
-      FLastMidiEvent.SysexLength := thisEvent.SysexLength;
-      GetMem( FLastMidiEvent.Sysex, thisEvent.SysexLength);
-      StrMove( FLastMidiEvent.Sysex, ThisEvent.Sysex, thisEvent.SysexLength);
-
-      //TranslateMidi(thisEvent);
+    finally
+      thisEvent.Free;
     end;
-
-    thisEvent.Free;
   end;
 end;
 
