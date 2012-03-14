@@ -41,6 +41,17 @@ VST:
 2) then you can copy the new versions of these files to your VST folder.
 
 
+v0.21 update 14-3-2011
+======================
+- fixed bug in performance settings: keyboard checkbox didn't work 
+
+
+v0.21 Update 13-3-2011
+======================
+
+- fixed midi device listings bug (should list you devices now, in stead of mine)
+- fixed bug that crashed the editor on receiving midi note events
+
 
 v0.21 9-3-2012
 ==============
