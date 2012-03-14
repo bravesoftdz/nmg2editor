@@ -1,12 +1,12 @@
 <?xml version="1.0"?>
 <G2_Editor_settings>
   <TCP_settings IP="127.0.0.1" Port="2501" IsServer="-1" TimerBroadcastLedMessages="500"/>
-  <MainForm PosX="330" PosY="179" SizeX="1188" SizeY="611" Visible="-1"/>
-  <PatchManagerForm PosX="731" PosY="170" SizeX="737" SizeY="824" Visible="0"/>
+  <MainForm PosX="192" PosY="105" SizeX="1076" SizeY="698" Visible="-1"/>
+  <PatchManagerForm PosX="1311" PosY="187" SizeX="378" SizeY="704" Visible="-1"/>
   <SettingsForm PosX="739" PosY="656" SizeX="504" SizeY="231" Visible="0"/>
   <ParameterPagesForm PosX="145" PosY="395" SizeX="633" SizeY="158" Visible="0"/>
   <PatchSettingsForm PosX="845" PosY="302" SizeX="608" SizeY="185" Visible="0"/>
   <EditorToolsForm PosX="50" PosY="50" SizeX="151" SizeY="261" Visible="0"/>
   <MIDI_settings MidiEnabled="-1" MidiInDevice="2- MIDISPORT 4x4 In C" MidiOutDevice="2- MIDISPORT 4x4 Out C"/>
-  <PatchManagerSettings BaseFolder="" SelectedTab="0" ExternalSortCol="0" InternalSortCol="0"/>
+  <PatchManagerSettings BaseFolder="" SelectedTab="2" ExternalSortCol="0" InternalSortCol="1"/>
 </G2_Editor_settings>

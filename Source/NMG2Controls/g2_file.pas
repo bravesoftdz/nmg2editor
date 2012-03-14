@@ -6764,6 +6764,7 @@ procedure TG2FileSlot.SetKeyboard( aValue : TBits8);
 begin
   if aValue > 1 then
     raise Exception.Create('Slot keyboard must be 0 or 1.');
+  FKeyboard := aValue;
 end;
 
 procedure TG2FileSlot.SetKeyboardRangeTo( aValue : TBits8);
