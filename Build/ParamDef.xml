@@ -373,9 +373,9 @@
     <Id>36</Id>
     <ParamType>2</ParamType>
     <RangeType>EqdB</RangeType>
-    <LowValue>64</LowValue>
+    <LowValue>0</LowValue>
     <HighValue>127</HighValue>
-    <DefaultValue>0</DefaultValue>
+    <DefaultValue>64</DefaultValue>
     <Definitions/>
     <Comments/>
   </ParamDef>
@@ -940,7 +940,7 @@
     <DefaultValue>0</DefaultValue>
     <Definitions/>
     <Comments/>
-    <ButtonText>HP;BP;LP;</ButtonText>
+    <ButtonText>LP;BP;HP;</ButtonText>
   </ParamDef>
   <ParamDef>
     <Id>91</Id>

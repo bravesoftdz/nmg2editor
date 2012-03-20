@@ -1580,31 +1580,40 @@
         <Name>LoSlope</Name>
         <DefaultValue>64</DefaultValue>
         <Id>36</Id>
+        <DefaultKnob>0</DefaultKnob>
+        <ButtonParam>4</ButtonParam>
       </Param>
       <Param>
         <Name>HiSlope</Name>
         <DefaultValue>64</DefaultValue>
         <Id>36</Id>
+        <DefaultKnob>1</DefaultKnob>
+        <ButtonParam>5</ButtonParam>
       </Param>
       <Param>
         <Name>Level</Name>
         <DefaultValue>127</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>2</DefaultKnob>
       </Param>
       <Param>
         <Name>Active</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
+        <DefaultKnob>3</DefaultKnob>
+        <ButtonParam>3</ButtonParam>
       </Param>
       <Param>
         <Name>LoFreq</Name>
         <DefaultValue>0</DefaultValue>
         <Id>38</Id>
+        <ButtonParam>4</ButtonParam>
       </Param>
       <Param>
         <Name>HiFreq</Name>
         <DefaultValue>2</DefaultValue>
         <Id>37</Id>
+        <ButtonParam>5</ButtonParam>
       </Param>
     </Params>
   </ModuleDef>
@@ -1634,41 +1643,53 @@
         <Name>LoSlope</Name>
         <DefaultValue>64</DefaultValue>
         <Id>36</Id>
+        <DefaultKnob>0</DefaultKnob>
+        <ButtonParam>6</ButtonParam>
       </Param>
       <Param>
         <Name>MidGain</Name>
         <DefaultValue>64</DefaultValue>
         <Id>36</Id>
+        <DefaultKnob>1</DefaultKnob>
       </Param>
       <Param>
         <Name>MidFreq</Name>
         <DefaultValue>93</DefaultValue>
         <Id>39</Id>
+        <DefaultKnob>2</DefaultKnob>
+        <ButtonParam>2</ButtonParam>
       </Param>
       <Param>
         <Name>HiSlope</Name>
         <DefaultValue>64</DefaultValue>
         <Id>36</Id>
+        <DefaultKnob>3</DefaultKnob>
+        <ButtonParam>7</ButtonParam>
       </Param>
       <Param>
         <Name>Level</Name>
         <DefaultValue>127</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>4</DefaultKnob>
       </Param>
       <Param>
         <Name>Active</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
+        <DefaultKnob>5</DefaultKnob>
+        <ButtonParam>5</ButtonParam>
       </Param>
       <Param>
         <Name>LoFreq</Name>
         <DefaultValue>0</DefaultValue>
         <Id>38</Id>
+        <ButtonParam>6</ButtonParam>
       </Param>
       <Param>
         <Name>HiFreq</Name>
         <DefaultValue>2</DefaultValue>
         <Id>37</Id>
+        <ButtonParam>7</ButtonParam>
       </Param>
     </Params>
   </ModuleDef>
@@ -2094,51 +2115,65 @@
         <Name>Vowel1</Name>
         <DefaultValue>0</DefaultValue>
         <Id>176</Id>
+        <DefaultKnob>2</DefaultKnob>
+        <ButtonParam>0</ButtonParam>
       </Param>
       <Param>
         <Name>Vowel2</Name>
         <DefaultValue>1</DefaultValue>
         <Id>176</Id>
+        <DefaultKnob>3</DefaultKnob>
+        <ButtonParam>1</ButtonParam>
       </Param>
       <Param>
         <Name>Vowel3</Name>
         <DefaultValue>2</DefaultValue>
         <Id>176</Id>
+        <DefaultKnob>4</DefaultKnob>
+        <ButtonParam>2</ButtonParam>
       </Param>
       <Param>
         <Name>Level</Name>
         <DefaultValue>100</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>8</DefaultKnob>
       </Param>
       <Param>
         <Name>Vowel</Name>
         <DefaultValue>64</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>6</DefaultKnob>
       </Param>
       <Param>
         <Name>VowelMod</Name>
         <DefaultValue>0</DefaultValue>
         <Id>2</Id>
+        <DefaultKnob>7</DefaultKnob>
       </Param>
       <Param>
         <Name>Freq</Name>
         <DefaultValue>64</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>0</DefaultKnob>
       </Param>
       <Param>
         <Name>FreqMod</Name>
         <DefaultValue>0</DefaultValue>
         <Id>2</Id>
+        <DefaultKnob>1</DefaultKnob>
       </Param>
       <Param>
         <Name>Res</Name>
         <DefaultValue>64</DefaultValue>
         <Id>2</Id>
+        <DefaultKnob>5</DefaultKnob>
       </Param>
       <Param>
         <Name>Active</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
+        <DefaultKnob>9</DefaultKnob>
+        <ButtonParam>9</ButtonParam>
       </Param>
     </Params>
   </ModuleDef>
@@ -2415,36 +2450,47 @@
         <Name>Freq</Name>
         <DefaultValue>75</DefaultValue>
         <Id>47</Id>
+        <DefaultKnob>0</DefaultKnob>
+        <ButtonParam>2</ButtonParam>
       </Param>
       <Param>
         <Name>PitchMod</Name>
         <DefaultValue>0</DefaultValue>
         <Id>72</Id>
+        <DefaultKnob>1</DefaultKnob>
       </Param>
       <Param>
         <Name>KBT</Name>
         <DefaultValue>0</DefaultValue>
         <Id>67</Id>
+        <ButtonParam>2</ButtonParam>
       </Param>
       <Param>
         <Name>GC</Name>
         <DefaultValue>1</DefaultValue>
         <Id>63</Id>
+        <ButtonParam>3</ButtonParam>
       </Param>
       <Param>
         <Name>Res</Name>
         <DefaultValue>0</DefaultValue>
         <Id>149</Id>
+        <DefaultKnob>2</DefaultKnob>
+        <ButtonParam>3</ButtonParam>
       </Param>
       <Param>
         <Name>Slope</Name>
         <DefaultValue>1</DefaultValue>
         <Id>50</Id>
+        <DefaultKnob>3</DefaultKnob>
+        <ButtonParam>5</ButtonParam>
       </Param>
       <Param>
         <Name>Active</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
+        <DefaultKnob>4</DefaultKnob>
+        <ButtonParam>6</ButtonParam>
       </Param>
     </Params>
   </ModuleDef>
@@ -2524,51 +2570,66 @@
         <Name>Freq</Name>
         <DefaultValue>75</DefaultValue>
         <Id>47</Id>
+        <DefaultKnob>0</DefaultKnob>
+        <ButtonParam>2</ButtonParam>
       </Param>
       <Param>
         <Name>PitchMod</Name>
         <DefaultValue>0</DefaultValue>
         <Id>72</Id>
+        <DefaultKnob>1</DefaultKnob>
       </Param>
       <Param>
         <Name>KBT</Name>
         <DefaultValue>0</DefaultValue>
         <Id>67</Id>
+        <ButtonParam>2</ButtonParam>
       </Param>
       <Param>
         <Name>GC</Name>
         <DefaultValue>1</DefaultValue>
         <Id>63</Id>
+        <ButtonParam>3</ButtonParam>
       </Param>
       <Param>
         <Name>Res</Name>
         <DefaultValue>0</DefaultValue>
         <Id>149</Id>
+        <DefaultKnob>4</DefaultKnob>
+        <ButtonParam>3</ButtonParam>
       </Param>
       <Param>
         <Name>Slope</Name>
         <DefaultValue>1</DefaultValue>
         <Id>51</Id>
+        <DefaultKnob>6</DefaultKnob>
+        <ButtonParam>5</ButtonParam>
       </Param>
       <Param>
         <Name>Active</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
+        <DefaultKnob>7</DefaultKnob>
+        <ButtonParam>6</ButtonParam>
       </Param>
       <Param>
         <Name>FM_Lin</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>2</DefaultKnob>
       </Param>
       <Param>
         <Name>FilterType</Name>
         <DefaultValue>0</DefaultValue>
         <Id>91</Id>
+        <DefaultKnob>3</DefaultKnob>
+        <ButtonParam>8</ButtonParam>
       </Param>
       <Param>
         <Name>ResMod</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>5</DefaultKnob>
       </Param>
     </Params>
   </ModuleDef>
@@ -2725,26 +2786,34 @@
         <Name>Freq</Name>
         <DefaultValue>75</DefaultValue>
         <Id>47</Id>
+        <DefaultKnob>0</DefaultKnob>
       </Param>
       <Param>
         <Name>Res</Name>
         <DefaultValue>0</DefaultValue>
         <Id>149</Id>
+        <DefaultKnob>1</DefaultKnob>
       </Param>
       <Param>
         <Name>FilterType</Name>
         <DefaultValue>0</DefaultValue>
         <Id>90</Id>
+        <DefaultKnob>2</DefaultKnob>
+        <ButtonParam>2</ButtonParam>
       </Param>
       <Param>
         <Name>Active</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
+        <DefaultKnob>3</DefaultKnob>
+        <ButtonParam>3</ButtonParam>
       </Param>
       <Param>
         <Name>GC</Name>
         <DefaultValue>0</DefaultValue>
         <Id>63</Id>
+        <DefaultKnob>4</DefaultKnob>
+        <ButtonParam>4</ButtonParam>
       </Param>
     </Params>
   </ModuleDef>
@@ -4003,21 +4072,27 @@
         <Name>Freq</Name>
         <DefaultValue>75</DefaultValue>
         <Id>47</Id>
+        <DefaultKnob>0</DefaultKnob>
+        <ButtonParam>2</ButtonParam>
       </Param>
       <Param>
         <Name>FreqMod</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>1</DefaultKnob>
       </Param>
       <Param>
         <Name>KBT</Name>
         <DefaultValue>0</DefaultValue>
         <Id>67</Id>
+        <ButtonParam>2</ButtonParam>
       </Param>
       <Param>
         <Name>Active</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
+        <DefaultKnob>2</DefaultKnob>
+        <ButtonParam>3</ButtonParam>
       </Param>
     </Params>
     <Modes>
@@ -4229,31 +4304,40 @@
         <Name>Freq</Name>
         <DefaultValue>75</DefaultValue>
         <Id>47</Id>
+        <DefaultKnob>0</DefaultKnob>
+        <ButtonParam>2</ButtonParam>
       </Param>
       <Param>
         <Name>PitchMod</Name>
         <DefaultValue>0</DefaultValue>
         <Id>72</Id>
+        <DefaultKnob>1</DefaultKnob>
       </Param>
       <Param>
         <Name>KBT</Name>
         <DefaultValue>0</DefaultValue>
         <Id>67</Id>
+        <ButtonParam>2</ButtonParam>
       </Param>
       <Param>
         <Name>Res</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>2</DefaultKnob>
       </Param>
       <Param>
         <Name>Slope</Name>
         <DefaultValue>2</DefaultValue>
         <Id>5</Id>
+        <DefaultKnob>3</DefaultKnob>
+        <ButtonParam>4</ButtonParam>
       </Param>
       <Param>
         <Name>Active</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
+        <DefaultKnob>4</DefaultKnob>
+        <ButtonParam>5</ButtonParam>
       </Param>
     </Params>
   </ModuleDef>
@@ -4568,56 +4652,71 @@
         <Name>PitchMod</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>1</DefaultKnob>
+        <ButtonParam>10</ButtonParam>
       </Param>
       <Param>
         <Name>Freq</Name>
         <DefaultValue>64</DefaultValue>
         <Id>54</Id>
+        <DefaultKnob>0</DefaultKnob>
       </Param>
       <Param>
         <Name>SpreadMod</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>3</DefaultKnob>
       </Param>
       <Param>
         <Name>FB</Name>
         <DefaultValue>64</DefaultValue>
         <Id>2</Id>
+        <DefaultKnob>4</DefaultKnob>
       </Param>
       <Param>
         <Name>NotchCount</Name>
         <DefaultValue>2</DefaultValue>
         <Id>48</Id>
+        <DefaultKnob>6</DefaultKnob>
+        <ButtonParam>4</ButtonParam>
       </Param>
       <Param>
         <Name>Spread</Name>
         <DefaultValue>64</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>2</DefaultKnob>
       </Param>
       <Param>
         <Name>Active</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
+        <DefaultKnob>7</DefaultKnob>
+        <ButtonParam>6</ButtonParam>
       </Param>
       <Param>
         <Name>Level</Name>
         <DefaultValue>127</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>8</DefaultKnob>
       </Param>
       <Param>
         <Name>FBMod</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>5</DefaultKnob>
       </Param>
       <Param>
         <Name>Type</Name>
         <DefaultValue>0</DefaultValue>
         <Id>49</Id>
+        <DefaultKnob>9</DefaultKnob>
+        <ButtonParam>9</ButtonParam>
       </Param>
       <Param>
         <Name>KBT</Name>
         <DefaultValue>0</DefaultValue>
         <Id>67</Id>
+        <ButtonParam>10</ButtonParam>
       </Param>
     </Params>
   </ModuleDef>
@@ -4647,26 +4746,32 @@
         <Name>Freq</Name>
         <DefaultValue>60</DefaultValue>
         <Id>55</Id>
+        <DefaultKnob>0</DefaultKnob>
       </Param>
       <Param>
         <Name>Gain</Name>
         <DefaultValue>64</DefaultValue>
         <Id>36</Id>
+        <DefaultKnob>1</DefaultKnob>
       </Param>
       <Param>
         <Name>BandWidth</Name>
         <DefaultValue>64</DefaultValue>
         <Id>40</Id>
+        <DefaultKnob>2</DefaultKnob>
       </Param>
       <Param>
         <Name>Active</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
+        <DefaultKnob>4</DefaultKnob>
+        <ButtonParam>3</ButtonParam>
       </Param>
       <Param>
         <Name>Level</Name>
         <DefaultValue>127</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>3</DefaultKnob>
       </Param>
     </Params>
   </ModuleDef>
@@ -5739,16 +5844,20 @@
         <Name>SweepMod</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>1</DefaultKnob>
       </Param>
       <Param>
         <Name>Sweep</Name>
         <DefaultValue>64</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>0</DefaultKnob>
       </Param>
       <Param>
         <Name>Active</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
+        <DefaultKnob>2</DefaultKnob>
+        <ButtonParam>2</ButtonParam>
       </Param>
     </Params>
   </ModuleDef>
@@ -6013,21 +6122,27 @@
         <Name>Freq</Name>
         <DefaultValue>60</DefaultValue>
         <Id>47</Id>
+        <DefaultKnob>0</DefaultKnob>
+        <ButtonParam>2</ButtonParam>
       </Param>
       <Param>
         <Name>FreqMod</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>1</DefaultKnob>
       </Param>
       <Param>
         <Name>KBT</Name>
         <DefaultValue>0</DefaultValue>
         <Id>67</Id>
+        <ButtonParam>2</ButtonParam>
       </Param>
       <Param>
         <Name>Active</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
+        <DefaultKnob>2</DefaultKnob>
+        <ButtonParam>3</ButtonParam>
       </Param>
     </Params>
     <Modes>
@@ -7860,41 +7975,52 @@
         <Name>Freq</Name>
         <DefaultValue>64</DefaultValue>
         <Id>53</Id>
+        <DefaultKnob>0</DefaultKnob>
+        <ButtonParam>2</ButtonParam>
       </Param>
       <Param>
         <Name>PitchMod</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>1</DefaultKnob>
       </Param>
       <Param>
         <Name>KBT</Name>
         <DefaultValue>0</DefaultValue>
         <Id>67</Id>
+        <ButtonParam>2</ButtonParam>
       </Param>
       <Param>
         <Name>FB</Name>
         <DefaultValue>64</DefaultValue>
         <Id>2</Id>
+        <DefaultKnob>2</DefaultKnob>
       </Param>
       <Param>
         <Name>FBMod</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>3</DefaultKnob>
       </Param>
       <Param>
         <Name>Type</Name>
         <DefaultValue>0</DefaultValue>
         <Id>10</Id>
+        <DefaultKnob>4</DefaultKnob>
+        <ButtonParam>5</ButtonParam>
       </Param>
       <Param>
         <Name>Lev</Name>
         <DefaultValue>127</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>5</DefaultKnob>
       </Param>
       <Param>
         <Name>Active</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
+        <DefaultKnob>6</DefaultKnob>
+        <ButtonParam>7</ButtonParam>
       </Param>
     </Params>
   </ModuleDef>
@@ -8464,6 +8590,7 @@
         <Name>Time</Name>
         <DefaultValue>64</DefaultValue>
         <Id>20</Id>
+        <DefaultKnob>0</DefaultKnob>
       </Param>
     </Params>
     <Modes>
@@ -8504,11 +8631,13 @@
         <Name>Time</Name>
         <DefaultValue>64</DefaultValue>
         <Id>20</Id>
+        <DefaultKnob>0</DefaultKnob>
       </Param>
       <Param>
         <Name>TimeMod</Name>
         <DefaultValue>64</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>1</DefaultKnob>
       </Param>
     </Params>
     <Modes>
@@ -8557,21 +8686,25 @@
         <Name>Time1</Name>
         <DefaultValue>64</DefaultValue>
         <Id>20</Id>
+        <DefaultKnob>0</DefaultKnob>
       </Param>
       <Param>
         <Name>Time1Mod</Name>
         <DefaultValue>64</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>1</DefaultKnob>
       </Param>
       <Param>
         <Name>Time2</Name>
         <DefaultValue>64</DefaultValue>
         <Id>20</Id>
+        <DefaultKnob>2</DefaultKnob>
       </Param>
       <Param>
         <Name>Time2Mod</Name>
         <DefaultValue>64</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>3</DefaultKnob>
       </Param>
     </Params>
     <Modes>
@@ -8640,46 +8773,56 @@
         <Name>Time1</Name>
         <DefaultValue>64</DefaultValue>
         <Id>20</Id>
+        <DefaultKnob>0</DefaultKnob>
       </Param>
       <Param>
         <Name>Time1Mod</Name>
         <DefaultValue>64</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>1</DefaultKnob>
       </Param>
       <Param>
         <Name>Time2</Name>
         <DefaultValue>64</DefaultValue>
         <Id>20</Id>
+        <DefaultKnob>2</DefaultKnob>
       </Param>
       <Param>
         <Name>Time2Mod</Name>
         <DefaultValue>64</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>3</DefaultKnob>
       </Param>
       <Param>
         <Name>Time3</Name>
         <DefaultValue>64</DefaultValue>
         <Id>20</Id>
+        <DefaultKnob>4</DefaultKnob>
       </Param>
       <Param>
         <Name>Time3Mod</Name>
         <DefaultValue>64</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>5</DefaultKnob>
       </Param>
       <Param>
         <Name>Time4</Name>
         <DefaultValue>64</DefaultValue>
         <Id>20</Id>
+        <DefaultKnob>6</DefaultKnob>
       </Param>
       <Param>
         <Name>Time4Mod</Name>
         <DefaultValue>64</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>7</DefaultKnob>
       </Param>
       <Param>
         <Name>TimeClk</Name>
         <DefaultValue>0</DefaultValue>
         <Id>170</Id>
+        <DefaultKnob>8</DefaultKnob>
+        <ButtonParam>8</ButtonParam>
       </Param>
     </Params>
     <Modes>
@@ -8716,31 +8859,39 @@
         <Name>Time</Name>
         <DefaultValue>64</DefaultValue>
         <Id>19</Id>
+        <DefaultKnob>0</DefaultKnob>
       </Param>
       <Param>
         <Name>FB</Name>
         <DefaultValue>64</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>1</DefaultKnob>
       </Param>
       <Param>
         <Name>Filter</Name>
         <DefaultValue>64</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>2</DefaultKnob>
       </Param>
       <Param>
         <Name>DryWet</Name>
         <DefaultValue>64</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>3</DefaultKnob>
+        <ButtonParam>4</ButtonParam>
       </Param>
       <Param>
         <Name>Active</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
+        <ButtonParam>4</ButtonParam>
       </Param>
       <Param>
         <Name>TimeClk</Name>
         <DefaultValue>0</DefaultValue>
         <Id>170</Id>
+        <DefaultKnob>4</DefaultKnob>
+        <ButtonParam>5</ButtonParam>
       </Param>
     </Params>
     <Modes>
@@ -8785,46 +8936,57 @@
         <Name>Time</Name>
         <DefaultValue>64</DefaultValue>
         <Id>19</Id>
+        <DefaultKnob>0</DefaultKnob>
       </Param>
       <Param>
         <Name>FB</Name>
         <DefaultValue>64</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>1</DefaultKnob>
       </Param>
       <Param>
         <Name>LP</Name>
         <DefaultValue>127</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>2</DefaultKnob>
       </Param>
       <Param>
         <Name>DryWet</Name>
         <DefaultValue>64</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>4</DefaultKnob>
+        <ButtonParam>7</ButtonParam>
       </Param>
       <Param>
         <Name>TimeClk</Name>
         <DefaultValue>0</DefaultValue>
         <Id>170</Id>
+        <DefaultKnob>5</DefaultKnob>
+        <ButtonParam>4</ButtonParam>
       </Param>
       <Param>
         <Name>FBMod</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>6</DefaultKnob>
       </Param>
       <Param>
         <Name>DryWetMod</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>7</DefaultKnob>
       </Param>
       <Param>
         <Name>Active</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
+        <ButtonParam>7</ButtonParam>
       </Param>
       <Param>
         <Name>HP</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>3</DefaultKnob>
       </Param>
     </Params>
     <Modes>
@@ -8865,6 +9027,7 @@
         <Name>Delay</Name>
         <DefaultValue>0</DefaultValue>
         <Id>143</Id>
+        <DefaultKnob>0</DefaultKnob>
       </Param>
     </Params>
   </ModuleDef>
@@ -9149,6 +9312,7 @@
         <Name>Time</Name>
         <DefaultValue>0</DefaultValue>
         <Id>20</Id>
+        <DefaultKnob>0</DefaultKnob>
       </Param>
     </Params>
     <Modes>
@@ -9189,56 +9353,69 @@
         <Name>TimeLeft</Name>
         <DefaultValue>64</DefaultValue>
         <Id>18</Id>
+        <DefaultKnob>0</DefaultKnob>
       </Param>
       <Param>
         <Name>TimeRight</Name>
         <DefaultValue>64</DefaultValue>
         <Id>18</Id>
+        <DefaultKnob>1</DefaultKnob>
       </Param>
       <Param>
         <Name>FBLeft</Name>
         <DefaultValue>64</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>2</DefaultKnob>
       </Param>
       <Param>
         <Name>FBRight</Name>
         <DefaultValue>64</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>3</DefaultKnob>
       </Param>
       <Param>
         <Name>XFBLeft</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>4</DefaultKnob>
       </Param>
       <Param>
         <Name>XFBRight</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>5</DefaultKnob>
       </Param>
       <Param>
         <Name>TimeClk</Name>
         <DefaultValue>0</DefaultValue>
         <Id>170</Id>
+        <DefaultKnob>6</DefaultKnob>
+        <ButtonParam>6</ButtonParam>
       </Param>
       <Param>
         <Name>LP</Name>
         <DefaultValue>127</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>7</DefaultKnob>
       </Param>
       <Param>
         <Name>DryWet</Name>
         <DefaultValue>64</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>9</DefaultKnob>
+        <ButtonParam>9</ButtonParam>
       </Param>
       <Param>
         <Name>Active</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
+        <ButtonParam>9</ButtonParam>
       </Param>
       <Param>
         <Name>HP</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>8</DefaultKnob>
       </Param>
     </Params>
     <Modes>
