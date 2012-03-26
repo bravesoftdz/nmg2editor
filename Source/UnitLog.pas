@@ -4,7 +4,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, ExtCtrls, G2_Types, g2_mess, G2_USB;
+  Dialogs, StdCtrls, ExtCtrls, G2_Types, g2_mess, G2_USB, g2_classes;
 
 type
   TfrmLog = class(TForm)
@@ -44,18 +44,27 @@ end;
 
 
 procedure TfrmLog.bClearClick(Sender: TObject);
+var G2 : TG2;
 begin
-  frmG2Main.G2.ClearLog;
-  frmG2Main.G2.AssignLog( Memo1.Lines);
+  G2 := frmG2Main.SelectedG2;
+  if assigned(G2) then begin
+    G2.ClearLog;
+    G2.AssignLog( Memo1.Lines);
+  end;
 end;
 
 procedure TfrmLog.bRefreshClick(Sender: TObject);
+var G2 : TG2;
 begin
-  frmG2Main.G2.AssignLog( Memo1.Lines);
+  G2 := frmG2Main.SelectedG2;
+  if assigned(G2) then begin
+    G2.AssignLog( Memo1.Lines);
+  end;
 end;
 
 procedure TfrmLog.bSendMsgClick(Sender: TObject);
 var MemStream : TG2SendMessage;
+    G2 : TG2;
 
     i, j : integer;
     b : byte;
@@ -93,7 +102,10 @@ begin
     inc(i);
   end;
 
-  frmG2Main.G2.SendCmdMessage( MemStream);
+  G2 := frmG2Main.SelectedG2;
+  if assigned(G2) then begin
+    G2.SendCmdMessage( MemStream);
+  end;
 end;
 
 procedure TfrmLog.FormCreate(Sender: TObject);
@@ -102,8 +114,12 @@ begin
 end;
 
 procedure TfrmLog.FormShow(Sender: TObject);
+var G2 : TG2;
 begin
-  frmG2Main.G2.AssignLog( Memo1.Lines);
+  G2 := frmG2Main.SelectedG2;
+  if assigned(G2) then begin
+    G2.AssignLog( Memo1.Lines);
+  end;
 end;
 
 end.

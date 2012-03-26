@@ -111,6 +111,8 @@ object frmModuleDef: TfrmModuleDef
       Width = 519
       Height = 123
       Align = alBottom
+      DoubleBuffered = False
+      ParentDoubleBuffered = False
       TabOrder = 3
       Location = ltVA
       BackBitmap.Data = {
@@ -478,8 +480,6 @@ object frmModuleDef: TfrmModuleDef
         80808080808080808080808080808080808080804E4E4E000000}
       BackgroundColor = clWindow
       RackColor = clGray
-      DoubleBuffered = False
-      ParentDoubleBuffered = False
     end
   end
   object G2_module_def: TG2
@@ -490,6 +490,8 @@ object frmModuleDef: TfrmModuleDef
     Host = '127.0.0.1'
     USBActive = False
     ProcessLedData = False
+    TimerBroadcastLedMessages = 0
+    MidiEnabled = False
     ScrollboxVA = G2GraphScrollBox1
     SelectedSlotIndex = 0
     Left = 56

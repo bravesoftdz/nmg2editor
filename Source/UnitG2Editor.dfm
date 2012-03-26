@@ -60,6 +60,32 @@ object frmG2Main: TfrmG2Main
       Font.Style = [fsBold]
       ParentFont = False
     end
+    object G2GraphButtonRadio1: TG2GraphButtonRadio
+      Left = 384
+      Top = 3
+      Width = 241
+      Height = 17
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -9
+      Font.Name = 'Arial'
+      Font.Style = []
+      Color = 13684944
+      Value = 0
+      LowValue = 0
+      HighValue = 1
+      OnChange = G2GraphButtonRadio1Change
+      ParentColor = False
+      ParentFont = False
+      ButtonText.Strings = (
+        'G2 Engine 1'
+        'G2 Engine 2')
+      HightlightColor = clAqua
+      BorderColor = clBlack
+      Bevel = False
+      Orientation = otHorizontal
+      ButtonCount = 2
+    end
     object cbMode: TCheckBox
       Left = 173
       Top = 2
@@ -1008,40 +1034,6 @@ object frmG2Main: TfrmG2Main
     Images = ilModules
     Left = 216
     Top = 160
-  end
-  object G2: TG2
-    ClientType = ctEditor
-    LogLevel = 0
-    OnCreateModule = G2CreateModule
-    OnAssignKnob = G2AssignKnob
-    OnDeassignKnob = G2DeassignKnob
-    OnAssignGlobalKnob = G2AssignGlobalKnob
-    OnDeassignGlobalKnob = G2DeassignGlobalKnob
-    OnSelectSlot = G2SelectSlot
-    OnMidiCCReceive = G2MidiCCReceive
-    OnPatchUpdate = G2PatchUpdate
-    OnVariationChange = G2VariationChange
-    OnPerfSettingsUpdate = G2PerfSettingsUpdate
-    OnSynthSettingsUpdate = G2SynthSettingsUpdate
-    OnAfterRetrievePatch = G2AfterRetrievePatch
-    IsServer = True
-    Port = 2501
-    Host = '127.0.0.1'
-    USBActive = False
-    ProcessLedData = True
-    TimerBroadcastLedMessages = 0
-    OnUSBActiveChange = G2USBActiveChange
-    OnAfterG2Init = G2AfterG2Init
-    OnAddClient = G2AddClient
-    OnDeleteClient = G2DeleteClient
-    OnBeforeSendMessage = G2BeforeSendMessage
-    OnReceiveResponseMessage = G2ReceiveResponseMessage
-    MidiEnabled = False
-    ScrollboxVA = sbVA
-    scrollboxFX = sbFX
-    SelectedSlotIndex = 0
-    Left = 16
-    Top = 208
   end
   object StartupTimer: TTimer
     Enabled = False

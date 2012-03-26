@@ -11,7 +11,8 @@ uses
 {$ENDIF}
   Windows, Messages, SysUtils, Variants, Classes, Graphics,
   Forms, Dialogs, StdCtrls, ActnList,  ExtCtrls, ComCtrls, Tabs,
-  g2_types, g2_database, g2_file, ActnMan, Controls, DOM, XMLRead, XMLWrite;
+  g2_types, g2_database, g2_file, g2_classes,
+  ActnMan, Controls, DOM, XMLRead, XMLWrite;
 
 const
   MAXBUFFER = 4096;
@@ -287,19 +288,26 @@ begin
 end;
 
 procedure TfrmPatchManager.aLoadExecute(Sender: TObject);
+var G2 : TG2;
 begin
-  frmG2Main.G2.LoadFileStream( lvExternal.Selected.SubItems[1] + lvExternal.Selected.Caption);
+  G2 := frmG2Main.SelectedG2;
+  if assigned(G2) then
+    G2.LoadFileStream( lvExternal.Selected.SubItems[1] + lvExternal.Selected.Caption);
   frmG2Main.SetFocus;
 end;
 
 procedure TfrmPatchManager.aRestoreExecute(Sender: TObject);
 var BankItem : TBankItem;
+    G2 : TG2;
 begin
  BankItem := TBankItem(lvInternal.Selected.Data);
- if BankItem.Mode = 1 then
-   frmG2Main.G2.Performance.SendRetrieveMessage( 4, BankItem.Bank, BankItem.Patch)
- else
-   frmG2Main.G2.Performance.SendRetrieveMessage( frmG2Main.G2.SelectedSlotIndex, BankItem.Bank, BankItem.Patch);
+  G2 := frmG2Main.SelectedG2;
+  if assigned(G2) then begin
+    if BankItem.Mode = 1 then
+      G2.Performance.SendRetrieveMessage( 4, BankItem.Bank, BankItem.Patch)
+    else
+      G2.Performance.SendRetrieveMessage( G2.SelectedSlotIndex, BankItem.Bank, BankItem.Patch);
+  end;
   frmG2Main.SetFocus;
 end;
 
@@ -336,6 +344,7 @@ end;
 
 procedure TfrmPatchManager.aShowPatchesExecute(Sender: TObject);
 var i : integer;
+    G2 : TG2;
 begin
   if assigned(FSearchThread) then
     FSearchThread.Terminate;
@@ -347,20 +356,24 @@ begin
 
   lvInternal.Clear;
 
-  if frmG2Main.G2.USBActive then begin
-    for i := 0 to frmG2Main.G2.BankList.Count - 1 do begin
-      if frmG2Main.G2.BankList[i].Mode = 0 then
-        AddSlot( frmG2Main.G2.BankList[i]);
+  G2 := frmG2Main.SelectedG2;
+  if assigned(G2) then begin
+    if G2.USBActive then begin
+      for i := 0 to G2.BankList.Count - 1 do begin
+        if G2.BankList[i].Mode = 0 then
+          AddSlot( G2.BankList[i]);
+      end;
+
+    end else begin
+      // No usb, just fill the list with bank and slot no's
+
     end;
-
-  end else begin
-    // No usb, just fill the list with bank and slot no's
-
   end;
 end;
 
 procedure TfrmPatchManager.aShowPerfsExecute(Sender: TObject);
 var i : integer;
+    G2 : TG2;
 begin
   if assigned(FSearchThread) then
     FSearchThread.Terminate;
@@ -371,9 +384,13 @@ begin
   lvInternal.Align := alClient;
 
   lvInternal.Clear;
-  for i := 0 to frmG2Main.G2.BankList.Count - 1 do begin
-    if frmG2Main.G2.BankList[i].Mode = 1 then
-      AddSlot( frmG2Main.G2.BankList[i]);
+
+  G2 := frmG2Main.SelectedG2;
+  if assigned(G2) then begin
+    for i := 0 to G2.BankList.Count - 1 do begin
+      if G2.BankList[i].Mode = 1 then
+        AddSlot( G2.BankList[i]);
+    end;
   end;
 end;
 

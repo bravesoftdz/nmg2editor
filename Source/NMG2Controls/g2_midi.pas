@@ -48,8 +48,9 @@ type
       FMidiEnabled : boolean;
       FSysExStream : TMemoryStream; // Buffer for sysex
 {$IFNDEF G2_VST}
-      FMidiInput : TMidiInput;
-      FMidiOutput : TMidiOutput;
+      FMidiInput     : TMidiInput;
+      FCtrlMidiInput : TMidiInput;
+      FMidiOutput    : TMidiOutput;
       FLastMidiEvent : TMyMidiEvent;
     protected
       procedure   SetMidiEnabled( aValue : boolean);
@@ -67,6 +68,7 @@ type
       procedure   SendMidiShort( aMidiMessage, aData1, aData2: Byte);
       procedure   SendMidiLong( aSysex: Pointer; aMsgLength: Word);
       procedure   DoMidiInput(Sender: TObject);
+      procedure   DoCtrlMidiInput(Sender: TObject);
       procedure   SysExSendPatch( aSlot : byte);
       procedure   SysExSendPerformance;
       procedure   SysExAllControllersRequest;
@@ -74,10 +76,10 @@ type
       procedure   SysExPerformanceRequest;
       procedure   SysExPatchRequestByFileIndex( aBank, aPatch: byte);
       procedure   SysExPerformanceRequestByFileIndex( aBank, aPerf: byte);
-
-    published
+   published
       property    MidiEnabled : boolean read FMidiEnabled write SetMidiEnabled;
       property    MidiInput : TMidiInput read FMidiInput;
+      property    CtrlMidiInput : TMidiInput read FCtrlMidiInput;
       property    MidiOutput : TMidiOutput read FMidiOutput;
 {$ENDIF}
   end;
@@ -91,10 +93,12 @@ begin
   FMidiEnabled := False;
 {$IFNDEF G2_VST}
   FMidiInput := TMidiInput.Create(self);
+  FCtrlMidiInput := TMidiInput.Create(self);
   FMidiOutput := TMidiOutput.Create(self);
   FSysExStream := TMemoryStream.Create;
 
   FMidiInput.OnMidiInput := DoMidiInput;
+  FCtrlMidiInput.OnMidiInput := DoCtrlMidiInput;
 {$ENDIF}
 end;
 
@@ -105,6 +109,7 @@ begin
 
   FSYsExStream.Free;
   FMidiOutput.Free;
+  FCtrlMidiInput.Free;
   FMidiInput.Free;
 {$ENDIF}
   inherited;
@@ -255,6 +260,8 @@ begin
       FMidiInput.OpenAndStart;
     if FMidiOutput.State = mosClosed then
       FMidiOutput.Open;
+    if FCtrlMidiInput.State = misClosed then
+      FCtrlMidiInput.OpenAndStart;
     FMidiEnabled := aValue;
   end else begin
     FMidiEnabled := aValue;
@@ -262,6 +269,8 @@ begin
       FMidiInput.StopAndClose;
     if FMidiOutput.State = mosOpen then
       FMidiOutput.Close;
+    if FCtrlMidiInput.State = misOpen then
+      FCtrlMidiInput.StopAndClose;
   end;
 end;
 
@@ -362,6 +371,38 @@ begin
   SysExSend(0);
 end;
 
+procedure TG2Midi.DoCtrlMidiInput(Sender: TObject);
+var
+	thisEvent : TMyMidiEvent;
+  midistring : string;
+begin
+  while (FCtrlMidiInput.MessageCount > 0) do begin
+
+    { Get the event as an object }
+    thisEvent := FCtrlMidiInput.GetMidiEvent;
+    try
+      if thisEvent.Sysex = nil then begin
+
+        midistring := MidiToString(thisEvent);
+        add_log_line( midistring, LOGCMD_NUL);
+
+        case thisEvent.MidiMessage of
+        143 : SendNoteMessage(thisEvent.Data1, $01);
+        144 : case thisEvent.Data2 of
+              0 : SendNoteMessage(thisEvent.Data1, $01);
+              else
+                SendNoteMessage(thisEvent.Data1, $00);
+              end;
+        end;
+
+
+      end;
+    finally
+      thisEvent.Free;
+    end;
+  end;
+end;
+
 procedure TG2Midi.DoMidiInput(Sender: TObject);
 begin
   ProcessMidiMessage;
@@ -393,7 +434,6 @@ var lOutCaps: TMidiOutCaps;
 begin
   DevMidiOut := TMidiOutput.Create(self);
   try
-
     if DevMidiOut.NumDevs > 0 then begin
       for i := 0 To (DevMidiOut.NumDevs-1) do begin
         midiOutGetDevCaps(i, @lOutCaps, SizeOf(TMidiOutCaps));
@@ -537,6 +577,11 @@ begin
      Start;
   end;
 
+  with FCtrlMidiInput do begin
+     Open;
+     Start;
+  end;
+
   with FMidiOutput do begin
     Open;
   end;
@@ -545,6 +590,11 @@ end;
 procedure TG2Midi.CloseMidi;
 begin
  with FMidiInput do begin
+   Stop;
+   Close;
+  end;
+
+ with FCtrlMidiInput do begin
    Stop;
    Close;
   end;

@@ -31,7 +31,7 @@ object frmEditorTools: TfrmEditorTools
     Color = 5921535
     Value = 0
     LowValue = 0
-    HighValue = 0
+    HighValue = 255
     ParentColor = False
     ParentFont = False
     OnClick = btCablesClick
@@ -55,7 +55,7 @@ object frmEditorTools: TfrmEditorTools
     Color = 16737380
     Value = 0
     LowValue = 0
-    HighValue = 0
+    HighValue = 255
     ParentColor = False
     ParentFont = False
     OnClick = btCablesClick
@@ -79,7 +79,7 @@ object frmEditorTools: TfrmEditorTools
     Color = 5301990
     Value = 0
     LowValue = 0
-    HighValue = 0
+    HighValue = 255
     ParentColor = False
     ParentFont = False
     OnClick = btCablesClick
@@ -103,7 +103,7 @@ object frmEditorTools: TfrmEditorTools
     Color = 5292287
     Value = 0
     LowValue = 0
-    HighValue = 0
+    HighValue = 255
     ParentColor = False
     ParentFont = False
     OnClick = btCablesClick
@@ -127,7 +127,7 @@ object frmEditorTools: TfrmEditorTools
     Color = 5296720
     Value = 0
     LowValue = 0
-    HighValue = 0
+    HighValue = 255
     ParentColor = False
     ParentFont = False
     OnClick = btCablesClick
@@ -151,7 +151,7 @@ object frmEditorTools: TfrmEditorTools
     Color = 15073480
     Value = 0
     LowValue = 0
-    HighValue = 0
+    HighValue = 255
     ParentColor = False
     ParentFont = False
     OnClick = btCablesClick
@@ -175,7 +175,7 @@ object frmEditorTools: TfrmEditorTools
     Color = clWhite
     Value = 0
     LowValue = 0
-    HighValue = 0
+    HighValue = 255
     ParentColor = False
     ParentFont = False
     OnClick = btCablesClick

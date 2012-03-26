@@ -2,7 +2,7 @@ object frmSettings: TfrmSettings
   Left = 0
   Top = 0
   Caption = 'Settings'
-  ClientHeight = 185
+  ClientHeight = 200
   ClientWidth = 488
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -20,12 +20,16 @@ object frmSettings: TfrmSettings
     Left = 0
     Top = 0
     Width = 488
-    Height = 185
+    Height = 200
     ActivePage = TabSheet4
     Align = alClient
     TabOrder = 0
     object TabSheet1: TTabSheet
       Caption = 'TCP-IP'
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 157
       object Label3: TLabel
         Left = 16
         Top = 56
@@ -85,21 +89,28 @@ object frmSettings: TfrmSettings
       Caption = 'Midi'
       ImageIndex = 3
       object Label6: TLabel
-        Left = 16
+        Left = 17
         Top = 91
-        Width = 37
+        Width = 69
         Height = 13
-        Caption = 'Midi out'
+        Caption = 'Sysex midi out'
       end
       object Label7: TLabel
-        Left = 16
+        Left = 17
         Top = 51
-        Width = 29
+        Width = 61
         Height = 13
-        Caption = 'Midi in'
+        Caption = 'Sysex midi in'
+      end
+      object Label9: TLabel
+        Left = 17
+        Top = 131
+        Width = 49
+        Height = 13
+        Caption = 'Ctrl midi in'
       end
       object cbMidiEnabled: TCheckBox
-        Left = 72
+        Left = 104
         Top = 16
         Width = 97
         Height = 17
@@ -108,7 +119,7 @@ object frmSettings: TfrmSettings
         OnClick = cbMidiEnabledClick
       end
       object cbMidiInDevices: TComboBox
-        Left = 72
+        Left = 104
         Top = 48
         Width = 261
         Height = 21
@@ -116,20 +127,32 @@ object frmSettings: TfrmSettings
         OnSelect = cbMidiInDevicesSelect
       end
       object cbMidiOutDevices: TComboBox
-        Left = 72
+        Left = 104
         Top = 88
         Width = 261
         Height = 21
         TabOrder = 2
         OnSelect = cbMidiOutDevicesSelect
       end
+      object cbCtrlMidiInDevices: TComboBox
+        Left = 104
+        Top = 128
+        Width = 261
+        Height = 21
+        TabOrder = 3
+        OnSelect = cbCtrlMidiInDevicesSelect
+      end
     end
     object TabSheet3: TTabSheet
       Caption = 'Patch manager'
       ImageIndex = 2
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 157
       DesignSize = (
         480
-        157)
+        172)
       object Label5: TLabel
         Left = 16
         Top = 27
@@ -159,6 +182,10 @@ object frmSettings: TfrmSettings
     object TabSheet2: TTabSheet
       Caption = 'OSC'
       ImageIndex = 1
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 157
       object Panel1: TPanel
         Left = 0
         Top = 0
@@ -210,7 +237,7 @@ object frmSettings: TfrmSettings
         Left = 0
         Top = 59
         Width = 480
-        Height = 98
+        Height = 113
         Align = alClient
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
@@ -229,7 +256,7 @@ object frmSettings: TfrmSettings
     OnStatus = IdUDPServer1Status
     Bindings = <>
     DefaultPort = 5678
-    Left = 384
-    Top = 48
+    Left = 440
+    Top = 32
   end
 end

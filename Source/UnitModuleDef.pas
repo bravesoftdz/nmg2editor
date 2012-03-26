@@ -9,7 +9,8 @@ uses
 {$IFDEF G2_VER200_up}
   PlatformDefaultStyleActnCtrls,
 {$ENDIF}
-  DOM, XMLWrite, g2_types, g2_database, g2_graph, g2_file, g2_mess, g2_usb, g2_classes;
+  DOM, XMLWrite, g2_types, g2_database, g2_graph, g2_file, g2_mess, g2_usb, g2_classes,
+  g2_midi;
 
 type
   TfrmModuleDef = class(TForm)
@@ -78,9 +79,14 @@ begin
 end;
 
 procedure TfrmModuleDef.Button1Click(Sender: TObject);
+var G2 : TG2;
+    i : integer;
 begin
   UpdateModuleDef;
-  frmG2Main.G2.LoadModuleDefs('');
+  for i := 0 to frmG2Main.FG2List.Count - 1 do begin
+    G2 := frmG2Main.FG2List[i] as TG2;
+    G2.LoadModuleDefs('');
+  end;
 end;
 
 procedure TfrmModuleDef.FormCreate(Sender: TObject);

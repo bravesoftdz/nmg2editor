@@ -108,6 +108,7 @@ type
     constructor Create( AOwner: TComponent); override;
     destructor  Destroy; override;
     function    GetSelectedPatch : TG2GraphPatch;
+    procedure   SetModuleParent( aValue: TG2GraphScrollbox);
     procedure   SetScrollboxVA( aValue : TG2GraphScrollbox);
     procedure   SetScrollboxFX( aValue : TG2GraphScrollbox);
   published
@@ -1718,24 +1719,85 @@ end;
 
 destructor TG2Graph.Destroy;
 begin
+  ScrollboxFX := nil;
+  ScrollboxVA := nil;
   inherited;
+end;
+
+procedure TG2Graph.SetModuleParent( aValue: TG2GraphScrollbox);
+var p, l, m : integer;
+    Slot : TG2FileSlot;
+    Patch : TG2GraphPatch;
+    ModuleList : TModuleList;
+    Module : TG2GraphModule;
+begin
+  if not assigned(Performance) then
+    exit;
+
+  for p := 0 to 3 do begin
+    Slot := Performance.Slot[ p];
+    if assigned(Slot) and assigned(Slot.Patch) then begin
+      Patch := Slot.Patch as TG2GraphPatch;
+      if assigned(Patch) then begin
+
+        if aValue = nil then begin
+
+          for l := 0 to 1 do begin
+            ModuleList := Patch.ModuleList[l];
+            for m := 0 to ModuleList.Count - 1 do begin
+              Module := ModuleList[m] as TG2GraphModule;
+              if assigned(Module) then begin
+                Module.Parent := aValue;
+                Module.Visible := True;
+              end;
+            end;
+          end;
+
+        end else begin
+          ModuleList := Patch.ModuleList[ord(aValue.Location)];
+          for m := 0 to ModuleList.Count - 1 do begin
+            Module := ModuleList[m] as TG2GraphModule;
+            if assigned(Module) then begin
+              Module.Parent := aValue;
+              Module.Visible := True;
+            end;
+          end;
+        end;
+
+      end;
+    end;
+  end;
 end;
 
 procedure TG2Graph.SetScrollboxFX( aValue: TG2GraphScrollbox);
 begin
-  FScrollboxFX := aValue;
-  if assigned( FScrollboxFX) then begin
+  if not assigned(aValue) then begin
+    if assigned( FScrollboxFX) and assigned( FScrollboxFX.G2) then begin
+      FScrollboxFX.G2.SetModuleParent(nil);
+      FScrollboxFX.G2 := nil;
+    end;
+    FScrollboxFX := aValue;
+  end else begin
+    FScrollboxFX := aValue;
     FScrollboxFX.G2 := self;
     FScrollboxFX.Location := ltFX;
+    SetModuleParent( FScrollboxFX);
   end;
 end;
 
 procedure TG2Graph.SetScrollboxVA( aValue: TG2GraphScrollbox);
 begin
-  FScrollboxVA := aValue;
-  if assigned( FScrollboxVA) then begin
+  if not assigned(aValue) then begin
+    if assigned( FScrollboxVA) and assigned( FScrollboxVA.G2) then begin
+      FScrollboxVA.G2.SetModuleParent(nil);
+      FScrollboxVA.G2 := nil;
+    end;
+    FScrollboxVA := aValue;
+  end else begin
+    FScrollboxVA := aValue;
     FScrollboxVA.G2 := self;
     FScrollboxVA.Location := ltVA;
+    SetModuleParent( FScrollboxVA);
   end;
 end;
 
@@ -1744,7 +1806,8 @@ begin
   if assigned(Performance) then
     Result := Performance.Slot[ Performance.SelectedSlot].Patch as TG2GraphPatch
   else
-    raise Exception.Create('Performance not assigned to G2.');
+    Result := nil;
+    //raise Exception.Create('Performance not assigned to G2.')};
 end;
 
 // ==== TG2GraphParameter ======================================================

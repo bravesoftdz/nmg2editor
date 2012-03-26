@@ -4,7 +4,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, ComCtrls, g2_types;
+  Dialogs, StdCtrls, ComCtrls, g2_types, g2_classes;
 
 type
   TfrmPerfSettings = class(TForm)
@@ -67,12 +67,17 @@ uses UnitG2Editor;
 { TfrmPerfSettings }
 
 procedure TfrmPerfSettings.ePerfNameExit(Sender: TObject);
+var G2 : TG2;
 begin
   if FDisableControls then
     exit;
 
-  frmG2Main.G2.Performance.PerformanceName := AnsiString(ePerfName.Text);
-  frmG2Main.G2.Performance.SendSetPerfNameMessage( frmG2Main.G2.Performance.PerformanceName);
+  G2 := frmG2Main.SelectedG2;
+  if not assigned(G2) then
+    exit;
+
+  G2.Performance.PerformanceName := AnsiString(ePerfName.Text);
+  G2.Performance.SendSetPerfNameMessage( G2.Performance.PerformanceName);
 end;
 
 procedure TfrmPerfSettings.FormShow(Sender: TObject);
@@ -81,44 +86,49 @@ begin
 end;
 
 procedure TfrmPerfSettings.PerfChange(Sender: TObject);
+var G2 : TG2;
 begin
   if FDisableControls then
     exit;
 
-  frmG2Main.G2.Performance.MasterClock := StrToInt(eRate.Text);
+  G2 := frmG2Main.SelectedG2;
+  if not assigned(G2) then
+    exit;
+
+  G2.Performance.MasterClock := StrToInt(eRate.Text);
 
   if rbRun.Checked then
-    frmG2Main.G2.Performance.MasterClockRun := 1
+    G2.Performance.MasterClockRun := 1
   else
-    frmG2Main.G2.Performance.MasterClockRun := 0;
+    G2.Performance.MasterClockRun := 0;
 
-  frmG2Main.G2.Performance.KeyboardRangeEnabled := BoolToByte(cbKeyBoardRange.Checked);
+  G2.Performance.KeyboardRangeEnabled := BoolToByte(cbKeyBoardRange.Checked);
 
-  frmG2Main.G2.Performance.SlotA.Enabled := BoolToByte(cbEnableA.Checked);
-  frmG2Main.G2.Performance.SlotA.Hold := BoolToByte(cbHoldA.Checked);
-  frmG2Main.G2.Performance.SlotA.Keyboard := BoolToByte(cbKeyboardA.Checked);
-  frmG2Main.G2.Performance.SlotA.Upper := StrToInt(eUpperA.Text);
-  frmG2Main.G2.Performance.SlotA.Lower := StrToInt(eLowerA.Text);
+  G2.Performance.SlotA.Enabled := BoolToByte(cbEnableA.Checked);
+  G2.Performance.SlotA.Hold := BoolToByte(cbHoldA.Checked);
+  G2.Performance.SlotA.Keyboard := BoolToByte(cbKeyboardA.Checked);
+  G2.Performance.SlotA.Upper := StrToInt(eUpperA.Text);
+  G2.Performance.SlotA.Lower := StrToInt(eLowerA.Text);
 
-  frmG2Main.G2.Performance.SlotB.Enabled := BoolToByte(cbEnableB.Checked);
-  frmG2Main.G2.Performance.SlotB.Hold := BoolToByte(cbHoldB.Checked);
-  frmG2Main.G2.Performance.SlotB.Keyboard := BoolToByte(cbKeyboardB.Checked);
-  frmG2Main.G2.Performance.SlotB.Upper := StrToInt(eUpperB.Text);
-  frmG2Main.G2.Performance.SlotB.Lower := StrToInt(eLowerB.Text);
+  G2.Performance.SlotB.Enabled := BoolToByte(cbEnableB.Checked);
+  G2.Performance.SlotB.Hold := BoolToByte(cbHoldB.Checked);
+  G2.Performance.SlotB.Keyboard := BoolToByte(cbKeyboardB.Checked);
+  G2.Performance.SlotB.Upper := StrToInt(eUpperB.Text);
+  G2.Performance.SlotB.Lower := StrToInt(eLowerB.Text);
 
-  frmG2Main.G2.Performance.SlotC.Enabled := BoolToByte(cbEnableC.Checked);
-  frmG2Main.G2.Performance.SlotC.Hold := BoolToByte(cbHoldC.Checked);
-  frmG2Main.G2.Performance.SlotC.Keyboard := BoolToByte(cbKeyboardC.Checked);
-  frmG2Main.G2.Performance.SlotC.Upper := StrToInt(eUpperC.Text);
-  frmG2Main.G2.Performance.SlotC.Lower := StrToInt(eLowerC.Text);
+  G2.Performance.SlotC.Enabled := BoolToByte(cbEnableC.Checked);
+  G2.Performance.SlotC.Hold := BoolToByte(cbHoldC.Checked);
+  G2.Performance.SlotC.Keyboard := BoolToByte(cbKeyboardC.Checked);
+  G2.Performance.SlotC.Upper := StrToInt(eUpperC.Text);
+  G2.Performance.SlotC.Lower := StrToInt(eLowerC.Text);
 
-  frmG2Main.G2.Performance.SlotD.Enabled := BoolToByte(cbEnableD.Checked);
-  frmG2Main.G2.Performance.SlotD.Hold := BoolToByte(cbHoldD.Checked);
-  frmG2Main.G2.Performance.SlotD.Keyboard := BoolToByte(cbKeyboardD.Checked);
-  frmG2Main.G2.Performance.SlotD.Upper := StrToInt(eUpperD.Text);
-  frmG2Main.G2.Performance.SlotD.Lower := StrToInt(eLowerD.Text);
+  G2.Performance.SlotD.Enabled := BoolToByte(cbEnableD.Checked);
+  G2.Performance.SlotD.Hold := BoolToByte(cbHoldD.Checked);
+  G2.Performance.SlotD.Keyboard := BoolToByte(cbKeyboardD.Checked);
+  G2.Performance.SlotD.Upper := StrToInt(eUpperD.Text);
+  G2.Performance.SlotD.Lower := StrToInt(eLowerD.Text);
 
-  frmG2Main.G2.Performance.SendSetPerfSettingsMessage;
+  G2.Performance.SendSetPerfSettingsMessage;
 end;
 
 procedure TfrmPerfSettings.udRateClick(Sender: TObject; Button: TUDBtnType);
@@ -128,49 +138,54 @@ begin
 end;
 
 procedure TfrmPerfSettings.updateDialog;
+var G2 : TG2;
 begin
+  G2 := frmG2Main.SelectedG2;
+  if not assigned(G2) then
+    exit;
+
   FDisableControls := True;
   try
-    ePerfName.Text := string(frmG2Main.G2.Performance.PerformanceName);
+    ePerfName.Text := string(G2.Performance.PerformanceName);
 
-    eRate.Text := IntToStr(frmG2Main.G2.Performance.MasterClock);
-    udRate.Position := frmG2Main.G2.Performance.MasterClock;
-    if frmG2Main.G2.Performance.MasterClockRun = 1 then
+    eRate.Text := IntToStr(G2.Performance.MasterClock);
+    udRate.Position := G2.Performance.MasterClock;
+    if G2.Performance.MasterClockRun = 1 then
       rbRun.Checked := True
     else
       rbStop.Checked := True;
-    cbKeyboardRange.Checked := frmG2Main.G2.Performance.KeyboardRangeEnabled = 1;
+    cbKeyboardRange.Checked := G2.Performance.KeyboardRangeEnabled = 1;
 
 
-    cbEnableA.Checked   := frmG2Main.G2.Performance.Slot[0].Enabled = 1;
-    cbHoldA.Checked     := frmG2Main.G2.Performance.Slot[0].Hold = 1;
-    cbKeyboardA.Checked := frmG2Main.G2.Performance.Slot[0].Keyboard = 1;
-    eLowerA.Text        := IntToStr(frmG2Main.G2.Performance.Slot[0].Lower);
-    eUpperA.Text        := IntToStr(frmG2Main.G2.Performance.Slot[0].Upper);
+    cbEnableA.Checked   := G2.Performance.Slot[0].Enabled = 1;
+    cbHoldA.Checked     := G2.Performance.Slot[0].Hold = 1;
+    cbKeyboardA.Checked := G2.Performance.Slot[0].Keyboard = 1;
+    eLowerA.Text        := IntToStr(G2.Performance.Slot[0].Lower);
+    eUpperA.Text        := IntToStr(G2.Performance.Slot[0].Upper);
     eLowerA.Enabled     := cbKeyboardRange.Checked;
     eUpperA.Enabled     := cbKeyboardRange.Checked;
 
-    cbEnableB.Checked   := frmG2Main.G2.Performance.Slot[1].Enabled = 1;
-    cbHoldB.Checked     := frmG2Main.G2.Performance.Slot[1].Hold = 1;
-    cbKeyboardB.Checked := frmG2Main.G2.Performance.Slot[1].Keyboard = 1;
-    eLowerB.Text        := IntToStr(frmG2Main.G2.Performance.Slot[1].Lower);
-    eUpperB.Text        := IntToStr(frmG2Main.G2.Performance.Slot[1].Upper);
+    cbEnableB.Checked   := G2.Performance.Slot[1].Enabled = 1;
+    cbHoldB.Checked     := G2.Performance.Slot[1].Hold = 1;
+    cbKeyboardB.Checked := G2.Performance.Slot[1].Keyboard = 1;
+    eLowerB.Text        := IntToStr(G2.Performance.Slot[1].Lower);
+    eUpperB.Text        := IntToStr(G2.Performance.Slot[1].Upper);
     eLowerB.Enabled     := cbKeyboardRange.Checked;
     eUpperB.Enabled     := cbKeyboardRange.Checked;
 
-    cbEnableC.Checked   := frmG2Main.G2.Performance.Slot[2].Enabled = 1;
-    cbHoldC.Checked     := frmG2Main.G2.Performance.Slot[2].Hold = 1;
-    cbKeyboardC.Checked := frmG2Main.G2.Performance.Slot[2].Keyboard = 1;
-    eLowerC.Text        := IntToStr(frmG2Main.G2.Performance.Slot[2].Lower);
-    eUpperC.Text        := IntToStr(frmG2Main.G2.Performance.Slot[2].Upper);
+    cbEnableC.Checked   := G2.Performance.Slot[2].Enabled = 1;
+    cbHoldC.Checked     := G2.Performance.Slot[2].Hold = 1;
+    cbKeyboardC.Checked := G2.Performance.Slot[2].Keyboard = 1;
+    eLowerC.Text        := IntToStr(G2.Performance.Slot[2].Lower);
+    eUpperC.Text        := IntToStr(G2.Performance.Slot[2].Upper);
     eLowerC.Enabled     := cbKeyboardRange.Checked;
     eUpperC.Enabled     := cbKeyboardRange.Checked;
 
-    cbEnableD.Checked   := frmG2Main.G2.Performance.Slot[3].Enabled = 1;
-    cbHoldD.Checked     := frmG2Main.G2.Performance.Slot[3].Hold = 1;
-    cbKeyboardD.Checked := frmG2Main.G2.Performance.Slot[3].Keyboard = 1;
-    eLowerD.Text        := IntToStr(frmG2Main.G2.Performance.Slot[3].Lower);
-    eUpperD.Text        := IntToStr(frmG2Main.G2.Performance.Slot[3].Upper);
+    cbEnableD.Checked   := G2.Performance.Slot[3].Enabled = 1;
+    cbHoldD.Checked     := G2.Performance.Slot[3].Hold = 1;
+    cbKeyboardD.Checked := G2.Performance.Slot[3].Keyboard = 1;
+    eLowerD.Text        := IntToStr(G2.Performance.Slot[3].Lower);
+    eUpperD.Text        := IntToStr(G2.Performance.Slot[3].Upper);
     eLowerD.Enabled     := cbKeyboardRange.Checked;
     eUpperD.Enabled     := cbKeyboardRange.Checked;
 

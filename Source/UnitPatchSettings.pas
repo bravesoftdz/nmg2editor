@@ -102,22 +102,27 @@ end;
 
 procedure TfrmPatchSettings.UpdateControls( Variation : TVariation);
 var Patch : TG2Patch;
+    G2 : TG2;
 begin
-  Patch := frmG2Main.G2.SelectedPatch;
+  G2 := frmG2Main.SelectedG2;
+  if assigned(G2) then begin
 
-  obSustainPedalOnOff.Parameter := Patch.Parameter[ PATCH_SUSTAIN, SUSTAIN_PEDAL];
-  obOctaveShift.Parameter       := Patch.Parameter[ PATCH_SUSTAIN, OCTAVE_SHIFT];
-  obBendOnOff.Parameter         := Patch.Parameter[ PATCH_BEND, BEND_ON_OFF];
-  kBendRange.Parameter          := Patch.Parameter[ PATCH_BEND, BEND_RANGE];
-  obArpeggiatorOnOff.Parameter  := Patch.Parameter[ PATCH_ARPEGGIATOR, ARP_ON_OFF];
-  obArpOctaves.Parameter        := Patch.Parameter[ PATCH_ARPEGGIATOR, ARP_OCTAVES];
-  obArpDir.Parameter            := Patch.Parameter[ PATCH_ARPEGGIATOR, ARP_DIRECTION];
-  obArpSpeed.Parameter          := Patch.Parameter[ PATCH_ARPEGGIATOR, ARP_SPEED];
-  obGlideType.Parameter         := Patch.Parameter[ PATCH_GLIDE, GLIDE_TYPE];
-  kGlideSpeed.Parameter         := Patch.Parameter[ PATCH_GLIDE, GLIDE_SPEED];
-  obVibratoMod.Parameter        := Patch.Parameter[ PATCH_VIBRATO, VIBRATO_MOD];
-  kVibratoRate.Parameter        := Patch.Parameter[ PATCH_VIBRATO, VIBRATO_RATE];
-  kVibratoDepth.Parameter       := Patch.Parameter[ PATCH_VIBRATO, VIBRATO_DEPTH];
+    Patch := G2.SelectedPatch;
+
+    obSustainPedalOnOff.Parameter := Patch.Parameter[ PATCH_SUSTAIN, SUSTAIN_PEDAL];
+    obOctaveShift.Parameter       := Patch.Parameter[ PATCH_SUSTAIN, OCTAVE_SHIFT];
+    obBendOnOff.Parameter         := Patch.Parameter[ PATCH_BEND, BEND_ON_OFF];
+    kBendRange.Parameter          := Patch.Parameter[ PATCH_BEND, BEND_RANGE];
+    obArpeggiatorOnOff.Parameter  := Patch.Parameter[ PATCH_ARPEGGIATOR, ARP_ON_OFF];
+    obArpOctaves.Parameter        := Patch.Parameter[ PATCH_ARPEGGIATOR, ARP_OCTAVES];
+    obArpDir.Parameter            := Patch.Parameter[ PATCH_ARPEGGIATOR, ARP_DIRECTION];
+    obArpSpeed.Parameter          := Patch.Parameter[ PATCH_ARPEGGIATOR, ARP_SPEED];
+    obGlideType.Parameter         := Patch.Parameter[ PATCH_GLIDE, GLIDE_TYPE];
+    kGlideSpeed.Parameter         := Patch.Parameter[ PATCH_GLIDE, GLIDE_SPEED];
+    obVibratoMod.Parameter        := Patch.Parameter[ PATCH_VIBRATO, VIBRATO_MOD];
+    kVibratoRate.Parameter        := Patch.Parameter[ PATCH_VIBRATO, VIBRATO_RATE];
+    kVibratoDepth.Parameter       := Patch.Parameter[ PATCH_VIBRATO, VIBRATO_DEPTH];
+  end;
 end;
 
 end.

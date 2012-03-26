@@ -12,7 +12,7 @@ uses
   Windows,
 {$ENDIF}
   Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, ComCtrls, ExtCtrls, g2_types;
+  Dialogs, StdCtrls, ComCtrls, ExtCtrls, g2_types, g2_classes;
 
 type
   TfrmSynthSettings = class(TForm)
@@ -182,71 +182,75 @@ begin
 end;
 
 procedure TfrmSynthSettings.SynthChange(Sender: TObject);
+var G2 : TG2;
 begin
   if FDisableControls then
     exit;
 
+  G2 := frmG2Main.SelectedG2;
+  if not assigned(G2) then
+    exit;
+
   FDisableControls := True;
   try
+    G2.SynthName := AnsiString(eSynthName.Text);
 
-  frmG2Main.G2.SynthName := AnsiString(eSynthName.Text);
+    G2.MidiChannelA := StrToInt(eMidiChannelA.Text) - 1;
+    udMidiChannelA.Position := G2.MidiChannelA;
 
-  frmG2Main.G2.MidiChannelA := StrToInt(eMidiChannelA.Text) - 1;
-  udMidiChannelA.Position := frmG2Main.G2.MidiChannelA;
+    G2.MidiChannelB := StrToInt(eMidiChannelB.Text) - 1;
+    udMidiChannelB.Position := G2.MidiChannelB;
 
-  frmG2Main.G2.MidiChannelB := StrToInt(eMidiChannelB.Text) - 1;
-  udMidiChannelB.Position := frmG2Main.G2.MidiChannelB;
+    G2.MidiChannelC := StrToInt(eMidiChannelC.Text) - 1;
+    udMidiChannelC.Position := G2.MidiChannelC;
 
-  frmG2Main.G2.MidiChannelC := StrToInt(eMidiChannelC.Text) - 1;
-  udMidiChannelC.Position := frmG2Main.G2.MidiChannelC;
+    G2.MidiChannelD := StrToInt(eMidiChannelD.Text) - 1;
+    udMidiChannelD.Position := G2.MidiChannelD;
 
-  frmG2Main.G2.MidiChannelD := StrToInt(eMidiChannelD.Text) - 1;
-  udMidiChannelD.Position := frmG2Main.G2.MidiChannelD;
+    if eGlobalChannel.Text = 'Off' then
+      G2.MidiGlobalChannel := 16
+    else
+      G2.MidiGlobalChannel := StrToInt( eGlobalChannel.Text) - 1;
+    udGlobalChannel.Position := G2.MidiGlobalChannel;
 
-  if eGlobalChannel.Text = 'Off' then
-    frmG2Main.G2.MidiGlobalChannel := 16
-  else
-    frmG2Main.G2.MidiGlobalChannel := StrToInt( eGlobalChannel.Text) - 1;
-  udGlobalChannel.Position := frmG2Main.G2.MidiGlobalChannel;
+    if eSysExId.Text = 'All' then
+      G2.SysExID := 16
+    else
+      G2.SysExID := StrToInt(eSysExID.Text) - 1;
+    udSysExID.Position := G2.SysExID;
 
-  if eSysExId.Text = 'All' then
-    frmG2Main.G2.SysExID := 16
-  else
-    frmG2Main.G2.SysExID := StrToInt(eSysExID.Text) - 1;
-  udSysExID.Position := frmG2Main.G2.SysExID;
+    G2.SendClock := BoolToByte( cbSendClock.Checked);
+    G2.IgnoreExternalClock := BoolToByte( cbIgnoreExternalClock.Checked);
 
-  frmG2Main.G2.SendClock := BoolToByte( cbSendClock.Checked);
-  frmG2Main.G2.IgnoreExternalClock := BoolToByte( cbIgnoreExternalClock.Checked);
+    G2.ControllersReceive := BoolToByte( cbControllersReceive.Checked);
+    G2.ControllersSend := BoolToByte( cbControllersSend.Checked);
 
-  frmG2Main.G2.ControllersReceive := BoolToByte( cbControllersReceive.Checked);
-  frmG2Main.G2.ControllersSend := BoolToByte( cbControllersSend.Checked);
+    G2.ProgramChangeSend := BoolToByte( cbProgramChangeSend.Checked);
+    G2.ProgramChangeReceive := BoolToByte( cbProgramChangeReceive.Checked);
 
-  frmG2Main.G2.ProgramChangeSend := BoolToByte( cbProgramChangeSend.Checked);
-  frmG2Main.G2.ProgramChangeReceive := BoolToByte( cbProgramChangeReceive.Checked);
+    G2.TuneSemi := IntToByte(StrToInt( eTuneSemi.Text));
+    udTuneSemi.Position := StrToInt( eTuneSemi.Text);
 
-  frmG2Main.G2.TuneSemi := IntToByte(StrToInt( eTuneSemi.Text));
-  udTuneSemi.Position := StrToInt( eTuneSemi.Text);
+    G2.TuneCent := IntToByte(StrToInt( eTuneCent.Text));
+    udTuneCent.Position := StrToInt( eTuneCent.Text);
 
-  frmG2Main.G2.TuneCent := IntToByte(StrToInt( eTuneCent.Text));
-  udTuneCent.Position := StrToInt( eTuneCent.Text);
+    G2.GlobalOctaveShiftActive := BoolToByte( cbGlobaleOctaveShift.Checked);
 
-  frmG2Main.G2.GlobalOctaveShiftActive := BoolToByte( cbGlobaleOctaveShift.Checked);
+    if rbOctShift1.Checked then G2.GlobalOctaveShift := $FE;
+    if rbOctShift2.Checked then G2.GlobalOctaveShift := $FF;
+    if rbOctShift3.Checked then G2.GlobalOctaveShift := $00;
+    if rbOctShift4.Checked then G2.GlobalOctaveShift := $01;
+    if rbOctShift5.Checked then G2.GlobalOctaveShift := $02;
 
-  if rbOctShift1.Checked then frmG2Main.G2.GlobalOctaveShift := $FE;
-  if rbOctShift2.Checked then frmG2Main.G2.GlobalOctaveShift := $FF;
-  if rbOctShift3.Checked then frmG2Main.G2.GlobalOctaveShift := $00;
-  if rbOctShift4.Checked then frmG2Main.G2.GlobalOctaveShift := $01;
-  if rbOctShift5.Checked then frmG2Main.G2.GlobalOctaveShift := $02;
+    G2.ControlPedalGain := udControlPedalGain.Position;
 
-  frmG2Main.G2.ControlPedalGain := udControlPedalGain.Position;
+    G2.LocalOn := BoolToByte( cbLocalOn.Checked);
 
-  frmG2Main.G2.LocalOn := BoolToByte( cbLocalOn.Checked);
+    G2.PedalPolarity := rgPedalPolarity.ItemIndex;
 
-  frmG2Main.G2.PedalPolarity := rgPedalPolarity.ItemIndex;
+    G2.MemoryProtect := BoolToByte( cbMemoryProtect.Checked);
 
-  frmG2Main.G2.MemoryProtect := BoolToByte( cbMemoryProtect.Checked);
-
-  frmG2Main.G2.SendSetSynthSettingsMessage;
+    G2.SendSetSynthSettingsMessage;
   finally
     FDisableControls := False;
   end;
@@ -369,56 +373,61 @@ begin
 end;
 
 procedure TfrmSynthSettings.updateDialog;
+var G2 : TG2;
 begin
+  G2 := frmG2Main.SelectedG2;
+  if not assigned(G2) then
+    exit;
+
   FDisableControls := True;
   try
-    eSynthName.Text := string(frmG2Main.G2.SynthName);
+    eSynthName.Text := string(G2.SynthName);
 
-    eMidiChannelA.Text := IntToStr(frmG2Main.G2.MidiChannelA + 1);
-    cbMidiActiveA.Checked := frmG2Main.G2.MidiChannelA < 16;
-    udMidiChannelA.Position := frmG2Main.G2.MidiChannelA;
+    eMidiChannelA.Text := IntToStr(G2.MidiChannelA + 1);
+    cbMidiActiveA.Checked := G2.MidiChannelA < 16;
+    udMidiChannelA.Position := G2.MidiChannelA;
 
-    eMidiChannelB.Text := IntToStr(frmG2Main.G2.MidiChannelB + 1);
-    cbMidiActiveB.Checked := frmG2Main.G2.MidiChannelB < 16;
-    udMidiChannelB.Position := frmG2Main.G2.MidiChannelB;
+    eMidiChannelB.Text := IntToStr(G2.MidiChannelB + 1);
+    cbMidiActiveB.Checked := G2.MidiChannelB < 16;
+    udMidiChannelB.Position := G2.MidiChannelB;
 
-    eMidiChannelC.Text := IntToStr(frmG2Main.G2.MidiChannelC + 1);
-    cbMidiActiveC.Checked := frmG2Main.G2.MidiChannelC < 16;
-    udMidiChannelC.Position := frmG2Main.G2.MidiChannelC;
+    eMidiChannelC.Text := IntToStr(G2.MidiChannelC + 1);
+    cbMidiActiveC.Checked := G2.MidiChannelC < 16;
+    udMidiChannelC.Position := G2.MidiChannelC;
 
-    eMidiChannelD.Text := IntToStr(frmG2Main.G2.MidiChannelD + 1);
-    cbMidiActiveD.Checked := frmG2Main.G2.MidiChannelD < 16;
-    udMidiChannelD.Position := frmG2Main.G2.MidiChannelD;
+    eMidiChannelD.Text := IntToStr(G2.MidiChannelD + 1);
+    cbMidiActiveD.Checked := G2.MidiChannelD < 16;
+    udMidiChannelD.Position := G2.MidiChannelD;
 
-    if frmG2Main.G2.MidiGlobalChannel = 16 then
+    if G2.MidiGlobalChannel = 16 then
       eGlobalChannel.Text := 'Off'
     else
-      eGlobalChannel.Text := IntToStr(frmG2Main.G2.MidiGlobalChannel + 1);
-    udGlobalChannel.Position := frmG2Main.G2.MidiGlobalChannel;
+      eGlobalChannel.Text := IntToStr(G2.MidiGlobalChannel + 1);
+    udGlobalChannel.Position := G2.MidiGlobalChannel;
 
-    if frmG2Main.G2.SysExID = 16 then
+    if G2.SysExID = 16 then
       eSysExID.Text := 'All'
     else
-      eSysExID.Text := IntToStr(frmG2Main.G2.SysExID + 1);
-    udSysExID.Position := frmG2Main.G2.SysExID;
+      eSysExID.Text := IntToStr(G2.SysExID + 1);
+    udSysExID.Position := G2.SysExID;
 
-    cbSendClock.Checked := frmG2Main.G2.SendClock = 1;
-    cbIgnoreExternalClock.Checked := frmG2Main.G2.IgnoreExternalClock = 1;
+    cbSendClock.Checked := G2.SendClock = 1;
+    cbIgnoreExternalClock.Checked := G2.IgnoreExternalClock = 1;
 
-    cbControllersReceive.Checked := frmG2Main.G2.ControllersReceive = 1;
-    cbControllersSend.Checked := frmG2Main.G2.ControllersSend = 1;
+    cbControllersReceive.Checked := G2.ControllersReceive = 1;
+    cbControllersSend.Checked := G2.ControllersSend = 1;
 
-    cbProgramChangeSend.Checked := frmG2Main.G2.ProgramChangeSend = 1;
-    cbProgramChangeReceive.Checked := frmG2Main.G2.ProgramChangeReceive = 1;
+    cbProgramChangeSend.Checked := G2.ProgramChangeSend = 1;
+    cbProgramChangeReceive.Checked := G2.ProgramChangeReceive = 1;
 
-    eTuneSemi.Text := IntToStr(ByteToInt(frmG2Main.G2.TuneSemi));
+    eTuneSemi.Text := IntToStr(ByteToInt(G2.TuneSemi));
     udTuneSemi.Position := StrToInt(eTuneSemi.Text);
-    eTuneCent.Text := IntToStr(ByteToInt(frmG2Main.G2.TuneCent));
+    eTuneCent.Text := IntToStr(ByteToInt(G2.TuneCent));
     udTuneCent.Position := StrToInt(eTuneCent.Text);
 
-    cbGlobaleOctaveShift.Checked := frmG2Main.G2.GlobalOctaveShift = 1;
+    cbGlobaleOctaveShift.Checked := G2.GlobalOctaveShift = 1;
 
-    case frmG2Main.G2.GlobalOctaveShift of
+    case G2.GlobalOctaveShift of
     $FE : rbOctShift1.Checked := True;
     $FF : rbOctShift2.Checked := True;
     $00 : rbOctShift3.Checked := True;
@@ -432,14 +441,14 @@ begin
     rbOctShift4.Enabled := cbGlobaleOctaveShift.Checked;
     rbOctShift5.Enabled := cbGlobaleOctaveShift.Checked;
 
-    lblControlPedalGain.Caption := 'Control pedal gain: x1.' + IntToStr(trunc( 50 * frmG2Main.G2.ControlPedalGain / 32));
-    udControlPedalGain.Position := frmG2Main.G2.ControlPedalGain;
+    lblControlPedalGain.Caption := 'Control pedal gain: x1.' + IntToStr(trunc( 50 * G2.ControlPedalGain / 32));
+    udControlPedalGain.Position := G2.ControlPedalGain;
 
-    cbLocalOn.Checked := frmG2Main.G2.LocalOn = 1;
+    cbLocalOn.Checked := G2.LocalOn = 1;
 
-    rgPedalPolarity.ItemIndex := frmG2Main.G2.PedalPolarity;
+    rgPedalPolarity.ItemIndex := G2.PedalPolarity;
 
-    cbMemoryProtect.Checked := frmG2Main.G2.MemoryProtect = 1;
+    cbMemoryProtect.Checked := G2.MemoryProtect = 1;
   finally
     FDisableControls := False;
   end;

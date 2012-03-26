@@ -115,9 +115,9 @@ uses
   {$ENDIF}
 {$ENDIF}
   Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, ExtCtrls,  ActnList, ImgList,
+  Dialogs, StdCtrls, ExtCtrls,  ActnList, ImgList, Contnrs,
   g2_types, g2_database, g2_file, g2_mess, g2_usb, g2_graph, g2_midi, g2_classes,
-  graph_util_vcl, Menus, Buttons, DOM, XMLRead, XMLWrite;
+  graph_util_vcl, LibUSBWinDyn, Menus, Buttons, DOM, XMLRead, XMLWrite;
 
 type
   TSlotPanel = class(TG2GraphPanel)
@@ -146,6 +146,7 @@ type
     procedure SetSlotCaption( aValue : string);
     function  GetSlotCaption: string;
     function  GetSlotIndex: integer;
+    procedure SetSlot( aSlot : TG2Slot);
   public
     constructor Create( AOwner : TComponent; aSlot : TG2Slot);
     destructor Destroy; override;
@@ -154,6 +155,7 @@ type
     property VariationMenu : TPopupMenu read FpuVariationMenu write FPuVariationMenu;
     property SlotCaption : string read GetSlotCaption write SetSlotCaption;
     property SlotIndex : integer read GetSlotIndex;
+    property Slot : TG2Slot read FSlot write SetSlot;
   end;
 
   TfrmG2Main = class(TForm)
@@ -170,7 +172,6 @@ type
     cbOnline: TCheckBox;
     PerfPanel: TPanel;
     sbFX: TG2GraphScrollBox;
-    G2: TG2;
     sbVA: TG2GraphScrollBox;
     cbLogMessages: TCheckBox;
     StartupTimer: TTimer;
@@ -297,6 +298,7 @@ type
     Getactiveperfsysex1: TMenuItem;
     N15: TMenuItem;
     aAnalyzePatch: TAction;
+    G2GraphButtonRadio1: TG2GraphButtonRadio;
     procedure FormCreate(Sender: TObject);
     procedure cbModeClick(Sender: TObject);
     procedure aPatchSettingsExecute(Sender: TObject);
@@ -380,6 +382,7 @@ type
     procedure G2DeassignGlobalKnob(Sender: TObject; SenderID,
       KnobIndex: Integer);
     procedure G2AssignGlobalKnob(Sender: TObject; SenderID, KnobIndex: Integer);
+    procedure G2GraphButtonRadio1Change(Sender: TObject);
   private
     { Private declarations }
     procedure DialogKey(var Msg: TWMKey); message CM_DIALOGKEY;
@@ -392,6 +395,13 @@ type
     FOldSplitterPos      : integer;
     FLastReceivedMidiCC  : byte;
     FCopyPatch           : TG2FilePatchPart;
+    FG2List              : TObjectList;
+    FG2Index             : integer;
+
+    procedure AddG2( G2USBDevice : pusb_device);
+    function  SelectedG2: TG2;
+    procedure SelectG2( G2Index : integer);
+
     procedure AddModule( aModuleType : byte);
     procedure DoAddModule( Sender: TObject);
     procedure AssignKnob( Sender: TObject);
@@ -634,6 +644,12 @@ begin
   Result := FlbSlotName.Caption;
 end;
 
+procedure TSlotPanel.SetSlot(aSlot: TG2Slot);
+begin
+  FSlot := aSlot;
+  UpdateControls;
+end;
+
 procedure TSlotPanel.SetSlotCaption( aValue: string);
 begin
   FlbSlotName.Caption := aValue;
@@ -711,7 +727,12 @@ begin
 end;
 
 procedure TfrmG2Main.VariaionCopytoClick(Sender: TObject);
+var G2 : TG2;
 begin
+  G2 := SelectedG2;
+  if not assigned(G2) then
+    exit;
+
   case (Sender as TMenuItem).Tag of
   0 : G2.SelectedSlot.SendCopyVariationMessage( G2.SelectedPatch.ActiveVariation, 0);
   1 : G2.SelectedSlot.SendCopyVariationMessage( G2.SelectedPatch.ActiveVariation, 1);
@@ -763,13 +784,34 @@ end;
 
 procedure TfrmG2Main.FormCreate(Sender: TObject);
 var ModuleMap : TBitmap;
+    G2 : TG2;
+    G2DeviceList : TList;
+    i : integer;
 begin
+  FG2List := TObjectList.Create( True);
+
+  G2DeviceList := TList.Create;
+  try
+    GetUSBDeviceList( G2DeviceList);
+    if G2DeviceList.Count > 0 then begin
+      for i := 0 to G2DeviceList.Count - 1 do begin
+        AddG2( pusb_device(G2DeviceList[i]));
+      end;
+    end else begin
+      AddG2( nil);
+    end;
+  finally
+    G2DeviceList.Free;
+  end;
+  SelectG2(0);
+
   Caption := 'NMG2 Editor ' + VERSION;
 
   FDisableControls := False;
   FOldSplitterPos := Splitter1.Height;
 
   //FPatchManagerVisible := False;
+  G2 := SelectedG2;
 
   FSlotPanel[3] := TSlotPanel.Create( self, G2.SlotD);
   FSlotPanel[3].Parent := self;
@@ -813,6 +855,65 @@ begin
   LoadIniXML;
 end;
 
+procedure TfrmG2Main.AddG2( G2USBDevice : pusb_device);
+var G2 : TG2;
+begin
+  G2 := TG2.Create(self);
+  G2.ClientType := ctEditor;
+  G2.Host := '127.0.0.1';
+  G2.Port := 2501 + FG2List.Count;
+  G2.IsServer := True;
+  G2.G2USBDevice := G2USBDevice;
+
+  G2.OnAddClient := G2AddClient;
+  G2.OnAfterG2Init := G2AfterG2Init;
+  G2.OnAfterRetrievePatch := G2AfterRetrievePatch;
+  G2.OnAssignGlobalKnob := G2AssignGlobalKnob;
+  G2.OnAssignKnob := G2AssignKnob;
+  G2.OnBeforeSendMessage := G2BeforeSendMessage;
+  G2.OnCreateModule := G2CreateModule;
+  G2.OnDeassignGlobalKnob := G2DeassignGlobalKnob;
+  G2.OnDeassignKnob := G2DeassignKnob;
+  G2.OnDeleteClient := G2DeleteClient;
+  G2.OnMidiCCReceive := G2MidiCCReceive;
+  G2.OnPatchUpdate := G2PatchUpdate;
+  G2.OnPerfSettingsUpdate := G2PerfSettingsUpdate;
+  G2.OnReceiveResponseMessage := G2ReceiveResponseMessage;
+  G2.OnSelectSlot := G2SelectSlot;
+  G2.OnSynthSettingsUpdate := G2SynthSettingsUpdate;
+  G2.OnUSBActiveChange := G2USBActiveChange;
+  G2.OnVariationChange := G2VariationChange;
+
+  FG2List.Add(G2);
+end;
+
+function TfrmG2Main.SelectedG2: TG2;
+begin
+  if FG2Index <> -1 then
+    SelectedG2 := FG2List[FG2Index] as TG2
+  else
+    SelectedG2 := nil;
+end;
+
+procedure TfrmG2Main.SelectG2(G2Index: integer);
+var i : integer;
+begin
+  if (G2Index >= FG2List.Count) or (G2Index < 0) then
+    raise Exception.Create('G2Index (' + IntToStr(G2Index) + ') out of bounds');
+
+  FG2Index := G2Index;
+  (FG2List[FG2Index] as TG2).ScrollboxVA := sbVA;
+  (FG2List[FG2Index] as TG2).ScrollboxFX := sbFX;
+
+  for i := 0 to 3 do
+    if assigned(FSlotPanel[i]) then
+      FSlotPanel[i].Slot := (FG2List[FG2Index] as TG2).Slot[i];
+
+  UpdateControls;
+  sbVA.Invalidate;
+  sbFX.Invalidate;
+end;
+
 procedure TfrmG2Main.FormShow(Sender: TObject);
 begin
   cbLogMessages.Checked := True;
@@ -822,12 +923,18 @@ begin
 end;
 
 procedure TfrmG2Main.StartupTimerTimer(Sender: TObject);
+var G2 : TG2;
+    i : integer;
 begin
   StartupTimer.Enabled := False;
 
   // Load module and parameter xml database
-  G2.LoadModuleDefs('');
-  G2.USBActive := True;
+  for i := 0 to FG2List.Count - 1 do begin
+    G2 := FG2List[i] as TG2;
+    G2.LoadModuleDefs('');
+    G2.USBActive := True;
+  end;
+
 
   CreateAddModuleMenu;
   CreateModuleMenu;
@@ -839,22 +946,38 @@ begin
 end;
 
 procedure TfrmG2Main.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
+var G2 : TG2;
+    i : integer;
+    ClientsConnected : boolean;
 begin
-  if G2.IsServer and (G2.GetClientCount > 0) then
+  ClientsConnected := False;
+  for i := 0 to FG2List.Count - 1 do begin
+    G2 := FG2List[i] as TG2;
+    if G2.IsServer and (G2.GetClientCount > 0) then
+      ClientsConnected := True;
+  end;
+
+  if ClientsConnected then
    CanClose := MessageDlg('There are ' + IntToStr( G2.GetClientCount) + ' G2 clients connected to this server, do you really want to close the connection?',
            mtWarning, mbOKCancel, 0) = mrOk;
 end;
 
 procedure TfrmG2Main.FormClose(Sender: TObject; var Action: TCloseAction);
+var G2 : TG2;
+    i : integer;
 begin
   SaveIniXML; // At this moment all the windows still are visible
-  G2.USBActive := False;
+  for i := 0 to FG2List.Count - 1 do begin
+    G2 := FG2List[i] as TG2;
+    G2.USBActive := False;
+  end;
 end;
 
 procedure TfrmG2Main.FormDestroy(Sender: TObject);
 begin
   if assigned(FCopyPatch) then
     FCopyPatch.Free;
+  FG2List.Free;
 end;
 
 procedure TfrmG2Main.LoadImageMap(aBitmap: TBitmap; aCols, aRows: integer; aImageList: TImageList);
@@ -892,9 +1015,11 @@ end;
 
 procedure TfrmG2Main.LoadIniXML;
 var Doc : TXMLDocument;
-    RootNode : TDOMNode;
+    RootNode, SynthNode : TDOMNode;
     TCPSettingsNode : TXMLTCPSettingsType;
     FormSettingsNode : TXMLFormSettingsType;
+    G2 : TG2;
+    i : integer;
 begin
   if not FileExists('G2_editor_ini.xml') then
     exit;
@@ -905,12 +1030,23 @@ begin
 
     RootNode := Doc.FindNode('G2_Editor_settings');
     if assigned(RootNode) then begin
-      TCPSettingsNode := TXMLTCPSettingsType(RootNode.FindNode('TCP_settings'));
-      if assigned(TCPSettingsNode) then begin
-        G2.IsServer := TCPSettingsNode.IsServer;
-        G2.Host := TCPSettingsNode.IP;
-        G2.Port := TCPSettingsNode.Port;
-        G2.TimerBroadcastLedMessages := TCPSettingsNode.TimerBroadcastLedMessages;
+
+      for i := 0 to FG2List.Count - 1 do begin
+
+        SynthNode := RootNode.FindNode('G2_Synth_' + IntToStr(i+1));
+        if assigned(SynthNode) then begin
+
+          G2 := FG2List[i] as TG2;
+          if assigned(G2) then begin
+            TCPSettingsNode := TXMLTCPSettingsType(SynthNode.FindNode('TCP_settings'));
+            if assigned(TCPSettingsNode) then begin
+              G2.IsServer := TCPSettingsNode.IsServer;
+              G2.Host := TCPSettingsNode.IP;
+              G2.Port := TCPSettingsNode.Port;
+              G2.TimerBroadcastLedMessages := TCPSettingsNode.TimerBroadcastLedMessages;
+            end;
+          end;
+        end;
       end;
 
       FormSettingsNode := TXMLFormSettingsType(RootNode.FindNode('MainForm'));
@@ -931,11 +1067,13 @@ end;
 
 procedure TfrmG2Main.SaveIniXML;
 var Doc : TXMLDocument;
-    RootNode : TDOMNode;
+    RootNode, SynthNode : TDOMNode;
     TCPSettingsNode : TXMLTCPSettingsType;
     MidiSettingsNode : TXMLMidiSettingsType;
     PatchManagerSettingsNode : TXMLPatchManagerSettingsType;
     FormSettingsNode : TXMLFormSettingsType;
+    G2 : TG2;
+    i : integer;
 begin
   Doc := TXMLDocument.Create;
   try
@@ -948,24 +1086,35 @@ begin
       Doc.AppendChild(RootNode);
     end;
 
-    TCPSettingsNode := TXMLTCPSettingsType( RootNode.FindNode('TCP_settings'));
-    if not assigned( TCPSettingsNode) then begin
-      TCPSettingsNode := TXMLTCPSettingsType( Doc.CreateElement('TCP_settings'));
-      RootNode.AppendChild(TCPSettingsNode);
-    end;
-    TCPSettingsNode.IsServer := G2.IsServer;
-    TCPSettingsNode.IP := G2.Host;
-    TCPSettingsNode.Port := G2.Port;
-    TCPSettingsNode.TimerBroadcastLedMessages := G2.TimerBroadcastLedMessages;
+    for i := 0 to FG2List.Count - 1 do begin
 
-    MidiSettingsNode := TXMLMidiSettingsType( RootNode.FindNode('MIDI_settings'));
-    if not assigned( MidiSettingsNode) then begin
-      MidiSettingsNode := TXMLMidiSettingsType( Doc.CreateElement('MIDI_settings'));
-      RootNode.AppendChild( MidiSettingsNode);
+      SynthNode := Doc.FindNode('G2_Synth_' + IntToStr(i+1));
+      if not assigned(SynthNode) then begin
+        SynthNode := Doc.CreateElement('G2_Synth_' + IntToStr(i+1));
+        RootNode.AppendChild(SynthNode);
+      end;
+
+      G2 := FG2List[i] as TG2;
+
+      TCPSettingsNode := TXMLTCPSettingsType( SynthNode.FindNode('TCP_settings'));
+      if not assigned( TCPSettingsNode) then begin
+        TCPSettingsNode := TXMLTCPSettingsType( Doc.CreateElement('TCP_settings'));
+        SynthNode.AppendChild(TCPSettingsNode);
+      end;
+      TCPSettingsNode.IsServer := G2.IsServer;
+      TCPSettingsNode.IP := G2.Host;
+      TCPSettingsNode.Port := G2.Port;
+      TCPSettingsNode.TimerBroadcastLedMessages := G2.TimerBroadcastLedMessages;
+
+      MidiSettingsNode := TXMLMidiSettingsType( SynthNode.FindNode('MIDI_settings'));
+      if not assigned( MidiSettingsNode) then begin
+        MidiSettingsNode := TXMLMidiSettingsType( Doc.CreateElement('MIDI_settings'));
+        SynthNode.AppendChild( MidiSettingsNode);
+      end;
+      MidiSettingsNode.MidiEnabled := G2.MidiEnabled;
+      MidiSettingsNode.MidiInDevice := G2.MidiInput.ProductName;
+      MidiSettingsNode.MidiOutDevice := G2.MidiOutput.ProductName;
     end;
-    MidiSettingsNode.MidiEnabled := G2.MidiEnabled;
-    MidiSettingsNode.MidiInDevice := G2.MidiInput.ProductName;
-    MidiSettingsNode.MidiOutDevice := G2.MidiOutput.ProductName;
 
     FormSettingsNode := TXMLFormSettingsType( RootNode.FindNode('MainForm'));
     if not assigned( FormSettingsNode) then begin
@@ -1050,8 +1199,13 @@ begin
 end;
 
 procedure TfrmG2Main.UpdateActions;
+var G2 : TG2;
 begin
   if not Initialized then
+    exit;
+
+  G2 := SelectedG2;
+  if not assigned(G2) then
     exit;
 
   if G2.USBActive then begin
@@ -1103,8 +1257,13 @@ end;
 
 procedure TfrmG2Main.UpdateControls;
 var i : integer;
+    G2 : TG2;
 begin
   if not Initialized then
+    exit;
+
+  G2 := SelectedG2;
+  if not assigned(G2) then
     exit;
 
   for i := 0 to 3 do begin
@@ -1160,7 +1319,12 @@ begin
 end;
 
 procedure TfrmG2Main.FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+var G2 : TG2;
 begin
+  G2 := SelectedG2;
+  if not assigned(G2) then
+    exit;
+
   case Key of
     ord('1') : SelectVariation( G2.SelectedSlotIndex, 0);
     ord('2') : SelectVariation( G2.SelectedSlotIndex, 1);
@@ -1198,14 +1362,25 @@ begin
 end;
 
 procedure TfrmG2Main.cbLogMessagesClick(Sender: TObject);
+var G2 : TG2;
 begin
+  G2 := SelectedG2;
+  if not assigned(G2) then
+    exit;
+
   if cbLogMessages.Checked then
     G2.LogLevel := 1;
 end;
 
 procedure TfrmG2Main.cbModeClick(Sender: TObject);
+var G2 : TG2;
 begin
-  if FDisableControls then exit;
+  if FDisableControls then
+    exit;
+
+  G2 := SelectedG2;
+  if not assigned(G2) then
+    exit;
 
   if cbMode.Checked then
     G2.SendSetModeMessage(1)  // Performance mode
@@ -1218,14 +1393,24 @@ begin
 end;
 
 procedure TfrmG2Main.GetPatchversion;
+var G2 : TG2;
 begin
   // Get current patch version from G2
+  G2 := SelectedG2;
+  if not assigned(G2) then
+    exit;
+
   G2.SelectedSlot.SendGetPatchVersionMessage;
 end;
 
 procedure TfrmG2Main.sbFXMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 var P : TPoint;
+    G2 : TG2;
 begin
+  G2 := SelectedG2;
+  if not assigned(G2) then
+    exit;
+
   if assigned( FCopyPatch) and assigned(sbFX.CopyPatch) then begin
     sbFX.SetPositionsInCopyPatch;
     sbFX.CopyPatch := nil;
@@ -1243,7 +1428,12 @@ end;
 
 procedure TfrmG2Main.sbVAMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 var P : TPoint;
+    G2 : TG2;
 begin
+  G2 := SelectedG2;
+  if not assigned(G2) then
+    exit;
+
   if assigned( FCopyPatch) and assigned(sbFX.CopyPatch) then begin
     sbVA.SetPositionsInCopyPatch;
     sbFX.CopyPatch := nil;
@@ -1262,7 +1452,12 @@ end;
 procedure TfrmG2Main.SetSelectedModuleColor(aColor: byte);
 var l, m : integer;
     Module : TG2FileModule;
+    G2 : TG2;
 begin
+  G2 := SelectedG2;
+  if not assigned(G2) then
+    exit;
+
   for l := 0 to 1 do
     for m := 0 to G2.SelectedPatch.ModuleList[ l].Count - 1 do begin
       Module := G2.SelectedPatch.ModuleList[ l].Items[m];
@@ -1281,19 +1476,34 @@ end;
 // ==== File menu ==============================================================
 
 procedure TfrmG2Main.aDownloadPatchExecute(Sender: TObject);
+var G2 : TG2;
 begin
+  G2 := SelectedG2;
+  if not assigned(G2) then
+    exit;
+
   G2.SelectedSlot.SendGetPatchMessage;
 end;
 
 procedure TfrmG2Main.aInitPatchExecute(Sender: TObject);
+var G2 : TG2;
 begin
+  G2 := SelectedG2;
+  if not assigned(G2) then
+    exit;
+
   // New patch
   G2.SelectedPatch.Init;
   G2.SelectedSlot.SendSetPatchMessage('No name', G2.SelectedPatch);
 end;
 
 procedure TfrmG2Main.aLoadPatchExecute(Sender: TObject);
+var G2 : TG2;
 begin
+  G2 := SelectedG2;
+  if not assigned(G2) then
+    exit;
+
   OpenDialog1.Filter := 'patch files (*.pch2)|*.pch2|sysex files (*.syx)|*.syx|bin files (*.bin)|*.bin';
   if OpenDialog1.Execute then begin
     G2.LoadFileStream( OpenDialog1.FileName);
@@ -1301,7 +1511,12 @@ begin
 end;
 
 procedure TfrmG2Main.aLoadPerformanceExecute(Sender: TObject);
+var G2 : TG2;
 begin
+  G2 := SelectedG2;
+  if not assigned(G2) then
+    exit;
+
   OpenDialog1.Filter := 'performance files (*.prf2)|*.prf2|sysex files (*.syx)|*.syx|bin files (*.bin)|*.bin';
   if OpenDialog1.Execute then begin
     G2.LoadFileStream( OpenDialog1.FileName);
@@ -1310,7 +1525,12 @@ end;
 
 procedure TfrmG2Main.aSavePatchAsFXPExecute(Sender: TObject);
 var WriteStream : TFileStream;
+    G2 : TG2;
 begin
+  G2 := SelectedG2;
+  if not assigned(G2) then
+    exit;
+
   SaveDialog1.Filter := 'fxp files (*.fxp)|*.fxp';
   if SaveDialog1.Execute then begin
 
@@ -1340,7 +1560,12 @@ end;
 
 procedure TfrmG2Main.aSavePatchAsSysexExecute(Sender: TObject);
 var WriteStream : TFileStream;
+    G2 : TG2;
 begin
+  G2 := SelectedG2;
+  if not assigned(G2) then
+    exit;
+
   SaveDialog1.Filter := 'sysex files (*.syx)|*.syx|bin files (*.bin)|*.bin';
   if SaveDialog1.Execute then begin
     WriteStream := TFileStream.Create(SaveDialog1.FileName, fmCreate);
@@ -1354,7 +1579,12 @@ end;
 
 procedure TfrmG2Main.aSavePatchExecute(Sender: TObject);
 var WriteStream : TFileStream;
+    G2 : TG2;
 begin
+  G2 := SelectedG2;
+  if not assigned(G2) then
+    exit;
+
   SaveDialog1.Filter := 'patch files (*.pch2)|*.pch2';
   SaveDialog1.DefaultExt := 'pch2';
   if SaveDialog1.Execute then begin
@@ -1385,7 +1615,12 @@ end;
 
 procedure TfrmG2Main.aSavePerformanceAsFXBExecute(Sender: TObject);
 var WriteStream : TFileStream;
+    G2 : TG2;
 begin
+  G2 := SelectedG2;
+  if not assigned(G2) then
+    exit;
+
   SaveDialog1.Filter := 'fxb files (*.fxb)|*.fxb';
   if SaveDialog1.Execute then begin
 
@@ -1415,7 +1650,12 @@ end;
 
 procedure TfrmG2Main.aSavePerformanceAsSysExExecute(Sender: TObject);
 var WriteStream : TFileStream;
+    G2 : TG2;
 begin
+  G2 := SelectedG2;
+  if not assigned(G2) then
+    exit;
+
   SaveDialog1.Filter := 'sysex files (*.syx)|*.syx|bin files (*.bin)|*.bin';
   if SaveDialog1.Execute then begin
     WriteStream := TFileStream.Create(SaveDialog1.FileName, fmCreate);
@@ -1429,7 +1669,12 @@ end;
 
 procedure TfrmG2Main.aSavePerformanceExecute(Sender: TObject);
 var WriteStream : TFileStream;
+    G2 : TG2;
 begin
+  G2 := SelectedG2;
+  if not assigned(G2) then
+    exit;
+
   SaveDialog1.Filter := 'performance files (*.prf2)|*.prf2';
   SaveDialog1.DefaultExt := 'prf2';
   if SaveDialog1.Execute then begin
@@ -1464,19 +1709,34 @@ begin
 end;
 
 procedure TfrmG2Main.aGetActivePatchSysexExecute(Sender: TObject);
+var G2 : TG2;
 begin
+  G2 := SelectedG2;
+  if not assigned(G2) then
+    exit;
+
   G2.SysExPatchRequestBySlot( G2.SelectedSlotIndex);
 end;
 
 procedure TfrmG2Main.aGetActivePerfSysexExecute(Sender: TObject);
+var G2 : TG2;
 begin
+  G2 := SelectedG2;
+  if not assigned(G2) then
+    exit;
+
   G2.SysExPerformanceRequest;
 end;
 
 procedure TfrmG2Main.aGetPatchSysexFromBankExecute(Sender: TObject);
 var Bank, Slot, c : integer;
     sBank, sSlot : string;
+    G2 : TG2;
 begin
+  G2 := SelectedG2;
+  if not assigned(G2) then
+    exit;
+
   if InputQuery('Sysex req.', 'Bank', sBank) then begin
     val(sBank, Bank, C);
     if C = 0 then begin
@@ -1495,7 +1755,12 @@ end;
 procedure TfrmG2Main.aGetPerfSysexFromBankExecute(Sender: TObject);
 var Bank, Slot, c : integer;
     sBank, sSlot : string;
+    G2 : TG2;
 begin
+  G2 := SelectedG2;
+  if not assigned(G2) then
+    exit;
+
   if InputQuery('Sysex req.', 'Bank', sBank) then begin
     val(sBank, Bank, C);
     if C = 0 then begin
@@ -1603,6 +1868,7 @@ procedure TfrmG2Main.CreateAddModuleMenu;
 var i, j : integer;
     aMenuItem, aSubMenuItem : TMenuItem;
     dummy : integer;
+    G2 : TG2;
 begin
   for i := 1 to 16 do begin
 
@@ -1627,6 +1893,10 @@ begin
     end;
 
     puAddModule.Items.Add( aMenuItem);
+
+    G2 := SelectedG2;
+    if not assigned(G2) then
+      exit;
 
     for j := 0 to G2.FModuleDefList.Count - 1 do begin
       if G2.FModuleDefList.ModuleDef[j].ModuleType = 164 then
@@ -1683,7 +1953,12 @@ end;
 
 procedure TfrmG2Main.ModuleAssignGlobalKnobs(Sender: TObject);
 var Module : TG2GraphModule;
+    G2 : TG2;
 begin
+  G2 := SelectedG2;
+  if not assigned(G2) then
+    exit;
+
   Module := TG2GraphModule(puModuleMenu.Tag);
 
   if Module.AssignableKnobCount > 0 then
@@ -1692,7 +1967,12 @@ end;
 
 procedure TfrmG2Main.ModuleAssignKnobs(Sender: TObject);
 var Module : TG2GraphModule;
+    G2 : TG2;
 begin
+  G2 := SelectedG2;
+  if not assigned(G2) then
+    exit;
+
   Module := TG2GraphModule(puModuleMenu.Tag);
 
   if Module.AssignableKnobCount > 0 then
@@ -1711,7 +1991,12 @@ end;
 
 procedure TfrmG2Main.miModuleRenameClick(Sender: TObject);
 var Module : TG2GraphModule;
+    G2 : TG2;
 begin
+  G2 := SelectedG2;
+  if not assigned(G2) then
+    exit;
+
   Module := TG2GraphModule(puModuleMenu.Tag);
   frmEditLabel.Left := Module.ClientToScreen(Point(0, 0)).X;
   frmEditLabel.Top := Module.ClientToScreen(Point(0, 0)).Y;
@@ -1741,7 +2026,12 @@ begin
 end;
 
 procedure TfrmG2Main.AddModule( aModuleType : byte);
+var G2 : TG2;
 begin
+  G2 := SelectedG2;
+  if not assigned(G2) then
+    exit;
+
   G2.SelectedPatch.MessAddModule( FLocation, aModuleType, FAddPoint.X div UNITS_COL, FAddPoint.y div UNITS_ROW );
 end;
 
@@ -1816,7 +2106,12 @@ end;
 procedure TfrmG2Main.miEditParamNameClick(Sender: TObject);
 var Parameter : TG2FileParameter;
     Rect : TRect;
+    G2 : TG2;
 begin
+  G2 := SelectedG2;
+  if not assigned(G2) then
+    exit;
+
   Rect := G2.SelectedPatch.SelectedControl.GetScreenCoordsRect;
 
   frmEditLabel.Left := Rect.Left;
@@ -1832,7 +2127,12 @@ end;
 
 procedure TfrmG2Main.AssignKnob(Sender: TObject);
 var Parameter : TG2GraphParameter;
+    G2 : TG2;
 begin
+  G2 := SelectedG2;
+  if not assigned(G2) then
+    exit;
+
   Parameter := TG2GraphParameter( puParamMenu.Tag);
   G2.SelectedPatch.MessAssignKnob( Parameter.Location, Parameter.ModuleIndex, Parameter.ParamIndex, (Sender as TMenuItem).Tag);
 end;
@@ -1840,7 +2140,12 @@ end;
 procedure TfrmG2Main.DeAssignKnob(Sender: TObject);
 var Parameter : TG2GraphParameter;
     KnobIndex : integer;
+    G2 : TG2;
 begin
+  G2 := SelectedG2;
+  if not assigned(G2) then
+    exit;
+
   Parameter := TG2GraphParameter( puParamMenu.Tag);
   KnobIndex := G2.SelectedPatch.FindKnob( Parameter.Location, Parameter.ModuleIndex, Parameter.ParamIndex);
 
@@ -1850,7 +2155,12 @@ end;
 
 procedure TfrmG2Main.AssignGlobalKnob(Sender: TObject);
 var Parameter : TG2GraphParameter;
+    G2 : TG2;
 begin
+  G2 := SelectedG2;
+  if not assigned(G2) then
+    exit;
+
   Parameter := TG2GraphParameter( puParamMenu.Tag);
   G2.Patch[ Parameter.Patch.Slot.SlotIndex].MessAssignGlobalKnob( Parameter.Location, Parameter.ModuleIndex, Parameter.ParamIndex, (Sender as TMenuItem).Tag);
 end;
@@ -1858,7 +2168,12 @@ end;
 procedure TfrmG2Main.DeAssignGlobalKnob(Sender: TObject);
 var Parameter : TG2GraphParameter;
     KnobIndex : integer;
+    G2 : TG2;
 begin
+  G2 := SelectedG2;
+  if not assigned(G2) then
+    exit;
+
   Parameter := TG2GraphParameter( puParamMenu.Tag);
   KnobIndex := G2.Performance.GlobalKnobList.FindGlobalKnobIndex( Parameter.Patch.Slot.SlotIndex, Parameter.Location, Parameter.ModuleIndex, Parameter.ParamIndex);
 
@@ -1868,7 +2183,12 @@ end;
 
 procedure TfrmG2Main.AssignMidiCC(Sender: TObject);
 var Parameter : TG2GraphParameter;
+    G2 : TG2;
 begin
+  G2 := SelectedG2;
+  if not assigned(G2) then
+    exit;
+
   Parameter := TG2GraphParameter( puParamMenu.Tag);
   G2.SelectedPatch.MessAssignMidiCC( Parameter.Location, Parameter.ModuleIndex, Parameter.ParamIndex, FLastReceivedMidiCC);
 end;
@@ -1876,7 +2196,12 @@ end;
 procedure TfrmG2Main.DeAssignMidiCC(Sender: TObject);
 var Parameter : TG2GraphParameter;
     MidiCC : byte;
+    G2 : TG2;
 begin
+  G2 := SelectedG2;
+  if not assigned(G2) then
+    exit;
+
   Parameter := TG2GraphParameter( puParamMenu.Tag);
   MidiCC := G2.SelectedPatch.FindMidiCC( Parameter.Location, Parameter.ModuleIndex, Parameter.ParamIndex);
   if MidiCC <> 0 then
@@ -1885,7 +2210,12 @@ end;
 
 procedure TfrmG2Main.AssignMorph(Sender: TObject);
 var Parameter : TG2GraphParameter;
+    G2 : TG2;
 begin
+  G2 := SelectedG2;
+  if not assigned(G2) then
+    exit;
+
   if Sender is TMenuItem then begin
     if (Sender as TMenuItem).Checked then begin
       // Deassign Morph
@@ -1903,6 +2233,7 @@ end;
 procedure TfrmG2Main.ParameterClick(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X,  Y: Integer; Parameter: TG2FileParameter);
 var P : TPoint;
     Knob : TKnob;
+    G2 : TG2;
 
   procedure SetKnobCheck( index : integer);
   var i, j : integer;
@@ -1963,6 +2294,10 @@ begin
   if not assigned(Parameter) then
     exit;
 
+  G2 := SelectedG2;
+  if not assigned(G2) then
+    exit;
+
   if Button = mbRight then begin
     GetCursorPos(P);
 
@@ -1981,10 +2316,6 @@ begin
       frmSeqGrid.Update;
 end;
 
-{procedure TfrmG2USBInterface.bNoteClick(Sender: TObject);
-begin
-  FG2.USBNote($20); // play a test note
-end;}
 
 // ==== Connector menu =========================================================
 
@@ -1992,7 +2323,12 @@ procedure TfrmG2Main.ConnectorClick(Sender: TObject; Button: TMouseButton; Shift
 var P : TPoint;
     aMenuItem : TMenuItem;
     i : integer;
+    G2 : TG2;
 begin
+  G2 := SelectedG2;
+  if not assigned(G2) then
+    exit;
+
   if Button = mbRight then begin
     GetCursorPos(P);
 
@@ -2019,14 +2355,24 @@ end;
 procedure TfrmG2Main.miDeleteAllCablesClick(Sender: TObject);
 var Connector : TG2FileConnector;
    i : integer;
+   G2 : TG2;
 begin
+  G2 := SelectedG2;
+  if not assigned(G2) then
+    exit;
+
   Connector := TG2FileConnector(puConnectorMenu.Tag);
   for i := 0 to Connector.CableCount - 1 do // TODO : Could be made more efficient (all in one message)
     G2.SelectedPatch.MessDeleteConnection( FLocation, Connector.Cables[0]);
 end;
 
 procedure TfrmG2Main.miDeleteCablesClick(Sender: TObject);
+var G2 : TG2;
 begin
+  G2 := SelectedG2;
+  if not assigned(G2) then
+    exit;
+
   with Sender as TMenuItem do
     G2.SelectedPatch.MessDeleteConnection( FLocation, TG2FileCable(tag));
 end;
@@ -2034,29 +2380,54 @@ end;
 // ==== Communication menu =====================================================
 
 procedure TfrmG2Main.aSendControllerSnapshotExecute(Sender: TObject);
+var G2 : TG2;
 begin
+  G2 := SelectedG2;
+  if not assigned(G2) then
+    exit;
+
   G2.SelectedSlot.SendControllerSnapshotMessage;
 end;
 
 procedure TfrmG2Main.aSendPartchSysexExecute(Sender: TObject);
+var G2 : TG2;
 begin
+  G2 := SelectedG2;
+  if not assigned(G2) then
+    exit;
+
   G2.SysExSendPatch( G2.SelectedSlotIndex);
 end;
 
 procedure TfrmG2Main.aSendPerfSysexExecute(Sender: TObject);
+var G2 : TG2;
 begin
+  G2 := SelectedG2;
+  if not assigned(G2) then
+    exit;
+
   G2.SysExSendPerformance;
 end;
 
 procedure TfrmG2Main.aMidiDumpExecute(Sender: TObject);
+var G2 : TG2;
 begin
+  G2 := SelectedG2;
+  if not assigned(G2) then
+    exit;
+
   G2.SendDumpMidiMessage;
 end;
 
 // ==== Functions ==============================================================
 
 procedure TfrmG2Main.CopyPatchSelection;
+var G2 : TG2;
 begin
+  G2 := SelectedG2;
+  if not assigned(G2) then
+    exit;
+
   if assigned( FCopyPatch) then
     FCopyPatch.Free;
 
@@ -2064,7 +2435,12 @@ begin
 end;
 
 procedure TfrmG2Main.DeletePatchSelection;
+var G2 : TG2;
 begin
+  G2 := SelectedG2;
+  if not assigned(G2) then
+    exit;
+
   if G2.SelectedPatch.SelectedModuleList.Count > 0 then
     G2.SelectedPatch.MessDeleteModules( G2.SelectedPatch.SelectedModuleList[0].Location);
 end;
@@ -2084,18 +2460,33 @@ begin
 end;
 
 procedure TfrmG2Main.Undo;
+var G2 : TG2;
 begin
+  G2 := SelectedG2;
+  if not assigned(G2) then
+    exit;
+
   G2.SelectedPatch.SendUndoMessage;
 end;
 
 procedure TfrmG2Main.SelectSlot( aSlotIndex : byte);
+var G2 : TG2;
 begin
+  G2 := SelectedG2;
+  if not assigned(G2) then
+    exit;
+
   G2.SelectedSlotIndex := aSlotIndex;
   UpdateControls;
 end;
 
 procedure TfrmG2Main.SelectVariation( aSlotIndex, aVariationIndex : byte);
+var G2 : TG2;
 begin
+  G2 := SelectedG2;
+  if not assigned(G2) then
+    exit;
+
   G2.Slot[ aSlotIndex].SendSelectVariationMessage( aVariationIndex);
 end;
 
@@ -2191,15 +2582,25 @@ begin
 end;
 
 procedure TfrmG2Main.cbOnlineClick(Sender: TObject);
+var G2 : TG2;
 begin
   if FDisableControls then
+    exit;
+
+  G2 := SelectedG2;
+  if not assigned(G2) then
     exit;
 
   G2.USBActive := cbOnline.Checked;
 end;
 
 procedure TfrmG2Main.G2VariationChange(Sender: TObject; SenderID: Integer; Slot, Variation: Integer);
+var G2 : TG2;
 begin
+  G2 := SelectedG2;
+  if not assigned(G2) or (G2 <> Sender) then
+    exit;
+
   if G2.SelectedSlotIndex = Slot then begin
     sbVA.Invalidate;
     sbFX.Invalidate;
@@ -2208,8 +2609,29 @@ begin
 end;
 
 procedure TfrmG2Main.G2AddClient(Sender: TObject; ClientIndex: Integer);
+var G2 : TG2;
 begin
+  G2 := SelectedG2;
+  if not assigned(G2) or (G2 <> Sender) then
+    exit;
+
   lbClientsConnected.Caption := IntToStr( G2.GetClientCount);
+end;
+
+procedure TfrmG2Main.G2DeleteClient(Sender: TObject; ClientIndex: Integer);
+var G2 : TG2;
+begin
+  G2 := SelectedG2;
+  if not assigned(G2) or (G2 <> Sender) then
+    exit;
+
+  lbClientsConnected.Caption := IntToStr( G2.GetClientCount);
+end;
+
+
+procedure TfrmG2Main.G2GraphButtonRadio1Change(Sender: TObject);
+begin
+  SelectG2( G2GraphButtonRadio1.Value);
 end;
 
 procedure TfrmG2Main.G2AfterG2Init(Sender: TObject);
@@ -2218,16 +2640,17 @@ begin
 end;
 
 procedure TfrmG2Main.G2AfterRetrievePatch(Sender: TObject; SenderID: Integer;  aSlot, aBank, aPatch: Byte);
+var G2 : TG2;
 begin
+  if Sender is TG2 then
+    G2 := Sender as TG2
+  else
+    exit;
+
   if aSlot = 4 then
     G2.Performance.USBStartInit( True)
   else
     G2.Slot[ aSlot].USBStartInit( True);
-end;
-
-procedure TfrmG2Main.G2DeleteClient(Sender: TObject; ClientIndex: Integer);
-begin
-  lbClientsConnected.Caption := IntToStr( G2.GetClientCount);
 end;
 
 procedure TfrmG2Main.G2MidiCCReceive(Sender: TObject; SenderID: Integer; MidiCC: Byte);

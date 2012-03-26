@@ -253,44 +253,49 @@ var i : integer;
     Patch : TG2Patch;
     Module : TG2FileModule;
     Knob : TKnob;
+    G2 : TG2;
 begin
-  if btGlobalPages.Value = 0 then begin
+  G2 := frmG2Main.SelectedG2;
+  if assigned(G2) then begin
 
-    Patch := frmG2Main.G2.SelectedPatch as TG2Patch;
-    for i := 0 to 7 do begin
-      Knob := Patch.GetKnob( GetKnobIndexOffset + i);
-      FDispModuleArray[i].TextFunction := 1000;
-      if assigned(Knob) and (Knob.IsAssigned = 1) then begin
-        FKnobArray[i].SetParameter( Knob.Parameter as TG2GraphParameter);
-        FDispKnobArray[i].SetParameter( Knob.Parameter as TG2GraphParameter);
-        FDispModuleArray[i].SetParameter( Knob.Parameter as TG2GraphParameter);
-        if assigned(Knob.Parameter.ButtonParam) then
-          FButtonArray[i].SetParameter( Knob.Parameter.ButtonParam);
-      end else begin
-        FKnobArray[i].SetParameter( nil);
-        FDispKnobArray[i].SetParameter( nil);
-        FDispModuleArray[i].SetParameter( nil);
-        FButtonArray[i].SetParameter( nil);
+    if btGlobalPages.Value = 0 then begin
+
+      Patch := G2.SelectedPatch as TG2Patch;
+      for i := 0 to 7 do begin
+        Knob := Patch.GetKnob( GetKnobIndexOffset + i);
+        FDispModuleArray[i].TextFunction := 1000;
+        if assigned(Knob) and (Knob.IsAssigned = 1) then begin
+          FKnobArray[i].SetParameter( Knob.Parameter as TG2GraphParameter);
+          FDispKnobArray[i].SetParameter( Knob.Parameter as TG2GraphParameter);
+          FDispModuleArray[i].SetParameter( Knob.Parameter as TG2GraphParameter);
+          if assigned(Knob.Parameter.ButtonParam) then
+            FButtonArray[i].SetParameter( Knob.Parameter.ButtonParam);
+        end else begin
+          FKnobArray[i].SetParameter( nil);
+          FDispKnobArray[i].SetParameter( nil);
+          FDispModuleArray[i].SetParameter( nil);
+          FButtonArray[i].SetParameter( nil);
+        end;
       end;
-    end;
 
-  end else begin
+    end else begin
 
-    Perf := frmG2Main.G2.Performance;
-    for i := 0 to 7 do begin
-      Knob := Perf.GetGlobalKnob( GetKnobIndexOffset + i);
-      FDispModuleArray[i].TextFunction := 1002;
-      if assigned(Knob) and (Knob.IsAssigned = 1) then begin
-        FKnobArray[i].SetParameter( Knob.Parameter as TG2GraphParameter);
-        FDispKnobArray[i].SetParameter( Knob.Parameter as TG2GraphParameter);
-        FDispModuleArray[i].SetParameter( Knob.Parameter as TG2GraphParameter);
-        if assigned(Knob.Parameter.ButtonParam) then
-          FButtonArray[i].SetParameter( Knob.Parameter.ButtonParam);
-      end else begin
-        FKnobArray[i].SetParameter( nil);
-        FDispKnobArray[i].SetParameter( nil);
-        FDispModuleArray[i].SetParameter( nil);
-        FButtonArray[i].SetParameter( nil);
+      Perf := G2.Performance;
+      for i := 0 to 7 do begin
+        Knob := Perf.GetGlobalKnob( GetKnobIndexOffset + i);
+        FDispModuleArray[i].TextFunction := 1002;
+        if assigned(Knob) and (Knob.IsAssigned = 1) then begin
+          FKnobArray[i].SetParameter( Knob.Parameter as TG2GraphParameter);
+          FDispKnobArray[i].SetParameter( Knob.Parameter as TG2GraphParameter);
+          FDispModuleArray[i].SetParameter( Knob.Parameter as TG2GraphParameter);
+          if assigned(Knob.Parameter.ButtonParam) then
+            FButtonArray[i].SetParameter( Knob.Parameter.ButtonParam);
+        end else begin
+          FKnobArray[i].SetParameter( nil);
+          FDispKnobArray[i].SetParameter( nil);
+          FDispModuleArray[i].SetParameter( nil);
+          FButtonArray[i].SetParameter( nil);
+        end;
       end;
     end;
   end;

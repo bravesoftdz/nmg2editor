@@ -371,12 +371,13 @@ type
       procedure   SendNoteMessage( aNote : byte; aOnoff : byte);
 
       property    IdTCPClient : TIdTCPClient read FIdTCPClient;
+      property    Initialized : boolean read FInitialized;
+      property    G2USBDevice : pusb_device read g2dev write g2dev;
     published
       property    IsServer : boolean read FIsServer write FIsServer;
       property    Port : integer read FPort write FPort;
       property    Host : string read FHost write FHost;
       property    USBActive : boolean read GetUSBActive write SetUSBActive;
-      property    Initialized : boolean read FInitialized;
       property    ProcessLedData : boolean read FProcessLedData write FProcessLedData;
       property    TimerBroadcastLedMessages : integer read FTimerBroadcastLedMessages write FTimerBroadcastLedMessages default 500;
       property    OnUSBError : TUSBErrorEvent read FOnUSBError write FOnUSBError;
@@ -497,6 +498,8 @@ type
     function    MessSetModuleLabel( aLocation : TLocationType; aModuleIndex : byte; aName : AnsiString): boolean; override;
   end;
 
+  procedure GetUSBDeviceList( aList : TList);
+
 implementation
 
 function ProtocolToStream(const AProtocol: TProtocol): TMemoryStream;
@@ -599,6 +602,38 @@ function TG2USB.GetSlot( aSlot: byte): TG2USBSlot;
 begin
   Result := Performance.Slot[ aSlot] as TG2USBSlot;
 end;
+
+procedure GetUSBDeviceList( aList : TList);
+var bus : pusb_bus;
+    dev : pusb_device;
+begin
+  aList.Clear;
+
+  if not assigned(usb_init) then
+    exit; // libusb dll not loaded
+
+  // LibUSB-Win32 Initialization
+  usb_init;              // Initialize libusb
+  usb_find_busses;       // Finds all USB busses on system
+  usb_find_devices;      // Find all devices on all USB devices
+  bus := usb_get_busses; // Return the list of USB busses found
+
+  while assigned(bus) do begin
+    dev := bus^.devices;
+    while assigned(dev) do begin
+      if (dev^.descriptor.idVendor = VENDOR_ID) and (dev^.descriptor.idProduct = PRODUCT_ID) then
+        aList.Add(dev);
+      dev := dev^.next;
+    end;
+    bus := bus^.next;
+  end;
+
+  usb_set_debug(255);
+
+  if aList.Count = 0 then
+    raise Exception.Create('No g2 device found');
+end;
+
 {$IFDEF unix}
 function TG2USB.Init : boolean;
 var returncode:integer;
@@ -650,10 +685,13 @@ begin
   try
 
     // Find g2 usb device
-    g2dev := nil;
+    //g2dev := nil;
     g2udev := nil;
 
-    if not assigned(usb_init) then
+    if not assigned(g2dev) then
+      exit;
+
+{    if not assigned(usb_init) then
       exit; // libusb dll not loaded
 
     // LibUSB-Win32 Initialization
@@ -675,7 +713,7 @@ begin
     usb_set_debug(255);
 
     if g2dev = nil then
-      raise Exception.Create('No g2 device found');
+      raise Exception.Create('No g2 device found');}
 
     // get 3 endpoints
     g2conf := g2dev^.config[0];

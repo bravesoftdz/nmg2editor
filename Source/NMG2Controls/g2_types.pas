@@ -38,7 +38,7 @@ uses
   math;
 
 const
-  VERSION = '0.21';
+  VERSION = '0.22';
 
   NMORPHS = 8;
   NVARIATIONS = 9;

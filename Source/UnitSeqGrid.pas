@@ -12,7 +12,7 @@ uses
   Windows,
 {$ENDIF}
   Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, Grids, g2_types, g2_file, g2_graph;
+  Dialogs, Grids, g2_types, g2_file, g2_graph, g2_classes;
 
 type
   TfrmSeqGrid = class(TForm)
@@ -107,13 +107,18 @@ uses UnitG2Editor;
 
 function TfrmSeqGrid.GetModule: TG2FileModule;
 var Module : TG2FileModule;
+    G2 : TG2;
 begin
-  Module := frmG2Main.G2.SelectedPatch.GetModule( ord(FLocation), FModuleIndex);
-  if not( assigned(Module) and (Module.TypeID = 121)) then begin
-    Result := nil;
-    Close;
-  end else
-    Result := Module;
+  Result := nil;
+  G2 := frmG2Main.SelectedG2;
+  if assigned(G2) then begin
+    Module := G2.SelectedPatch.GetModule( ord(FLocation), FModuleIndex);
+    if not( assigned(Module) and (Module.TypeID = 121)) then begin
+      Result := nil;
+      Close;
+    end else
+      Result := Module;
+  end;
 end;
 
 function TfrmSeqGrid.GetNoot(aValue: byte): byte;

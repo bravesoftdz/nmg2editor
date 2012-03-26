@@ -5,7 +5,7 @@ interface
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics,
   Controls, Forms, Dialogs, ExtCtrls, g2_types, StdCtrls,
-  ImgList, g2_database, g2_graph, DOM, XMLRead, XMLWrite;
+  ImgList, g2_database, g2_graph, g2_classes, DOM, XMLRead, XMLWrite;
 
 type
   TfrmEditorTools = class(TForm)
@@ -100,17 +100,22 @@ end;
 
 
 procedure TfrmEditorTools.btCablesClick(Sender: TObject);
+var G2 : TG2;
 begin
   if FDisableControls then
     exit;
 
-  frmG2Main.G2.SelectedPatch.PatchDescription.RedVisible := btCablesRed.Value;
-  frmG2Main.G2.SelectedPatch.PatchDescription.BlueVisible := btCablesBlue.Value;
-  frmG2Main.G2.SelectedPatch.PatchDescription.YellowVisible := btCablesYellow.Value;
-  frmG2Main.G2.SelectedPatch.PatchDescription.OrangeVisible := btCablesOrange.Value;
-  frmG2Main.G2.SelectedPatch.PatchDescription.GreenVisible := btCablesGreen.Value;
-  frmG2Main.G2.SelectedPatch.PatchDescription.PurpleVisible := btCablesPurple.Value;
-  frmG2Main.G2.SelectedPatch.PatchDescription.WhiteVisible := btCablesWhite.Value;
+  G2 := frmG2Main.SelectedG2;
+  if not assigned(G2) then
+    exit;
+
+  G2.SelectedPatch.PatchDescription.RedVisible := btCablesRed.Value;
+  G2.SelectedPatch.PatchDescription.BlueVisible := btCablesBlue.Value;
+  G2.SelectedPatch.PatchDescription.YellowVisible := btCablesYellow.Value;
+  G2.SelectedPatch.PatchDescription.OrangeVisible := btCablesOrange.Value;
+  G2.SelectedPatch.PatchDescription.GreenVisible := btCablesGreen.Value;
+  G2.SelectedPatch.PatchDescription.PurpleVisible := btCablesPurple.Value;
+  G2.SelectedPatch.PatchDescription.WhiteVisible := btCablesWhite.Value;
   frmG2Main.sbFX.Invalidate;
   frmG2Main.sbVA.Invalidate;
 end;
@@ -132,16 +137,21 @@ begin
 end;
 
 procedure TfrmEditorTools.UpdateControls;
+var G2 : TG2;
 begin
+  G2 := frmG2Main.SelectedG2;
+  if not assigned(G2) then
+    exit;
+
   FDisableControls := True;
   try
-    btCablesRed.Value := frmG2Main.G2.SelectedPatch.PatchDescription.RedVisible;
-    btCablesBlue.Value := frmG2Main.G2.SelectedPatch.PatchDescription.BlueVisible;
-    btCablesYellow.Value := frmG2Main.G2.SelectedPatch.PatchDescription.YellowVisible;
-    btCablesOrange.Value := frmG2Main.G2.SelectedPatch.PatchDescription.OrangeVisible;
-    btCablesGreen.Value := frmG2Main.G2.SelectedPatch.PatchDescription.GreenVisible;
-    btCablesPurple.Value := frmG2Main.G2.SelectedPatch.PatchDescription.PurpleVisible;
-    btCablesWhite.Value := frmG2Main.G2.SelectedPatch.PatchDescription.WhiteVisible;
+    btCablesRed.Value := G2.SelectedPatch.PatchDescription.RedVisible;
+    btCablesBlue.Value := G2.SelectedPatch.PatchDescription.BlueVisible;
+    btCablesYellow.Value := G2.SelectedPatch.PatchDescription.YellowVisible;
+    btCablesOrange.Value := G2.SelectedPatch.PatchDescription.OrangeVisible;
+    btCablesGreen.Value := G2.SelectedPatch.PatchDescription.GreenVisible;
+    btCablesPurple.Value := G2.SelectedPatch.PatchDescription.PurpleVisible;
+    btCablesWhite.Value := G2.SelectedPatch.PatchDescription.WhiteVisible;
 
   finally
     FDisableControls := False;
