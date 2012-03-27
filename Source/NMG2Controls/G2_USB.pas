@@ -629,9 +629,6 @@ begin
   end;
 
   usb_set_debug(255);
-
-  if aList.Count = 0 then
-    raise Exception.Create('No g2 device found');
 end;
 
 {$IFDEF unix}

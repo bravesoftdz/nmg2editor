@@ -1240,6 +1240,9 @@ begin
                                   end;
 
                                   Result := True;
+
+                                  if assigned(FOnSynthSettingsUpdate) then
+                                    FOnSynthSettingsUpdate(self, ID);
                                 end;
                           R_LIST_NAMES :
                                 begin // List names

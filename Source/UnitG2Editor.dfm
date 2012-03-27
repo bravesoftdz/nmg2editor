@@ -60,10 +60,10 @@ object frmG2Main: TfrmG2Main
       Font.Style = [fsBold]
       ParentFont = False
     end
-    object G2GraphButtonRadio1: TG2GraphButtonRadio
+    object rbSynth: TG2GraphButtonRadio
       Left = 384
       Top = 3
-      Width = 241
+      Width = 120
       Height = 17
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
@@ -73,18 +73,17 @@ object frmG2Main: TfrmG2Main
       Color = 13684944
       Value = 0
       LowValue = 0
-      HighValue = 1
-      OnChange = G2GraphButtonRadio1Change
+      HighValue = 0
+      OnChange = rbSynthChange
       ParentColor = False
       ParentFont = False
       ButtonText.Strings = (
-        'G2 Engine 1'
-        'G2 Engine 2')
+        'G2 Engine 1')
       HightlightColor = clAqua
       BorderColor = clBlack
       Bevel = False
       Orientation = otHorizontal
-      ButtonCount = 2
+      ButtonCount = 1
     end
     object cbMode: TCheckBox
       Left = 173

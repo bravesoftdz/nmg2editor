@@ -1778,6 +1778,9 @@ begin
     end;
     FScrollboxFX := aValue;
   end else begin
+    if assigned( aValue) and assigned( aValue.G2) then begin
+      aValue.G2.SetModuleParent(nil);
+    end;
     FScrollboxFX := aValue;
     FScrollboxFX.G2 := self;
     FScrollboxFX.Location := ltFX;
@@ -1794,6 +1797,9 @@ begin
     end;
     FScrollboxVA := aValue;
   end else begin
+    if assigned( aValue) and assigned( aValue.G2) then begin
+      aValue.G2.SetModuleParent(nil);
+    end;
     FScrollboxVA := aValue;
     FScrollboxVA.G2 := self;
     FScrollboxVA.Location := ltVA;
@@ -6485,7 +6491,7 @@ var i : integer;
 begin
   // TODO : make this better
   if not(assigned(FromConnector) and (assigned(ToConnector)
-      and (assigned(FromConnector.Module)) and (assigned((FromConnector.Module as TG2GraphModule).Parent)))) then
+      and (assigned(FromConnector.Module)) {and (assigned((FromConnector.Module as TG2GraphModule).Parent))})) then
     exit;
 
   ModuleFrom := (FromConnector.Module as TG2GraphModule).FPanel;
@@ -6508,7 +6514,8 @@ begin
     dec(i);
   PaintElements;
 
-  (FromConnector.Module as TG2GraphModule).Parent.Invalidate;
+  if assigned((FromConnector.Module as TG2GraphModule).Parent) then
+    (FromConnector.Module as TG2GraphModule).Parent.Invalidate;
 end;
 
 procedure Register;

@@ -298,7 +298,7 @@ type
     Getactiveperfsysex1: TMenuItem;
     N15: TMenuItem;
     aAnalyzePatch: TAction;
-    G2GraphButtonRadio1: TG2GraphButtonRadio;
+    rbSynth: TG2GraphButtonRadio;
     procedure FormCreate(Sender: TObject);
     procedure cbModeClick(Sender: TObject);
     procedure aPatchSettingsExecute(Sender: TObject);
@@ -382,7 +382,7 @@ type
     procedure G2DeassignGlobalKnob(Sender: TObject; SenderID,
       KnobIndex: Integer);
     procedure G2AssignGlobalKnob(Sender: TObject; SenderID, KnobIndex: Integer);
-    procedure G2GraphButtonRadio1Change(Sender: TObject);
+    procedure rbSynthChange(Sender: TObject);
   private
     { Private declarations }
     procedure DialogKey(var Msg: TWMKey); message CM_DIALOGKEY;
@@ -793,17 +793,25 @@ begin
   G2DeviceList := TList.Create;
   try
     GetUSBDeviceList( G2DeviceList);
+
     if G2DeviceList.Count > 0 then begin
       for i := 0 to G2DeviceList.Count - 1 do begin
         AddG2( pusb_device(G2DeviceList[i]));
       end;
     end else begin
       AddG2( nil);
+      MessageBox(0, 'No g2 device found', '', MB_OK)
     end;
   finally
     G2DeviceList.Free;
   end;
+  rbSynth.Width := FG2List.Count * 120 + 1;
+  rbSynth.ButtonCount := FG2List.Count;
+  rbSynth.ButtonText.Clear;
+  for i := 0 to FG2List.Count - 1 do
+    rbSynth.ButtonText.Add('G2 Synth ' + IntToStr(i+ 1));
   SelectG2(0);
+
 
   Caption := 'NMG2 Editor ' + VERSION;
 
@@ -934,7 +942,6 @@ begin
     G2.LoadModuleDefs('');
     G2.USBActive := True;
   end;
-
 
   CreateAddModuleMenu;
   CreateModuleMenu;
@@ -2567,7 +2574,17 @@ begin
 end;
 
 procedure TfrmG2Main.G2SynthSettingsUpdate(Sender: TObject;  SenderID: Integer);
+var i : integer;
 begin
+  i := 0;
+  while (i<FG2List.Count) and (FG2List[i] <> Sender) do
+    inc(i);
+
+  if (i<FG2List.Count) then begin
+    rbSynth.ButtonText[i] := (FG2List[i] as TG2).SynthName;
+    rbSynth.Invalidate;
+  end;
+
   frmSynthSettings.updateDialog;
 end;
 
@@ -2629,9 +2646,9 @@ begin
 end;
 
 
-procedure TfrmG2Main.G2GraphButtonRadio1Change(Sender: TObject);
+procedure TfrmG2Main.rbSynthChange(Sender: TObject);
 begin
-  SelectG2( G2GraphButtonRadio1.Value);
+  SelectG2( rbSynth.Value);
 end;
 
 procedure TfrmG2Main.G2AfterG2Init(Sender: TObject);
