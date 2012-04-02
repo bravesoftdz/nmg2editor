@@ -39,7 +39,7 @@ unit UnitG2Editor;
 //
 //  ////////////////////////////////////////////////////////////////////////////
 
-// Done
+// v2.0
 // ====
 // Select, cut, copy past part of patches
 // Undo
@@ -59,8 +59,8 @@ unit UnitG2Editor;
 // Clean up global assign on init/load patch
 // ini-file (xml) with some preferences
 
-// TODO List v2.1
-// ==============
+// v2.1
+// ====
 
 // Static binding of libusb.dll (optional loading)
 // Buttons on parameter pages
@@ -71,6 +71,13 @@ unit UnitG2Editor;
 // Midi, send receieve sysex
 // Copy patch->Undo->Cables are not deleted
 // Set parameter functions to g2_file
+
+
+// TODO List v2.2
+// ==============
+
+// Multiple g2 support
+// Improve shut down of usb connections
 
 // Solve compiler warnings
 // Add ini file for VST
@@ -93,7 +100,6 @@ unit UnitG2Editor;
 // Virtual keyboard
 // Module text functions
 // Module graphic screens
-// Multiple g2 support
 // Memory used indicator
 // Patch mutator
 // Patch adjuster

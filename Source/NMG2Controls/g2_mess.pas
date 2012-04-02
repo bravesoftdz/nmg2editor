@@ -141,6 +141,7 @@ uses
 
     FErrorMessage        : boolean;
     FErrorMessageNo      : integer;
+    FLastResponseMessage : Byte;
 
     procedure   SetSynthName( aValue : AnsiString);
     procedure   SetMemoryProtect( aValue : TBits1);
@@ -220,6 +221,7 @@ uses
     property    TuneSemi : TBits8 read FTuneSemi write SetTuneSemi;
     property    PedalPolarity : TBits1 read FPedalPolarity write SetPedalPolarity;
     property    ControlPedalGain : TBits8 read FControlPedalGain write SetControlPedalGain;
+    property    LastResponseMessage : Byte read FLastResponseMessage write FLastResponseMessage;
   published
     property    OnMidiCCReceive : TMidiCCRecieveEvent read FOnMidiCCReceive write FOnMidiCCReceive;
     property    OnSelectParamPage : TSelectParamPageEvent read FOnSelectParamPage write FOnSelectParamPage;
@@ -1387,7 +1389,10 @@ begin
                                     Chunk.Free;
                                   end;
                                 end;
-                          R_OK : Result := True;
+                          R_OK : begin
+                                   FLastResponseMessage := R_OK;
+                                   Result := True;
+                                 end;
                           R_ERROR :
                                 begin
                                   MemStream.Read(b, 1); // error no?
@@ -1396,6 +1401,7 @@ begin
 
                                   add_log_line('G2 returns error ' + IntToHex(b, 2) + '!', LOGCMD_ERR);
 
+                                  FLastResponseMessage := R_ERROR;
                                   Result := True;
                                 end;
                           $80 : begin // Unknown 1
@@ -1815,7 +1821,7 @@ begin
            Result := True;
 
            if assigned((G2 as TG2Mess).FOnPerfSettingsUpdate) then
-             (G2 as TG2Mess).FOnPerfSettingsUpdate(self, SenderID, True);
+             (G2 as TG2Mess).FOnPerfSettingsUpdate(G2, SenderID, True);
          end;
     S_SEL_SLOT :
          begin
@@ -1838,7 +1844,7 @@ begin
          begin
             Result := True;
             if assigned((G2 as TG2Mess).FOnPerfSettingsUpdate) then
-              (G2 as TG2Mess).FOnPerfSettingsUpdate(self, SenderID, True); // Todo : where to find performance mode?
+              (G2 as TG2Mess).FOnPerfSettingsUpdate(G2, SenderID, True); // Todo : where to find performance mode?
          end;
     S_SET_PATCH :
           begin
@@ -1893,7 +1899,7 @@ begin
 
               if assigned(G2) then begin
                 if assigned((G2 as TG2Mess).FOnPatchUpdate) then
-                  (G2 as TG2Mess).FOnPatchUpdate( self, SenderID, i);
+                  (G2 as TG2Mess).FOnPatchUpdate( G2, SenderID, i);
               end else
                 if assigned((Slot[i] as TG2MessSlot).FOnPatchUpdate) then
                   (Slot[i] as TG2MessSlot).FOnPatchUpdate( self, SenderID, i);
@@ -2414,7 +2420,7 @@ begin
 
                         if assigned(G2) then begin
                           if assigned((G2 as TG2Mess).FOnPatchUpdate) then
-                            (G2 as TG2Mess).FOnPatchUpdate( self, SenderID, SlotIndex);
+                            (G2 as TG2Mess).FOnPatchUpdate( G2, SenderID, SlotIndex);
                         end else
                           if assigned( FOnPatchUpdate) then
                             FOnPatchUpdate( self, SenderID, SlotIndex);
@@ -2432,7 +2438,7 @@ begin
 
                         if assigned(G2) then begin
                           if assigned((G2 as TG2Mess).FOnPatchUpdate) then
-                            (G2 as TG2Mess).FOnPatchUpdate(self, SenderID, SlotIndex);
+                            (G2 as TG2Mess).FOnPatchUpdate( G2, SenderID, SlotIndex);
                         end else
                           if assigned( FOnPatchUpdate) then
                             FOnPatchUpdate( self, SenderID, SlotIndex);
@@ -2446,7 +2452,7 @@ begin
 
                         if assigned(G2) then begin
                           if assigned((G2 as TG2Mess).FOnvariationChange) then
-                            (G2 as TG2Mess).FOnVariationChange(self, SenderID, SlotIndex ,aVariation);
+                            (G2 as TG2Mess).FOnVariationChange(G2, SenderID, SlotIndex ,aVariation);
                         end else
                           if assigned( FOnvariationChange) then
                             FOnvariationChange( self, SenderID, SlotIndex ,aVariation);
@@ -2494,7 +2500,7 @@ begin
                         Patch.SetParamInPatch( TLocationType(aLocation), aModuleIndex, aParameterIndex, aVariation, aValue);
 
                         if assigned(G2) and assigned((G2 as TG2Mess).FOnParamChangeMessage) then
-                          (G2 as TG2Mess).FOnParamChangeMessage( self, SenderID, SlotIndex, aVariation, TLocationType(aLocation), aModuleIndex, aParameterIndex, aValue);
+                          (G2 as TG2Mess).FOnParamChangeMessage( G2, SenderID, SlotIndex, aVariation, TLocationType(aLocation), aModuleIndex, aParameterIndex, aValue);
                       end;
                 S_SET_MODE :
                       begin
@@ -4429,7 +4435,7 @@ begin
               SortLeds;
 
               if assigned(G2) and assigned(G2.OnAddModule) then
-                G2.OnAddModule(self, G2.ID, Module);
+                G2.OnAddModule(G2, G2.ID, Module);
             end;
       S_SET_MODULE_COLOR : // Change module color
             begin
@@ -4458,7 +4464,7 @@ begin
                 //end;
 
                 if assigned(G2) and assigned(G2.OnDeleteModule) then
-                  G2.OnDeleteModule(self, G2.ID, aLocation, aModuleIndex);
+                  G2.OnDeleteModule(G2, G2.ID, aLocation, aModuleIndex);
 
                 if assigned(Slot) and assigned(Slot.FOnDeleteModule) then
                   Slot.FOnDeleteModule(self, G2.ID, aLocation, aModuleIndex);
@@ -4582,7 +4588,7 @@ begin
               end;
 
               if assigned((G2).OnAssignKnob) then
-                G2.OnAssignKnob(self, G2.ID, Slot.SlotIndex, aKnobIndex);
+                G2.OnAssignKnob(G2, G2.ID, Slot.SlotIndex, aKnobIndex);
             end;
       S_DEASSIGN_KNOB : // Deassign knob
             begin
@@ -4604,7 +4610,7 @@ begin
               end;
 
               if assigned(G2.OnDeassignKnob) then
-                G2.OnDeassignKnob(self, G2.ID, Slot.SlotIndex, aKnobIndex);
+                G2.OnDeassignKnob(G2, G2.ID, Slot.SlotIndex, aKnobIndex);
             end;
       S_ASSIGN_MIDICC :
             begin
@@ -4649,7 +4655,7 @@ begin
               aParamPage     := BitReader.ReadBits( MemStream, 8);
 
               if assigned(G2) and assigned((G2 as TG2Mess).FOnSelectParamPage) then
-                (G2 as TG2Mess).FOnSelectParamPage(self, G2.ID, aParamPage);
+                (G2 as TG2Mess).FOnSelectParamPage(G2, G2.ID, aParamPage);
             end;
       S_ASS_GLOBAL_KNOB : // Assign knob in global page
             begin
@@ -4672,7 +4678,7 @@ begin
               end;
 
               if assigned(G2.OnAssignGlobalKnob) then
-                G2.OnAssignGlobalKnob(self, G2.ID, aKnobIndex);
+                G2.OnAssignGlobalKnob(G2, G2.ID, aKnobIndex);
             end;
       S_DEASS_GLOB_KNOB : // Deassign global knob
             begin
@@ -4695,7 +4701,7 @@ begin
               end;
 
               if assigned(G2.OnDeassignGlobalKnob) then
-                G2.OnDeassignGlobalKnob(self, G2.ID, aKnobIndex);
+                G2.OnDeassignGlobalKnob(G2, G2.ID, aKnobIndex);
             end;
       S_SEL_GLOBAL_PAGE : // Select global parameter page
             begin
@@ -4771,7 +4777,7 @@ begin
 
               if assigned(G2) and assigned(Slot) then
                 if assigned((G2 as TG2Mess).FOnPatchUpdate) then
-                  (G2 as TG2Mess).FOnPatchUpdate( self, G2.ID,  Slot.SlotIndex);
+                  (G2 as TG2Mess).FOnPatchUpdate( G2, G2.ID,  Slot.SlotIndex);
             end;
        else
          Result := False; // not a patch command

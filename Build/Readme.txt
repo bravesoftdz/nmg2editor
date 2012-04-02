@@ -41,6 +41,11 @@ VST:
 2) then you can copy the new versions of these files to your VST folder.
 
 
+...libusb version....
+...Port setting....
+
+
+
 v0.21 update 14-3-2011
 ======================
 - fixed bug in performance settings: keyboard checkbox didn't work 

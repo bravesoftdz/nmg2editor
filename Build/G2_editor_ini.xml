@@ -2,10 +2,10 @@
 <G2_Editor_settings>
   <TCP_settings IP="127.0.0.1" Port="2502" IsServer="-1" TimerBroadcastLedMessages="0"/>
   <MIDI_settings MidiEnabled="0" MidiInDevice="UM-ONE" MidiOutDevice=""/>
-  <MainForm PosX="476" PosY="104" SizeX="1106" SizeY="839" Visible="-1"/>
+  <MainForm PosX="330" PosY="81" SizeX="1106" SizeY="881" Visible="-1"/>
   <PatchManagerSettings BaseFolder="" SelectedTab="2" ExternalSortCol="0" InternalSortCol="1"/>
   <PatchManagerForm PosX="132" PosY="214" SizeX="546" SizeY="725" Visible="0"/>
-  <SettingsForm PosX="50" PosY="50" SizeX="504" SizeY="238" Visible="0"/>
+  <SettingsForm PosX="958" PosY="456" SizeX="504" SizeY="238" Visible="0"/>
   <ParameterPagesForm PosX="71" PosY="307" SizeX="629" SizeY="164" Visible="0"/>
   <PatchSettingsForm PosX="667" PosY="636" SizeX="608" SizeY="185" Visible="0"/>
   <EditorToolsForm PosX="100" PosY="100" SizeX="151" SizeY="261" Visible="0"/>
@@ -257,4 +257,324 @@
     <TCP_settings IP="127.0.0.1" Port="2502" IsServer="-1" TimerBroadcastLedMessages="0"/>
     <MIDI_settings MidiEnabled="0" MidiInDevice="UM-ONE" MidiOutDevice=""/>
   </G2_Synth_2>
+  <G2_Synth_1>
+    <TCP_settings IP="127.0.0.1" Port="2501" IsServer="-1" TimerBroadcastLedMessages="0"/>
+    <MIDI_settings MidiEnabled="0" MidiInDevice="UM-ONE" MidiOutDevice=""/>
+  </G2_Synth_1>
+  <G2_Synth_1>
+    <TCP_settings IP="127.0.0.1" Port="2501" IsServer="-1" TimerBroadcastLedMessages="0"/>
+    <MIDI_settings MidiEnabled="0" MidiInDevice="UM-ONE" MidiOutDevice=""/>
+  </G2_Synth_1>
+  <G2_Synth_1>
+    <TCP_settings IP="127.0.0.1" Port="2501" IsServer="-1" TimerBroadcastLedMessages="0"/>
+    <MIDI_settings MidiEnabled="0" MidiInDevice="UM-ONE" MidiOutDevice=""/>
+  </G2_Synth_1>
+  <G2_Synth_2>
+    <TCP_settings IP="127.0.0.1" Port="2502" IsServer="-1" TimerBroadcastLedMessages="0"/>
+    <MIDI_settings MidiEnabled="0" MidiInDevice="UM-ONE" MidiOutDevice=""/>
+  </G2_Synth_2>
+  <G2_Synth_1>
+    <TCP_settings IP="127.0.0.1" Port="2501" IsServer="-1" TimerBroadcastLedMessages="0"/>
+    <MIDI_settings MidiEnabled="0" MidiInDevice="UM-ONE" MidiOutDevice=""/>
+  </G2_Synth_1>
+  <G2_Synth_2>
+    <TCP_settings IP="127.0.0.1" Port="2502" IsServer="-1" TimerBroadcastLedMessages="0"/>
+    <MIDI_settings MidiEnabled="0" MidiInDevice="UM-ONE" MidiOutDevice=""/>
+  </G2_Synth_2>
+  <G2_Synth_1>
+    <TCP_settings IP="127.0.0.1" Port="2501" IsServer="-1" TimerBroadcastLedMessages="0"/>
+    <MIDI_settings MidiEnabled="0" MidiInDevice="UM-ONE" MidiOutDevice=""/>
+  </G2_Synth_1>
+  <G2_Synth_2>
+    <TCP_settings IP="127.0.0.1" Port="2502" IsServer="-1" TimerBroadcastLedMessages="0"/>
+    <MIDI_settings MidiEnabled="0" MidiInDevice="UM-ONE" MidiOutDevice=""/>
+  </G2_Synth_2>
+  <G2_Synth_1>
+    <TCP_settings IP="127.0.0.1" Port="2501" IsServer="-1" TimerBroadcastLedMessages="0"/>
+    <MIDI_settings MidiEnabled="0" MidiInDevice="UM-ONE" MidiOutDevice=""/>
+  </G2_Synth_1>
+  <G2_Synth_2>
+    <TCP_settings IP="127.0.0.1" Port="2502" IsServer="-1" TimerBroadcastLedMessages="0"/>
+    <MIDI_settings MidiEnabled="0" MidiInDevice="UM-ONE" MidiOutDevice=""/>
+  </G2_Synth_2>
+  <G2_Synth_1>
+    <TCP_settings IP="127.0.0.1" Port="2501" IsServer="-1" TimerBroadcastLedMessages="0"/>
+    <MIDI_settings MidiEnabled="0" MidiInDevice="UM-ONE" MidiOutDevice=""/>
+  </G2_Synth_1>
+  <G2_Synth_1>
+    <TCP_settings IP="127.0.0.1" Port="2501" IsServer="-1" TimerBroadcastLedMessages="0"/>
+    <MIDI_settings MidiEnabled="0" MidiInDevice="UM-ONE" MidiOutDevice=""/>
+  </G2_Synth_1>
+  <G2_Synth_2>
+    <TCP_settings IP="127.0.0.1" Port="2502" IsServer="-1" TimerBroadcastLedMessages="0"/>
+    <MIDI_settings MidiEnabled="0" MidiInDevice="UM-ONE" MidiOutDevice=""/>
+  </G2_Synth_2>
+  <G2_Synth_1>
+    <TCP_settings IP="127.0.0.1" Port="2501" IsServer="-1" TimerBroadcastLedMessages="0"/>
+    <MIDI_settings MidiEnabled="0" MidiInDevice="UM-ONE" MidiOutDevice=""/>
+  </G2_Synth_1>
+  <G2_Synth_2>
+    <TCP_settings IP="127.0.0.1" Port="2502" IsServer="-1" TimerBroadcastLedMessages="0"/>
+    <MIDI_settings MidiEnabled="0" MidiInDevice="UM-ONE" MidiOutDevice=""/>
+  </G2_Synth_2>
+  <G2_Synth_1>
+    <TCP_settings IP="127.0.0.1" Port="2501" IsServer="-1" TimerBroadcastLedMessages="0"/>
+    <MIDI_settings MidiEnabled="0" MidiInDevice="UM-ONE" MidiOutDevice=""/>
+  </G2_Synth_1>
+  <G2_Synth_2>
+    <TCP_settings IP="127.0.0.1" Port="2502" IsServer="-1" TimerBroadcastLedMessages="0"/>
+    <MIDI_settings MidiEnabled="0" MidiInDevice="UM-ONE" MidiOutDevice=""/>
+  </G2_Synth_2>
+  <G2_Synth_1>
+    <TCP_settings IP="127.0.0.1" Port="2501" IsServer="-1" TimerBroadcastLedMessages="0"/>
+    <MIDI_settings MidiEnabled="0" MidiInDevice="UM-ONE" MidiOutDevice=""/>
+  </G2_Synth_1>
+  <G2_Synth_2>
+    <TCP_settings IP="127.0.0.1" Port="2502" IsServer="-1" TimerBroadcastLedMessages="0"/>
+    <MIDI_settings MidiEnabled="0" MidiInDevice="UM-ONE" MidiOutDevice=""/>
+  </G2_Synth_2>
+  <G2_Synth_1>
+    <TCP_settings IP="127.0.0.1" Port="2501" IsServer="-1" TimerBroadcastLedMessages="0"/>
+    <MIDI_settings MidiEnabled="0" MidiInDevice="UM-ONE" MidiOutDevice=""/>
+  </G2_Synth_1>
+  <G2_Synth_2>
+    <TCP_settings IP="127.0.0.1" Port="2502" IsServer="-1" TimerBroadcastLedMessages="0"/>
+    <MIDI_settings MidiEnabled="0" MidiInDevice="UM-ONE" MidiOutDevice=""/>
+  </G2_Synth_2>
+  <G2_Synth_1>
+    <TCP_settings IP="127.0.0.1" Port="2501" IsServer="-1" TimerBroadcastLedMessages="0"/>
+    <MIDI_settings MidiEnabled="0" MidiInDevice="UM-ONE" MidiOutDevice=""/>
+  </G2_Synth_1>
+  <G2_Synth_2>
+    <TCP_settings IP="127.0.0.1" Port="2502" IsServer="-1" TimerBroadcastLedMessages="0"/>
+    <MIDI_settings MidiEnabled="0" MidiInDevice="UM-ONE" MidiOutDevice=""/>
+  </G2_Synth_2>
+  <G2_Synth_1>
+    <TCP_settings IP="127.0.0.1" Port="2501" IsServer="-1" TimerBroadcastLedMessages="0"/>
+    <MIDI_settings MidiEnabled="0" MidiInDevice="UM-ONE" MidiOutDevice=""/>
+  </G2_Synth_1>
+  <G2_Synth_1>
+    <TCP_settings IP="127.0.0.1" Port="2501" IsServer="-1" TimerBroadcastLedMessages="0"/>
+    <MIDI_settings MidiEnabled="0" MidiInDevice="UM-ONE" MidiOutDevice=""/>
+  </G2_Synth_1>
+  <G2_Synth_2>
+    <TCP_settings IP="127.0.0.1" Port="2502" IsServer="-1" TimerBroadcastLedMessages="0"/>
+    <MIDI_settings MidiEnabled="0" MidiInDevice="UM-ONE" MidiOutDevice=""/>
+  </G2_Synth_2>
+  <G2_Synth_1>
+    <TCP_settings IP="127.0.0.1" Port="2501" IsServer="-1" TimerBroadcastLedMessages="0"/>
+    <MIDI_settings MidiEnabled="0" MidiInDevice="UM-ONE" MidiOutDevice=""/>
+  </G2_Synth_1>
+  <G2_Synth_2>
+    <TCP_settings IP="127.0.0.1" Port="2502" IsServer="-1" TimerBroadcastLedMessages="0"/>
+    <MIDI_settings MidiEnabled="0" MidiInDevice="UM-ONE" MidiOutDevice=""/>
+  </G2_Synth_2>
+  <G2_Synth_1>
+    <TCP_settings IP="127.0.0.1" Port="2501" IsServer="-1" TimerBroadcastLedMessages="0"/>
+    <MIDI_settings MidiEnabled="0" MidiInDevice="UM-ONE" MidiOutDevice=""/>
+  </G2_Synth_1>
+  <G2_Synth_2>
+    <TCP_settings IP="127.0.0.1" Port="2502" IsServer="-1" TimerBroadcastLedMessages="0"/>
+    <MIDI_settings MidiEnabled="0" MidiInDevice="UM-ONE" MidiOutDevice=""/>
+  </G2_Synth_2>
+  <G2_Synth_1>
+    <TCP_settings IP="127.0.0.1" Port="2501" IsServer="-1" TimerBroadcastLedMessages="0"/>
+    <MIDI_settings MidiEnabled="0" MidiInDevice="UM-ONE" MidiOutDevice=""/>
+  </G2_Synth_1>
+  <G2_Synth_2>
+    <TCP_settings IP="127.0.0.1" Port="2502" IsServer="-1" TimerBroadcastLedMessages="0"/>
+    <MIDI_settings MidiEnabled="0" MidiInDevice="UM-ONE" MidiOutDevice=""/>
+  </G2_Synth_2>
+  <G2_Synth_1>
+    <TCP_settings IP="127.0.0.1" Port="2501" IsServer="-1" TimerBroadcastLedMessages="0"/>
+    <MIDI_settings MidiEnabled="0" MidiInDevice="UM-ONE" MidiOutDevice=""/>
+  </G2_Synth_1>
+  <G2_Synth_1>
+    <TCP_settings IP="127.0.0.1" Port="2501" IsServer="-1" TimerBroadcastLedMessages="0"/>
+    <MIDI_settings MidiEnabled="0" MidiInDevice="UM-ONE" MidiOutDevice=""/>
+  </G2_Synth_1>
+  <G2_Synth_1>
+    <TCP_settings IP="127.0.0.1" Port="2501" IsServer="-1" TimerBroadcastLedMessages="0"/>
+    <MIDI_settings MidiEnabled="0" MidiInDevice="UM-ONE" MidiOutDevice=""/>
+  </G2_Synth_1>
+  <G2_Synth_1>
+    <TCP_settings IP="127.0.0.1" Port="2501" IsServer="-1" TimerBroadcastLedMessages="0"/>
+    <MIDI_settings MidiEnabled="0" MidiInDevice="UM-ONE" MidiOutDevice=""/>
+  </G2_Synth_1>
+  <G2_Synth_1>
+    <TCP_settings IP="127.0.0.1" Port="2501" IsServer="-1" TimerBroadcastLedMessages="0"/>
+    <MIDI_settings MidiEnabled="0" MidiInDevice="UM-ONE" MidiOutDevice=""/>
+  </G2_Synth_1>
+  <G2_Synth_1>
+    <TCP_settings IP="127.0.0.1" Port="2501" IsServer="-1" TimerBroadcastLedMessages="0"/>
+    <MIDI_settings MidiEnabled="0" MidiInDevice="UM-ONE" MidiOutDevice=""/>
+  </G2_Synth_1>
+  <G2_Synth_1>
+    <TCP_settings IP="127.0.0.1" Port="2501" IsServer="-1" TimerBroadcastLedMessages="0"/>
+    <MIDI_settings MidiEnabled="0" MidiInDevice="UM-ONE" MidiOutDevice=""/>
+  </G2_Synth_1>
+  <G2_Synth_1>
+    <TCP_settings IP="127.0.0.1" Port="2501" IsServer="-1" TimerBroadcastLedMessages="0"/>
+    <MIDI_settings MidiEnabled="0" MidiInDevice="UM-ONE" MidiOutDevice=""/>
+  </G2_Synth_1>
+  <G2_Synth_1>
+    <TCP_settings IP="127.0.0.1" Port="2501" IsServer="-1" TimerBroadcastLedMessages="0"/>
+    <MIDI_settings MidiEnabled="0" MidiInDevice="UM-ONE" MidiOutDevice=""/>
+  </G2_Synth_1>
+  <G2_Synth_1>
+    <TCP_settings IP="127.0.0.1" Port="2501" IsServer="-1" TimerBroadcastLedMessages="0"/>
+    <MIDI_settings MidiEnabled="0" MidiInDevice="UM-ONE" MidiOutDevice=""/>
+  </G2_Synth_1>
+  <G2_Synth_2>
+    <TCP_settings IP="127.0.0.1" Port="2502" IsServer="-1" TimerBroadcastLedMessages="0"/>
+    <MIDI_settings MidiEnabled="0" MidiInDevice="UM-ONE" MidiOutDevice=""/>
+  </G2_Synth_2>
+  <G2_Synth_1>
+    <TCP_settings IP="127.0.0.1" Port="2501" IsServer="-1" TimerBroadcastLedMessages="0"/>
+    <MIDI_settings MidiEnabled="0" MidiInDevice="UM-ONE" MidiOutDevice=""/>
+  </G2_Synth_1>
+  <G2_Synth_2>
+    <TCP_settings IP="127.0.0.1" Port="2502" IsServer="-1" TimerBroadcastLedMessages="0"/>
+    <MIDI_settings MidiEnabled="0" MidiInDevice="UM-ONE" MidiOutDevice=""/>
+  </G2_Synth_2>
+  <G2_Synth_1>
+    <TCP_settings IP="127.0.0.1" Port="2501" IsServer="-1" TimerBroadcastLedMessages="0"/>
+    <MIDI_settings MidiEnabled="0" MidiInDevice="UM-ONE" MidiOutDevice=""/>
+  </G2_Synth_1>
+  <G2_Synth_2>
+    <TCP_settings IP="127.0.0.1" Port="2502" IsServer="-1" TimerBroadcastLedMessages="0"/>
+    <MIDI_settings MidiEnabled="0" MidiInDevice="UM-ONE" MidiOutDevice=""/>
+  </G2_Synth_2>
+  <G2_Synth_1>
+    <TCP_settings IP="127.0.0.1" Port="2501" IsServer="-1" TimerBroadcastLedMessages="0"/>
+    <MIDI_settings MidiEnabled="0" MidiInDevice="UM-ONE" MidiOutDevice=""/>
+  </G2_Synth_1>
+  <G2_Synth_2>
+    <TCP_settings IP="127.0.0.1" Port="2502" IsServer="-1" TimerBroadcastLedMessages="0"/>
+    <MIDI_settings MidiEnabled="0" MidiInDevice="UM-ONE" MidiOutDevice=""/>
+  </G2_Synth_2>
+  <G2_Synth_1>
+    <TCP_settings IP="127.0.0.1" Port="2501" IsServer="-1" TimerBroadcastLedMessages="0"/>
+    <MIDI_settings MidiEnabled="0" MidiInDevice="UM-ONE" MidiOutDevice=""/>
+  </G2_Synth_1>
+  <G2_Synth_2>
+    <TCP_settings IP="127.0.0.1" Port="2502" IsServer="-1" TimerBroadcastLedMessages="0"/>
+    <MIDI_settings MidiEnabled="0" MidiInDevice="UM-ONE" MidiOutDevice=""/>
+  </G2_Synth_2>
+  <G2_Synth_1>
+    <TCP_settings IP="127.0.0.1" Port="2501" IsServer="-1" TimerBroadcastLedMessages="0"/>
+    <MIDI_settings MidiEnabled="0" MidiInDevice="UM-ONE" MidiOutDevice=""/>
+  </G2_Synth_1>
+  <G2_Synth_2>
+    <TCP_settings IP="127.0.0.1" Port="2502" IsServer="-1" TimerBroadcastLedMessages="0"/>
+    <MIDI_settings MidiEnabled="0" MidiInDevice="UM-ONE" MidiOutDevice=""/>
+  </G2_Synth_2>
+  <G2_Synth_1>
+    <TCP_settings IP="127.0.0.1" Port="2501" IsServer="-1" TimerBroadcastLedMessages="0"/>
+    <MIDI_settings MidiEnabled="0" MidiInDevice="UM-ONE" MidiOutDevice=""/>
+  </G2_Synth_1>
+  <G2_Synth_2>
+    <TCP_settings IP="127.0.0.1" Port="2502" IsServer="-1" TimerBroadcastLedMessages="0"/>
+    <MIDI_settings MidiEnabled="0" MidiInDevice="UM-ONE" MidiOutDevice=""/>
+  </G2_Synth_2>
+  <G2_Synth_1>
+    <TCP_settings IP="127.0.0.1" Port="2501" IsServer="-1" TimerBroadcastLedMessages="0"/>
+    <MIDI_settings MidiEnabled="0" MidiInDevice="UM-ONE" MidiOutDevice=""/>
+  </G2_Synth_1>
+  <G2_Synth_2>
+    <TCP_settings IP="127.0.0.1" Port="2502" IsServer="-1" TimerBroadcastLedMessages="0"/>
+    <MIDI_settings MidiEnabled="0" MidiInDevice="UM-ONE" MidiOutDevice=""/>
+  </G2_Synth_2>
+  <G2_Synth_1>
+    <TCP_settings IP="127.0.0.1" Port="2501" IsServer="-1" TimerBroadcastLedMessages="0"/>
+    <MIDI_settings MidiEnabled="0" MidiInDevice="UM-ONE" MidiOutDevice=""/>
+  </G2_Synth_1>
+  <G2_Synth_2>
+    <TCP_settings IP="127.0.0.1" Port="2502" IsServer="-1" TimerBroadcastLedMessages="0"/>
+    <MIDI_settings MidiEnabled="0" MidiInDevice="UM-ONE" MidiOutDevice=""/>
+  </G2_Synth_2>
+  <G2_Synth_1>
+    <TCP_settings IP="127.0.0.1" Port="2501" IsServer="-1" TimerBroadcastLedMessages="0"/>
+    <MIDI_settings MidiEnabled="0" MidiInDevice="UM-ONE" MidiOutDevice=""/>
+  </G2_Synth_1>
+  <G2_Synth_2>
+    <TCP_settings IP="127.0.0.1" Port="2502" IsServer="-1" TimerBroadcastLedMessages="0"/>
+    <MIDI_settings MidiEnabled="0" MidiInDevice="UM-ONE" MidiOutDevice=""/>
+  </G2_Synth_2>
+  <G2_Synth_1>
+    <TCP_settings IP="127.0.0.1" Port="2501" IsServer="-1" TimerBroadcastLedMessages="0"/>
+    <MIDI_settings MidiEnabled="0" MidiInDevice="UM-ONE" MidiOutDevice=""/>
+  </G2_Synth_1>
+  <G2_Synth_2>
+    <TCP_settings IP="127.0.0.1" Port="2502" IsServer="-1" TimerBroadcastLedMessages="0"/>
+    <MIDI_settings MidiEnabled="0" MidiInDevice="UM-ONE" MidiOutDevice=""/>
+  </G2_Synth_2>
+  <G2_Synth_1>
+    <TCP_settings IP="127.0.0.1" Port="2501" IsServer="-1" TimerBroadcastLedMessages="0"/>
+    <MIDI_settings MidiEnabled="0" MidiInDevice="UM-ONE" MidiOutDevice=""/>
+  </G2_Synth_1>
+  <G2_Synth_2>
+    <TCP_settings IP="127.0.0.1" Port="2502" IsServer="-1" TimerBroadcastLedMessages="0"/>
+    <MIDI_settings MidiEnabled="0" MidiInDevice="UM-ONE" MidiOutDevice=""/>
+  </G2_Synth_2>
+  <G2_Synth_1>
+    <TCP_settings IP="127.0.0.1" Port="2501" IsServer="-1" TimerBroadcastLedMessages="0"/>
+    <MIDI_settings MidiEnabled="0" MidiInDevice="UM-ONE" MidiOutDevice=""/>
+  </G2_Synth_1>
+  <G2_Synth_2>
+    <TCP_settings IP="127.0.0.1" Port="2502" IsServer="-1" TimerBroadcastLedMessages="0"/>
+    <MIDI_settings MidiEnabled="0" MidiInDevice="UM-ONE" MidiOutDevice=""/>
+  </G2_Synth_2>
+  <G2_Synth_1>
+    <TCP_settings IP="127.0.0.1" Port="2501" IsServer="-1" TimerBroadcastLedMessages="0"/>
+    <MIDI_settings MidiEnabled="0" MidiInDevice="UM-ONE" MidiOutDevice=""/>
+  </G2_Synth_1>
+  <G2_Synth_2>
+    <TCP_settings IP="127.0.0.1" Port="2502" IsServer="-1" TimerBroadcastLedMessages="0"/>
+    <MIDI_settings MidiEnabled="0" MidiInDevice="UM-ONE" MidiOutDevice=""/>
+  </G2_Synth_2>
+  <G2_Synth_1>
+    <TCP_settings IP="127.0.0.1" Port="2501" IsServer="-1" TimerBroadcastLedMessages="0"/>
+    <MIDI_settings MidiEnabled="0" MidiInDevice="UM-ONE" MidiOutDevice=""/>
+  </G2_Synth_1>
+  <G2_Synth_2>
+    <TCP_settings IP="127.0.0.1" Port="2502" IsServer="-1" TimerBroadcastLedMessages="0"/>
+    <MIDI_settings MidiEnabled="0" MidiInDevice="UM-ONE" MidiOutDevice=""/>
+  </G2_Synth_2>
+  <G2_Synth_1>
+    <TCP_settings IP="127.0.0.1" Port="2501" IsServer="-1" TimerBroadcastLedMessages="0"/>
+    <MIDI_settings MidiEnabled="0" MidiInDevice="UM-ONE" MidiOutDevice=""/>
+  </G2_Synth_1>
+  <G2_Synth_1>
+    <TCP_settings IP="127.0.0.1" Port="2501" IsServer="-1" TimerBroadcastLedMessages="0"/>
+    <MIDI_settings MidiEnabled="0" MidiInDevice="UM-ONE" MidiOutDevice=""/>
+  </G2_Synth_1>
+  <G2_Synth_1>
+    <TCP_settings IP="127.0.0.1" Port="2501" IsServer="-1" TimerBroadcastLedMessages="0"/>
+    <MIDI_settings MidiEnabled="0" MidiInDevice="UM-ONE" MidiOutDevice=""/>
+  </G2_Synth_1>
+  <G2_Synth_1>
+    <TCP_settings IP="127.0.0.1" Port="2501" IsServer="-1" TimerBroadcastLedMessages="0"/>
+    <MIDI_settings MidiEnabled="0" MidiInDevice="UM-ONE" MidiOutDevice=""/>
+  </G2_Synth_1>
+  <G2_Synth_1>
+    <TCP_settings IP="127.0.0.1" Port="2501" IsServer="-1" TimerBroadcastLedMessages="0"/>
+    <MIDI_settings MidiEnabled="0" MidiInDevice="UM-ONE" MidiOutDevice=""/>
+  </G2_Synth_1>
+  <G2_Synth_1>
+    <TCP_settings IP="127.0.0.1" Port="2501" IsServer="-1" TimerBroadcastLedMessages="0"/>
+    <MIDI_settings MidiEnabled="0" MidiInDevice="UM-ONE" MidiOutDevice=""/>
+  </G2_Synth_1>
+  <G2_Synth_1>
+    <TCP_settings IP="127.0.0.1" Port="2501" IsServer="-1" TimerBroadcastLedMessages="0"/>
+    <MIDI_settings MidiEnabled="0" MidiInDevice="UM-ONE" MidiOutDevice=""/>
+  </G2_Synth_1>
+  <G2_Synth_1>
+    <TCP_settings IP="127.0.0.1" Port="2501" IsServer="-1" TimerBroadcastLedMessages="0"/>
+    <MIDI_settings MidiEnabled="0" MidiInDevice="UM-ONE" MidiOutDevice=""/>
+  </G2_Synth_1>
+  <G2_Synth_1>
+    <TCP_settings IP="127.0.0.1" Port="2501" IsServer="-1" TimerBroadcastLedMessages="0"/>
+    <MIDI_settings MidiEnabled="0" MidiInDevice="UM-ONE" MidiOutDevice=""/>
+  </G2_Synth_1>
 </G2_Editor_settings>

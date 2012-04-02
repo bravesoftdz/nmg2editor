@@ -1823,6 +1823,9 @@ begin
 end;
 
 procedure TG2USB.SetUSBActive(const Value: boolean);
+var iin_buf : TByteBuffer;
+    bytes_read : integer;
+    timer_start : integer;
 begin
   if Value then begin
 
@@ -1920,8 +1923,16 @@ begin
 
     // Disconnect
     if assigned(g2udev) then begin
-      if FInitialized then
+      if FInitialized then begin
+        // Try to stop the led messages stream
+        LastResponseMessage := 00;
         SendStartStopCommunicationMessage( 1);
+        timer_start := GetTickCount;
+        repeat
+          sleep(100);
+          Application.ProcessMessages;
+        until (LastResponseMessage = R_OK) or (GetTickCount - timer_start > 3000);
+      end;
       FInitialized := False;
     end;
 
@@ -1929,6 +1940,8 @@ begin
       FIdTCPCLient.Disconnect;  // disconnect client
       FIdClientReadThread.WaitFor;
     end;
+
+    // Wait some time to empty the read buffer
 
     // Terminate the USB message thread
     try
@@ -1950,6 +1963,16 @@ begin
     end;
 
     if assigned(g2udev) then begin
+      // Read remaining messages until timeout
+      timer_start := GetTickCount;
+      SetLength(iin_buf, 16);
+      bytes_read := iread( g2iin, iin_buf[0], 16, 1000);
+      while (bytes_read > 0) and (GetTickCount - timer_start > 3000) do begin
+        if isextended(iin_buf) then
+          bytes_read := extended_message(iin_buf);
+        bytes_read := iread( g2iin, iin_buf[0], 16, 1000);
+      end;
+
       // Clean up usb connection
       Done;
     end;
