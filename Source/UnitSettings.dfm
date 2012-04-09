@@ -2,7 +2,7 @@ object frmSettings: TfrmSettings
   Left = 0
   Top = 0
   Caption = 'Settings'
-  ClientHeight = 200
+  ClientHeight = 249
   ClientWidth = 488
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -20,16 +20,12 @@ object frmSettings: TfrmSettings
     Left = 0
     Top = 0
     Width = 488
-    Height = 200
-    ActivePage = TabSheet4
+    Height = 249
+    ActivePage = TabSheet1
     Align = alClient
     TabOrder = 0
     object TabSheet1: TTabSheet
       Caption = 'TCP-IP'
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 157
       object Label3: TLabel
         Left = 16
         Top = 56
@@ -88,6 +84,10 @@ object frmSettings: TfrmSettings
     object TabSheet4: TTabSheet
       Caption = 'Midi'
       ImageIndex = 3
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object Label6: TLabel
         Left = 17
         Top = 91
@@ -104,7 +104,7 @@ object frmSettings: TfrmSettings
       end
       object Label9: TLabel
         Left = 17
-        Top = 131
+        Top = 155
         Width = 49
         Height = 13
         Caption = 'Ctrl midi in'
@@ -136,11 +136,20 @@ object frmSettings: TfrmSettings
       end
       object cbCtrlMidiInDevices: TComboBox
         Left = 104
-        Top = 128
+        Top = 152
         Width = 261
         Height = 21
         TabOrder = 3
         OnSelect = cbCtrlMidiInDevicesSelect
+      end
+      object cbCtrlMidiEnabled: TCheckBox
+        Left = 104
+        Top = 124
+        Width = 97
+        Height = 17
+        Caption = 'Ctrl midi enabled'
+        TabOrder = 4
+        OnClick = cbCtrlMidiEnabledClick
       end
     end
     object TabSheet3: TTabSheet
@@ -149,10 +158,10 @@ object frmSettings: TfrmSettings
       ExplicitLeft = 0
       ExplicitTop = 0
       ExplicitWidth = 0
-      ExplicitHeight = 157
+      ExplicitHeight = 0
       DesignSize = (
         480
-        172)
+        221)
       object Label5: TLabel
         Left = 16
         Top = 27
@@ -185,7 +194,7 @@ object frmSettings: TfrmSettings
       ExplicitLeft = 0
       ExplicitTop = 0
       ExplicitWidth = 0
-      ExplicitHeight = 157
+      ExplicitHeight = 0
       object Panel1: TPanel
         Left = 0
         Top = 0
@@ -237,7 +246,7 @@ object frmSettings: TfrmSettings
         Left = 0
         Top = 59
         Width = 480
-        Height = 113
+        Height = 162
         Align = alClient
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
@@ -251,12 +260,104 @@ object frmSettings: TfrmSettings
         TabOrder = 1
       end
     end
+    object TabSheet5: TTabSheet
+      Caption = 'Editor'
+      ImageIndex = 4
+      object Label11: TLabel
+        Left = 24
+        Top = 53
+        Width = 74
+        Height = 13
+        Caption = 'Cable thickness'
+      end
+      object Label12: TLabel
+        Left = 24
+        Top = 83
+        Width = 68
+        Height = 13
+        Caption = 'Slot strip color'
+      end
+      object Label13: TLabel
+        Left = 24
+        Top = 111
+        Width = 106
+        Height = 13
+        Caption = 'Slot strip inverse color'
+      end
+      object Label14: TLabel
+        Left = 24
+        Top = 139
+        Width = 110
+        Height = 13
+        Caption = 'Slot strip disabled color'
+      end
+      object Label15: TLabel
+        Left = 24
+        Top = 167
+        Width = 67
+        Height = 13
+        Caption = 'Highlight color'
+      end
+      object cbSlotStripColor: TColorBox
+        Left = 152
+        Top = 80
+        Width = 145
+        Height = 22
+        Style = [cbStandardColors, cbExtendedColors, cbSystemColors, cbCustomColor, cbCustomColors]
+        TabOrder = 0
+        OnChange = cbSlotStripColorChange
+      end
+      object cbSlotStripInverseColor: TColorBox
+        Left = 152
+        Top = 108
+        Width = 145
+        Height = 22
+        Style = [cbStandardColors, cbExtendedColors, cbSystemColors, cbCustomColor, cbCustomColors]
+        TabOrder = 1
+        OnChange = cbSlotStripInverseColorChange
+      end
+      object cbSlotStripDisabledColor: TColorBox
+        Left = 152
+        Top = 136
+        Width = 145
+        Height = 22
+        Style = [cbStandardColors, cbExtendedColors, cbSystemColors, cbCustomColor, cbCustomColors]
+        TabOrder = 2
+        OnChange = cbSlotStripDisabledColorChange
+      end
+      object cbHighLightColor: TColorBox
+        Left = 152
+        Top = 164
+        Width = 145
+        Height = 22
+        Style = [cbStandardColors, cbExtendedColors, cbSystemColors, cbCustomColor, cbCustomColors]
+        TabOrder = 3
+        OnChange = cbHighLightColorChange
+      end
+      object eCableThickness: TEdit
+        Left = 152
+        Top = 50
+        Width = 49
+        Height = 21
+        TabOrder = 4
+        Text = '2'
+      end
+      object cbLogEnabled: TCheckBox
+        Left = 152
+        Top = 24
+        Width = 97
+        Height = 17
+        Caption = 'Log enabled'
+        TabOrder = 5
+        OnClick = cbLogEnabledClick
+      end
+    end
   end
   object IdUDPServer1: TIdUDPServer
     OnStatus = IdUDPServer1Status
     Bindings = <>
     DefaultPort = 5678
-    Left = 440
+    Left = 416
     Top = 32
   end
 end

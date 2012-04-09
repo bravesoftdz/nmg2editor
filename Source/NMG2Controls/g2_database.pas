@@ -202,7 +202,43 @@ type
     property MidiOutDevice : string read Get_MidiOutDevice write Set_MidiOutDevice;
   end;
 
+  TXMLCtrlMidiSettingsType = class(TDOMElement)
+  protected
+    function Get_CtrlMidiEnabled: boolean;
+    procedure Set_CtrlMidiEnabled( aValue : boolean);
+    function Get_CtrlMidiInDevice: string;
+    procedure Set_CtrlMidiInDevice( aValue : string);
+  public
+    property CtrlMidiEnabled: boolean read Get_CtrlMidiEnabled write Set_CtrlMidiEnabled;
+    property CtrlMidiInDevice : string read Get_CtrlMidiInDevice write Set_CtrlMidiInDevice;
+  end;
+
+  TXMLEditorSettingsType = class(TDOMElement)
+  protected
+    function Get_LogEnabled: boolean;
+    procedure Set_LogEnabled( aValue : boolean);
+    function Get_CableThickness: integer;
+    procedure Set_CableThickness( aValue : integer);
+    function Get_SlotStripColor: integer;
+    procedure Set_SlotStripColor( aValue : integer);
+    function Get_SlotStripInverseColor: integer;
+    procedure Set_SlotStripInverseColor( aValue : integer);
+    function Get_SlotStripDisabledColor: integer;
+    procedure Set_SlotStripDisabledColor( aValue : integer);
+    function Get_HighlightColor: integer;
+    procedure Set_HighlightColor( aValue : integer);
+  public
+    property LogEnabled: boolean read Get_LogEnabled write Set_LogEnabled;
+    property CableThickness : integer read Get_CableThickness write Set_CableThickness;
+    property SlotStripColor : integer read Get_SlotStripColor write Set_SlotStripColor;
+    property SlotStripInverseColor : integer read Get_SlotStripInverseColor write Set_SlotStripInverseColor;
+    property SlotStripDisabledColor : integer read Get_SlotStripDisabledColor write Set_SlotStripDisabledColor;
+    property HighlightColor : integer read Get_HighlightColor write Set_HighlightColor;
+  end;
+
 implementation
+uses
+  g2_types;
 
 function GetInt( aValue : string): integer;
 var Code : integer;
@@ -718,5 +754,111 @@ procedure TXMLMidiSettingsType.Set_MidiOutDevice(aValue: string);
 begin
   SetAttribute('MidiOutDevice', aValue);
 end;
+
+{ TXMLCtrlMidiSettingsType }
+
+function TXMLCtrlMidiSettingsType.Get_CtrlMidiEnabled: boolean;
+begin
+  if GetAttribute('CtrlMidiEnabled') = '' then
+    Result := False
+  else
+    Result := StrToBool(GetAttribute('CtrlMidiEnabled'));
+end;
+
+procedure TXMLCtrlMidiSettingsType.Set_CtrlMidiEnabled( aValue : boolean);
+begin
+  SetAttribute('CtrlMidiEnabled', BoolToStr(aValue));
+end;
+
+function TXMLCtrlMidiSettingsType.Get_CtrlMidiInDevice: string;
+begin
+  Result := GetAttribute('CtrlMidiInDevice');
+end;
+
+procedure TXMLCtrlMidiSettingsType.Set_CtrlMidiInDevice( aValue : string);
+begin
+  SetAttribute('CtrlMidiInDevice', aValue);
+end;
+
+{ TXMLEditorSettingsType}
+
+function TXMLEditorSettingsType.Get_LogEnabled: boolean;
+begin
+  if GetAttribute('LogEnabled') = '' then
+    Result := False
+  else
+    Result := StrToBool(GetAttribute('LogEnabled'));
+end;
+
+procedure TXMLEditorSettingsType.Set_LogEnabled( aValue : boolean);
+begin
+  SetAttribute('LogEnabled', BoolToStr(aValue));
+end;
+
+function TXMLEditorSettingsType.Get_CableThickness: integer;
+begin
+  if GetAttribute('CableThickness') = '' then
+    Result := 2
+  else
+    Result := GetInt(GetAttribute('CableThickness'));
+end;
+
+procedure TXMLEditorSettingsType.Set_CableThickness( aValue : integer);
+begin
+  SetAttribute('CableThickness', IntToStr(aValue));
+end;
+
+function TXMLEditorSettingsType.Get_SlotStripColor: integer;
+begin
+  if GetAttribute('SlotStripColor') = '' then
+    Result := XCL_CLAVIA_RED
+  else
+    Result := GetInt(GetAttribute('SlotStripColor'));
+end;
+
+procedure TXMLEditorSettingsType.Set_SlotStripColor( aValue : integer);
+begin
+  SetAttribute('SlotStripColor', IntToStr(aValue));
+end;
+
+function TXMLEditorSettingsType.Get_SlotStripInverseColor: integer;
+begin
+  if GetAttribute('SlotStripInverseColor') = '' then
+    Result := XCL_CLAVIA_BLUE
+  else
+    Result := GetInt(GetAttribute('SlotStripInverseColor'));
+end;
+
+procedure TXMLEditorSettingsType.Set_SlotStripInverseColor( aValue : integer);
+begin
+  SetAttribute('SlotStripInverseColor', IntToStr(aValue));
+end;
+
+function TXMLEditorSettingsType.Get_SlotStripDisabledColor: integer;
+begin
+  if GetAttribute('SlotStripDisabledColor') = '' then
+    Result := CL_BTN_FACE
+  else
+    Result := GetInt(GetAttribute('SlotStripDisabledColor'));
+end;
+
+procedure TXMLEditorSettingsType.Set_SlotStripDisabledColor( aValue : integer);
+begin
+  SetAttribute('SlotStripDisabledColor', IntToStr(aValue));
+end;
+
+function TXMLEditorSettingsType.Get_HighlightColor: integer;
+begin
+  if GetAttribute('HighlightColor') = '' then
+    Result := XCL_CONTROL_HIGHLIGHT
+  else
+    Result := GetInt(GetAttribute('HighlightColor'));
+end;
+
+procedure TXMLEditorSettingsType.Set_HighlightColor( aValue : integer);
+begin
+  SetAttribute('HighlightColor', IntToStr(aValue));
+end;
+
 
 end.

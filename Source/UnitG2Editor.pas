@@ -123,9 +123,18 @@ uses
   Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, StdCtrls, ExtCtrls,  ActnList, ImgList, Contnrs,
   g2_types, g2_database, g2_file, g2_mess, g2_usb, g2_graph, g2_midi, g2_classes,
-  graph_util_vcl, LibUSBWinDyn, Menus, Buttons, DOM, XMLRead, XMLWrite;
+  graph_util_vcl, LibUSBWinDyn, Menus, Buttons, DOM, XMLRead, XMLWrite,
+  MMSystem, MidiType, MidiIn, MidiOut;
 
 type
+  TEditorSettings = class
+    FCableThickness : integer;
+    FSlotStripColor : TColor;
+    FSlotStripInverseColor : TColor;
+    FSlotStripDisabledColor : TColor;
+    FHighlightColor : TColor;
+  end;
+
   TSlotPanel = class(TG2GraphPanel)
   private
     FDisableControls : boolean;
@@ -157,6 +166,7 @@ type
     constructor Create( AOwner : TComponent; aSlot : TG2Slot);
     destructor Destroy; override;
     procedure  UpdateControls;
+    procedure  SetSlotStripColors( aSlotStripColor, aSlotStripInverseColor, aHighLightColor : TColor);
 
     property VariationMenu : TPopupMenu read FpuVariationMenu write FPuVariationMenu;
     property SlotCaption : string read GetSlotCaption write SetSlotCaption;
@@ -179,7 +189,6 @@ type
     PerfPanel: TPanel;
     sbFX: TG2GraphScrollBox;
     sbVA: TG2GraphScrollBox;
-    cbLogMessages: TCheckBox;
     StartupTimer: TTimer;
     Initpatch1: TMenuItem;
     Parameterpages1: TMenuItem;
@@ -312,7 +321,6 @@ type
     procedure FormShow(Sender: TObject);
     procedure aInitPatchExecute(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
-    procedure cbLogMessagesClick(Sender: TObject);
     procedure G2VariationChange(Sender: TObject; SenderID: Integer; Slot, Variation: Integer);
     procedure G2USBActiveChange(Sender: TObject; Active: Boolean);
     procedure G2PatchUpdate(Sender: TObject; SenderID: Integer; PatchIndex: Integer);
@@ -391,18 +399,22 @@ type
     procedure rbSynthChange(Sender: TObject);
   private
     { Private declarations }
+    FCtrlMidiEnabled : boolean;
+    FCtrlMidiInput : TMidiInput;
     procedure DialogKey(var Msg: TWMKey); message CM_DIALOGKEY;
+    procedure SetCtrlMidiEnabled( aValue : boolean);
   public
     { Public declarations }
-    FDisableControls     : boolean;
-    FSlotPanel           : array[0..3] of TSlotPanel;
-    FAddPoint            : TPoint;
-    FLocation            : TLocationType;
-    FOldSplitterPos      : integer;
-    FLastReceivedMidiCC  : byte;
-    FCopyPatch           : TG2FilePatchPart;
-    FG2List              : TObjectList;
-    FG2Index             : integer;
+    FDisableControls      : boolean;
+    FSlotPanel            : array[0..3] of TSlotPanel;
+    FAddPoint             : TPoint;
+    FLocation             : TLocationType;
+    FOldSplitterPos       : integer;
+    FLastReceivedMidiCC   : byte;
+    FCopyPatch            : TG2FilePatchPart;
+    FG2List               : TObjectList;
+    FG2Index              : integer;
+    FEditorSettingsList   : TObjectList;
 
     procedure AddG2( G2USBDevice : pusb_device);
     function  SelectedG2: TG2;
@@ -420,7 +432,11 @@ type
     procedure UpdateControls;
     procedure SetSelectedModuleColor( aColor : byte);
     function  GetPatchWindowHeight: integer;
+
     procedure LoadImageMap( aBitmap : TBitmap;aCols, aRows: integer; aImageList : TImageList);
+    procedure SetSlotStripColors( aSlotStripColor, aSlotStripInverseColor, aHighLightColor : TColor);
+    procedure ShakeCables;
+    procedure UpdateColorSchema;
 
     procedure UpdateActions;
     procedure CreateAddModuleMenu;
@@ -438,11 +454,16 @@ type
     procedure SaveIniXML;
     procedure LoadIniXML;
 
+    procedure DoCtrlMidiInput(Sender: TObject);
+
     procedure PatchCtrlMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure ModuleClick( Sender : TObject; Button: TMouseButton; Shift: TShiftState; X,  Y: Integer; Module : TG2FileModule);
     procedure ParameterClick( Sender : TObject; Button: TMouseButton; Shift: TShiftState; X,  Y: Integer; Parameter : TG2FileParameter);
     procedure ConnectorClick( Sender : TObject; Button: TMouseButton; Shift: TShiftState; X,  Y: Integer; Connector : TG2FileConnector);
     procedure PanelClick(Sender: TObject);
+
+    property CtrlMidiEnabled : boolean read FCtrlMidiEnabled write SetCtrlMidiEnabled;
+    property CtrlMidiInput : TMidiInput read FCtrlMidiInput;
   end;
 
   procedure SetFormPosition( aForm : TForm; aLeft, aTop, aWidth, aHeight : integer);
@@ -462,7 +483,6 @@ uses UnitLog, UnitPatchSettings, UnitParameterPages, UnitSeqGrid,
 {$ELSE}
   {$R *.lfm}
 {$ENDIF}
-
 
 procedure SetFormPosition( aForm : TForm; aLeft, aTop, aWidth, aHeight : integer);
 begin
@@ -509,7 +529,7 @@ begin
   FlbSlotName.Parent := self;
   FlbSlotName.Font.Size := 12;
   FlbSlotName.Font.Style := [fsbold];
-  FlbSlotName.Font.Color := CL_CLAVIA_BLUE;
+  FlbSlotName.Font.Color := G_SlotStripInverseColor;
   FlbSlotName.Caption := Caption;
   FlbSlotName.SetBounds( 15, 8, 11, 19);
   FlbSlotName.OnClick := frmG2Main.PanelClick;
@@ -523,7 +543,7 @@ begin
   FlbVariation.Parent := self;
   FlbVariation.Font.Size := 8;
   FlbVariation.Font.Style := [fsBold];
-  FlbVariation.Font.Color := CL_CLAVIA_BLUE;
+  FlbVariation.Font.Color := G_SlotStripInverseColor;
   FlbVariation.Caption := 'Var';
   FlbVariation.SetBounds( 145, 10, 25, 13);
   FlbVariation.OnClick := frmG2Main.PanelClick;
@@ -531,7 +551,7 @@ begin
   FG2rbVariation := TG2GraphButtonRadio.Create(self);
   FG2rbVariation.Parent := self;
   FG2rbVariation.SetBounds( 172, 7, 177, 19);
-  FG2rbVariation.HightlightColor := CL_CONTROL_HIGHLIGHT;
+  FG2rbVariation.HightlightColor := G_HighlightColor;
   FG2rbVariation.Color := clActiveBorder;
   FG2rbVariation.BorderColor := clBtnShadow;
   FG2rbVariation.Bevel := False;
@@ -549,7 +569,7 @@ begin
   FG2btEditAllVars.ParentColor := False;
   FG2btEditAllVars.BorderColor := clBlack;
   FG2btEditAllVars.Color := clBtnFace;
-  FG2btEditAllVars.HightlightColor := CL_CONTROL_HIGHLIGHT;
+  FG2btEditAllVars.HightlightColor := G_HighlightColor;
   FG2btEditAllVars.ButtonText.Add('Edit all');
   FG2btEditAllVars.ButtonText.Add('Edit all');
   FG2btEditAllVars.OnClick := ChangeAlleVariationsClick;
@@ -560,7 +580,7 @@ begin
   FlbVolume.Font.Size := 8;
   FlbVolume.Font.Style := [fsBold];
 
-  FlbVolume.Font.Color := CL_CLAVIA_BLUE;
+  FlbVolume.Font.Color := G_SlotStripInverseColor;
   FlbVolume.Caption := 'Vol';
   FlbVolume.SetBounds( 396, 10, 36, 13);
   FlbVolume.OnClick := frmG2Main.PanelClick;
@@ -578,7 +598,7 @@ begin
   FG2btMute.ParentColor := False;
   FG2btMute.BorderColor := clBlack;
   FG2btMute.Color := clBtnFace;
-  FG2btMute.HightlightColor := CL_CONTROL_HIGHLIGHT;
+  FG2btMute.HightlightColor := G_HighlightColor;
   FG2btMute.ButtonText.Add('Mute');
   FG2btMute.ButtonText.Add('On');
   FG2btMute.OnMouseUp := frmG2Main.PatchCtrlMouseUp;
@@ -600,7 +620,7 @@ begin
   FG2idVoiceMode.ParentColor := False;
   FG2idVoiceMode.BorderColor := clBlack;
   FG2idVoiceMode.Color := clBtnFace;
-  FG2idVoiceMode.HightlightColor := CL_CONTROL_HIGHLIGHT;
+  FG2idVoiceMode.HightlightColor := G_HighlightColor;
   FG2idVoiceMode.OnChange := VoiceModeChange;
 
   for i := 0 to 7 do begin
@@ -635,7 +655,7 @@ begin
 {$ELSE}
   ParentBackground := False;
 {$ENDIF}
-  Color := CL_CLAVIA_RED;
+  Color := G_SlotStripColor;
 
   FDisableControls := False;
 end;
@@ -690,13 +710,26 @@ begin
       FG2btMorphArray[i].Parameter := FSlot.Patch.Parameter[ PATCH_MORPH, 8 + i];
     end;
 
-    frmPatchSettings.UpdateControls( Variation);
+    frmPatchSettings.UpdateControls;
     frmParameterPages.UpdateControls;
 
     Invalidate;
   finally
     FDisableControls := False;
   end;
+end;
+
+procedure TSlotPanel.SetSlotStripColors( aSlotStripColor, aSlotStripInverseColor, aHighLightColor : TColor);
+begin
+  FlbSlotName.Font.Color := G_SlotStripInverseColor;
+  FlbVariation.Font.Color := G_SlotStripInverseColor;
+  FG2rbVariation.HightlightColor := G_HighlightColor;
+  FG2btEditAllVars.HightlightColor := G_HighlightColor;
+  FlbVolume.Font.Color := G_SlotStripInverseColor;
+  FG2btMute.HightlightColor := G_HighlightColor;
+  FG2idVoiceMode.HightlightColor := G_HighlightColor;
+  Color := G_SlotStripColor;
+  Invalidate;
 end;
 
 procedure TSlotPanel.VariationClick(Sender: TObject);
@@ -795,6 +828,7 @@ var ModuleMap : TBitmap;
     i : integer;
 begin
   FG2List := TObjectList.Create( True);
+  FEditorSettingsList := TObjectList.Create( True);
 
   G2DeviceList := TList.Create;
   try
@@ -818,14 +852,26 @@ begin
     rbSynth.ButtonText.Add('G2 Synth ' + IntToStr(i+ 1));
   SelectG2(0);
 
-
-  Caption := 'NMG2 Editor ' + VERSION;
+  Caption := 'NMG2 Editor ' + NMG2_VERSION;
 
   FDisableControls := False;
   FOldSplitterPos := Splitter1.Height;
 
   //FPatchManagerVisible := False;
   G2 := SelectedG2;
+
+  ModuleMap := TBitmap.Create;
+  try
+    ModuleMap.LoadFromFile('Img\module_map.bmp');
+    LoadImageMap( ModuleMap, 10, 22, ilModules);
+  finally
+    ModuleMap.Free;
+  end;
+
+  FCtrlMidiInput := TMidiInput.Create(self);
+  FCtrlMidiInput.OnMidiInput := DoCtrlMidiInput;
+
+  LoadIniXML;
 
   FSlotPanel[3] := TSlotPanel.Create( self, G2.SlotD);
   FSlotPanel[3].Parent := self;
@@ -857,20 +903,11 @@ begin
 
   PerfPanel.Top := -1;
   PerfPanel.Align := alTop;
-
-  ModuleMap := TBitmap.Create;
-  try
-    ModuleMap.LoadFromFile('Img\module_map.bmp');
-    LoadImageMap( ModuleMap, 10, 22, ilModules);
-  finally
-    ModuleMap.Free;
-  end;
-
-  LoadIniXML;
 end;
 
 procedure TfrmG2Main.AddG2( G2USBDevice : pusb_device);
 var G2 : TG2;
+    EditorSettings : TEditorSettings;
 begin
   G2 := TG2.Create(self);
   G2.ClientType := ctEditor;
@@ -899,6 +936,15 @@ begin
   G2.OnVariationChange := G2VariationChange;
 
   FG2List.Add(G2);
+
+  EditorSettings := TEditorSettings.Create;
+  EditorSettings.FCableThickness := G_CableThickness;
+  EditorSettings.FSlotStripColor := G_SlotStripColor;
+  EditorSettings.FSlotStripInverseColor := G_SlotStripInverseColor;
+  EditorSettings.FSlotStripDisabledColor := G_SlotStripDisabledColor;
+  EditorSettings.FHighlightColor := G_HighLightColor;
+
+  FEditorSettingsList.Add( EditorSettings);
 end;
 
 function TfrmG2Main.SelectedG2: TG2;
@@ -919,19 +965,50 @@ begin
   (FG2List[FG2Index] as TG2).ScrollboxVA := sbVA;
   (FG2List[FG2Index] as TG2).ScrollboxFX := sbFX;
 
+
+  with FEditorSettingsList[FG2Index] as TEditorSettings do begin
+    G_SlotStripColor := FSlotStripColor;
+    G_SlotStripInverseColor := FSlotStripInverseColor;
+    G_SlotStripDisabledColor := FSlotStripDisabledColor;
+    G_HighLightColor := FHighLightColor;
+    G_CableThickness := FCableThickness;
+  end;
+
   for i := 0 to 3 do
     if assigned(FSlotPanel[i]) then
       FSlotPanel[i].Slot := (FG2List[FG2Index] as TG2).Slot[i];
 
+  SetSlotStripColors( G_SlotStripColor, G_SlotStripInverseColor, G_HighLightColor);
+  ShakeCables;
+  SelectSlot( (FG2List[FG2Index] as TG2).SelectedSlot.SlotIndex);
+
   UpdateControls;
   sbVA.Invalidate;
   sbFX.Invalidate;
+
+  if assigned(frmParameterPages) then
+    frmParameterPages.UpdateControls;
+
+  if assigned(frmPatchSettings) then
+    frmPatchSettings.UpdateControls;
+
+  if assigned(frmSettings) then
+    frmSettings.UpdateControls;
+
+  if assigned(frmSynthSettings) then
+    frmSynthSettings.updateDialog;
+
+  if assigned(frmPerfSettings) then
+    frmPerfSettings.updateDialog;
+
+  if assigned(frmEditorTools) then
+    frmEditorTools.UpdateControls;
 end;
 
 procedure TfrmG2Main.FormShow(Sender: TObject);
 begin
-  cbLogMessages.Checked := True;
-  cbLogMessagesClick(self);
+  {cbLogMessages.Checked := True;
+  cbLogMessagesClick(self);}
 
   StartupTimer.Enabled := True;
 end;
@@ -988,8 +1065,12 @@ end;
 
 procedure TfrmG2Main.FormDestroy(Sender: TObject);
 begin
+  FCtrlMidiInput.Free;
+
   if assigned(FCopyPatch) then
     FCopyPatch.Free;
+
+  FEditorSettingsList.Free;
   FG2List.Free;
 end;
 
@@ -1031,6 +1112,7 @@ var Doc : TXMLDocument;
     RootNode, SynthNode : TDOMNode;
     TCPSettingsNode : TXMLTCPSettingsType;
     FormSettingsNode : TXMLFormSettingsType;
+    EditorSettingsNode : TXMLEditorSettingsType;
     G2 : TG2;
     i : integer;
 begin
@@ -1058,6 +1140,30 @@ begin
               G2.Port := TCPSettingsNode.Port;
               G2.TimerBroadcastLedMessages := TCPSettingsNode.TimerBroadcastLedMessages;
             end;
+
+            EditorSettingsNode := TXMLEditorSettingsType( SynthNode.FindNode('Editor_settings'));
+            if assigned(EditorSettingsNode) then begin
+              if EditorSettingsNode.LogEnabled then
+                G2.LogLevel := 1
+              else
+                G2.LogLevel := 0;
+
+              with FEditorSettingsList[i] as TEditorSettings do begin
+                FCableThickness := EditorSettingsNode.CableThickness;
+                FHighLightColor := EditorSettingsNode.HighlightColor;
+                FSlotStripColor := EditorSettingsNode.SlotStripColor;
+                FSlotStripInverseColor := EditorSettingsNode.SlotStripInverseColor;
+                FSlotStripDisabledColor := EditorSettingsNode.SlotStripDisabledColor;
+                if i = 0 then begin
+                  G_CableThickness := FCableThickness;
+                  G_HighlightColor := FHighLightColor;
+                  G_SlotStripColor := FSlotStripColor;
+                  G_SlotStripInverseColor := FSlotStripInverseColor;
+                  G_SlotStripDisabledColor := FSlotStripDisabledColor;
+                  UpdateColorSchema;
+                end;
+              end;
+            end;
           end;
         end;
       end;
@@ -1083,6 +1189,8 @@ var Doc : TXMLDocument;
     RootNode, SynthNode : TDOMNode;
     TCPSettingsNode : TXMLTCPSettingsType;
     MidiSettingsNode : TXMLMidiSettingsType;
+    EditorSettingsNode : TXMLEditorSettingsType;
+    CtrlMidiSettingsNode : TXMLCtrlMidiSettingsType;
     PatchManagerSettingsNode : TXMLPatchManagerSettingsType;
     FormSettingsNode : TXMLFormSettingsType;
     G2 : TG2;
@@ -1101,13 +1209,27 @@ begin
 
     for i := 0 to FG2List.Count - 1 do begin
 
-      SynthNode := Doc.FindNode('G2_Synth_' + IntToStr(i+1));
+      SynthNode := RootNode.FindNode('G2_Synth_' + IntToStr(i+1));
       if not assigned(SynthNode) then begin
         SynthNode := Doc.CreateElement('G2_Synth_' + IntToStr(i+1));
         RootNode.AppendChild(SynthNode);
       end;
 
       G2 := FG2List[i] as TG2;
+
+      EditorSettingsNode := TXMLEditorSettingsType(SynthNode.FindNode('Editor_settings'));
+      if not assigned(EditorSettingsNode) then begin
+        EditorSettingsNode := TXMLEditorSettingsType( Doc.CreateElement('Editor_settings'));
+        SynthNode.AppendChild( EditorSettingsNode);
+      end;
+      EditorSettingsNode.LogEnabled := G2.LogLevel = 1;
+      with FEditorSettingsList[i] as TEditorSettings do begin
+        EditorSettingsNode.CableThickness := FCableThickness;
+        EditorSettingsNode.SlotStripColor := FSlotStripColor;
+        EditorSettingsNode.SlotStripInverseColor := FSlotStripInverseColor;
+        EditorSettingsNode.SlotStripDisabledColor := FSlotStripDisabledColor;
+        EditorSettingsNode.HighlightColor := FHighLightColor;
+      end;
 
       TCPSettingsNode := TXMLTCPSettingsType( SynthNode.FindNode('TCP_settings'));
       if not assigned( TCPSettingsNode) then begin
@@ -1128,6 +1250,14 @@ begin
       MidiSettingsNode.MidiInDevice := G2.MidiInput.ProductName;
       MidiSettingsNode.MidiOutDevice := G2.MidiOutput.ProductName;
     end;
+
+    CtrlMidiSettingsNode := TXMLCtrlMidiSettingsType( RootNode.FindNode('CTRL_MIDI_settings'));
+    if not assigned( CtrlMidiSettingsNode) then begin
+      CtrlMidiSettingsNode := TXMLCtrlMidiSettingsType( Doc.CreateElement('CTRL_MIDI_settings'));
+      RootNode.AppendChild( CtrlMidiSettingsNode);
+    end;
+    CtrlMidiSettingsNode.CtrlMidiEnabled := CtrlMidiEnabled;
+    CtrlMidiSettingsNode.CtrlMidiInDevice := CtrlMidiInput.ProductName;
 
     FormSettingsNode := TXMLFormSettingsType( RootNode.FindNode('MainForm'));
     if not assigned( FormSettingsNode) then begin
@@ -1211,6 +1341,136 @@ begin
   end;
 end;
 
+procedure TfrmG2Main.SetSlotStripColors( aSlotStripColor, aSlotStripInverseColor, aHighLightColor : TColor);
+var i : integer;
+    G2 : TG2;
+begin
+  G2 := SelectedG2;
+  if not assigned(G2) then
+    exit;
+
+  if FG2Index <> -1 then
+    with FEditorSettingsList[ FG2Index] as TEditorSettings do begin
+      FSlotStripColor := aSlotStripColor;
+      FSlotStripInverseColor := aSlotStripInverseColor;
+      FHighLightColor := aHighLightColor;
+    end;
+
+  UpdateColorSchema;
+end;
+
+procedure TfrmG2Main.ShakeCables;
+var i : integer;
+    G2 : TG2;
+begin
+  G2 := SelectedG2;
+  if not assigned(G2) then
+    exit;
+
+  for i := 0 to 3 do begin
+    (G2.Slot[i].Patch as TG2Patch).ShakeCables;
+  end;
+end;
+
+procedure TfrmG2Main.UpdateColorSchema;
+var i : integer;
+    G2 : TG2;
+begin
+  G2 := SelectedG2;
+  if not assigned(G2) then
+    exit;
+
+  for i := 0 to 3 do begin
+    (G2.Slot[i].Patch as TG2Patch).UpdateColorScheme;
+    if assigned(FSlotPanel[i]) then
+      if G2.SelectedSlotIndex = i then
+        FSlotPanel[i].SetSlotStripColors( G_SlotStripInverseColor, G_SlotStripColor, G_HighLightColor)
+      else
+        FSlotPanel[i].SetSlotStripColors( G_SlotStripColor, G_SlotStripInverseColor, G_HighLightColor);
+  end;
+  rbSynth.HightlightColor := G_HighLightColor;
+
+  if assigned(frmParameterPages) then
+    frmParameterPages.UpdateColorScema;
+
+  if assigned(frmPatchSettings) then
+    frmPatchSettings.UpdateColorSchema;
+end;
+
+procedure TfrmG2Main.SetCtrlMidiEnabled( aValue : boolean);
+begin
+  if aValue then begin
+    if FCtrlMidiInput.State = misClosed then
+      FCtrlMidiInput.OpenAndStart;
+    FCtrlMidiEnabled := aValue;
+  end else begin
+    FCtrlMidiEnabled := aValue;
+    if FCtrlMidiInput.State = misOpen then
+      FCtrlMidiInput.StopAndClose;
+  end;
+end;
+
+procedure TfrmG2Main.DoCtrlMidiInput(Sender: TObject);
+var G2 : TG2;
+  	thisEvent : TMyMidiEvent;
+    midistring : string;
+
+  function MidiToString(MidiEvent: TMyMidiEvent): string;
+  var channel, parameter, i : integer;
+  begin
+    if MidiEvent.Sysex = nil then begin
+      channel := CHANNEL_MASK and MidiEvent.MidiMessage;
+      parameter := MidiEvent.MidiMessage - channel;
+      Result := IntToHex(parameter, 2)
+              + IntToHex(MidiEvent.Data1, 2)
+              + IntToHex(MidiEvent.Data2, 2);
+    end else begin
+      channel := CHANNEL_MASK and ord(MidiEvent.Sysex[2]);
+      parameter := ord(MidiEvent.Sysex[5]);
+      Result := IntToHex(ord(MidiEvent.Sysex[0]), 2);
+      for i := 1 to MidiEvent.SysexLength - 1 do
+        Result := Result + IntToHex(ord(MidiEvent.Sysex[i]), 2);
+    end;
+  end;
+
+begin
+  while (FCtrlMidiInput.MessageCount > 0) do begin
+
+    { Get the event as an object }
+    thisEvent := FCtrlMidiInput.GetMidiEvent;
+    try
+      if thisEvent.Sysex = nil then begin
+
+        midistring := MidiToString(thisEvent);
+
+        case thisEvent.MidiMessage of
+        143 : begin
+                G2 := SelectedG2;
+                if not assigned(G2) then
+                  exit;
+                G2.SendNoteMessage(thisEvent.Data1, $01);
+              end;
+        144 : begin
+                G2 := SelectedG2;
+                if not assigned(G2) then
+                  exit;
+
+                case thisEvent.Data2 of
+                0 : G2.SendNoteMessage(thisEvent.Data1, $01);
+                else
+                  G2.SendNoteMessage(thisEvent.Data1, $00);
+                end;
+              end;
+        end;
+
+
+      end;
+    finally
+      thisEvent.Free;
+    end;
+  end;
+end;
+
 procedure TfrmG2Main.UpdateActions;
 var G2 : TG2;
 begin
@@ -1283,18 +1543,18 @@ begin
     if assigned(FSlotPanel[i]) then begin
 
       if G2.SelectedSlotIndex = i then begin
-        FSlotPanel[i].Color := CL_CLAVIA_BLUE;
-        FSlotPanel[i].FlbSlotName.Font.Color := CL_CLAVIA_RED;
-        FSlotPanel[i].FlbVariation.Font.Color := CL_CLAVIA_RED;
-        FSlotPanel[i].FlbVolume.Font.Color := CL_CLAVIA_RED;
+        FSlotPanel[i].Color := G_SlotStripInverseColor;
+        FSlotPanel[i].FlbSlotName.Font.Color := G_SlotStripColor;
+        FSlotPanel[i].FlbVariation.Font.Color := G_SlotStripColor;
+        FSlotPanel[i].FlbVolume.Font.Color := G_SlotStripColor;
       end else begin
         if G2.Slot[i].Enabled = 1 then
-          FSlotPanel[i].Color := CL_CLAVIA_RED
+          FSlotPanel[i].Color := G_SlotStripColor
         else
           FSlotPanel[i].Color := clGray;
-        FSlotPanel[i].FlbSlotName.Font.Color := CL_CLAVIA_BLUE;
-        FSlotPanel[i].FlbVariation.Font.Color := CL_CLAVIA_BLUE;
-        FSlotPanel[i].FlbVolume.Font.Color := CL_CLAVIA_BLUE;
+        FSlotPanel[i].FlbSlotName.Font.Color := G_SlotStripInverseColor;
+        FSlotPanel[i].FlbVariation.Font.Color := G_SlotStripInverseColor;
+        FSlotPanel[i].FlbVolume.Font.Color := G_SlotStripInverseColor;
       end;
 
       FSlotPanel[i].UpdateControls;
@@ -1372,17 +1632,6 @@ begin
                  if ssCtrl in Shift then if assigned(G2.SelectedPatch.SelectedParam) then G2.SelectedPatch.SelectedParam.DecMorphValue;
                end;
   end;
-end;
-
-procedure TfrmG2Main.cbLogMessagesClick(Sender: TObject);
-var G2 : TG2;
-begin
-  G2 := SelectedG2;
-  if not assigned(G2) then
-    exit;
-
-  if cbLogMessages.Checked then
-    G2.LogLevel := 1;
 end;
 
 procedure TfrmG2Main.cbModeClick(Sender: TObject);
@@ -2660,6 +2909,7 @@ end;
 procedure TfrmG2Main.G2AfterG2Init(Sender: TObject);
 begin
   UpdateControls;
+  frmPatchManager.TabControl1Change(Self);
 end;
 
 procedure TfrmG2Main.G2AfterRetrievePatch(Sender: TObject; SenderID: Integer;  aSlot, aBank, aPatch: Byte);

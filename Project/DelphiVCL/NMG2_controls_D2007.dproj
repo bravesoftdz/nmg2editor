@@ -41,54 +41,7 @@
       
       
       
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
+      <Excluded_Packages Name="C:\Users\Public\Documents\RAD Studio\5.0\Bpl\MidiPackage.bpl">(untitled)</Excluded_Packages>
       <Excluded_Packages Name="C:\Users\Public\Documents\RAD Studio\5.0\Bpl\NMG2_controls_D2007.bpl">(untitled)</Excluded_Packages>
       <Excluded_Packages Name="$(BDS)\bin\dclsoap100.bpl">CodeGear SOAP Components</Excluded_Packages>
       <Excluded_Packages Name="$(BDS)\bin\dclbde100.bpl">CodeGear BDE DB Components</Excluded_Packages>
@@ -99,7 +52,6 @@
       <Excluded_Packages Name="$(BDS)\Bin\dclib100.bpl">Borland InterBase Express Components</Excluded_Packages>
       <Excluded_Packages Name="$(BDS)\bin\dclwebsnap100.bpl">CodeGear WebSnap Components</Excluded_Packages>
       <Excluded_Packages Name="$(BDS)\bin\dclofficexp100.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
-      <Excluded_Packages Name="C:\Users\Public\Documents\RAD Studio\5.0\Bpl\MidiComponents2007.bpl">(untitled)</Excluded_Packages>
     </Excluded_Packages></Delphi.Personality></BorlandProject></BorlandProject>
   </ProjectExtensions>
   <Import Project="$(MSBuildBinPath)\Borland.Delphi.Targets" />
@@ -107,8 +59,6 @@
     <DelphiCompile Include="NMG2_controls_D2007.dpk">
       <MainSource>MainSource</MainSource>
     </DelphiCompile>
-    <DCCReference Include="..\..\Source\NMG2Controls\dclIndyCore100.dcp" />
-    <DCCReference Include="..\..\Source\NMG2Controls\dclIndyProtocols100.dcp" />
     <DCCReference Include="..\..\Source\NMG2Controls\fastbitmap.pas" />
     <DCCReference Include="..\..\Source\NMG2Controls\g2_classes.pas" />
     <DCCReference Include="..\..\Source\NMG2Controls\g2_database.pas" />
@@ -119,8 +69,10 @@
     <DCCReference Include="..\..\Source\NMG2Controls\g2_types.pas" />
     <DCCReference Include="..\..\Source\NMG2Controls\G2_USB.pas" />
     <DCCReference Include="..\..\Source\NMG2Controls\graph_util_vcl.pas" />
-    <DCCReference Include="..\..\Source\NMG2Controls\MidiComponents2007.dcp" />
-    <DCCReference Include="..\..\Source\NMG2Controls\rtl.dcp" />
-    <DCCReference Include="..\..\Source\NMG2Controls\vcl.dcp" />
+    <DCCReference Include="dclIndyCore100.dcp" />
+    <DCCReference Include="dclIndyProtocols100.dcp" />
+    <DCCReference Include="MidiComponents2007.dcp" />
+    <DCCReference Include="rtl.dcp" />
+    <DCCReference Include="vcl.dcp" />
   </ItemGroup>
 </Project>

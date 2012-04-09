@@ -76,6 +76,7 @@ type
     { Public declarations }
     procedure LoadIniXML;
     procedure UpdateControls;
+    procedure UpdateColorScema;
     function GetKnobIndexOffset : integer;
   end;
 
@@ -258,6 +259,8 @@ begin
   G2 := frmG2Main.SelectedG2;
   if assigned(G2) then begin
 
+    UpdateColorScema;
+
     if btGlobalPages.Value = 0 then begin
 
       Patch := G2.SelectedPatch as TG2Patch;
@@ -300,6 +303,14 @@ begin
     end;
   end;
 end;
+
+procedure TfrmParameterPages.UpdateColorScema;
+begin
+  btGlobalPages.HightlightColor := G_HighlightColor;
+  obParam.HightlightColor := G_HighLightColor;
+  obPage.HightlightColor := G_HighlightColor;
+end;
+
 
 
 end.

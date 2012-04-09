@@ -68,6 +68,19 @@ type
     cbMidiOutDevices: TComboBox;
     cbCtrlMidiInDevices: TComboBox;
     Label9: TLabel;
+    cbCtrlMidiEnabled: TCheckBox;
+    TabSheet5: TTabSheet;
+    cbSlotStripColor: TColorBox;
+    Label11: TLabel;
+    Label12: TLabel;
+    Label13: TLabel;
+    Label14: TLabel;
+    Label15: TLabel;
+    cbSlotStripInverseColor: TColorBox;
+    cbSlotStripDisabledColor: TColorBox;
+    cbHighLightColor: TColorBox;
+    eCableThickness: TEdit;
+    cbLogEnabled: TCheckBox;
     procedure Button2Click(Sender: TObject);
     procedure IdUDPServer1Status(ASender: TObject; const AStatus: TIdStatus;
       const AStatusText: string);
@@ -80,6 +93,12 @@ type
     procedure cbMidiInDevicesSelect(Sender: TObject);
     procedure cbMidiOutDevicesSelect(Sender: TObject);
     procedure cbCtrlMidiInDevicesSelect(Sender: TObject);
+    procedure cbCtrlMidiEnabledClick(Sender: TObject);
+    procedure cbLogEnabledClick(Sender: TObject);
+    procedure cbSlotStripColorChange(Sender: TObject);
+    procedure cbSlotStripInverseColorChange(Sender: TObject);
+    procedure cbSlotStripDisabledColorChange(Sender: TObject);
+    procedure cbHighLightColorChange(Sender: TObject);
   private
     { Private declarations }
     FDisableControls : boolean;
@@ -124,14 +143,7 @@ begin
 end;
 
 procedure TfrmSettings.FormShow(Sender: TObject);
-var G2 : TG2;
 begin
-  G2 := frmG2Main.SelectedG2;
-  if assigned(G2) then begin
-    eHost.Text := G2.Host;
-    ePort.Text := IntTostr(G2.Port);
-    eTimerBroadcastLedMessages.Text := IntTostr(G2.TimerBroadcastLedMessages);
-  end;
   UpdateControls;
 end;
 
@@ -141,6 +153,7 @@ var Doc : TXMLDocument;
     mi, mo : integer;
     PatchManagerSettingsNode : TXMLPatchManagerSettingsType;
     MidiSettingsNode : TXMLMidiSettingsType;
+    CtrlMidiSettingsNode : TXMLCtrlMidiSettingsType;
     FormSettingsNode : TXMLFormSettingsType;
     G2 : TG2;
     i : integer;
@@ -163,11 +176,6 @@ begin
           G2 := frmG2Main.FG2List[i] as TG2;
 
           if assigned(G2) then begin
-
-            PatchManagerSettingsNode := TXMLPatchManagerSettingsType(SynthNode.FindNode('PatchManagerSettings'));
-            if assigned(PatchManagerSettingsNode) then begin
-              eRootFolder.Text := String(PatchManagerSettingsNode.BaseFolder);
-            end;
 
             MidiSettingsNode := TXMLMidiSettingsType( SynthNode.FindNode('MIDI_settings'));
             if assigned( MidiSettingsNode) then begin
@@ -209,6 +217,38 @@ begin
             end;
           end;
         end;
+      end;
+
+      CtrlMidiSettingsNode := TXMLCtrlMidiSettingsType( RootNode.FindNode('CTRL_MIDI_settings'));
+      if assigned( CtrlMidiSettingsNode) then begin
+        cbCtrlMidiEnabled.Checked := False;
+
+        mi := 0;
+        while (mi<cbCtrlMidiInDevices.Items.Count) and (cbCtrlMidiInDevices.Items[mi] <> CtrlMidiSettingsNode.CtrlMidiInDevice) do
+          inc(mi);
+
+        if (mi<cbCtrlMidiInDevices.Items.Count) then begin
+          try
+            try
+              cbCtrlMidiInDevices.ItemIndex := mi;
+              frmG2Main.CtrlMidiInput.ChangeDevice( cbCtrlMidiInDevices.ItemIndex, False);
+              frmG2Main.CtrlMidiEnabled := CtrlMidiSettingsNode.CtrlMidiEnabled;
+            except on E:Exception do begin
+                ShowMessage( E.Message);
+                frmG2Main.CtrlMidiEnabled := False;
+              end;
+            end;
+
+          finally
+            cbCtrlMidiEnabled.Checked := frmG2Main.CtrlMidiEnabled;
+          end;
+        end else
+          frmG2Main.CtrlMidiEnabled := False;
+      end;
+
+      PatchManagerSettingsNode := TXMLPatchManagerSettingsType(RootNode.FindNode('PatchManagerSettings'));
+      if assigned(PatchManagerSettingsNode) then begin
+        eRootFolder.Text := String(PatchManagerSettingsNode.BaseFolder);
       end;
 
       FormSettingsNode := TXMLFormSettingsType(RootNode.FindNode('SettingsForm'));
@@ -272,19 +312,68 @@ begin
   end;
 end;
 
+procedure TfrmSettings.cbCtrlMidiEnabledClick(Sender: TObject);
+begin
+  if FDisableControls then
+    exit;
+
+  try
+    frmG2Main.CtrlMidiEnabled := cbCtrlMidiEnabled.Checked;
+  finally
+    UpdateControls;
+  end;
+end;
+
 procedure TfrmSettings.cbCtrlMidiInDevicesSelect(Sender: TObject);
 var G2 : TG2;
 begin
   if FDisableControls then
     exit;
 
-  G2 := frmG2Main.SelectedG2;
-  if assigned(G2) then begin
-    if cbMidiInDevices.ItemIndex > -1  then
-      G2.CtrlMidiInput.ChangeDevice( cbCtrlMidiInDevices.ItemIndex, cbMidiEnabled.Checked)
-    else
-      cbCtrlMidiInDevices.Text := '';
-  end;
+  if cbCtrlMidiInDevices.ItemIndex > -1  then
+    frmG2Main.CtrlMidiInput.ChangeDevice( cbCtrlMidiInDevices.ItemIndex, cbCtrlMidiEnabled.Checked)
+  else
+    cbCtrlMidiInDevices.Text := '';
+end;
+
+procedure TfrmSettings.cbSlotStripColorChange(Sender: TObject);
+begin
+  if FDisableControls then
+    exit;
+
+  G_SlotStripColor := cbSlotStripColor.Selected;
+
+  frmG2Main.SetSlotStripColors( G_SlotStripColor, G_SlotStripInverseColor, G_HighLightColor);
+end;
+
+procedure TfrmSettings.cbSlotStripDisabledColorChange(Sender: TObject);
+begin
+  if FDisableControls then
+    exit;
+
+  G_SlotStripDisabledColor := cbSlotStripDisabledColor.Selected;
+
+  frmG2Main.SetSlotStripColors( G_SlotStripColor, G_SlotStripInverseColor, G_HighLightColor);
+end;
+
+procedure TfrmSettings.cbSlotStripInverseColorChange(Sender: TObject);
+begin
+  if FDisableControls then
+    exit;
+
+  G_SlotStripInverseColor := cbSlotStripInverseColor.Selected;
+
+  frmG2Main.SetSlotStripColors( G_SlotStripColor, G_SlotStripInverseColor, G_HighLightColor);
+end;
+
+procedure TfrmSettings.cbHighLightColorChange(Sender: TObject);
+begin
+  if FDisableControls then
+    exit;
+
+  G_HighLightColor := cbHighLightColor.Selected;
+
+  frmG2Main.SetSlotStripColors( G_SlotStripColor, G_SlotStripInverseColor, G_HighLightColor);
 end;
 
 procedure TfrmSettings.cbIsServerClick(Sender: TObject);
@@ -303,16 +392,101 @@ begin
   end;
 end;
 
+procedure TfrmSettings.cbLogEnabledClick(Sender: TObject);
+var G2 : TG2;
+begin
+  if FDisableControls then
+    exit;
+
+  G2 := frmG2Main.SelectedG2;
+  if not assigned(G2) then
+    exit;
+
+  if cbLogEnabled.Checked then
+    G2.LogLevel := 1
+  else
+    G2.LogLevel := 0;
+end;
+
 procedure TfrmSettings.FormClose(Sender: TObject; var Action: TCloseAction);
 var G2 : TG2;
+    i, c, ledtimer : integer;
 begin
   G2 := frmG2Main.SelectedG2;
   if assigned(G2) then begin
     G2.Host := eHost.Text;
     G2.Port := StrToInt(ePort.Text);
-    G2.TimerBroadcastLedMessages := StrToInt(eTimerBroadcastLedMessages.Text);
+    val( eTimerBroadcastLedMessages.Text, ledtimer, c);
+    if c = 0 then
+      G2.TimerBroadcastLedMessages := ledtimer;
+
+    val( eCableThickness.Text, i, c);
+    if c = 0 then begin
+      if G_CableThickness <> i then begin
+        G_CableThickness := i;
+        frmG2Main.ShakeCables;
+      end;
+    end;
   end;
 end;
+
+
+procedure TfrmSettings.UpdateControls;
+var G2 : TG2;
+begin
+  G2 := frmG2Main.SelectedG2;
+  if not assigned(G2) then
+    exit;
+
+  FDisableControls := True;
+  try
+    // TCP-IP
+    cbIsServer.Checked := G2.IsServer;
+    eHost.Text := G2.Host;
+    ePort.Text := IntTostr(G2.Port);
+    if cbIsServer.Checked then begin
+      eHost.Enabled := False;
+    end else
+      eHost.Enabled := True;
+    eTimerBroadcastLedMessages.Text := IntToStr(G2.TimerBroadcastLedMessages);
+
+    cbMidiInDevices.Text := G2.MidiInput.ProductName;
+    cbMidiOutDevices.Text := G2.MidiOutput.ProductName;
+    cbCtrlMidiInDevices.Text := frmG2Main.CtrlMidiInput.ProductName;
+    cbLogEnabled.Checked := G2.LogLevel = 1;
+    eCableThickness.Text := IntToStr(G_CableThickness);
+    cbSlotStripColor.Selected := G_SlotStripColor;
+    cbSlotStripInverseColor.Selected := G_SlotStripInverseColor;
+    cbSlotStripDisabledColor.Selected := G_SlotStripDisabledColor;
+    cbHighLightColor.Selected := G_HighLightColor;
+  finally
+    FDisableControls := False;
+  end;
+end;
+
+procedure TfrmSettings.bSelectRootFolderClick(Sender: TObject);
+var FDir : string;
+begin
+  if Win32MajorVersion >= 6 then
+    with TFileOpenDialog.Create(nil) do
+      try
+        Title := 'Select Directory';
+        Options := [fdoPickFolders, fdoPathMustExist, fdoForceFileSystem]; // YMMV
+        OkButtonLabel := 'Select';
+        DefaultFolder := FDir;
+        FileName := FDir;
+        if Execute then
+          eRootFolder.Text := FileName;
+      finally
+        Free;
+      end
+  else
+    if SelectDirectory('Select Directory', ExtractFileDrive(FDir), FDir,
+               [sdNewUI, sdNewFolder]) then
+      eRootFolder.Text := FDir;
+end;
+
+// OSC interface, someting for later...
 
 procedure TfrmSettings.udpServerDeviceUDPRead(AThread: TIdUDPListenerThread; AData: TIdBytes; ABinding: TIdSocketHandle);
 var i, p, c, b, KnobIndex : integer;
@@ -357,72 +531,11 @@ begin
   end;
 end;
 
-procedure TfrmSettings.UpdateControls;
-var c, ledtimer : integer;
-    G2 : TG2;
-begin
-  G2 := frmG2Main.SelectedG2;
-  if not assigned(G2) then
-    exit;
-
-  FDisableControls := True;
-  try
-    // TCP-IP
-    cbIsServer.Checked := G2.IsServer;
-    if cbIsServer.Checked then begin
-      eHost.Enabled := False;
-    end else
-      eHost.Enabled := True;
-
-    val( eTimerBroadcastLedMessages.Text, ledtimer, c);
-    if c = 0 then
-      G2.TimerBroadcastLedMessages := ledtimer;
-
-    cbMidiEnabled.Checked := G2.MidiEnabled;
-    if cbMidiEnabled.Checked then begin
-      try
-        if cbMidiInDevices.ItemIndex > -1 then
-          G2.MidiInput.ChangeDevice( cbMidiInDevices.ItemIndex, False);
-
-        if cbMidiOutDevices.ItemIndex > -1 then
-          G2.MidiOutput.ChangeDevice( cbMidiOutDevices.ItemIndex, False);
-
-        G2.MidiEnabled := True;
-      except on E:Exception do
-        ShowMessage( E.Message);
-      end;
-    end else begin
-      G2.MidiEnabled := False;
-    end;
-  finally
-    FDisableControls := False;
-  end;
-end;
-
-procedure TfrmSettings.bSelectRootFolderClick(Sender: TObject);
-var FDir : string;
-begin
-if Win32MajorVersion >= 6 then
-  with TFileOpenDialog.Create(nil) do
-    try
-      Title := 'Select Directory';
-      Options := [fdoPickFolders, fdoPathMustExist, fdoForceFileSystem]; // YMMV
-      OkButtonLabel := 'Select';
-      DefaultFolder := FDir;
-      FileName := FDir;
-      if Execute then
-        eRootFolder.Text := FileName;
-    finally
-      Free;
-    end
-else
-  if SelectDirectory('Select Directory', ExtractFileDrive(FDir), FDir,
-             [sdNewUI, sdNewFolder]) then
-    eRootFolder.Text := FDir;
-end;
-
 procedure TfrmSettings.Button2Click(Sender: TObject);
 begin
+  if FDisableControls then
+    exit;
+
   if IdUDPServer1.Active then
     IdUDPServer1.Active := False
   else

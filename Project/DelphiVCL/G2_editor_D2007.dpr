@@ -17,11 +17,10 @@ uses
   UnitPerfSettings in '..\..\Source\UnitPerfSettings.pas' {frmPerfSettings},
   UnitEditLabel in '..\..\Source\UnitEditLabel.pas' {frmEditLabel},
   graph_util_vcl in '..\..\Source\NMG2Controls\graph_util_vcl.pas',
-  UnitConnSettings in '..\..\Source\UnitConnSettings.pas' {frmCommSettings},
   UnitEditorTools in '..\..\Source\UnitEditorTools.pas' {frmEditorTools},
   UnitPatchManager in '..\..\Source\UnitPatchManager.pas' {frmPatchManager},
-  UnitSettings in '..\..\Source\UnitSettings.pas' {frmSettings},
-  UnitModuleDef in '..\..\Source\UnitModuleDef.pas' {frmModuleDef};
+  UnitModuleDef in '..\..\Source\UnitModuleDef.pas' {frmModuleDef},
+  UnitSettings in '..\..\Source\UnitSettings.pas' {frmSettings};
 
 {$R *.res}
 
@@ -32,6 +31,7 @@ begin
   Application.MainFormOnTaskbar := True;
 {$ENDIF}
   Application.CreateForm(TfrmG2Main, frmG2Main);
+  Application.CreateForm(TfrmSettings, frmSettings);
   Application.CreateForm(TfrmPatchSettings, frmPatchSettings);
   Application.CreateForm(TfrmLog, frmLog);
   Application.CreateForm(TfrmParameterPages, frmParameterPages);
@@ -39,10 +39,8 @@ begin
   Application.CreateForm(TfrmSynthSettings, frmSynthSettings);
   Application.CreateForm(TfrmPerfSettings, frmPerfSettings);
   Application.CreateForm(TfrmEditLabel, frmEditLabel);
-  Application.CreateForm(TfrmCommSettings, frmCommSettings);
   Application.CreateForm(TfrmEditorTools, frmEditorTools);
   Application.CreateForm(TfrmPatchManager, frmPatchManager);
-  Application.CreateForm(TfrmSettings, frmSettings);
   Application.CreateForm(TfrmModuleDef, frmModuleDef);
   Application.Run;
 end.

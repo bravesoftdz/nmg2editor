@@ -145,7 +145,7 @@
 			<DCCReference Include="..\..\Source\NMG2Controls\g2_classes.pas"/>
 			<DCCReference Include="..\..\Source\NMG2Controls\g2_types.pas"/>
 			<DCCReference Include="..\..\Source\NMG2Controls\g2_graph.pas"/>
-			<DCCReference Include="..\..\Source\NMG2Controls\G2_USB.pas"/>
+			<DCCReference Include="..\..\Source\NMG2Controls\g2_usb.pas"/>
 			<DCCReference Include="..\..\Source\NMG2Controls\g2_database.pas"/>
 			<DCCReference Include="..\..\Source\UnitG2Editor.pas">
 				<Form>frmG2Main</Form>

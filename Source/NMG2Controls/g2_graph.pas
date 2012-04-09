@@ -196,7 +196,7 @@ type
   private
     FControlList  : array of TG2GraphChildControl; // array of controls the parameter is assigned to
   public
-    constructor Create( aPatch : TG2FilePatch; aLocation : TLocationType; aModuleIndex : integer);
+    constructor Create( aPatch : TG2FilePatch; aLocation : TLocationType; aModuleIndex : integer; aModule : TG2FileModule);
     destructor  Destroy; override;
     procedure   AssignControl( aControl : TGraphicControl); //override;
     procedure   DeassignControl( aControl : TGraphicControl); //override;
@@ -263,6 +263,8 @@ type
     function    CreateModule( aLocation : TLocationType; aModuleIndex : byte; aModuleType : byte): TG2FileModule; override;
     function    CreateCable( aLocation : TLocationType; aColor : byte; aFromModule : byte; aFromConnector : byte; aLinkType : byte; aToModule : byte; aToConnector : byte): TG2FileCable; override;
     procedure   DeleteCableFromPatch( aLocation : TLocationType; aCable: TG2FileCable); override;
+    procedure   ShakeCables;
+    procedure   UpdateColorScheme;
 
     //procedure   SelectModules;
     procedure   SelectModulesInRect( aLocation : TLocationType; aRect : TRect);
@@ -538,6 +540,7 @@ type
     FLine4 : AnsiString;
     FLineCount : integer;
     FTextFunction : integer;
+    FDependencies : array of integer;
   protected
     function    GetLine( LineNo : integer): AnsiString;
     procedure   SetLine( LineNo : integer; aValue : AnsiString);
@@ -783,12 +786,14 @@ type
     FType             : TKnobType;
     FStartX,
     FStartY           : integer;
+    FHighlightColor   : TColor;
     procedure   SetOrientation( aValue : TOrientationType);
   protected
     procedure   MouseDown( Button: TMouseButton; Shift: TShiftState; X: Integer; Y: Integer); override;
     procedure   MouseUp( Button: TMouseButton; Shift: TShiftState; X: Integer; Y: Integer); override;
     procedure   MouseMove( Shift: TShiftState; X: Integer; Y: Integer); override;
     procedure   SetKnobType( aValue : TKnobType);
+    procedure   SetHighLightColor( aValue : TColor);
   public
     constructor Create( AOwner: TComponent); override;
     destructor  Destroy; override;
@@ -800,6 +805,7 @@ type
   published
     property    KnobType : TKnobType read FType write SetKnobType;
     property    Orientation : TOrientationType read FOrientation write SetOrientation;
+    property    HightlightColor : TColor read FHighlightColor write SetHighlightColor;
   end;
 
   TG2GraphConnector = class( TG2GraphChildControl)
@@ -836,6 +842,7 @@ type
     BoundsRect  : TRect;
     ClientRect  : TRect;
     p           : array[0..3] of TPoint;
+    p1, p2      : TPoint; // defining the midline
     Color       : TColor;
     ShadowColor : TColor;
     constructor Create;
@@ -1818,9 +1825,9 @@ end;
 
 // ==== TG2GraphParameter ======================================================
 
-constructor TG2GraphParameter.Create( aPatch : TG2FilePatch; aLocation : TLocationType; aModuleIndex : integer);
+constructor TG2GraphParameter.Create( aPatch : TG2FilePatch; aLocation : TLocationType; aModuleIndex : integer; aModule : TG2FileModule);
 begin
-  inherited Create( aPatch, aLocation, aModuleIndex);
+  inherited Create( aPatch, aLocation, aModuleIndex, aModule);
 
   SetLength(FControlList, 0);
 end;
@@ -1871,11 +1878,27 @@ begin
 end;
 
 procedure TG2GraphParameter.InvalidateControl;
-var i : integer;
+var i, j : integer;
+    ModulePanel : TG2GraphModulePanel;
+    Display : TG2GraphDisplay;
 begin
   // Update all controls attached to the parameter
   for i := 0 to Length(FControlList) - 1 do
     FControlList[i].Update;
+
+  // Update displays with a dependency on this parameter
+{  if Module <> nil then begin
+    ModulePanel := (Module as TG2GraphModule).FPanel;
+    for i := 0 to ModulePanel.ChildControlsCount - 1 do begin
+      if ModulePanel.GraphChildControls[i] is TG2GraphDisplay then begin
+        Display := ModulePanel.GraphChildControls[i] as TG2GraphDisplay;
+        for j := 0 to Length(Display.FDependencies) - 1 do begin
+          if Display.FDependencies[j] = ParamIndex then
+            Display.Invalidate;
+        end;
+      end;
+    end;
+  end;}
 end;
 
 { ==== TMiniVUList =============================================================}
@@ -2224,7 +2247,7 @@ end;
 
 function TG2GraphPatch.CreateParameter( aModuleIndex : byte): TG2FileParameter;
 begin
-  Result := TG2GraphParameter.Create( self, ltPatch, aModuleIndex);
+  Result := TG2GraphParameter.Create( self, ltPatch, aModuleIndex, nil);
 end;
 
 function TG2GraphPatch.GetLedListCount: integer;
@@ -2298,6 +2321,40 @@ begin
         (ModuleList[i].Items[j] as TG2GraphModule).FPanel.Visible := aValue;
     FVisible := aValue;
   end;
+end;
+
+procedure TG2GraphPatch.ShakeCables;
+var p, c : integer;
+    Cable : TG2GraphCable;
+begin
+  for p := 0 to 1 do begin
+    for c := 0 to PatchPart[p].CableList.Count - 1 do begin
+      Cable := PatchPart[p].CableList[c] as TG2GraphCable;
+      Cable.ConnectorMoved;
+    end;
+  end;
+end;
+
+procedure TG2GraphPatch.UpdateColorScheme;
+var p, m, c : integer;
+    Module : TG2GraphModule;
+begin
+  for p := 0 to 1 do
+    for m := 0 to ModuleCount[p] - 1 do begin
+      Module := ModuleList[p].Items[m] as TG2GraphModule;
+      if assigned(Module.FPanel) then begin
+        for c := 0 to Module.FPanel.ChildControlsCount - 1 do begin
+          if Module.FPanel.GraphChildControls[c] is TG2GraphButton then begin
+            (Module.FPanel.GraphChildControls[c] as TG2GraphButton).HightlightColor := G_HighLightColor;
+            Module.FPanel.GraphChildControls[c].Invalidate;
+          end;
+          if Module.FPanel.GraphChildControls[c] is TG2GraphKnob then begin
+            (Module.FPanel.GraphChildControls[c] as TG2GraphKnob).HightlightColor := G_HighLightColor;
+            Module.FPanel.GraphChildControls[c].Invalidate;
+          end;
+        end;
+      end;
+    end;
 end;
 
 procedure TG2GraphPatch.SortLeds;
@@ -2394,7 +2451,7 @@ end;
 
 function TG2GraphModule.CreateParameter: TG2FileParameter;
 begin
-  Result := TG2GraphParameter.Create( PatchPart.Patch, TLocationType(Location), ModuleIndex);
+  Result := TG2GraphParameter.Create( PatchPart.Patch, TLocationType(Location), ModuleIndex, self);
 end;
 
 function TG2GraphModule.GetNewCol: TBits7;
@@ -3645,8 +3702,6 @@ constructor TG2GraphBitmap.Create( AOwner: TComponent);
 begin
   inherited;
   FImageList := TG2ImageList.Create( True);
-
-
 end;
 
 destructor TG2GraphBitmap.Destroy;
@@ -4103,11 +4158,13 @@ begin
   Height := 13;
   FTextFunction := 0;
 
+  SetLength(FDependencies, 0);
 end;
 
 destructor TG2GraphDisplay.Destroy;
 begin
   //FLines.Free;
+  Finalize(FDependencies);
   inherited;
 end;
 
@@ -4202,7 +4259,7 @@ begin
       Bitmap.Canvas.FillRect( LineRect);
       if assigned(FParameter) then
         //TextCenter( Bitmap.Canvas, LineRect, FParameter.TextFunction(FTextFunction, i, FLines.Count))
-        TextCenter( Bitmap.Canvas, LineRect, FParameter.TextFunction(FTextFunction, i, FLineCount))
+        TextCenter( Bitmap.Canvas, LineRect, FParameter.TextFunction(FTextFunction, i, FLineCount, FDependencies))
       else
         TextCenter( Bitmap.Canvas, LineRect, Line[i]);
       LineRect.Top := LineRect.Top + LineHeight;
@@ -4217,6 +4274,9 @@ end;
 
 function TG2GraphDisplay.ParseProperties( fs: TModuleDefStream; aName : AnsiString): boolean;
 var aValue : AnsiString;
+    sl : TStringList;
+    i, value, c : integer;
+
 begin
   Result := True;
   if not inherited ParseProperties( fs, aName) then begin
@@ -4234,7 +4294,21 @@ begin
     end else
 
     if aName = 'Dependencies' then begin
-      aValue := fs.ReadUntil( [#13]);
+      fs.ReadConst( '"');
+      sl := TStringList.Create;
+      try
+        fs.ReadOptions( sl, [','], ['"']);
+        SetLength(FDependencies, sl.Count);
+        for i := 0 to sl.Count - 1 do begin
+          val(sl[i], value, c);
+          if c = 0 then begin
+            (FModule.FData.Parameter[ value] as TG2GraphParameter).AssignControl(self);
+            FDependencies[i] := value;
+          end;
+        end;
+      finally
+        sl.Free;
+      end;
     end else
 
       Result := False
@@ -4306,7 +4380,7 @@ begin
   FImageWidth := 0;
   FImageCount := 0;
 
-  FHighLightColor := clAqua;
+  FHighLightColor := G_HighLightColor;
 
   FCaption := '';
   FIcon := itNone;
@@ -4745,7 +4819,7 @@ end;
 constructor TG2GraphButtonRadio.Create(AOwner: TComponent);
 begin
   inherited;
-  FHighlightColor := clAqua;
+  FHighlightColor := G_HighLightColor;
   Color := CL_BTN_FACE;
   FBevel := False;
   Height := 14;
@@ -5407,6 +5481,8 @@ begin
   FCenterButtonSize := 5;
   FSliderSize := 10;
 
+  FHighLightColor := G_HighLightColor;
+
 
   FValue := 0;
   FLowValue := 0;
@@ -5581,7 +5657,7 @@ begin
 
         Bitmap.Canvas.Pen.Color := clBtnShadow;
         if Value = (HighValue - LowValue + 1) div 2 then
-          Bitmap.Canvas.Brush.Color := clAqua
+          Bitmap.Canvas.Brush.Color := FHighLightColor
         else
           Bitmap.Canvas.Brush.Color := clGray;
 
@@ -5833,6 +5909,12 @@ begin
   Invalidate;
 end;
 
+procedure TG2GraphKnob.SetHighLightColor( aValue: TColor);
+begin
+  FHighlightColor := aValue;
+  Invalidate;
+end;
+
 // ==== TGraphConnector ========================================================
 
 constructor TG2GraphConnector.Create(AOwner: TComponent);
@@ -6066,6 +6148,7 @@ end;
 procedure TCableElement.PaintOn(ExtBitmap: TBitmap; ExtBoundsRect: TRect);
 var ep : array[0..3] of TPoint;
     pp : array of TPoint;
+    ml1, ml2 : TPoint;
     i : integer;
     Fastbitmap : TFastbitmap;
     Rect, CRect : TRect;
@@ -6090,15 +6173,22 @@ begin
     end;
     pp[4] := pp[0];
 
+    ml1.X := p1.x + CRect.Left;
+    ml1.Y := p1.y + CRect.Top;
+    ml2.X := p2.x + CRect.Left;
+    ml2.Y := p2.y + CRect.Top;
+
     //ExtBitmap.Canvas.Polygon( ep);
 
     //ExtBitmap.Canvas.Pen.Color := clYellow;
     //ExtBitmap.Canvas.FrameRect( Rect);
     FastBitmap.CopyFromBitmapRect(ExtBitmap, Rect);
 
-    FastBitmap.DrawPolygon(pp, Color);
-    FastBitmap.DrawAntialisedLine(p[0].x + CRect.Left, p[0].y + CRect.Top, p[1].x + CRect.Left, p[1].y + CRect.Top, ShadowColor);
-    FastBitmap.DrawAntialisedLine(p[2].x + CRect.Left, p[2].y + CRect.Top, p[3].x + CRect.Left, p[3].y + CRect.Top, ShadowColor);
+//    FastBitmap.DrawPolygon(pp, Color);
+//    FastBitmap.DrawAntialisedLine(p[0].x + CRect.Left, p[0].y + CRect.Top, p[1].x + CRect.Left, p[1].y + CRect.Top, ShadowColor);
+//    FastBitmap.DrawAntialisedLine(p[2].x + CRect.Left, p[2].y + CRect.Top, p[3].x + CRect.Left, p[3].y + CRect.Top, ShadowColor);
+    FastBitmap.LineSeg(pp, 4, ml1, ml2, G_CableThickness/2 , Color, 255);
+//    FastBitmap.DrawAntialisedLine(ml1.x, ml1.y, ml2.X, ml2.Y, clBlack);
 
     FastBitmap.CopyToBitmapRect(ExtBitmap, Rect);
   finally
@@ -6290,8 +6380,10 @@ begin
 
   Color := CableColors[ CableColor];
 
-  // Calc bitmap sizes
+  // Calc cable segments
   for i := 1 to NCABLE_ELEMENTS - 1 do begin
+    // Cable segment bounds including control margin
+    // RelLeft, RelTop : distance to cable left, cable top
     FNode[i].RelLeft:= min( trunc(FNode[i].x), trunc(FNode[i-1].x)) - Left - CABLE_CONTROL_MARGIN;
     FNode[i].RelTop := min( trunc(FNode[i].y), trunc(FNode[i-1].y)) - Top - CABLE_CONTROL_MARGIN;
     FNode[i].Left   := FNode[i].RelLeft + Left;
@@ -6312,7 +6404,15 @@ begin
     FNode[i].BoundsRect.Bottom := FNode[i].Top + FNode[i].Height - 1;
   end;
 
-  CalcOulinePoints(2);
+  // Calc midline in segment coords
+  for n := 0 to NCABLE_ELEMENTS - 1 do begin
+    FNode[n].p1.X := FNode[n].p1.X - Left - FNode[n].RelLeft;
+    FNode[n].p1.Y := FNode[n].p1.Y - Top - FNode[n].RelTop;
+    FNode[n].p2.X := FNode[n].p2.X - Left - FNode[n].RelLeft;
+    FNode[n].p2.Y := FNode[n].p2.Y - Top - FNode[n].RelTop;
+  end;
+
+  CalcOulinePoints(G_CableThickness);
 
   for n := 1 to NCABLE_ELEMENTS - 1 do begin
     FNode[n].p[0].x := pts[n-1].x - FNode[n].RelLeft;
@@ -6436,6 +6536,9 @@ begin
   FNode[n].x := Fx2;
   FNode[n].y := Fy2;
 
+  FNode[n].p2.X := Fx2;
+  FNode[n].p2.Y := Fy2;
+
   dec(n);
 
   while (n > 0) do begin
@@ -6452,6 +6555,11 @@ begin
     //-- Addieren der neuen Vektoren
     FNode[n].x := FNode[n].x + FNode[n].vx;
     FNode[n].y := FNode[n].y + FNode[n].vy;
+
+    FNode[n+1].p1.X := trunc(FNode[n].x);
+    FNode[n+1].p1.Y := trunc(FNode[n].y);
+    FNode[n].p2.X := trunc(FNode[n].x);
+    FNode[n].p2.Y := trunc(FNode[n].y);
 
     if FNode[n].x < min_x then
       min_x := trunc(FNode[n].x);
@@ -6475,6 +6583,13 @@ begin
   end;
   FNode[0].x := Fx1;
   FNode[0].y := Fy1;
+
+  FNode[1].p1.X := trunc(FNode[0].x);
+  FNode[1].p1.Y := trunc(FNode[0].y);
+  FNode[0].p2.X := trunc(FNode[0].x);
+  FNode[0].p2.Y := trunc(FNode[0].y);
+  FNode[0].p1.X := Fx1;
+  FNode[0].p1.Y := Fy1;
 
   Left := min_x - CABLE_CONTROL_MARGIN;
   Top := min_y - CABLE_CONTROL_MARGIN;

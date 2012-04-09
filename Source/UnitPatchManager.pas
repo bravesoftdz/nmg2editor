@@ -363,12 +363,12 @@ begin
         if G2.BankList[i].Mode = 0 then
           AddSlot( G2.BankList[i]);
       end;
-
     end else begin
       // No usb, just fill the list with bank and slot no's
 
     end;
   end;
+  lvInternal.AlphaSort;
 end;
 
 procedure TfrmPatchManager.aShowPerfsExecute(Sender: TObject);
@@ -392,6 +392,7 @@ begin
         AddSlot( G2.BankList[i]);
     end;
   end;
+  lvInternal.AlphaSort;
 end;
 
 procedure TfrmPatchManager.FormCreate(Sender: TObject);

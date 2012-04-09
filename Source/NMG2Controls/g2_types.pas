@@ -38,7 +38,7 @@ uses
   math;
 
 const
-  VERSION = '0.22';
+  NMG2_VERSION = '0.22';
 
   NMORPHS = 8;
   NVARIATIONS = 9;
@@ -56,7 +56,7 @@ const
   LOCATION_VA = 1;
   LOCATION_PATCH_SETTINGS = 2;
 
-  CL_CONTROL_HIGHLIGHT   = $00FFFF00;
+  XCL_CONTROL_HIGHLIGHT   = $00FFFF00;
   CL_SELECTED_PATCH      = $00B6B6B6;
   CL_SELECTED_PARAM      = $00FFFFFF;
   CL_KNOB_MORPH          = $00F4948C;
@@ -64,8 +64,8 @@ const
   CL_DISPLAY_BACKGRND    = $00555555;
   CL_BTN_FACE            = $00D0D0D0;
   CL_BTN_BORDER          = $00404040;
-  CL_CLAVIA_RED          = $005A5692;//$006550DC;//$001620D1;
-  CL_CLAVIA_BLUE         = $00531F00;
+  XCL_CLAVIA_RED          = $005A5692;//$006550DC;//$001620D1;
+  XCL_CLAVIA_BLUE         = $00531F00;
 
   // Module dimensions
   UNITS_COL = 255;
@@ -103,7 +103,6 @@ const
   CMD_REQ  = $20;
   CMD_RESP = $00;
   CMD_NO_RESP = $30;
-
 
 const
   Q_SYNTH_SETTINGS        = $02;
@@ -385,6 +384,12 @@ var
                                           $0050D250,
                                           $00E600C8,
                                           $00FFFFFF);
+
+  G_HighlightColor : integer;
+  G_SlotStripColor : integer;
+  G_SlotStripInverseColor : integer;
+  G_SlotStripDisabledColor : integer;
+  G_CableThickness : integer;
 
 implementation
 
@@ -1001,5 +1006,12 @@ begin
   end;
 end;
 
+
+initialization
+  G_HighlightColor := XCL_CONTROL_HIGHLIGHT;
+  G_SlotStripColor := XCL_CLAVIA_RED;
+  G_SlotStripInverseColor := XCL_CLAVIA_BLUE;
+  G_SlotStripDisabledColor := CL_BTN_FACE;
+  G_CableThickness := 2;
 
 end.

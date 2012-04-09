@@ -93,6 +93,7 @@ type
     //function  PolygonIsConvex( var polygon : array of TPoint) : boolean;
     procedure DrawPolygon( var polygon : array of TPoint; color : TColor);
     procedure DrawHorizontalLine( x1, x2, y : integer; pixel : TFastBitmapPixelComponents);
+    function  LineSeg( var polygon : array of TPoint; N : integer; p1, p2 : TPoint; w : single; aColor : TColor; aAlpha : byte): integer;
 
 
     property Size: TPoint read FSize write SetSize;
@@ -686,14 +687,14 @@ begin
         if TEdge(GlobalEdgeList[i]).p1.Y = scanline then begin
           TEdge(GlobalEdgeList[i]).Activate;
           ActiveEdgeList.Add(GlobalEdgeList[i]);
+          ActiveEdgeList.Sort(CompareEdges);
           GlobalEdgeList.Delete(i);
         end else
-          if TEdge(GlobalEdgeList[i]).p1.Y > scanline then
-            break;
+          {if TEdge(GlobalEdgeList[i]).p1.Y > scanline then
+            break;}
         inc(i);
       end;
 
-      ActiveEdgeList.Sort(CompareEdges);
     end;
 
   finally
@@ -701,6 +702,196 @@ begin
     GlobalEdgeList.Free;
   end;
 end;
+
+//  get point at which line intersects raster line
+//  Params: y - the raster line / y value
+//          x1, y1 - line point 1 xy coords
+//          x2, y2 - line point2 xy coords
+//  Returns: x cordiante of intersect
+//  Notes: do not call for parallel line to x axis.
+
+function intersect( y, x1, y1, x2, y2: single) : single;
+var g, c : single;
+begin
+  g := (x1 - x2) / (y1 - y2);
+  c := x1 - y1 * g;
+
+  Result := y * g + c;
+end;
+
+//  bubble sort a vector
+//  Params: x - list of values
+//          N - N values
+
+procedure bubblesort(var x : array of single; N : integer);
+var
+  flag : integer;
+  temp : single;
+  i : integer;
+begin
+  repeat
+    flag := 0;
+   	for i:=0 to N-2 do begin
+  	  if x[i] > x[i+1] then begin
+  	    temp := x[i];
+	     	x[i] := x[i+1];
+		    x[i+1] := temp;
+    		flag := 1;
+      end;
+	  end;
+  until flag = 0;
+end;
+
+function TFastBitmap.LineSeg( var polygon : array of TPoint; N : integer; p1, p2 : TPoint; w : single;  aColor : TColor; aAlpha : byte): integer;
+// http://www.malcolmmclean.site11.com/www/Bioinformatics/polygons.html
+var
+  i, ii, iii, line : integer;
+  miny, maxy : single;
+  minx, maxx, Nsegs : integer;
+  x1, x2,
+  y1, y2, suby : single;
+  sub : integer;
+  segs : array[0..255] of single;
+  aabuff : array of byte;
+  alpha : integer;
+  LR, LG, LB : byte;
+  fp : TFastBitmapPixel;
+  p : TPoint;
+  a,b,c,d, DT,r : single;
+  s : integer;
+  ptr : pointer;
+  RoundnessFactor : single;
+  Darker : single;
+begin
+  if N > 255 then begin
+    Result := -1;
+    exit;
+  end;
+
+  RoundnessFactor := w*w*4;
+  // p1 p2 define midline through cable segment
+
+  s := SizeOf(TFastBitmapPixel);
+  b := p2.y-p1.y;
+  a := p2.x-p1.x;
+  DT := (a*a + b*b);
+  // pt1 and pt2 are the same. More efficient would be
+  // a divide by zero exception trap
+  if DT <=0 then
+    exit;
+
+  LR := (AColor and $000000FF);
+  LG := (AColor and $0000FF00) shr 8;
+  LB := (AColor and $00FF0000) shr 16;
+
+  SetLength( aabuff, FSize.X*16);
+
+  miny := polygon[0].Y;
+  maxy := polygon[0].Y;
+
+  for i := 1 to N-1 do begin
+    if miny > polygon[i].Y then
+      miny := polygon[i].Y;
+    if maxy < polygon[i].Y then
+      maxy := polygon[i].Y;
+  end;
+
+  if(miny < 0) then
+    miny := 0;
+  if maxy > FSize.y - 1 then
+    maxy := FSize.y - 1;
+
+  for line := trunc(miny) to trunc(maxy) do begin
+
+    minx := FSize.X;
+    maxx := 0;
+
+    suby := line;
+    for sub := 0 to 3 do begin
+
+      Nsegs := 0;
+      for i:=0 to N-1 do begin
+
+        if (i = N-1) then begin
+          x1 := polygon[i].x;
+          x2 := polygon[0].x;
+          y1 := polygon[i].y;
+          y2 := polygon[0].y;
+        end else begin
+          x1 := polygon[i].x;
+          x2 := polygon[i+1].x;
+          y1 := polygon[i].y;
+          y2 := polygon[i+1].y;
+        end;
+
+        if ((y1 > suby) and (y2 <= suby)) or ((y1 <= suby) and (y2 > suby)) then begin
+          segs[Nsegs] := intersect(suby, x1, y1, x2, y2);
+          inc(NSegs);
+        end;
+
+      end;
+      if (Nsegs = 0) then
+        continue;
+
+      bubblesort(segs, Nsegs);
+
+      i := 0;
+      while i<Nsegs do begin
+        if segs[i] < 0 then
+          segs[i] := 0;
+        if segs[i+1] > FSize.X then
+          segs[i+1] := FSize.X;
+        for ii := trunc(segs[i] * 4) to trunc(segs[i+1] *4) do
+          aabuff[ sub * FSize.X * 4 + ii] := 1;
+        i := i + 3;
+      end;
+
+      if minx > segs[0] then
+        minx := trunc(segs[0]);
+      if maxx < segs[Nsegs-1] then
+        maxx := trunc(segs[Nsegs-1]);
+
+      suby := suby + 1/3.0;
+    end;
+
+    ptr := pointer(int64(FPixelsData) + line * s * FSize.X + minx * s);
+
+    for i := minx to maxx do begin
+
+      alpha := 0;
+      for ii :=0 to 3 do begin
+        for iii :=0 to 3 do begin
+          alpha := alpha + aabuff[ii * 4 * FSize.X + i*4 + iii];
+          aabuff[ii *4 * FSize.X + i *4 + iii] := 0;
+        end;
+      end;
+      alpha := trunc((aAlpha * alpha)/16);
+
+      p.X := i;
+      p.Y := line;
+
+      c := p.y-p1.y;
+      d := p.x-p1.x;
+      r := (c*b + d*a)/DT;
+      r := c*a - d*b;
+      Darker := (RoundnessFactor - (r*r/DT)) / RoundNessFactor;
+
+      fp := PFastBitmapPixel(ptr)^;
+
+      fp.R := trunc(( LR * Darker * alpha + fp.R * (255 - alpha)) / 255);
+      fp.G := trunc(( LG * Darker * alpha + fp.G * (255 - alpha)) / 255);
+      fp.B := trunc(( LB * Darker * alpha + fp.B * (255 - alpha)) / 255);
+
+      PFastBitmapPixel(ptr)^ := fp;
+
+      ptr := pointer(int64(ptr) + s);
+    end;
+  end;
+
+  Finalize(aabuff);
+  Result := 0;
+end;
+
 
 procedure TFastBitmap.CopyToBitmap(Bitmap : TBitmap);
 var Y: Integer;

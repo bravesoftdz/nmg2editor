@@ -40,7 +40,7 @@ uses
 {$ELSE}
   Contnrs,
 {$ENDIF}
-  Windows, Classes, Dialogs, SysUtils, DOM, XMLRead, g2_types, g2_database;
+  Windows, Classes, Dialogs, SysUtils, DOM, XMLRead, g2_types, g2_database, math;
 
 const
   MIDI_BLOCK_SIZE = 479;//419; // The number of whole octets in  a full size MIDI packet
@@ -1060,6 +1060,7 @@ type
   TG2FileParameter = class
   private
     FPatch             : TG2FilePatch;
+    FModule            : TG2FileModule;
     FKnob              : TKnob;
     FGlobalKnob        : TGlobalKnob;
     FController        : TController;
@@ -1086,7 +1087,7 @@ type
     function    GetButtonTextCount : integer;
     function    GetButtonParam : TG2FileParameter;
   public
-    constructor Create( aPatch : TG2FilePatch; aLocation : TLocationType; aModuleIndex : integer);
+    constructor Create( aPatch : TG2FilePatch; aLocation : TLocationType; aModuleIndex : integer; aModule : TG2FileModule);
     destructor  Destroy; override;
     procedure   InitParam( aModuleName : AnsiString; aParamIndex : byte; aParamType : TParamType; aParamName, aDefaultParamLabel : AnsiString; aLowValue, aHighValue, aDefaultValue : byte; aDefaultKnob, aButtonParamIndex : integer; aButtonText : AnsiString);
     procedure   AssignKnob( aKnobIndex : integer);
@@ -1109,7 +1110,7 @@ type
     function    GetSelectedMorphValue : byte;
     function    GetMorphValue( aMorphIndex, aVariation : integer) : byte;
     procedure   SetSelectedMorphValue( Value: byte);
-    function    TextFunction( aTextFunction: integer; LineNo, TotalLines : integer): string;
+    function    TextFunction( aTextFunction: integer; LineNo, TotalLines : integer; aParams : array of integer): string;
     //FMX procedure   AssignControl( aControl : TGraphicControl); virtual; abstract;
     //FMX procedure   DeassignControl( aControl : TGraphicControl); virtual; abstract;
     procedure   InvalidateControl; virtual;
@@ -1136,6 +1137,7 @@ type
     property    SelectedButtonText: string read GetSelectedButtonText;
     property    ButtonParam : TG2FileParameter read GetButtonParam;
     property    Patch : TG2FilePatch read FPatch;
+    property    Module : TG2FileModule read FModule;
   end;
 
   TG2FileSlot = class( TComponent)
@@ -1448,7 +1450,7 @@ end;
 
 function TG2FileModule.CreateParameter: TG2FileParameter;
 begin
-  Result := TG2FileParameter.Create( FPatchPart.FPatch, TLocationType(FLocation), FModuleIndex);
+  Result := TG2FileParameter.Create( FPatchPart.FPatch, TLocationType(FLocation), FModuleIndex, self);
 end;
 
 function TG2FileModule.CreateConnector: TG2FileConnector;
@@ -5336,7 +5338,7 @@ end;
 
 function TG2FilePatch.CreateParameter( aModuleIndex : byte): TG2FileParameter;
 begin
-  Result := TG2FileParameter.Create( self, ltPatch, aModuleIndex);
+  Result := TG2FileParameter.Create( self, ltPatch, aModuleIndex, nil);
 end;
 
 procedure TG2FilePatch.AddModuleToPatch( aLocation : TLocationType; aModule: TG2FileModule);
@@ -6255,13 +6257,14 @@ end;
 //  TG2FileParameter
 ////////////////////////////////////////////////////////////////////////////////
 
-constructor TG2FileParameter.Create( aPatch : TG2FilePatch; aLocation : TLocationType; aModuleIndex : integer);
+constructor TG2FileParameter.Create( aPatch : TG2FilePatch; aLocation : TLocationType; aModuleIndex : integer; aModule : TG2FileModule);
 begin
   inherited Create;
 
   FPatch := aPatch;
   FLocation := aLocation;
   FModuleIndex := aModuleIndex;
+  FModule := aModule; // nil if location is ltPatch
   FKnob := nil;
   FCanChangeLabel := False;
   FDefaultKnob := -1;
@@ -6596,11 +6599,93 @@ begin
   end;
 end;
 
-function TG2FileParameter.TextFunction( aTextFunction: integer; LineNo, TotalLines : integer): string;
+function TG2FileParameter.TextFunction( aTextFunction: integer; LineNo, TotalLines : integer; aParams : array of integer): string;
 var aValue : byte;
+    FreqCourse, FreqFine, FreqMode : Byte;
+    Exponent, Freq, Fact : single;
+    iValue1, iValue2 : integer;
 begin
   aValue := GetParameterValue;
   case aTextFunction of
+  // Zero: displays that are dependend on one parameter only
+  0    : begin // Filter freq Nord
+           case Module.FTypeID of
+           134,92,87,54,51,49 :
+                case ParamIndex of
+                0 : begin // Freq
+                      FreqCourse := GetParameterValue;
+                      Exponent := (FreqCourse - 60) / 12;
+                      Freq := 440.0 * power(2, Exponent);
+                      if Freq >= 1000 then
+                        Result := Format('%.4g', [Freq / 1000]) + 'kHz'
+                      else
+                        Result := Format('%.4g', [Freq]) + 'Hz';
+                    end;
+                else
+                  Result := IntToStr(GetParameterValue);
+                end;
+           else
+             Result := IntToStr(GetParameterValue);
+           end;
+         end;
+  60   : begin // Osc freq
+           if assigned(Module) and (Length(aParams)=3) then begin
+             FreqCourse := Module.Parameter[aParams[0]].GetParameterValue;
+             FreqFine := Module.Parameter[aParams[1]].GetParameterValue;
+             FreqMode := Module.Parameter[aParams[2]].GetParameterValue;
+             case FreqMode of
+             0 : begin // Semi
+                   iValue1 := FreqCourse - 64;
+                   Result := '';
+                   if iValue1 < 0 then
+                     Result := Result + IntToStr(iValue1)
+                   else
+                     Result := Result + '+' + IntToStr(iValue1);
+                   Result := Result + '  ';
+                   iValue2 := (FreqFine-64)*100 div 128;
+                   if iValue2 < 0 then
+                     Result := Result + IntToStr(iValue2)
+                   else
+                     Result := Result + '+' + IntToStr(iValue2);
+                 end;
+             1 : begin // Freq
+                   // http://www.phy.mtu.edu/~suits/NoteFreqCalcs.html
+                   Exponent := ((FreqCourse - 69) + (FreqFine - 64) / 128) / 12;
+                   Freq := 440.0 * power(2, Exponent);
+                   if Freq >= 1000 then
+                     Result := Format('%.5g', [Freq / 1000]) + 'kHz'
+                   else
+                     Result := Format('%.5g', [Freq]) + 'Hz';
+                 end;
+             2 : begin // Fac
+                   Exponent := ((FreqCourse - 64) + (FreqFine - 64) / 128) / 12;
+                   Fact := power(2, Exponent);
+                   Result := 'x' + Format('%.5g', [Fact]);
+                 end;
+             3 : begin // Part
+                   if FreqCourse <= 32 then begin
+                     Exponent := -(((32 - FreqCourse ) * 4) + 77 - (FreqFine - 64) / 128) / 12;
+                     Freq := 440.0 * power(2, Exponent);
+                     Result := Format('%.3g', [Freq]) + 'Hz';
+                   end else begin
+                     if (FreqCourse > 32) and (FreqCourse <=64) then begin
+                       iValue1 := 64 - FreqCourse + 1;
+                       Result := '1:' + IntToStr(iValue1);
+                     end else begin
+                       iValue1 := FreqCourse - 64 + 1;
+                       Result := IntToStr(iValue1) + ':1';
+                     end;
+                     Result := Result + '  ';
+                     iValue2 := (FreqFine-64)*100 div 128;
+                     if iValue2 < 0 then
+                       Result := Result + IntToStr(iValue2)
+                     else
+                       Result := Result + '+' + IntToStr(iValue2);
+                   end;
+                 end;
+             end;
+           end;
+         end;
   108  : begin
            case aValue of
            0..15 : Result := IntToStr(aValue + 1);
@@ -7967,7 +8052,7 @@ begin
 
   ReadXMLFile( FXMLModuleDefs, FModuleDefsFileName);
   FModuleDefList := TXMLModuleDefListType.Create( FXMLModuleDefs.FirstChild);
-  if FModuleDefList.FileVersion <> VERSION then
+  if FModuleDefList.FileVersion <> NMG2_VERSION then
     ShowMessage('Warning, ModuleDef.xml version differs from application.');
 
   if assigned(FXMLParamDefs) then
@@ -7976,7 +8061,7 @@ begin
   ReadXMLFile( FXMLParamDefs, FParamDefsFileName);
   FParamDefList := TXMLParamDefListType.Create( FXMLParamDefs.FirstChild);
 
-  if FParamDefList.FileVersion <> VERSION then
+  if FParamDefList.FileVersion <> NMG2_VERSION then
     ShowMessage('Warning, ParamDef.xml version differs from application.');
 end;
 

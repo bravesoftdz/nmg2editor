@@ -45,7 +45,8 @@ type
   public
     { Public declarations }
     procedure LoadIniXML;
-    procedure UpdateControls( Variation : TVariation);
+    procedure UpdateControls;
+    procedure UpdateColorSchema;
   end;
 
 var
@@ -100,12 +101,14 @@ begin
     frmG2Main.ParameterClick( Sender, Button, Shift, X, Y, (Sender as TG2GraphChildControl).Parameter);
 end;
 
-procedure TfrmPatchSettings.UpdateControls( Variation : TVariation);
+procedure TfrmPatchSettings.UpdateControls;
 var Patch : TG2Patch;
     G2 : TG2;
 begin
   G2 := frmG2Main.SelectedG2;
   if assigned(G2) then begin
+
+    UpdateColorSchema;
 
     Patch := G2.SelectedPatch;
 
@@ -123,6 +126,19 @@ begin
     kVibratoRate.Parameter        := Patch.Parameter[ PATCH_VIBRATO, VIBRATO_RATE];
     kVibratoDepth.Parameter       := Patch.Parameter[ PATCH_VIBRATO, VIBRATO_DEPTH];
   end;
+end;
+
+procedure TfrmPatchSettings.UpdateColorSchema;
+begin
+  obSustainPedalOnOff.HightlightColor := G_HighlightColor;
+  obOctaveShift.HightlightColor := G_HighlightColor;
+  obBendOnOff.HightlightColor := G_HighlightColor;
+  obArpeggiatorOnOff.HightlightColor := G_HighlightColor;
+  obArpOctaves.HightlightColor := G_HighlightColor;
+  obArpDir.HightlightColor := G_HighlightColor;
+  obArpSpeed.HightlightColor := G_HighlightColor;
+  obGlideType.HightlightColor := G_HighlightColor;
+  obVibratoMod.HightlightColor := G_HighlightColor;
 end;
 
 end.

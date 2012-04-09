@@ -41,14 +41,14 @@ object frmG2Main: TfrmG2Main
     ParentBackground = False
     TabOrder = 0
     object Label13: TLabel
-      Left = 253
+      Left = 77
       Top = 4
       Width = 89
       Height = 13
       Caption = 'Clients connected:'
     end
     object lbClientsConnected: TLabel
-      Left = 348
+      Left = 172
       Top = 4
       Width = 7
       Height = 13
@@ -61,7 +61,7 @@ object frmG2Main: TfrmG2Main
       ParentFont = False
     end
     object rbSynth: TG2GraphButtonRadio
-      Left = 384
+      Left = 283
       Top = 3
       Width = 120
       Height = 17
@@ -86,7 +86,7 @@ object frmG2Main: TfrmG2Main
       ButtonCount = 1
     end
     object cbMode: TCheckBox
-      Left = 173
+      Left = 199
       Top = 2
       Width = 72
       Height = 17
@@ -105,17 +105,6 @@ object frmG2Main: TfrmG2Main
       TabOrder = 1
       OnClick = cbOnlineClick
     end
-    object cbLogMessages: TCheckBox
-      Left = 75
-      Top = 2
-      Width = 97
-      Height = 17
-      Caption = 'Log messages'
-      Checked = True
-      State = cbChecked
-      TabOrder = 2
-      OnClick = cbLogMessagesClick
-    end
   end
   object sbFX: TG2GraphScrollBox
     Left = 0
@@ -123,8 +112,6 @@ object frmG2Main: TfrmG2Main
     Width = 1067
     Height = 131
     Align = alBottom
-    DoubleBuffered = False
-    ParentDoubleBuffered = False
     TabOrder = 1
     OnMouseUp = sbFXMouseUp
     Location = ltFX
@@ -493,6 +480,8 @@ object frmG2Main: TfrmG2Main
       C0C0C0C0C0C0C0C0C0C0C0C0C0C0C0C0C0C0C0C08E8E8E000000}
     BackgroundColor = 4210752
     RackColor = clSilver
+    DoubleBuffered = False
+    ParentDoubleBuffered = False
   end
   object sbVA: TG2GraphScrollBox
     Left = 0
@@ -500,9 +489,7 @@ object frmG2Main: TfrmG2Main
     Width = 1067
     Height = 443
     Align = alClient
-    DoubleBuffered = False
     ParentBackground = True
-    ParentDoubleBuffered = False
     TabOrder = 2
     OnMouseUp = sbVAMouseUp
     Location = ltVA
@@ -871,6 +858,8 @@ object frmG2Main: TfrmG2Main
       C0C0C0C0C0C0C0C0C0C0C0C0C0C0C0C0C0C0C0C08E8E8E000000}
     BackgroundColor = 4210752
     RackColor = clSilver
+    DoubleBuffered = False
+    ParentDoubleBuffered = False
   end
   object OpenDialog1: TOpenDialog
     Left = 16
