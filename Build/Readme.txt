@@ -3,7 +3,7 @@
 *************************************************************************************
 * Important - Important - Important - Important - Important - Important - Important *
 *                                                                                   *
-*  If you want to use USB functionality you have to install the generic           *
+*  If you want to use USB functionality you have to install the generic             *
 *  USB driver Libusb-win32 as A >>FILTER<< driver on the original clavia usb driver.* 
 *  You should use the Filter wizard for this.                                       *
 *                                                                                   *
@@ -12,13 +12,14 @@
 *       http://sourceforge.net/p/nmg2editor/wiki/Installing%20LibUSB/               *
 *                                                                                   *
 *                                                                                   *
-* If you install the libusb-win32 as a device driver (inf-wizard) in stead of a   *
+* If you install the libusb-win32 as a device driver (inf-wizard) in stead of a     *
 * filter driver (Filter- wizard), the original clavia editor will not work anymore! *
 *                                                                                   *
 *************************************************************************************
 
 
 Installation:
+=============
 
 Editor:
 -------
@@ -41,17 +42,56 @@ VST:
 2) then you can copy the new versions of these files to your VST folder.
 
 
-...libusb version....
-...Port setting....
+
+Known issues:
+=============
+
+-> Editor usb times out on start up: 
+
+I found that if the message send buffer of the G2 synth isn't completely empty on shutdown of the editor, you may encounter a time out when you try to start up again. This may happen when, on shut down, there are many led messages comming from the G2, or an external sequencer is sending midi clock messages to the G2 or when switching from the original G2 editor to the open source editor. 
+
+The only remedy for now is to reset your G2, wait until the USB is active and start the editor again.
 
 
+Other errors you may encounter:
 
-v0.21 update 14-3-2011
+-> No USB connection:
+
+libusb version 1.2.4.9 doesn't seem to work for everyone, try 1.2.6.0 or the latest version.
+
+You may not have installed the libusb-win32 driver on (all the) g2 synths. 
+
+...
+
+-> Port settings error
+  
+For example "Could not bind socket. Adress and port already in use." 
+
+This error may occur when the tcp-ip port in the application settings is already in use on your system. You can try and change the "Port" setting in the G2_editor_ini.xml file to another value.
+  
+
+Updates
+=======
+
+v0.22 update 9-4-2012
+=====================
+
+- Multiple G2 support, you have to install the libusb-win32 filter driver on each clavia usb driver for this to work.
+- Improvement of shut down (not solved everything yet, see known issues)
+- Anti aliased polygon drawing for cables
+- Customization of colors 
+- Some of the module display functions
+- Added a "Control midi" port, but this hasn't yet any functionality.
+- Solved a number of bugs.
+
+
+v0.21 update 14-3-2012
 ======================
+
 - fixed bug in performance settings: keyboard checkbox didn't work 
 
 
-v0.21 Update 13-3-2011
+v0.21 Update 13-3-2012
 ======================
 
 - fixed midi device listings bug (should list you devices now, in stead of mine)

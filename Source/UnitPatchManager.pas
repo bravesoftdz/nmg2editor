@@ -43,21 +43,24 @@ type
     ActionManager1: TActionManager;
     aReadDir: TAction;
     aSearch: TAction;
-    aLoad: TAction;
-    lvExternal: TListView;
+    aLoadPatch: TAction;
+    lvExternalPatch: TListView;
     TabControl1: TTabControl;
     aShowPerfs: TAction;
     aShowPatches: TAction;
     lvInternal: TListView;
     aRestore: TAction;
+    aReadDirPerf: TAction;
+    lvExternalPerf: TListView;
+    aLoadPerf: TAction;
     procedure aReadDirExecute(Sender: TObject);
     procedure aSearchExecute(Sender: TObject);
-    procedure aLoadExecute(Sender: TObject);
+    procedure aLoadPatchExecute(Sender: TObject);
     procedure FormShow(Sender: TObject);
-    procedure lvExternalColumnClick(Sender: TObject; Column: TListColumn);
+    procedure lvExternalPatchColumnClick(Sender: TObject; Column: TListColumn);
     procedure lvExternalCompare(Sender: TObject; Item1, Item2: TListItem;
       Data: Integer; var Compare: Integer);
-    procedure lvExternalKeyUp(Sender: TObject; var Key: Word;
+    procedure lvExternalPatchKeyUp(Sender: TObject; var Key: Word;
       Shift: TShiftState);
     procedure aShowPerfsExecute(Sender: TObject);
     procedure aShowPatchesExecute(Sender: TObject);
@@ -69,6 +72,10 @@ type
     procedure lvInternalKeyUp(Sender: TObject; var Key: Word;
       Shift: TShiftState);
     procedure FormCreate(Sender: TObject);
+    procedure lvExternalPerfKeyUp(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure lvExternalPerfColumnClick(Sender: TObject; Column: TListColumn);
+    procedure aLoadPerfExecute(Sender: TObject);
   private
     { Private declarations }
   public
@@ -256,7 +263,7 @@ end;
 procedure TSearchThread.AddFile;
 var sr : TSearchRec;
 begin
-  if frmPatchManager.TabControl1.TabIndex = 0 then
+  //if frmPatchManager.TabControl1.TabIndex = 0 then
   {$IFDEF G2_VER200_up}
     // Don't know exactly in what version this was changed
     frmPatchManager.AddFile(FCurrPath, FCurrSr.Name, FCurrSr.TimeStamp);
@@ -287,12 +294,21 @@ begin
   end;}
 end;
 
-procedure TfrmPatchManager.aLoadExecute(Sender: TObject);
+procedure TfrmPatchManager.aLoadPatchExecute(Sender: TObject);
 var G2 : TG2;
 begin
   G2 := frmG2Main.SelectedG2;
   if assigned(G2) then
-    G2.LoadFileStream( lvExternal.Selected.SubItems[1] + lvExternal.Selected.Caption);
+    G2.LoadFileStream( lvExternalPatch.Selected.SubItems[1] + lvExternalPatch.Selected.Caption);
+  frmG2Main.SetFocus;
+end;
+
+procedure TfrmPatchManager.aLoadPerfExecute(Sender: TObject);
+var G2 : TG2;
+begin
+  G2 := frmG2Main.SelectedG2;
+  if assigned(G2) then
+    G2.LoadFileStream( lvExternalPerf.Selected.SubItems[1] + lvExternalPerf.Selected.Caption);
   frmG2Main.SetFocus;
 end;
 
@@ -313,10 +329,8 @@ end;
 
 procedure TfrmPatchManager.aReadDirExecute(Sender: TObject);
 begin
-  lvExternal.Clear;
-  lvInternal.Visible := False;
-  lvExternal.Visible := True;
-  lvExternal.Align := alClient;
+  lvExternalPatch.Items.Clear;
+  lvExternalPerf.Items.Clear;
 
   if Length(frmSettings.eRootFolder.Text)> 2 then begin
     if frmSettings.eRootFolder.Text[Length(frmSettings.eRootFolder.Text)] <> '\'  then
@@ -350,7 +364,8 @@ begin
     FSearchThread.Terminate;
 
   lvInternal.Clear;
-  lvExternal.Visible := False;
+  lvExternalPerf.Visible := False;
+  lvExternalPatch.Visible := False;
   lvInternal.Visible := True;
   lvInternal.Align := alClient;
 
@@ -379,7 +394,8 @@ begin
     FSearchThread.Terminate;
 
   lvInternal.Clear;
-  lvExternal.Visible := False;
+  lvExternalPerf.Visible := False;
+  lvExternalPatch.Visible := False;
   lvInternal.Visible := True;
   lvInternal.Align := alClient;
 
@@ -444,16 +460,21 @@ begin
   end;
 end;
 
-procedure TfrmPatchManager.lvExternalColumnClick(Sender: TObject; Column: TListColumn);
+procedure TfrmPatchManager.lvExternalPatchColumnClick(Sender: TObject; Column: TListColumn);
 begin
   FExternalSortCol := Column.Index;
-  lvExternal.AlphaSort;
+  lvExternalPatch.AlphaSort;
+end;
+
+procedure TfrmPatchManager.lvExternalPerfColumnClick(Sender: TObject; Column: TListColumn);
+begin
+  FExternalSortCol := Column.Index;
+  lvExternalPerf.AlphaSort;
 end;
 
 procedure TfrmPatchManager.lvExternalCompare(Sender: TObject; Item1, Item2: TListItem; Data: Integer; var Compare: Integer);
-var
-   intItem1,
-   intItem2: string;
+var intItem1,
+    intItem2: string;
 begin
    case FExternalSortCol of
    1 : begin
@@ -479,10 +500,16 @@ begin
      Compare := 0;
 end;
 
-procedure TfrmPatchManager.lvExternalKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
+procedure TfrmPatchManager.lvExternalPatchKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
 begin
   if Key = VK_RETURN then
-    aLoadExecute(self);
+    aLoadPatchExecute(self);
+end;
+
+procedure TfrmPatchManager.lvExternalPerfKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  if Key = VK_RETURN then
+    aLoadPerfExecute(self);
 end;
 
 procedure TfrmPatchManager.lvInternalColumnClick(Sender: TObject; Column: TListColumn);
@@ -529,19 +556,31 @@ end;
 
 procedure TfrmPatchManager.TabControl1Change(Sender: TObject);
 begin
+  if assigned(FSearchThread) then
+    FSearchThread.Terminate;
+
   case TabControl1.TabIndex of
   0 : begin
+        lvInternal.Visible := False;
+        lvExternalPatch.Visible := False;
+        lvExternalPerf.Visible := True;
+        lvExternalPerf.Align := alClient;
+
         aReadDirExecute(self);
       end;
   1 : begin
-       if assigned(FSearchThread) then
-         FSearchThread.Terminate;
+        lvInternal.Visible := False;
+        lvExternalPerf.Visible := False;
+        lvExternalPatch.Visible := True;
+        lvExternalPatch.Align := alClient;
+
+        aReadDirExecute(self);
+      end;
+  2 : begin
 
         aShowPerfsExecute(self);
       end;
-  2 : begin
-       if assigned(FSearchThread) then
-         FSearchThread.Terminate;
+  3 : begin
 
         aShowPatchesExecute(self);
       end;
@@ -550,11 +589,20 @@ end;
 
 procedure TfrmPatchManager.AddFile(path, filename: string; datum : TDateTime);
 var ListItem : TListItem;
+    ext : string;
 begin
-  ListItem := lvExternal.Items.Add;
-  ListItem.Caption := filename;
-  ListItem.SubItems.Add(DateTimeToStr(datum));
-  ListItem.SubItems.Add(path);
+  ListItem := nil;
+  ext := ExtractFileExt(filename);
+  if lowercase(ext) = '.pch2' then
+    ListItem := lvExternalPatch.Items.Add
+  else
+    if lowercase(ext) = '.prf2' then
+      ListItem := lvExternalPerf.Items.Add;
+  if assigned(ListItem) then begin
+    ListItem.Caption := filename;
+    ListItem.SubItems.Add(DateTimeToStr(datum));
+    ListItem.SubItems.Add(path);
+  end;
 end;
 
 procedure TfrmPatchManager.AddSlot( BankItem : TBankItem);

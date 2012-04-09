@@ -23,7 +23,7 @@ object frmG2Main: TfrmG2Main
   TextHeight = 13
   object Splitter1: TSplitter
     Left = 0
-    Top = 464
+    Top = 445
     Width = 1067
     Height = 10
     Cursor = crVSplit
@@ -108,10 +108,12 @@ object frmG2Main: TfrmG2Main
   end
   object sbFX: TG2GraphScrollBox
     Left = 0
-    Top = 474
+    Top = 455
     Width = 1067
     Height = 131
     Align = alBottom
+    DoubleBuffered = False
+    ParentDoubleBuffered = False
     TabOrder = 1
     OnMouseUp = sbFXMouseUp
     Location = ltFX
@@ -480,16 +482,16 @@ object frmG2Main: TfrmG2Main
       C0C0C0C0C0C0C0C0C0C0C0C0C0C0C0C0C0C0C0C08E8E8E000000}
     BackgroundColor = 4210752
     RackColor = clSilver
-    DoubleBuffered = False
-    ParentDoubleBuffered = False
   end
   object sbVA: TG2GraphScrollBox
     Left = 0
     Top = 21
     Width = 1067
-    Height = 443
+    Height = 424
     Align = alClient
+    DoubleBuffered = False
     ParentBackground = True
+    ParentDoubleBuffered = False
     TabOrder = 2
     OnMouseUp = sbVAMouseUp
     Location = ltVA
@@ -858,8 +860,14 @@ object frmG2Main: TfrmG2Main
       C0C0C0C0C0C0C0C0C0C0C0C0C0C0C0C0C0C0C0C08E8E8E000000}
     BackgroundColor = 4210752
     RackColor = clSilver
-    DoubleBuffered = False
-    ParentDoubleBuffered = False
+  end
+  object StatusBar1: TStatusBar
+    Left = 0
+    Top = 586
+    Width = 1067
+    Height = 19
+    Panels = <>
+    SimplePanel = True
   end
   object OpenDialog1: TOpenDialog
     Left = 16

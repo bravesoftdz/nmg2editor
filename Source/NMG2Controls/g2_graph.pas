@@ -1885,20 +1885,6 @@ begin
   // Update all controls attached to the parameter
   for i := 0 to Length(FControlList) - 1 do
     FControlList[i].Update;
-
-  // Update displays with a dependency on this parameter
-{  if Module <> nil then begin
-    ModulePanel := (Module as TG2GraphModule).FPanel;
-    for i := 0 to ModulePanel.ChildControlsCount - 1 do begin
-      if ModulePanel.GraphChildControls[i] is TG2GraphDisplay then begin
-        Display := ModulePanel.GraphChildControls[i] as TG2GraphDisplay;
-        for j := 0 to Length(Display.FDependencies) - 1 do begin
-          if Display.FDependencies[j] = ParamIndex then
-            Display.Invalidate;
-        end;
-      end;
-    end;
-  end;}
 end;
 
 { ==== TMiniVUList =============================================================}
@@ -2315,12 +2301,11 @@ end;
 procedure TG2GraphPatch.SetVisible( aValue: boolean);
 var i, j : integer;
 begin
-  if aValue <> FVisible then begin
-    for i := 0 to 1 do
-      for j := 0 to ModuleCount[i] - 1 do
-        (ModuleList[i].Items[j] as TG2GraphModule).FPanel.Visible := aValue;
-    FVisible := aValue;
-  end;
+  for i := 0 to 1 do
+    for j := 0 to ModuleCount[i] - 1 do
+      (ModuleList[i].Items[j] as TG2GraphModule).FPanel.Visible := aValue;
+
+  FVisible := aValue;
 end;
 
 procedure TG2GraphPatch.ShakeCables;

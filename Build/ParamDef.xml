@@ -940,7 +940,7 @@
     <DefaultValue>0</DefaultValue>
     <Definitions/>
     <Comments/>
-    <ButtonText>LP;BP;HP;</ButtonText>
+    <ButtonText>HP;BP;LP;</ButtonText>
   </ParamDef>
   <ParamDef>
     <Id>91</Id>

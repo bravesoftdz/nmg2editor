@@ -72,7 +72,6 @@ unit UnitG2Editor;
 // Copy patch->Undo->Cables are not deleted
 // Set parameter functions to g2_file
 
-
 // TODO List v2.2
 // ==============
 
@@ -124,7 +123,7 @@ uses
   Dialogs, StdCtrls, ExtCtrls,  ActnList, ImgList, Contnrs,
   g2_types, g2_database, g2_file, g2_mess, g2_usb, g2_graph, g2_midi, g2_classes,
   graph_util_vcl, LibUSBWinDyn, Menus, Buttons, DOM, XMLRead, XMLWrite,
-  MMSystem, MidiType, MidiIn, MidiOut;
+  MMSystem, MidiType, MidiIn, MidiOut, Vcl.ComCtrls;
 
 type
   TEditorSettings = class
@@ -314,6 +313,7 @@ type
     N15: TMenuItem;
     aAnalyzePatch: TAction;
     rbSynth: TG2GraphButtonRadio;
+    StatusBar1: TStatusBar;
     procedure FormCreate(Sender: TObject);
     procedure cbModeClick(Sender: TObject);
     procedure aPatchSettingsExecute(Sender: TObject);
@@ -434,7 +434,8 @@ type
     function  GetPatchWindowHeight: integer;
 
     procedure LoadImageMap( aBitmap : TBitmap;aCols, aRows: integer; aImageList : TImageList);
-    procedure SetSlotStripColors( aSlotStripColor, aSlotStripInverseColor, aHighLightColor : TColor);
+    procedure SetEditorSettings( aSlotStripColor, aSlotStripInverseColor, aSlotStripDisabledColor, aHighLightColor : TColor;
+                                 aCableThickness : integer);
     procedure ShakeCables;
     procedure UpdateColorSchema;
 
@@ -739,7 +740,6 @@ begin
   frmG2Main.SelectVariation( FSlot.SlotIndex, FG2rbVariation.Value);
 end;
 
-
 procedure TSlotPanel.ChangeAlleVariationsClick(Sender: TObject);
 begin
   if FDisableControls then exit;
@@ -874,32 +874,32 @@ begin
   LoadIniXML;
 
   FSlotPanel[3] := TSlotPanel.Create( self, G2.SlotD);
-  FSlotPanel[3].Parent := self;
   FSlotPanel[3].Align := alTop;
   FSlotPanel[3].VariationMenu := puVariationMenu;
   FSlotPanel[3].SlotCaption := 'D';
   FSlotPanel[3].OnClick := PanelClick;
+  FSlotPanel[3].Parent := self;
 
   FSlotPanel[2] := TSlotPanel.Create( self, G2.SlotC);
-  FSlotPanel[2].Parent := self;
   FSlotPanel[2].Align := alTop;
   FSlotPanel[2].VariationMenu := puVariationMenu;
   FSlotPanel[2].SlotCaption := 'C';
   FSlotPanel[2].OnClick := PanelClick;
+  FSlotPanel[2].Parent := self;
 
   FSlotPanel[1] := TSlotPanel.Create( self, G2.SlotB);
-  FSlotPanel[1].Parent := self;
   FSlotPanel[1].Align := alTop;
   FSlotPanel[1].VariationMenu := puVariationMenu;
   FSlotPanel[1].SlotCaption := 'B';
   FSlotPanel[1].OnClick := PanelClick;
+  FSlotPanel[1].Parent := self;
 
   FSlotPanel[0] := TSlotPanel.Create( self, G2.SlotA);
-  FSlotPanel[0].Parent := self;
   FSlotPanel[0].Align := alTop;
   FSlotPanel[0].VariationMenu := puVariationMenu;
   FSlotPanel[0].SlotCaption := 'A';
   FSlotPanel[0].OnClick := PanelClick;
+  FSlotPanel[0].Parent := self;
 
   PerfPanel.Top := -1;
   PerfPanel.Align := alTop;
@@ -978,9 +978,9 @@ begin
     if assigned(FSlotPanel[i]) then
       FSlotPanel[i].Slot := (FG2List[FG2Index] as TG2).Slot[i];
 
-  SetSlotStripColors( G_SlotStripColor, G_SlotStripInverseColor, G_HighLightColor);
   ShakeCables;
-  SelectSlot( (FG2List[FG2Index] as TG2).SelectedSlot.SlotIndex);
+  UpdateColorSchema;
+  SelectSlot( (FG2List[FG2Index] as TG2).SelectedSlotIndex);
 
   UpdateControls;
   sbVA.Invalidate;
@@ -1003,6 +1003,11 @@ begin
 
   if assigned(frmEditorTools) then
     frmEditorTools.UpdateControls;
+
+  if assigned(frmPatchManager) then begin
+    frmPatchManager.TabControl1Change(self);
+  end;
+
 end;
 
 procedure TfrmG2Main.FormShow(Sender: TObject);
@@ -1341,7 +1346,11 @@ begin
   end;
 end;
 
-procedure TfrmG2Main.SetSlotStripColors( aSlotStripColor, aSlotStripInverseColor, aHighLightColor : TColor);
+procedure TfrmG2Main.SetEditorSettings( aSlotStripColor,
+                                        aSlotStripInverseColor,
+                                        aSlotStripDisabledColor,
+                                        aHighLightColor : TColor;
+                                        aCableThickness : integer);
 var i : integer;
     G2 : TG2;
 begin
@@ -1353,7 +1362,9 @@ begin
     with FEditorSettingsList[ FG2Index] as TEditorSettings do begin
       FSlotStripColor := aSlotStripColor;
       FSlotStripInverseColor := aSlotStripInverseColor;
+      FSlotStripDisabledColor := aSlotStripDisabledColor;
       FHighLightColor := aHighLightColor;
+      FCableThickness := aCableThickness;
     end;
 
   UpdateColorSchema;
@@ -2307,7 +2318,6 @@ procedure TfrmG2Main.miModuleAssignKnobsClick(Sender: TObject);
 begin
 end;
 
-
 // ==== Parameter menu =========================================================
 
 procedure TfrmG2Main.CreateParamMenu;
@@ -2776,15 +2786,40 @@ end;
 // ==== Event handling =========================================================
 
 procedure TfrmG2Main.G2BeforeSendMessage(Sender: TObject; SenderID: Integer; SendMessage: TG2SendMessage);
+var SubCmd : byte;
+    SynthName : string;
 begin
   // Waint for the response
   Screen.Cursor := crHourglass;
   // Set the responsetimer, in case of error
   ResponseTimer.Enabled := True;
+
+  SubCmd := 0;
+  if SendMessage.Size >= 4 then
+    SubCmd := PStaticByteBuffer(SendMessage.Memory)^[5]; // Normally the 5 byte;
+
+  SynthName := 'Unknown synth : ';
+  if Sender is tG2 then
+    SynthName := (Sender as TG2).SynthName + ' : ';
+
+  case SubCmd of
+  S_LOAD  : Statusbar1.SimpleText := SynthName + 'Loading patch...';
+  Q_PATCH : Statusbar1.SimpleText := SynthName + 'Request patch...';
+  Q_PATCH_NAME : Statusbar1.SimpleText := SynthName + 'Request patch name...';
+  Q_PERF_SETTINGS : Statusbar1.SimpleText := SynthName + 'Request performance settings...';
+  Q_SYNTH_SETTINGS : Statusbar1.SimpleText := SynthName + 'Request synth settings...';
+  Q_LIST_NAMES : Statusbar1.SimpleText := SynthName + 'Request patch bank...';
+  S_START_STOP_COM : Statusbar1.SimpleText := SynthName + 'Start/stop message stream...';
+  Q_RESOURCES_USED : Statusbar1.SimpleText := SynthName + 'Request recourses used...';
+  Q_VERSION_CNT : Statusbar1.SimpleText := SynthName + 'Request version counter...';
+  else
+    Statusbar1.SimpleText := SynthName + 'Sending command ' + IntToHex(SubCmd,2);
+  end;
 end;
 
 procedure TfrmG2Main.G2ReceiveResponseMessage(Sender: TObject; ResponseMessage: TMemoryStream);
 begin
+  Statusbar1.SimpleText := '';
   ResponseTimer.Enabled := False;
   Screen.Cursor := crDefault;
 end;
@@ -2795,7 +2830,6 @@ begin
   ResponseTimer.Enabled := False;
   Screen.Cursor := crDefault;
 end;
-
 
 procedure TfrmG2Main.PanelClick(Sender: TObject);
 begin

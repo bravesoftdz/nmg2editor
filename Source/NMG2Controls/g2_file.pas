@@ -6605,7 +6605,11 @@ var aValue : byte;
     Exponent, Freq, Fact : single;
     iValue1, iValue2 : integer;
 begin
-  aValue := GetParameterValue;
+  if (aTextFunction <> 0) and assigned(Module) and (Length(aParams)>0) then
+    aValue := Module.Parameter[aParams[0]].GetParameterValue
+  else
+    aValue := GetParameterValue;
+
   case aTextFunction of
   // Zero: displays that are dependend on one parameter only
   0    : begin // Filter freq Nord
@@ -6630,7 +6634,7 @@ begin
          end;
   60   : begin // Osc freq
            if assigned(Module) and (Length(aParams)=3) then begin
-             FreqCourse := Module.Parameter[aParams[0]].GetParameterValue;
+             FreqCourse := aValue;
              FreqFine := Module.Parameter[aParams[1]].GetParameterValue;
              FreqMode := Module.Parameter[aParams[2]].GetParameterValue;
              case FreqMode of
@@ -6696,6 +6700,26 @@ begin
            20 : Result := 'Slot D';
            end;
          end;
+  110  : begin //ClkGen
+           if assigned(Module) and (Length(aParams)=3) then begin
+             iValue1 := Module.Parameter[aParams[1]].GetParameterValue;
+             iValue2 := Module.Parameter[aParams[2]].GetParameterValue;
+             if iValue1 = 0 then
+               Result := '--'
+             else
+               if iValue2 = 1 then
+                 Result := 'MASTER'
+               else
+                 if aValue <= 32 then
+                   Result := IntToStr(24 + 2*aValue) + ' BPM'
+                 else
+                   if aValue <= 96 then
+                     Result := IntToStr(88 + aValue - 32) + ' BPM'
+                   else
+                     Result := IntToStr(152 + (aValue - 96)*2) + ' BPM';
+           end;
+
+         end;
   1000 : Result := string(FModuleName);
   1001 : begin
            case LineNo of
@@ -6706,8 +6730,9 @@ begin
   1002 : begin
            Result := IntToStr(FPatch.Slot.SlotIndex + 1) + ':' + string(FModuleName);
          end
-  else
-    Result := IntToStr(aValue);
+  else begin
+      Result := IntToStr(aValue);
+    end;
   end;
 end;
 
@@ -7981,7 +8006,7 @@ begin
   inherited;
 
   InitializeCriticalSection(FLogLock);
-  FLogLines := TStringList.Create;
+  FLogLines := nil;
   FLogLevel := 0;
 
   FBanks := TStringList.Create;
@@ -8011,13 +8036,15 @@ begin
 
   FBanks.Free;
 
-  EnterCriticalSection(FLogLock);
-  try
-    FLogLines.Free;
-  finally
-    LeaveCriticalSection(FLogLock);
+  if assigned(FLogLines) then begin
+    EnterCriticalSection(FLogLock);
+    try
+      FreeAndNil(FLogLines);
+    finally
+      LeaveCriticalSection(FLogLock);
+    end;
+    DeleteCriticalSection(FLogLock);
   end;
-  DeleteCriticalSection(FLogLock);
 
   inherited;
 end;
@@ -8082,6 +8109,24 @@ end;
 
 procedure TG2File.SetLogLevel( aValue : integer);
 begin
+  if aValue = 1 then begin
+
+    if not assigned(FLogLines) then
+      FLogLines := TStringList.Create;
+
+  end else begin
+
+    if assigned(FLogLines) then begin
+      EnterCriticalSection(FLogLock);
+      try
+        FreeAndNil(FLogLines);
+      finally
+        LeaveCriticalSection(FLogLock);
+      end;
+      DeleteCriticalSection(FLogLock);
+    end;
+
+  end;
   FLogLevel := aValue;
 end;
 
@@ -8092,9 +8137,12 @@ end;
 
 procedure TG2File.add_log_line( tekst: string; log_cmd : integer);
 begin
+  if (FLogLevel = 0) or (not assigned(FLogLines)) then
+    exit;
+
   EnterCriticalSection(FLogLock);
   try
-    if FLogLevel = 0 then
+    if (FLogLevel = 0) or (not assigned(FLogLines)) then
       exit;
 
     case log_cmd of
@@ -8121,7 +8169,7 @@ type buf_type = packed array[0..65536 - 1] of byte;
 var p, i, c : integer;
     char_line, line : string;
 begin
-  if FLogLevel = 0 then
+  if (FLogLevel = 0) or (not assigned(FLogLines)) then
     exit;
 
   EnterCriticalSection(FLogLock);
@@ -8158,31 +8206,37 @@ end;
 
 procedure TG2File.save_log;
 begin
-  EnterCriticalSection(FLogLock);
-  try
-    FLogLines.SaveToFile( FLogFilePath + 'VSTLog_' + IntToStr(GetTickCount) + '.txt'); // TODO
-  finally
-    LeaveCriticalSection(FLogLock);
+  if assigned(FLogLines) then begin
+    EnterCriticalSection(FLogLock);
+    try
+      FLogLines.SaveToFile( FLogFilePath + 'VSTLog_' + IntToStr(GetTickCount) + '.txt'); // TODO
+    finally
+      LeaveCriticalSection(FLogLock);
+    end;
   end;
 end;
 
 procedure TG2File.AssignLog( Lines : TStrings);
 begin
-  EnterCriticalSection(FLogLock);
-  try
-    Lines.Assign(FLogLines);
-  finally
-    LeaveCriticalSection(FLogLock);
+  if assigned(FLogLines) then begin
+    EnterCriticalSection(FLogLock);
+    try
+      Lines.Assign(FLogLines);
+    finally
+      LeaveCriticalSection(FLogLock);
+    end;
   end;
 end;
 
 procedure TG2File.ClearLog;
 begin
-  EnterCriticalSection(FLogLock);
-  try
-    FLogLines.Clear;
-  finally
-    LeaveCriticalSection(FLogLock);
+  if assigned(FLogLines) then begin
+    EnterCriticalSection(FLogLock);
+    try
+      FLogLines.Clear;
+    finally
+      LeaveCriticalSection(FLogLock);
+    end;
   end;
 end;
 

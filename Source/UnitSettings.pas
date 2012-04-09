@@ -343,7 +343,7 @@ begin
 
   G_SlotStripColor := cbSlotStripColor.Selected;
 
-  frmG2Main.SetSlotStripColors( G_SlotStripColor, G_SlotStripInverseColor, G_HighLightColor);
+  frmG2Main.SetEditorSettings( G_SlotStripColor, G_SlotStripInverseColor, G_SlotStripDisabledColor, G_HighLightColor, G_CableThickness);
 end;
 
 procedure TfrmSettings.cbSlotStripDisabledColorChange(Sender: TObject);
@@ -353,7 +353,7 @@ begin
 
   G_SlotStripDisabledColor := cbSlotStripDisabledColor.Selected;
 
-  frmG2Main.SetSlotStripColors( G_SlotStripColor, G_SlotStripInverseColor, G_HighLightColor);
+  frmG2Main.SetEditorSettings( G_SlotStripColor, G_SlotStripInverseColor, G_SlotStripDisabledColor, G_HighLightColor, G_CableThickness);
 end;
 
 procedure TfrmSettings.cbSlotStripInverseColorChange(Sender: TObject);
@@ -363,7 +363,7 @@ begin
 
   G_SlotStripInverseColor := cbSlotStripInverseColor.Selected;
 
-  frmG2Main.SetSlotStripColors( G_SlotStripColor, G_SlotStripInverseColor, G_HighLightColor);
+  frmG2Main.SetEditorSettings( G_SlotStripColor, G_SlotStripInverseColor, G_SlotStripDisabledColor, G_HighLightColor, G_CableThickness);
 end;
 
 procedure TfrmSettings.cbHighLightColorChange(Sender: TObject);
@@ -373,7 +373,7 @@ begin
 
   G_HighLightColor := cbHighLightColor.Selected;
 
-  frmG2Main.SetSlotStripColors( G_SlotStripColor, G_SlotStripInverseColor, G_HighLightColor);
+  frmG2Main.SetEditorSettings( G_SlotStripColor, G_SlotStripInverseColor, G_SlotStripDisabledColor, G_HighLightColor, G_CableThickness);
 end;
 
 procedure TfrmSettings.cbIsServerClick(Sender: TObject);
@@ -424,6 +424,7 @@ begin
     if c = 0 then begin
       if G_CableThickness <> i then begin
         G_CableThickness := i;
+        frmG2Main.SetEditorSettings( G_SlotStripColor, G_SlotStripInverseColor, G_SlotStripDisabledColor, G_HighLightColor, G_CableThickness);
         frmG2Main.ShakeCables;
       end;
     end;

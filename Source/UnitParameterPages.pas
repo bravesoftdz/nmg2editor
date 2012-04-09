@@ -302,6 +302,7 @@ begin
       end;
     end;
   end;
+  Invalidate;
 end;
 
 procedure TfrmParameterPages.UpdateColorScema;
