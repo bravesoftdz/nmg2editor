@@ -931,6 +931,38 @@ object frmG2Main: TfrmG2Main
         Action = aExit
       end
     end
+    object miSelect: TMenuItem
+      Caption = '&Select'
+      OnClick = miSelectClick
+      object miSelectSlot: TMenuItem
+        Action = aShowSelectSlot
+      end
+      object miSelectlocation: TMenuItem
+        Action = aShowSelectLocation
+      end
+      object miSelectmodule: TMenuItem
+        Action = aShowSelectModule
+      end
+      object miSelectparameter: TMenuItem
+        Action = aShowSelectParam
+      end
+      object miSelectconnector: TMenuItem
+        Action = aShowSelectConnector
+      end
+      object miSelectcable: TMenuItem
+        Action = aShowSelectCable
+      end
+    end
+    object miAdd: TMenuItem
+      Caption = '&Add'
+      OnClick = miAddClick
+      object miAddModule: TMenuItem
+        Action = aShowAddModule
+      end
+      object miAddcable: TMenuItem
+        Action = aShowAddCable
+      end
+    end
     object Edit1: TMenuItem
       Caption = 'Edit'
       object Undo1: TMenuItem
@@ -956,27 +988,6 @@ object frmG2Main: TfrmG2Main
       end
       object Selectall1: TMenuItem
         Action = aSelectAll
-      end
-    end
-    object miPatchMenu: TMenuItem
-      Caption = '&Select'
-      object SelectSlot1: TMenuItem
-        Action = aShowSelectSlot
-      end
-      object Selectlocation1: TMenuItem
-        Action = aShowSelectLocation
-      end
-      object Selectmodule1: TMenuItem
-        Action = aShowSelectModule
-      end
-      object Selectparameter1: TMenuItem
-        Action = aShowSelectParam
-      end
-      object Selectconnector1: TMenuItem
-        Action = aShowSelectConnector
-      end
-      object Selectcable1: TMenuItem
-        Action = aShowSelectCable
       end
     end
     object View1: TMenuItem
@@ -1452,6 +1463,18 @@ object frmG2Main: TfrmG2Main
       Caption = 'Select cable'
       ShortCut = 67
     end
+    object aShowAddModule: TAction
+      Category = 'Add'
+      Caption = 'Add module'
+      ShortCut = 8269
+      OnExecute = aShowAddModuleExecute
+    end
+    object aShowAddCable: TAction
+      Category = 'Add'
+      Caption = 'Add cable'
+      ShortCut = 8259
+      OnExecute = aShowAddCableExecute
+    end
   end
   object ResponseTimer: TTimer
     Enabled = False
@@ -1469,6 +1492,7 @@ object frmG2Main: TfrmG2Main
     Top = 120
   end
   object puSelectModule: TPopupMenu
+    Images = ilModules
     Left = 832
     Top = 184
   end

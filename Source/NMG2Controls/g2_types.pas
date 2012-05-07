@@ -241,6 +241,23 @@ const
                                          'User1',
                                          'User2');
 
+  MODULECATEGORIES : array[0..15] of string =('In/Out',
+                                              'Note',
+                                              'Osc',
+                                              'LFO',
+                                              'Rnd',
+                                              'Env',
+                                              'Filter',
+                                              'FX',
+                                              'Delay',
+                                              'Shaper',
+                                              'Level',
+                                              'Mixer',
+                                              'Switch',
+                                              'Logic',
+                                              'Seq',
+                                              'MIDI');
+
   MaxPixelCount = 32768;
 
 type

@@ -314,7 +314,7 @@ type
     aAnalyzePatch: TAction;
     rbSynth: TG2GraphButtonRadio;
     StatusBar1: TStatusBar;
-    miPatchMenu: TMenuItem;
+    miSelect: TMenuItem;
     puSelectSlot: TPopupMenu;
     puSelectLocation: TPopupMenu;
     puSelectModule: TPopupMenu;
@@ -327,12 +327,17 @@ type
     aShowSelectParam: TAction;
     aShowSelectConnector: TAction;
     aShowSelectCable: TAction;
-    SelectSlot1: TMenuItem;
-    Selectlocation1: TMenuItem;
-    Selectmodule1: TMenuItem;
-    Selectparameter1: TMenuItem;
-    Selectconnector1: TMenuItem;
-    Selectcable1: TMenuItem;
+    miSelectSlot: TMenuItem;
+    miSelectlocation: TMenuItem;
+    miSelectmodule: TMenuItem;
+    miSelectparameter: TMenuItem;
+    miSelectconnector: TMenuItem;
+    miSelectcable: TMenuItem;
+    miAdd: TMenuItem;
+    miAddModule: TMenuItem;
+    aShowAddModule: TAction;
+    aShowAddCable: TAction;
+    miAddcable: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure cbModeClick(Sender: TObject);
     procedure aPatchSettingsExecute(Sender: TObject);
@@ -420,6 +425,10 @@ type
     procedure aShowSelectLocationExecute(Sender: TObject);
     procedure aShowSelectModuleExecute(Sender: TObject);
     procedure aShowSelectParamExecute(Sender: TObject);
+    procedure miSelectClick(Sender: TObject);
+    procedure miAddClick(Sender: TObject);
+    procedure aShowAddModuleExecute(Sender: TObject);
+    procedure aShowAddCableExecute(Sender: TObject);
   private
     { Private declarations }
     FCtrlMidiEnabled : boolean;
@@ -472,10 +481,12 @@ type
     function  FindOrAddMenuItem( aParentMenuItem : TPopupMenu; aName, aCaption : string): TMenuItem;
     procedure UpdateSelectSlot;
     procedure UpdateSelectLocation;
-    procedure UpdateSelectModule;
+    procedure UpdateSelectModule( aPopupMenu : TPopupMenu; CableDestSelect : boolean);
     procedure UpdateSelectParameter;
     procedure UpdateSelectConnector;
     procedure UpdateSelectCable;
+    procedure UpdateSelectMenu;
+    procedure UpdateAddMenu;
     procedure CurrentlySelected;
     procedure DoSelectSlot( Sender: TObject);
     procedure DoSelectLocation( Sender: TObject);
@@ -483,6 +494,18 @@ type
     procedure DoSelectParam( Sender: TObject);
     procedure DoSelectConnector( Sender: TObject);
     procedure DoSelectCable( Sender: TObject);
+    procedure DoAddCable( Sender: TObject);
+    function  GetSelectedModule: TG2FileModule;
+    function  GetSelectedParam : TG2FileParameter;
+    function  GetSelectedConnector : TG2FileConnector;
+    function  GetSelectedCable : TG2FileCable;
+    function  GetSlotName( aSlot : TG2FileSlot): string;
+    function  GetLocationName( aLocation : TLocationType) : string;
+    function  GetModuleName( aModule : TG2FileModule) : string;
+    function  GetParameterName( aParam : TG2FileParameter) : string;
+    function  GetParameterValue( aParam : TG2FileParameter) : string;
+    function  GetConnectorName( aConnector : TG2FileConnector) : string;
+    function  GetCableName( aCable : TG2FileCable) : string;
 
     procedure CopyPatchSelection;
     procedure DeletePatchSelection;
@@ -2202,6 +2225,36 @@ begin
   //
 end;
 
+procedure TfrmG2Main.DoAddCable(Sender: TObject);
+var ConMenuItem, ModMenuItem : TMenuItem;
+    FromModule, ToModule : TG2FileModule;
+    FromConnector, ToCOnnector : TG2FileConnector;
+    LinkType : byte;
+    Cable : TG2FileCable;
+    G2 : TG2;
+begin
+  G2 := SelectedG2;
+  if not assigned(G2) then
+    exit;
+
+  if (Sender is TMenuItem) and (copy((Sender as TMenuItem).Name, 1, 15) = 'miDestConnector') then begin
+    ConMenuItem := Sender as TMenuItem;
+    if assigned(ConMenuItem.Parent) then begin
+      ModMenuItem := ConMenuItem.Parent;
+
+      FromModule := GetSelectedModule;
+      ToModule := G2.SelectedPatch.Modules[ ord(FLocation), ModMenuItem.Tag];
+      if assigned(FromModule) and assigned(ToModule) then begin
+        FromConnector := FromModule.OutConnector[0];
+        ToConnector := ToModule.InConnector[ConMenuItem.Tag];
+        if assigned(FromConnector) and assigned(ToConnector) then begin
+          G2.SelectedPatch.MessAddConnection( FLocation, FromConnector, ToCOnnector);
+        end;
+      end;
+    end;
+  end;
+end;
+
 procedure TfrmG2Main.DoSelectSlot(Sender: TObject);
 begin
   if Sender is TMenuItem then begin
@@ -2248,6 +2301,113 @@ begin
   end;
 end;
 
+function TfrmG2Main.GetSelectedModule: TG2FileModule;
+var G2 : TG2;
+begin
+  G2 := SelectedG2;
+  if not assigned(G2) then
+    exit;
+
+  Result := nil;
+  if G2.SelectedPatch.SelectedModuleList.Count > 0 then begin
+    Result := G2.SelectedPatch.SelectedModuleList[0];
+  end;
+end;
+
+function TfrmG2Main.GetSelectedParam : TG2FileParameter;
+var G2 : TG2;
+    Module : TG2FileModule;
+    i : integer;
+begin
+  G2 := SelectedG2;
+  if not assigned(G2) then
+    exit;
+
+  Result := nil;
+  Module := GetSelectedModule;
+  if assigned(Module) then begin
+    i := 0;
+    while (i < Module.ParameterCount) and not(Module.Parameter[i].Selected) do
+      inc(i);
+
+    if (i < Module.ParameterCount) then
+      Result := Module.Parameter[i];
+  end;
+end;
+
+function TfrmG2Main.GetSelectedConnector : TG2FileConnector;
+var G2 : TG2;
+begin
+  G2 := SelectedG2;
+  if not assigned(G2) then
+    exit;
+end;
+
+function TfrmG2Main.GetSelectedCable : TG2FileCable;
+var G2 : TG2;
+begin
+  G2 := SelectedG2;
+  if not assigned(G2) then
+    exit;
+end;
+
+
+function TfrmG2Main.GetSlotName( aSlot : TG2FileSlot): string;
+begin
+  if assigned( aSlot) then begin
+    case aSlot.SlotIndex of
+    0 : Result := 'A';
+    1 : Result := 'B';
+    2 : Result := 'C';
+    3 : Result := 'D';
+    end;
+  end else
+    Result := '';
+end;
+
+function TfrmG2Main.GetLocationName( aLocation : TLocationType) : string;
+begin
+  case aLocation of
+    ltFX: Result := 'FX';
+    ltVA: Result := 'VA';
+    ltPatch: Result := 'Patch';
+  end;
+end;
+
+function TfrmG2Main.GetModuleName( aModule : TG2FileModule) : string;
+begin
+  if assigned(aModule) then
+    Result := aModule.ModuleName
+  else
+    Result := '';
+end;
+
+function TfrmG2Main.GetParameterName( aParam : TG2FileParameter) : string;
+begin
+  if assigned(aParam) then
+    Result := aParam.ParamName
+  else
+    Result := '';
+end;
+
+function TfrmG2Main.GetParameterValue( aParam : TG2FileParameter) : string;
+begin
+  if assigned(aParam) then
+    Result := IntToStr(aParam.GetParameterValue)
+  else
+    Result := '';
+end;
+
+function TfrmG2Main.GetConnectorName( aConnector : TG2FileConnector) : string;
+begin
+  Result := '';
+end;
+
+function TfrmG2Main.GetCableName( aCable : TG2FileCable) : string;
+begin
+  Result := '';
+end;
+
 procedure TfrmG2Main.UpdateSelectCable;
 begin
 //
@@ -2269,21 +2429,154 @@ begin
   MenuItem.OnClick := DoSelectLocation;
 end;
 
-procedure TfrmG2Main.UpdateSelectModule;
+procedure TfrmG2Main.UpdateSelectMenu;
 var G2 : TG2;
-    i : integer;
-    ModuleName : string;
-    MenuItem : TMenuItem;
+    Module : TG2FileModule;
+    Param : TG2FileParameter;
 begin
   G2 := SelectedG2;
   if not assigned(G2) then
     exit;
 
+  miSelectSlot.Caption := 'Select slot - ' + GetSlotName(G2.SelectedSlot);
+  miSelectLocation.Caption := 'Select location - ' + GetLocationName(FLocation);
+  Module := GetSelectedModule;
+  if assigned(Module) then begin
+    miSelectModule.Caption := 'Select module - ' + GetModuleName(Module);
+    Param := GetSelectedParam;
+    if assigned(Param) then
+      miSelectParameter.Caption := 'Select parameter - ' + GetParameterName(Param) + ' (' + GetParameterValue(Param)  + ')'
+    else
+      miSelectParameter.Caption := 'Select parameter';
+    miSelectConnector.Caption := 'Select connector';
+    miSelectCable.Caption := 'Select cable';
+  end else begin
+    miSelectModule.Caption := 'Select module';
+    miSelectParameter.Caption := 'Select parameter';
+    miSelectConnector.Caption := 'Select connector';
+    miSelectCable.Caption := 'Select cable';
+  end;
+end;
+
+procedure TfrmG2Main.UpdateAddMenu;
+var G2 : TG2;
+    Module : TG2FileModule;
+begin
+  G2 := SelectedG2;
+  if not assigned(G2) then
+    exit;
+
+  miAddModule.Caption := 'Add module to slot ' + GetSlotName(G2.SelectedSlot) + ', location ' + GetLocationName(FLocation);
+
+  Module := GetSelectedModule;
+  if assigned(Module) then begin
+    miAddCable.Caption := 'Add cable to ' + GetModuleName(Module)
+  end else begin
+    miAddCable.Caption := 'Add cable (no module selected)';
+  end;
+end;
+
+procedure TfrmG2Main.UpdateSelectModule( aPopupMenu : TPopupMenu; CableDestSelect : boolean);
+var G2 : TG2;
+    i, j, c, p, m, mc : integer;
+    FromModule, Module : TG2FileModule;
+    Connector : TG2FileConnector;
+    PageName : string;
+    MenuItem, SubMenuItem, ConSubMenuItem : TMenuItem;
+    Allowed : boolean;
+begin
+  G2 := SelectedG2;
+  if not assigned(G2) then
+    exit;
+
+  if CableDestSelect then begin
+    FromModule := GetSelectedModule;
+    if not assigned(FromModule) then
+      exit;
+  end;
+
+  mc := 0;
+  aPopupMenu.Items.Clear;
   for i := 0 to G2.SelectedPatch.ModuleCount[ ord(FLocation)] - 1 do begin
-    ModuleName := G2.SelectedPatch.PatchPart[ ord(FLocation)].ModuleList[i].ModuleName;
-    MenuItem := FindOrAddMenuItem( puSelectModule, 'mi' + ModuleName, ModuleName);
-    MenuItem.Tag := G2.SelectedPatch.PatchPart[ ord(FLocation)].ModuleList[i].ModuleIndex;
-    MenuItem.OnClick := DoSelectModule;
+    Module := G2.SelectedPatch.PatchPart[ ord(FLocation)].ModuleList[i];
+
+    if CableDestSelect then begin
+      // Only select modules with a free in-connector
+      c := 0;
+      while (c < Module.InConnectorCount) and (Module.InConnector[c].CableCount <> 0) do
+        inc(c);
+
+      Allowed := (c < Module.InConnectorCount);
+    end else
+      Allowed := True;
+
+    if Allowed then begin
+
+      m := 0;
+      while ( m < G2.FModuleDefList.Count) and (G2.FModuleDefList.ModuleDef[ m].ModuleType <> Module.TypeID) do
+        inc(m);
+
+      if ( m >= G2.FModuleDefList.Count) then
+        raise Exception.Create('Module type ' + IntToStr(Module.TypeID) + ' not found.');
+
+      PageName := G2.FModuleDefList.ModuleDef[ m].Page;
+
+      p := 0;
+      while (p<16) and (MODULECATEGORIES[p] <> PageName) do
+        inc(p);
+
+      if (p>=16) then
+        raise Exception.Create( 'Module categorie ' + PageName + ' not found.');
+
+      j := 0;
+      while (j < aPopupMenu.Items.Count) and (aPopupMenu.Items[j].Tag < p) do
+        inc(j);
+
+      if (j < aPopupMenu.Items.Count) then begin
+
+        if aPopupMenu.Items[j].Tag <> p then begin
+          MenuItem := TMenuItem.Create(self);
+          MenuItem.Caption := PageName;
+          MenuItem.ImageIndex := Module.TypeID;
+          MenuItem.Tag := p;
+
+          aPopupMenu.Items.Insert( j, MenuItem);
+        end else
+          MenuItem := aPopupMenu.Items[j];
+
+      end else begin
+        MenuItem := TMenuItem.Create(self);
+        MenuItem.Caption := PageName;
+        MenuItem.ImageIndex := Module.TypeID;
+        MenuItem.Tag := p;
+
+        aPopupMenu.Items.Add( MenuItem);
+      end;
+
+      SubMenuItem := TMenuItem.Create(self);
+      SubMenuItem.Caption := G2.FModuleDefList.ModuleDef[ m].ShortName + ' - ' + Module.ModuleName;
+      SubMenuItem.ImageIndex := Module.TypeID;
+      SubMenuItem.Tag := Module.ModuleIndex;
+      if not CableDestSelect then
+        SubMenuItem.OnClick := DoSelectModule;
+      MenuItem.Add( SubMenuItem);
+
+      if CableDestSelect then begin
+        // Add allowed in-connectors
+        for c := 0 to Module.InConnectorCount - 1 do begin
+          Connector := Module.InConnector[c];
+          if Connector.CableCount = 0 then begin
+            ConSubMenuItem := TMenuItem.Create(self);
+            ConSubMenuItem.Name := 'miDestConnector' + IntToStr(mc);
+            inc(mc);
+            ConSubMenuItem.Caption := Connector.Name;
+            ConSubMenuItem.Tag := Connector.ConnectorIndex;
+            ConSubMenuItem.OnClick := DoAddCable;
+            SubMenuItem.Add(ConSubMenuItem);
+          end;
+        end;
+      end;
+    end;
   end;
 end;
 
@@ -2298,11 +2591,12 @@ begin
   if not assigned(G2) then
     exit;
 
+  puSelectParam.Items.Clear;
   if G2.SelectedPatch.SelectedModuleList.Count > 0 then begin
     Module := G2.SelectedPatch.SelectedModuleList[0];
     for i := 0 to Module.ParameterCount - 1 do begin
       Param := Module.Parameter[i];
-      MenuItem := FindOrAddMenuItem( puSelectParam, 'mi' + Param.ParamName, Param.ParamName);
+      MenuItem := FindOrAddMenuItem( puSelectParam, 'mi' + Param.ParamName, Param.ParamName + ' (' + IntToStr(Param.GetParameterValue) + ')' );
       MenuItem.Tag := Param.ParamIndex;
       MenuItem.OnClick := DoSelectParam;
     end;
@@ -2326,6 +2620,28 @@ begin
   MenuItem.OnClick := DoSelectSlot;
 end;
 
+procedure TfrmG2Main.aShowAddCableExecute(Sender: TObject);
+var P : TPoint;
+begin
+  GetCursorPos( P);
+  UpdateSelectModule( puSelectModule, True);
+  puSelectModule.Popup( P.X, P.Y);
+end;
+
+procedure TfrmG2Main.aShowAddModuleExecute(Sender: TObject);
+var P : TPoint;
+begin
+  GetCursorPos( P);
+  if FLocation = ltVA then begin
+    FAddPoint := sbVA.ScreenToClient(P);
+    puAddModule.Popup(P.X, P.Y);
+  end else
+    if FLocation = ltFX then begin
+      FAddPoint := sbFX.ScreenToClient(P);
+      puAddModule.Popup(P.X, P.Y);
+    end;
+end;
+
 procedure TfrmG2Main.aShowSelectLocationExecute(Sender: TObject);
 var P : TPoint;
 begin
@@ -2338,7 +2654,7 @@ procedure TfrmG2Main.aShowSelectModuleExecute(Sender: TObject);
 var P : TPoint;
 begin
   GetCursorPos( P);
-  UpdateSelectModule;
+  UpdateSelectModule( puSelectModule, False);
   puSelectModule.Popup( P.X, P.Y);
 end;
 
@@ -2358,6 +2674,15 @@ begin
   puSelectSlot.Popup( P.X, P.Y);
 end;
 
+procedure TfrmG2Main.miSelectClick(Sender: TObject);
+begin
+  UpdateSelectMenu;
+end;
+
+procedure TfrmG2Main.miAddClick(Sender: TObject);
+begin
+  UpdateAddMenu;
+end;
 
 // ==== View menu ==============================================================
 
@@ -2410,10 +2735,11 @@ var i, j : integer;
     dummy : integer;
     G2 : TG2;
 begin
-  for i := 1 to 16 do begin
+  for i := 0 to 15 do begin
 
     aMenuItem := TMenuItem.Create( puAddModule);
-    case i of
+    aMenuItem.Caption := MODULECATEGORIES[i];
+    {case i of
      1 : aMenuItem.Caption := 'In/Out';
      2 : aMenuItem.Caption := 'Note';
      3 : aMenuItem.Caption := 'Osc';
@@ -2430,7 +2756,7 @@ begin
     14 : aMenuItem.Caption := 'Logic';
     15 : aMenuItem.Caption := 'Seq';
     16 : aMenuItem.Caption := 'MIDI';
-    end;
+    end;}
 
     puAddModule.Items.Add( aMenuItem);
 
