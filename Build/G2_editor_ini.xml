@@ -1,21 +1,21 @@
 <?xml version="1.0"?>
 <G2_Editor_settings>
   <G2_Synth_1>
-    <Editor_settings LogEnabled="False" CableThickness="4" HighlightColor="65535" SlotStripColor="4633612" SlotStripInverseColor="5447424" SlotStripDisabledColor="13684944"/>
+    <Editor_settings LogEnabled="False" CableThickness="4" HighlightColor="65535" SlotStripColor="4341694" SlotStripInverseColor="5447424" SlotStripDisabledColor="13684944"/>
     <TCP_settings IP="127.0.0.1" Port="2501" IsServer="True" TimerBroadcastLedMessages="0"/>
     <MIDI_settings MidiEnabled="False" MidiInDevice="UM-ONE" MidiOutDevice=""/>
   </G2_Synth_1>
   <CTRL_MIDI_settings CtrlMidiEnabled="False" CtrlMidiInDevice="UM-ONE"/>
-  <MainForm PosX="52" PosY="97" SizeX="1092" SizeY="863" Visible="True"/>
+  <MainForm PosX="351" PosY="51" SizeX="1079" SizeY="871" Visible="True"/>
   <PatchManagerSettings BaseFolder="C:\Users\Bruno\Documents\Nord Modular Patches\G2 Patches\" SelectedTab="3" ExternalSortCol="2" InternalSortCol="1"/>
-  <PatchManagerForm PosX="1149" PosY="97" SizeX="434" SizeY="863" Visible="True"/>
-  <SettingsForm PosX="632" PosY="499" SizeX="504" SizeY="287" Visible="False"/>
-  <ParameterPagesForm PosX="200" PosY="200" SizeX="629" SizeY="164" Visible="False"/>
+  <PatchManagerForm PosX="1194" PosY="35" SizeX="302" SizeY="929" Visible="False"/>
+  <SettingsForm PosX="483" PosY="568" SizeX="504" SizeY="287" Visible="False"/>
+  <ParameterPagesForm PosX="441" PosY="585" SizeX="629" SizeY="164" Visible="False"/>
   <PatchSettingsForm PosX="150" PosY="150" SizeX="608" SizeY="185" Visible="False"/>
   <EditorToolsForm PosX="25" PosY="25" SizeX="151" SizeY="261" Visible="False"/>
   <G2_Synth_2>
     <Editor_settings LogEnabled="False" CableThickness="4" HighlightColor="16776960" SlotStripColor="16744576" SlotStripInverseColor="5447424" SlotStripDisabledColor="13684944"/>
-    <TCP_settings IP="127.0.0.1" Port="2501" IsServer="True" TimerBroadcastLedMessages="0"/>
+    <TCP_settings IP="127.0.0.1" Port="2502" IsServer="True" TimerBroadcastLedMessages="0"/>
     <MIDI_settings MidiEnabled="False" MidiInDevice="UM-ONE" MidiOutDevice=""/>
   </G2_Synth_2>
 </G2_Editor_settings>

@@ -314,6 +314,25 @@ type
     aAnalyzePatch: TAction;
     rbSynth: TG2GraphButtonRadio;
     StatusBar1: TStatusBar;
+    miPatchMenu: TMenuItem;
+    puSelectSlot: TPopupMenu;
+    puSelectLocation: TPopupMenu;
+    puSelectModule: TPopupMenu;
+    puSelectParam: TPopupMenu;
+    puSelectConnector: TPopupMenu;
+    puSelectCable: TPopupMenu;
+    aShowSelectSlot: TAction;
+    aShowSelectLocation: TAction;
+    aShowSelectModule: TAction;
+    aShowSelectParam: TAction;
+    aShowSelectConnector: TAction;
+    aShowSelectCable: TAction;
+    SelectSlot1: TMenuItem;
+    Selectlocation1: TMenuItem;
+    Selectmodule1: TMenuItem;
+    Selectparameter1: TMenuItem;
+    Selectconnector1: TMenuItem;
+    Selectcable1: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure cbModeClick(Sender: TObject);
     procedure aPatchSettingsExecute(Sender: TObject);
@@ -397,6 +416,10 @@ type
       KnobIndex: Integer);
     procedure G2AssignGlobalKnob(Sender: TObject; SenderID, KnobIndex: Integer);
     procedure rbSynthChange(Sender: TObject);
+    procedure aShowSelectSlotExecute(Sender: TObject);
+    procedure aShowSelectLocationExecute(Sender: TObject);
+    procedure aShowSelectModuleExecute(Sender: TObject);
+    procedure aShowSelectParamExecute(Sender: TObject);
   private
     { Private declarations }
     FCtrlMidiEnabled : boolean;
@@ -443,6 +466,23 @@ type
     procedure CreateAddModuleMenu;
     procedure CreateModuleMenu;
     procedure CreateParamMenu;
+
+    function  AddMenuItem( aName, aCaption : string): TMenuItem;
+    function  FindMenuItem( aParentMenuItem : TPopupMenu; aName : string): TMenuItem;
+    function  FindOrAddMenuItem( aParentMenuItem : TPopupMenu; aName, aCaption : string): TMenuItem;
+    procedure UpdateSelectSlot;
+    procedure UpdateSelectLocation;
+    procedure UpdateSelectModule;
+    procedure UpdateSelectParameter;
+    procedure UpdateSelectConnector;
+    procedure UpdateSelectCable;
+    procedure CurrentlySelected;
+    procedure DoSelectSlot( Sender: TObject);
+    procedure DoSelectLocation( Sender: TObject);
+    procedure DoSelectModule( Sender: TObject);
+    procedure DoSelectParam( Sender: TObject);
+    procedure DoSelectConnector( Sender: TObject);
+    procedure DoSelectCable( Sender: TObject);
 
     procedure CopyPatchSelection;
     procedure DeletePatchSelection;
@@ -2091,6 +2131,233 @@ procedure TfrmG2Main.aSelectAllExecute(Sender: TObject);
 begin
 //
 end;
+
+// ==== Selection menu =========================================================
+
+procedure TfrmG2Main.DoSelectLocation(Sender: TObject);
+begin
+  if Sender is TMenuItem then begin
+    case (Sender as TMenuItem).Tag of
+    0 : SelectPatchLocation(ltVA);
+    1 : SelectPatchLocation(ltFX);
+    end;
+  end;
+end;
+
+procedure TfrmG2Main.DOSelectModule(Sender: TObject);
+var ModuleIndex : integer;
+    Module : TG2FileModule;
+    G2 : TG2;
+begin
+  G2 := SelectedG2;
+  if not assigned(G2) then
+    exit;
+
+  if Sender is TMenuItem then begin
+     ModuleIndex := (Sender as TMenuItem).Tag;
+     Module := G2.SelectedPatch.Modules[ ord(FLocation), ModuleIndex];
+     if assigned(Module) then begin
+       G2.SelectedPatch.UnSelectModules( FLocation);
+       Module.Selected := True;
+     end;
+  end;
+end;
+
+procedure TfrmG2Main.DoSelectParam(Sender: TObject);
+var ParamIndex : integer;
+    Module : TG2FileModule;
+    Param : TG2FileParameter;
+    G2 : TG2;
+    i : integer;
+begin
+  G2 := SelectedG2;
+  if not assigned(G2) then
+    exit;
+
+  if Sender is TMenuItem then begin
+     ParamIndex := (Sender as TMenuItem).Tag;
+     if G2.SelectedPatch.SelectedModuleList.Count > 0 then begin
+       Module := G2.SelectedPatch.SelectedModuleList[0];
+       if assigned(Module) and (ParamIndex < Module.ParameterCount) then begin
+         i := 0;
+         while (i < Module.ParameterCount) and (ParamIndex <> Module.Parameter[i].ParamIndex) do
+           inc(i);
+
+         if (i < Module.ParameterCount) then begin
+           Param := Module.Parameter[i];
+           Param.Selected := True;
+         end;
+       end;
+     end;
+  end;
+end;
+
+procedure TfrmG2Main.DoSelectConnector( Sender: TObject);
+begin
+  //
+end;
+
+procedure TfrmG2Main.DoSelectCable( Sender: TObject);
+begin
+  //
+end;
+
+procedure TfrmG2Main.DoSelectSlot(Sender: TObject);
+begin
+  if Sender is TMenuItem then begin
+    case (Sender as TMenuItem).Tag of
+    0 : SelectSlot(0);
+    1 : SelectSlot(1);
+    2 : SelectSlot(2);
+    3 : SelectSlot(3);
+    end;
+  end;
+end;
+
+procedure TfrmG2Main.CurrentlySelected;
+begin
+//
+end;
+
+function TfrmG2Main.AddMenuItem( aName, aCaption : string): TMenuItem;
+begin
+  Result := TMenuItem.Create(self);
+  Result.Name := aName;
+  Result.Caption := aCaption;
+end;
+
+function TfrmG2Main.FindMenuItem( aParentMenuItem : TPopupMenu; aName : string): TMenuItem;
+var i : integer;
+begin
+  i := 0;
+  while (i<aParentMenuItem.Items.Count) and (aParentMenuItem.Items[i].Name <> aName) do
+    inc(i);
+
+  if (i<aParentMenuItem.Items.Count) then
+    Result := aParentMenuItem.Items[i]
+  else
+    Result := nil
+end;
+
+function TfrmG2Main.FindOrAddMenuItem( aParentMenuItem : TPopupMenu; aName, aCaption : string): TMenuItem;
+begin
+  Result := FindMenuItem( aParentMenuItem, aName);
+  if Result = nil then begin
+    Result := AddMenuItem( aName, aCaption);
+    aParentMenuItem.Items.Add(Result);
+  end;
+end;
+
+procedure TfrmG2Main.UpdateSelectCable;
+begin
+//
+end;
+
+procedure TfrmG2Main.UpdateSelectConnector;
+begin
+//
+end;
+
+procedure TfrmG2Main.UpdateSelectLocation;
+var MenuItem : TMenuItem;
+begin
+  MenuItem := FindOrAddMenuItem( puSelectLocation, 'miLocationVA', 'VA');
+  MenuItem.Tag := 0;
+  MenuItem.OnClick := DoSelectLocation;
+  MenuItem := FindOrAddMenuItem( puSelectLocation, 'miLocationFX', 'FX');
+  MenuItem.Tag := 1;
+  MenuItem.OnClick := DoSelectLocation;
+end;
+
+procedure TfrmG2Main.UpdateSelectModule;
+var G2 : TG2;
+    i : integer;
+    ModuleName : string;
+    MenuItem : TMenuItem;
+begin
+  G2 := SelectedG2;
+  if not assigned(G2) then
+    exit;
+
+  for i := 0 to G2.SelectedPatch.ModuleCount[ ord(FLocation)] - 1 do begin
+    ModuleName := G2.SelectedPatch.PatchPart[ ord(FLocation)].ModuleList[i].ModuleName;
+    MenuItem := FindOrAddMenuItem( puSelectModule, 'mi' + ModuleName, ModuleName);
+    MenuItem.Tag := G2.SelectedPatch.PatchPart[ ord(FLocation)].ModuleList[i].ModuleIndex;
+    MenuItem.OnClick := DoSelectModule;
+  end;
+end;
+
+procedure TfrmG2Main.UpdateSelectParameter;
+var G2 : TG2;
+    i : integer;
+    Module : TG2FileModule;
+    Param : TG2FileParameter;
+    MenuItem : TMenuItem;
+begin
+  G2 := SelectedG2;
+  if not assigned(G2) then
+    exit;
+
+  if G2.SelectedPatch.SelectedModuleList.Count > 0 then begin
+    Module := G2.SelectedPatch.SelectedModuleList[0];
+    for i := 0 to Module.ParameterCount - 1 do begin
+      Param := Module.Parameter[i];
+      MenuItem := FindOrAddMenuItem( puSelectParam, 'mi' + Param.ParamName, Param.ParamName);
+      MenuItem.Tag := Param.ParamIndex;
+      MenuItem.OnClick := DoSelectParam;
+    end;
+  end;
+end;
+
+procedure TfrmG2Main.UpdateSelectSlot;
+var MenuItem : TMenuItem;
+begin
+  MenuItem := FindOrAddMenuItem( puSelectSlot, 'miSlotA', 'Slot A');
+  MenuItem.Tag := 0;
+  MenuItem.OnClick := DoSelectSlot;
+  MenuItem := FindOrAddMenuItem( puSelectSlot, 'miSlotB', 'Slot B');
+  MenuItem.Tag := 1;
+  MenuItem.OnClick := DoSelectSlot;
+  MenuItem := FindOrAddMenuItem( puSelectSlot, 'miSlotC', 'Slot C');
+  MenuItem.Tag := 2;
+  MenuItem.OnClick := DoSelectSlot;
+  MenuItem := FindOrAddMenuItem( puSelectSlot, 'miSlotD', 'Slot D');
+  MenuItem.Tag := 3;
+  MenuItem.OnClick := DoSelectSlot;
+end;
+
+procedure TfrmG2Main.aShowSelectLocationExecute(Sender: TObject);
+var P : TPoint;
+begin
+  GetCursorPos( P);
+  UpdateSelectLocation;
+  puSelectLocation.Popup( P.X, P.Y);
+end;
+
+procedure TfrmG2Main.aShowSelectModuleExecute(Sender: TObject);
+var P : TPoint;
+begin
+  GetCursorPos( P);
+  UpdateSelectModule;
+  puSelectModule.Popup( P.X, P.Y);
+end;
+
+procedure TfrmG2Main.aShowSelectParamExecute(Sender: TObject);
+var P : TPoint;
+begin
+  GetCursorPos( P);
+  UpdateSelectParameter;
+  puSelectParam.Popup( P.X, P.Y);
+end;
+
+procedure TfrmG2Main.aShowSelectSlotExecute(Sender: TObject);
+var P : TPoint;
+begin
+  GetCursorPos( P);
+  UpdateSelectSlot;
+  puSelectSlot.Popup( P.X, P.Y);
+end;
+
 
 // ==== View menu ==============================================================
 

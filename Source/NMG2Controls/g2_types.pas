@@ -38,13 +38,13 @@ uses
   math;
 
 const
-  NMG2_VERSION = '0.22';
+  NMG2_VERSION = '0.23';
 
   NMORPHS = 8;
   NVARIATIONS = 9;
   NSLOTS = 4;
 
-  LOG_PATH = 'C:\Users\Bruno\Documents\Ableton\VST\';
+  //LOG_PATH = 'C:\Users\Bruno\Documents\Ableton\VST\';
 
   VENDOR_ID  = $ffc; // clavia, g2
   PRODUCT_ID = 2;

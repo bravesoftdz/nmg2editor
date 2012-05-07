@@ -878,8 +878,8 @@ object frmG2Main: TfrmG2Main
     Top = 160
   end
   object MainMenu1: TMainMenu
-    Left = 152
-    Top = 160
+    Left = 576
+    Top = 64
     object File1: TMenuItem
       Caption = '&File'
       object Initpatch1: TMenuItem
@@ -958,6 +958,27 @@ object frmG2Main: TfrmG2Main
         Action = aSelectAll
       end
     end
+    object miPatchMenu: TMenuItem
+      Caption = '&Select'
+      object SelectSlot1: TMenuItem
+        Action = aShowSelectSlot
+      end
+      object Selectlocation1: TMenuItem
+        Action = aShowSelectLocation
+      end
+      object Selectmodule1: TMenuItem
+        Action = aShowSelectModule
+      end
+      object Selectparameter1: TMenuItem
+        Action = aShowSelectParam
+      end
+      object Selectconnector1: TMenuItem
+        Action = aShowSelectConnector
+      end
+      object Selectcable1: TMenuItem
+        Action = aShowSelectCable
+      end
+    end
     object View1: TMenuItem
       Caption = 'View'
       object Patchsettings1: TMenuItem
@@ -1007,7 +1028,7 @@ object frmG2Main: TfrmG2Main
       end
     end
     object Settings2: TMenuItem
-      Caption = 'Settings'
+      Caption = 'Se&ttings'
       object Settings3: TMenuItem
         Action = aSettings
       end
@@ -1028,8 +1049,8 @@ object frmG2Main: TfrmG2Main
   object puAddModule: TPopupMenu
     AutoPopup = False
     Images = ilModules
-    Left = 216
-    Top = 160
+    Left = 672
+    Top = 64
   end
   object StartupTimer: TTimer
     Enabled = False
@@ -1038,8 +1059,8 @@ object frmG2Main: TfrmG2Main
     Top = 208
   end
   object puParamMenu: TPopupMenu
-    Left = 360
-    Top = 160
+    Left = 672
+    Top = 184
     object Defaultvalue1: TMenuItem
       Caption = 'Default value'
       Enabled = False
@@ -1085,8 +1106,8 @@ object frmG2Main: TfrmG2Main
     end
   end
   object puModuleMenu: TPopupMenu
-    Left = 288
-    Top = 160
+    Left = 672
+    Top = 248
     object Cut1: TMenuItem
       Action = aCut
     end
@@ -1129,8 +1150,8 @@ object frmG2Main: TfrmG2Main
     end
   end
   object puVariationMenu: TPopupMenu
-    Left = 152
-    Top = 208
+    Left = 672
+    Top = 312
     object Copyto11: TMenuItem
       Caption = 'Copy to 1'
       OnClick = VariaionCopytoClick
@@ -1180,8 +1201,8 @@ object frmG2Main: TfrmG2Main
     end
   end
   object puConnectorMenu: TPopupMenu
-    Left = 440
-    Top = 160
+    Left = 672
+    Top = 128
     object miDeleteAllCables: TMenuItem
       Caption = 'Delete All'
       OnClick = miDeleteAllCablesClick
@@ -1192,12 +1213,12 @@ object frmG2Main: TfrmG2Main
   end
   object ilModules: TImageList
     Masked = False
-    Left = 288
-    Top = 208
+    Left = 216
+    Top = 160
   end
   object ActionManager1: TActionManager
-    Left = 360
-    Top = 208
+    Left = 312
+    Top = 160
     StyleName = 'XP Style'
     object aUndo: TAction
       Category = 'Edit'
@@ -1397,6 +1418,40 @@ object frmG2Main: TfrmG2Main
       Caption = 'Analyze patch'
       OnExecute = aAnalyzePatchExecute
     end
+    object aShowSelectSlot: TAction
+      Category = 'Select'
+      Caption = 'Select Slot'
+      ShortCut = 83
+      OnExecute = aShowSelectSlotExecute
+    end
+    object aShowSelectLocation: TAction
+      Category = 'Select'
+      Caption = 'Select location'
+      ShortCut = 76
+      OnExecute = aShowSelectLocationExecute
+    end
+    object aShowSelectModule: TAction
+      Category = 'Select'
+      Caption = 'Select module'
+      ShortCut = 77
+      OnExecute = aShowSelectModuleExecute
+    end
+    object aShowSelectParam: TAction
+      Category = 'Select'
+      Caption = 'Select parameter'
+      ShortCut = 80
+      OnExecute = aShowSelectParamExecute
+    end
+    object aShowSelectConnector: TAction
+      Category = 'Select'
+      Caption = 'Select connector'
+      ShortCut = 79
+    end
+    object aShowSelectCable: TAction
+      Category = 'Select'
+      Caption = 'Select cable'
+      ShortCut = 67
+    end
   end
   object ResponseTimer: TTimer
     Enabled = False
@@ -1404,5 +1459,29 @@ object frmG2Main: TfrmG2Main
     OnTimer = ResponseTimerTimer
     Left = 80
     Top = 264
+  end
+  object puSelectSlot: TPopupMenu
+    Left = 832
+    Top = 64
+  end
+  object puSelectLocation: TPopupMenu
+    Left = 832
+    Top = 120
+  end
+  object puSelectModule: TPopupMenu
+    Left = 832
+    Top = 184
+  end
+  object puSelectParam: TPopupMenu
+    Left = 832
+    Top = 240
+  end
+  object puSelectConnector: TPopupMenu
+    Left = 832
+    Top = 304
+  end
+  object puSelectCable: TPopupMenu
+    Left = 832
+    Top = 360
   end
 end
