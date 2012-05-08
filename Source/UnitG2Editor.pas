@@ -72,11 +72,36 @@ unit UnitG2Editor;
 // Copy patch->Undo->Cables are not deleted
 // Set parameter functions to g2_file
 
-// TODO List v2.2
+// v2.2
 // ==============
 
 // Multiple g2 support
 // Improve shut down of usb connections
+// Customization of colors
+// Some of the module display functions
+// Added a "Control midi" port, but this hasn't yet any functionality.
+
+// TODO List v2.3
+// ==============
+
+// Auto adjust module positions on module insert (no overlapping modules)
+// Patch notes screen
+   // h     : 00 0B 01 28 00 6F 00 01 68 D3 88
+   // ha    : 00 0C 01 28 00 6F 00 02 68 61 56 C9
+   // hal   : 00 0D 01 28 00 6F 00 03 68 61 6C 28 AD
+   // enz.
+
+// Menu-driven patching for Jean-Phillipe, who is blind
+// Variation init function
+   // Copy from var 1 to init 00 0A 01 28 00 44 00 08 0F 5C
+   // Init on var 2           00 0A 01 28 00 44 08 01 17 DC
+// CTRL E, parameter paste
+   // Osc B to Osc B : 00 19 01 28 00 4D 00 0F 40 40 40 45 80 D9 80 04 00 00 00 00 02 02 00 53 D3
+
+
+
+// TODO List next
+// ==============
 
 // Solve compiler warnings
 // Add ini file for VST
@@ -447,6 +472,7 @@ type
     FG2List               : TObjectList;
     FG2Index              : integer;
     FEditorSettingsList   : TObjectList;
+    FOnlyTextMenus        : boolean;
 
     procedure AddG2( G2USBDevice : pusb_device);
     function  SelectedG2: TG2;
@@ -506,6 +532,7 @@ type
     function  GetParameterValue( aParam : TG2FileParameter) : string;
     function  GetConnectorName( aConnector : TG2FileConnector) : string;
     function  GetCableName( aCable : TG2FileCable) : string;
+    procedure SetOnlyTextMenus( aValue : boolean);
 
     procedure CopyPatchSelection;
     procedure DeletePatchSelection;
@@ -528,6 +555,7 @@ type
 
     property CtrlMidiEnabled : boolean read FCtrlMidiEnabled write SetCtrlMidiEnabled;
     property CtrlMidiInput : TMidiInput read FCtrlMidiInput;
+    property OnlyTextMenus : boolean read FOnlyTextMenus write SetOnlyTextMenus;
   end;
 
   procedure SetFormPosition( aForm : TForm; aLeft, aTop, aWidth, aHeight : integer);
@@ -1216,6 +1244,8 @@ begin
               else
                 G2.LogLevel := 0;
 
+              OnlyTextMenus := EditorSettingsNode.OnlyTextMenus;
+
               with FEditorSettingsList[i] as TEditorSettings do begin
                 FCableThickness := EditorSettingsNode.CableThickness;
                 FHighLightColor := EditorSettingsNode.HighlightColor;
@@ -1291,6 +1321,7 @@ begin
         SynthNode.AppendChild( EditorSettingsNode);
       end;
       EditorSettingsNode.LogEnabled := G2.LogLevel = 1;
+      EditorSettingsNode.OnlyTextMenus := OnlyTextMenus;
       with FEditorSettingsList[i] as TEditorSettings do begin
         EditorSettingsNode.CableThickness := FCableThickness;
         EditorSettingsNode.SlotStripColor := FSlotStripColor;
@@ -2157,6 +2188,18 @@ end;
 
 // ==== Selection menu =========================================================
 
+procedure TfrmG2Main.SetOnlyTextMenus( aValue : boolean);
+begin
+  FOnlyTextMenus := aValue;
+  if FOnlyTextMenus then begin
+    puAddModule.Images := ilModules;
+    puSelectModule.Images := ilModules;
+  end else begin
+    puAddModule.Images := nil;
+    puSelectModule.Images := nil;
+  end;
+end;
+
 procedure TfrmG2Main.DoSelectLocation(Sender: TObject);
 begin
   if Sender is TMenuItem then begin
@@ -2438,14 +2481,14 @@ begin
   if not assigned(G2) then
     exit;
 
-  miSelectSlot.Caption := 'Select slot - ' + GetSlotName(G2.SelectedSlot);
-  miSelectLocation.Caption := 'Select location - ' + GetLocationName(FLocation);
+  miSelectSlot.Caption := 'Select slot, current ' + GetSlotName(G2.SelectedSlot);
+  miSelectLocation.Caption := 'Select location, current ' + GetLocationName(FLocation);
   Module := GetSelectedModule;
   if assigned(Module) then begin
-    miSelectModule.Caption := 'Select module - ' + GetModuleName(Module);
+    miSelectModule.Caption := 'Select module, current ' + GetModuleName(Module);
     Param := GetSelectedParam;
     if assigned(Param) then
-      miSelectParameter.Caption := 'Select parameter - ' + GetParameterName(Param) + ' (' + GetParameterValue(Param)  + ')'
+      miSelectParameter.Caption := 'Select parameter, current ' + GetParameterName(Param) + ', value ' + GetParameterValue(Param)
     else
       miSelectParameter.Caption := 'Select parameter';
     miSelectConnector.Caption := 'Select connector';
@@ -2537,7 +2580,7 @@ begin
         if aPopupMenu.Items[j].Tag <> p then begin
           MenuItem := TMenuItem.Create(self);
           MenuItem.Caption := PageName;
-          MenuItem.ImageIndex := Module.TypeID;
+          //MenuItem.ImageIndex := Module.TypeID;
           MenuItem.Tag := p;
 
           aPopupMenu.Items.Insert( j, MenuItem);
@@ -2547,7 +2590,7 @@ begin
       end else begin
         MenuItem := TMenuItem.Create(self);
         MenuItem.Caption := PageName;
-        MenuItem.ImageIndex := Module.TypeID;
+        //MenuItem.ImageIndex := Module.TypeID;
         MenuItem.Tag := p;
 
         aPopupMenu.Items.Add( MenuItem);
@@ -2555,7 +2598,7 @@ begin
 
       SubMenuItem := TMenuItem.Create(self);
       SubMenuItem.Caption := G2.FModuleDefList.ModuleDef[ m].ShortName + ' - ' + Module.ModuleName;
-      SubMenuItem.ImageIndex := Module.TypeID;
+      //SubMenuItem.ImageIndex := Module.TypeID;
       SubMenuItem.Tag := Module.ModuleIndex;
       if not CableDestSelect then
         SubMenuItem.OnClick := DoSelectModule;
@@ -2596,7 +2639,7 @@ begin
     Module := G2.SelectedPatch.SelectedModuleList[0];
     for i := 0 to Module.ParameterCount - 1 do begin
       Param := Module.Parameter[i];
-      MenuItem := FindOrAddMenuItem( puSelectParam, 'mi' + Param.ParamName, Param.ParamName + ' (' + IntToStr(Param.GetParameterValue) + ')' );
+      MenuItem := FindOrAddMenuItem( puSelectParam, 'mi' + Param.ParamName, Param.ParamName + ', value ' + IntToStr(Param.GetParameterValue));
       MenuItem.Tag := Param.ParamIndex;
       MenuItem.OnClick := DoSelectParam;
     end;

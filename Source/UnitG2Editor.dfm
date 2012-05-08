@@ -1492,7 +1492,6 @@ object frmG2Main: TfrmG2Main
     Top = 120
   end
   object puSelectModule: TPopupMenu
-    Images = ilModules
     Left = 832
     Top = 184
   end

@@ -3368,7 +3368,7 @@ begin
     // Create the add module message
     Chunk := TPatchChunk.Create( MemStream);
     try
-      Chunk.WriteBits( S_ADD_MODULE,  8);
+      Chunk.WriteBits( S_ADD_MODULE,     8);
       Chunk.WriteBits( aModuleType,      8);
       Chunk.WriteBits( ord(aLocation),   8);
       Chunk.WriteBits( aNewModuleIndex,  8);
@@ -3771,12 +3771,14 @@ end;
 function TG2MessPatch.CreateAddNewModuleMessage( aLocation : TLocationType; aNewModuleIndex, aModuleType, aCol, aRow: byte): TG2SendMessage;
 begin
   Result := CreatePatchMessage;
+  // todo : add module move messages for other modules to prevent overlap
   AddNewModuleMessage( Result, aLocation, aNewModuleIndex, aModuleType, aCol, aRow);
 end;
 
 function TG2MessPatch.CreateCopyModulesMessage( aSrcePatch : TG2FilePatchPart; aFromLocation, aToLocation : TLocationType; RenumberModules : boolean): TG2SendMessage;
 begin
   Result := CreatePatchMessage;
+  // todo : add module move messages for other modules to prevent overlap
   AddCopyModulesMessage( Result, aSrcePatch, aFromLocation, aToLocation, RenumberModules);
 end;
 

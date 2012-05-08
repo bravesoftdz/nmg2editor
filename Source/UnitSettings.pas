@@ -81,6 +81,7 @@ type
     cbHighLightColor: TColorBox;
     eCableThickness: TEdit;
     cbLogEnabled: TCheckBox;
+    cbOnlyTextMenus: TCheckBox;
     procedure Button2Click(Sender: TObject);
     procedure IdUDPServer1Status(ASender: TObject; const AStatus: TIdStatus;
       const AStatusText: string);
@@ -99,6 +100,7 @@ type
     procedure cbSlotStripInverseColorChange(Sender: TObject);
     procedure cbSlotStripDisabledColorChange(Sender: TObject);
     procedure cbHighLightColorChange(Sender: TObject);
+    procedure cbOnlyTextMenusClick(Sender: TObject);
   private
     { Private declarations }
     FDisableControls : boolean;
@@ -408,6 +410,18 @@ begin
     G2.LogLevel := 0;
 end;
 
+procedure TfrmSettings.cbOnlyTextMenusClick(Sender: TObject);
+var G2 : TG2;
+begin
+  if FDisableControls then
+    exit;
+
+  if cbLogEnabled.Checked then
+    frmG2Main.OnlyTextMenus := True
+  else
+    frmG2Main.OnlyTextMenus := False;
+end;
+
 procedure TfrmSettings.FormClose(Sender: TObject; var Action: TCloseAction);
 var G2 : TG2;
     i, c, ledtimer : integer;
@@ -430,7 +444,6 @@ begin
     end;
   end;
 end;
-
 
 procedure TfrmSettings.UpdateControls;
 var G2 : TG2;

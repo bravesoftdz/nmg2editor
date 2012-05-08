@@ -227,6 +227,8 @@ type
     procedure Set_SlotStripDisabledColor( aValue : integer);
     function Get_HighlightColor: integer;
     procedure Set_HighlightColor( aValue : integer);
+    function Get_OnlyTextMenus: boolean;
+    procedure Set_OnlyTextMenus( aValue : boolean);
   public
     property LogEnabled: boolean read Get_LogEnabled write Set_LogEnabled;
     property CableThickness : integer read Get_CableThickness write Set_CableThickness;
@@ -234,6 +236,7 @@ type
     property SlotStripInverseColor : integer read Get_SlotStripInverseColor write Set_SlotStripInverseColor;
     property SlotStripDisabledColor : integer read Get_SlotStripDisabledColor write Set_SlotStripDisabledColor;
     property HighlightColor : integer read Get_HighlightColor write Set_HighlightColor;
+    property OnlyTextMenus : boolean read Get_OnlyTextMenus write Set_OnlyTextMenus;
   end;
 
 implementation
@@ -858,6 +861,19 @@ end;
 procedure TXMLEditorSettingsType.Set_HighlightColor( aValue : integer);
 begin
   SetAttribute('HighlightColor', IntToStr(aValue));
+end;
+
+function TXMLEditorSettingsType.Get_OnlyTextMenus: boolean;
+begin
+  if GetAttribute('OnlyTextMenus') = '' then
+    Result := False
+  else
+    Result := StrToBool(GetAttribute('OnlyTextMenus'));
+end;
+
+procedure TXMLEditorSettingsType.Set_OnlyTextMenus( aValue : boolean);
+begin
+  SetAttribute('OnlyTextMenus', BoolToStr(aValue));
 end;
 
 

@@ -2,7 +2,7 @@ object frmSettings: TfrmSettings
   Left = 0
   Top = 0
   Caption = 'Settings'
-  ClientHeight = 249
+  ClientHeight = 262
   ClientWidth = 488
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -20,12 +20,14 @@ object frmSettings: TfrmSettings
     Left = 0
     Top = 0
     Width = 488
-    Height = 249
-    ActivePage = TabSheet1
+    Height = 262
+    ActivePage = TabSheet5
     Align = alClient
     TabOrder = 0
+    ExplicitHeight = 249
     object TabSheet1: TTabSheet
       Caption = 'TCP-IP'
+      ExplicitHeight = 221
       object Label3: TLabel
         Left = 16
         Top = 56
@@ -84,6 +86,7 @@ object frmSettings: TfrmSettings
     object TabSheet4: TTabSheet
       Caption = 'Midi'
       ImageIndex = 3
+      ExplicitHeight = 221
       object Label6: TLabel
         Left = 17
         Top = 91
@@ -151,6 +154,7 @@ object frmSettings: TfrmSettings
     object TabSheet5: TTabSheet
       Caption = 'Editor'
       ImageIndex = 4
+      ExplicitHeight = 221
       object Label11: TLabel
         Left = 24
         Top = 53
@@ -239,13 +243,23 @@ object frmSettings: TfrmSettings
         TabOrder = 5
         OnClick = cbLogEnabledClick
       end
+      object cbOnlyTextMenus: TCheckBox
+        Left = 152
+        Top = 192
+        Width = 97
+        Height = 17
+        Caption = 'Only text menus'
+        TabOrder = 6
+        OnClick = cbOnlyTextMenusClick
+      end
     end
     object TabSheet3: TTabSheet
       Caption = 'Patch manager'
       ImageIndex = 2
+      ExplicitHeight = 221
       DesignSize = (
         480
-        221)
+        234)
       object Label5: TLabel
         Left = 16
         Top = 27
@@ -275,6 +289,7 @@ object frmSettings: TfrmSettings
     object TabSheet2: TTabSheet
       Caption = 'OSC'
       ImageIndex = 1
+      ExplicitHeight = 221
       object Panel1: TPanel
         Left = 0
         Top = 0
@@ -326,7 +341,7 @@ object frmSettings: TfrmSettings
         Left = 0
         Top = 59
         Width = 480
-        Height = 162
+        Height = 175
         Align = alClient
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
@@ -338,6 +353,7 @@ object frmSettings: TfrmSettings
         ParentFont = False
         ScrollBars = ssBoth
         TabOrder = 1
+        ExplicitHeight = 162
       end
     end
   end
