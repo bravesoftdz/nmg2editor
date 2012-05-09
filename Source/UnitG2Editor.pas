@@ -91,13 +91,12 @@ unit UnitG2Editor;
    // hal   : 00 0D 01 28 00 6F 00 03 68 61 6C 28 AD
    // enz.
 
-// Menu-driven patching for Jean-Phillipe, who is blind
+// Menu-driven patching for the blind one
 // Variation init function
    // Copy from var 1 to init 00 0A 01 28 00 44 00 08 0F 5C
    // Init on var 2           00 0A 01 28 00 44 08 01 17 DC
 // CTRL E, parameter paste
    // Osc B to Osc B : 00 19 01 28 00 4D 00 0F 40 40 40 45 80 D9 80 04 00 00 00 00 02 02 00 53 D3
-
 
 
 // TODO List next
@@ -1789,6 +1788,7 @@ begin
     GetCursorPos( P);
     FLocation := ltFX;
     FAddPoint := sbFX.ScreenToClient(P);
+
     puAddModule.Popup(P.X, P.Y);
   end;
 end;
@@ -1812,6 +1812,7 @@ begin
     GetCursorPos( P);
     FLocation := ltVA;
     FAddPoint := sbVA.ScreenToClient(P);
+
     puAddModule.Popup(P.X, P.Y);
   end;
 end;
@@ -2940,6 +2941,12 @@ begin
   G2 := SelectedG2;
   if not assigned(G2) then
     exit;
+
+  if FAddPoint.X < 0 then
+    FAddPoint.X := 0;
+
+  if FAddPoint.Y < 0 then
+    FAddPoint.Y := 0;
 
   G2.SelectedPatch.MessAddModule( FLocation, aModuleType, FAddPoint.X div UNITS_COL, FAddPoint.y div UNITS_ROW );
 end;

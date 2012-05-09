@@ -155,6 +155,8 @@ type
     FModeCount    : TBits4;
     FModeInfo     : array of TBits6;
 
+    FHeightUnits  : integer;
+
     // Interface
     FSelected      : Boolean;
     FSelectedParam : integer;
@@ -227,6 +229,7 @@ type
     property    OutConnector[ Index : integer]: TG2FileConnector read GetOutputConnector;
     property    Parameter   [ Index : integer]: TG2FileParameter read GetParameter;
     property    Mode        [ Index : integer]: TG2FileParameter read GetMode;
+    property    HeightUnits : integer read FHeightUnits write FHeightUnits;
     property    InConnectorCount : integer read GetInputConnectorCount;
     property    OutConnectorCount : integer read GetOutputConnectorCount;
     property    ParameterCount : integer read GetParameterCount;
@@ -1395,6 +1398,7 @@ begin
   FIsLed        := aModule.IsLed;
   FUnknown1     := aModule.FUnknown1;
   FModeCount    := aModule.ModeCount;
+  FHeightUnits  := aModule.HeightUnits;
 
   SetLength(FModeInfo, FModeCount);
   for i := 0 to Length(FModeInfo) - 1 do
@@ -1464,12 +1468,13 @@ var i : integer;
     aConnectorList : TXMLConnectorListType;
     aParamList : TXMLParamListType;
 begin
-  FLocation  := aLocation;
-  FTypeID    := aModuleDef.ModuleType;
-  FUprate    := aModuleDef.Uprate;
-  FIsLed     := aModuleDef.IsLed;
-  ModuleName := aModuleDef.ShortName;
-  FModeCount := 0;
+  FLocation    := aLocation;
+  FTypeID      := aModuleDef.ModuleType;
+  FUprate      := aModuleDef.Uprate;
+  FIsLed       := aModuleDef.IsLed;
+  FHeightUnits := aModuleDef.Height;
+  ModuleName   := aModuleDef.ShortName;
+  FModeCount   := 0;
 
   aConnectorList := aModuleDef.Inputs;
   if assigned(aConnectorList) then

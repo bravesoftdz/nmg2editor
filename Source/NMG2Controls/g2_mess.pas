@@ -100,6 +100,13 @@ uses
     Patch : Byte;
   end;
 
+  TModuleColOrder = class
+    ModuleIndex : integer;
+    Row : integer;
+    Height : integer;
+    Source : boolean; // True : the moved modules, False the modules that are in the way
+  end;
+
   TG2Mess = class( TG2File)
   private
     // Synth settings
@@ -315,6 +322,7 @@ uses
 
     function    FindCable( Location : TLocationType; FromModule : byte; FromConnector : byte; ToModule : byte; ToConnector : byte): TG2FileCable;
 
+    procedure   AddReplaceModulesMessages( SendMessage : TG2SendMessage; aModuleList : TModuleList; aToLocation : TLocationType);
     procedure   AddNewModuleMessage( SendMessage : TG2SendMessage; aLocation : TLocationType; aNewModuleIndex, aModuleType, aCol, aRow: byte);
     procedure   AddCopyModuleMessage( SendMessage : TG2SendMessage; aLocation : TLocationType; aModule : TG2FileModule);
     procedure   AddCopyModuleParametersMessage( SendMessage : TG2SendMessage; aLocation : TLocationType; aModule : TG2FileModule);
@@ -3501,6 +3509,145 @@ begin
   end;
 end;
 
+procedure TG2MessPatch.AddReplaceModulesMessages( SendMessage : TG2SendMessage; aModuleList : TModuleList; aToLocation : TLocationType);
+var i, j, m, col_min, col_max, col_module_count, d_row : integer;
+    DestModuleOrder, SrceModuleOrder : TModuleColOrder;
+    DestColList, SrceColList : TObjectList;
+    Module : TG2FileModule;
+begin
+  // Get the start and end column of the srcepatch modules
+  col_min := -1;
+  col_max := -1;
+  for m := 0 to aModuleList.Count - 1 do begin
+    Module := aModuleList[m];
+    if (Module.Col < col_min) or (col_min = -1) then
+      col_min := Module.Col;
+    if (Module.Col > col_max) or (col_max = -1) then
+      col_max := Module.Col;
+  end;
+  // Go through the colums en move the existing modules
+  for i := col_min to col_max do begin
+    // Detrmine the amound of modules in the srcepatch of this column
+    col_module_count := 0;
+    for m := 0 to aModuleList.Count - 1 do begin
+      Module := aModuleList[m];
+      if Module.Col = i then
+        inc(col_module_count);
+    end;
+
+    if col_module_count > 0 then begin
+      SrceColList := TObjectList.Create( True);
+      DestColList := TObjectList.Create( True);
+      try
+        // Make a list of existing modules in this column sorted by row
+        for m := 0 to PatchPart[ord(aToLocation)].ModuleList.Count - 1 do begin
+          Module := PatchPart[ord(aToLocation)].ModuleList[m];
+          if Module.Col = i then begin
+
+            DestModuleOrder :=  TModuleColOrder.Create;
+            DestModuleOrder.ModuleIndex := Module.ModuleIndex;
+            DestModuleOrder.Row := Module.Row;
+            DestModuleOrder.Height := Module.HeightUnits;
+            DestModuleOrder.Source := False;
+
+            j := 0;
+            while (j<DestColList.Count) and ((DestColList[j] as TModuleColOrder).Row < DestModuleOrder.Row) do
+              inc(j);
+            if (j<DestColList.Count) then
+              DestColList.Insert(j, DestModuleOrder)
+            else
+              DestColList.Add( DestModuleOrder);
+          end;
+        end;
+        // Make a list of srcepatch modules in this column sorted by row
+        for m := 0 to aModuleList.Count - 1 do begin
+          Module := aModuleList[m];
+          if Module.Col = i then begin
+
+            SrceModuleOrder :=  TModuleColOrder.Create;
+            SrceModuleOrder.ModuleIndex := Module.ModuleIndex;
+            SrceModuleOrder.Row := Module.Row;
+            SrceModuleOrder.Height := Module.HeightUnits;
+            SrceModuleOrder.Source := True;
+
+            j := 0;
+            while (j<SrceColList.Count) and ((SrceColList[j] as TModuleColOrder).Row < SrceModuleOrder.Row) do
+              inc(j);
+            if (j<SrceColList.Count) then
+              SrceColList.Insert(j, SrceModuleOrder)
+            else
+              SrceColList.Add( SrceModuleOrder);
+          end;
+        end;
+
+        // Merge lists
+        for m := 0 to SrceColList.Count - 1 do begin
+          j := 0;
+          while (j<DestColList.Count) and ((DestColList[j] as TModuleColOrder).Row < (SrceColList[m] as TModuleColOrder).Row) do
+            inc(j);
+
+          SrceModuleOrder :=  TModuleColOrder.Create;
+          SrceModuleOrder.ModuleIndex := (SrceColList[m] as TModuleColOrder).ModuleIndex;
+          SrceModuleOrder.Row := (SrceColList[m] as TModuleColOrder).Row;
+          SrceModuleOrder.Height := (SrceColList[m] as TModuleColOrder).Height;
+          SrceModuleOrder.Source := True;
+
+          if (j<DestColList.Count) then
+            DestColList.Insert( j, SrceModuleOrder)
+          else
+            DestColList.Add( SrceModuleOrder);
+        end;
+        // Calc new positions
+        for m := 1 to DestColList.Count - 1 do begin
+          if (DestColList[m] as TModuleColOrder).Row < ((DestColList[m-1] as TModuleColOrder).Row + (DestColList[m-1] as TModuleColOrder).Height) then begin
+            d_row := ((DestColList[m-1] as TModuleColOrder).Row + (DestColList[m-1] as TModuleColOrder).Height) - (DestColList[m] as TModuleColOrder).Row;
+            for j := m to DestColList.Count - 1 do begin
+              (DestColList[j] as TModuleColOrder).Row := (DestColList[j] as TModuleColOrder).Row + d_row;
+            end;
+          end;
+        end;
+
+        // Determine wich modules have to moved (finally...)
+        for m := 0 to DestColList.Count - 1 do begin
+          // Srce patch or dest patch?
+          if (DestColList[m] as TModuleColOrder).Source then begin
+            // source patch, just alter the row in the srcepatch
+            j := 0;
+            while (j<aModuleList.Count) and (aModuleList[j].ModuleIndex <> (DestColList[m] as TModuleColOrder).ModuleIndex) do
+              inc(j);
+
+            if (j<aModuleList.Count) then begin
+              aModuleList[j].Row := (DestColList[m] as TModuleColOrder).Row;
+            end else begin
+              // shouldnt happen...
+            end;
+          end else begin
+            // Destination patch
+            j := 0;
+            while (j<PatchPart[ord(aToLocation)].ModuleList.Count) and (PatchPart[ord(aToLocation)].ModuleList[j].ModuleIndex <> (DestColList[m] as TModuleColOrder).ModuleIndex) do
+              inc(j);
+
+            if (j<PatchPart[ord(aToLocation)].ModuleList.Count) then begin
+              // destination patch, make a move module message if row differs
+              Module := PatchPart[ord(aToLocation)].ModuleList[j];
+              if Module.Row <> (DestColList[m] as TModuleColOrder).Row then begin
+                AddMoveModuleMessage( FUndoMessage, Module, Module.Col, Module.Row);
+                AddMoveModuleMessage( SendMessage, Module, Module.Col, (DestColList[m] as TModuleColOrder).Row);
+              end;
+            end else begin
+              // Shouldnt happen....
+            end;
+          end
+        end;
+
+      finally
+        DestColList.Free;
+        SrceColList.Free;
+      end;
+    end;
+  end;
+end;
+
 procedure TG2MessPatch.AddCopyModulesMessage( SendMessage : TG2SendMessage; aSrcePatch : TG2FilePatchPart; aFromLocation, aToLocation : TLocationType; RenumberModules : boolean);
 var Chunk : TPatchChunk;
     BitWriter : TBitWriter;
@@ -3540,6 +3687,9 @@ begin
   try
     Chunk := TPatchChunk.Create( MemStream);
     try
+      // Create move messages for the existing modules
+      AddReplaceModulesMessages( SendMessage, aSrcePatch.ModuleList, aToLocation);
+
       for m := 0 to aSrcePatch.ModuleList.Count - 1 do begin
 
         Module := aSrcePatch.ModuleList[m];
@@ -3600,13 +3750,13 @@ begin
       Chunk.WriteChunk( $52);
 
       // Write parameterlist chunk
-      Chunk.WriteBits( ord(aToLocation),                         2);
+      Chunk.WriteBits( ord(aToLocation),                        2);
       Chunk.WriteBits( aSrcePatch.ParameterList.Count,          8); // SetCount
       Chunk.WriteBits( aSrcePatch.ParameterList.VariationCount, 8); // VariationCount
 
       for i := 0 to aSrcePatch.ParameterList.Count - 1 do begin
         Chunk.WriteBits( GetNewModuleIndex( aSrcePatch.ParameterList[i].ModuleIndex), 8); // ModuleIndex
-        Chunk.WriteBits( aSrcePatch.ParameterList[i].ParameterCount,                 7); // ParamCount
+        Chunk.WriteBits( aSrcePatch.ParameterList[i].ParameterCount,                  7); // ParamCount
         for j := 0 to aSrcePatch.ParameterList[i].Count - 1 do begin // Variations
           Chunk.WriteBits( aSrcePatch.ParameterList[i].Items[j].Variation, 8);
 
@@ -3630,9 +3780,9 @@ begin
       Chunk.WriteChunk( $5b);
 
       // Write modulenames chunk
-      Chunk.WriteBits( ord(aToLocation),                  2);
-      Chunk.WriteBits( aSrcePatch.ModuleLabels.Unknown,   6); // Unknown
-      Chunk.WriteBits( aSrcePatch.ModuleLabels.Count, 8); // NameCount
+      Chunk.WriteBits( ord(aToLocation),                2);
+      Chunk.WriteBits( aSrcePatch.ModuleLabels.Unknown, 6); // Unknown
+      Chunk.WriteBits( aSrcePatch.ModuleLabels.Count,   8); // NameCount
       for i := 0 to  aSrcePatch.ModuleLabels.Count - 1 do begin
 
         Chunk.WriteBits( GetNewModuleIndex( aSrcePatch.ModuleLabels[i].ModuleIndex), 8);
