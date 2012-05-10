@@ -299,8 +299,8 @@ type
     function    GetScrollPosX : integer;
     function    GetScrollPosY : integer;
     procedure   SetSelected( aValue: boolean); override;
-    function    GetNewCol : TBits7; override;
-    function    GetNewRow : TBits7; override;
+    //function    GetNewCol : TBits7; override;
+    //function    GetNewRow : TBits7; override;
     procedure   SetModuleColor( Value : TBits8); override;
     function    GetOnModuleClick : TModuleClickEvent;
     procedure   SetOnModuleClick( aValue : TModuleClickEvent);
@@ -370,8 +370,8 @@ type
 
     procedure   SetCol( aValue : TBits7); //override;
     procedure   SetRow( aValue : TBits7); //override;
-    function    GetNewCol : TBits7;
-    function    GetNewRow : TBits7;
+    function    CalcNewCol : TBits7;
+    function    CalcNewRow : TBits7;
 
     function    GetGraphChildControl( ChildControlIndex : integer): TG2GraphChildControl;
     function    GetChildControlsCount : integer;
@@ -403,8 +403,8 @@ type
     property    OnParameterClick : TParameterClickEvent read FOnParameterClick write FOnParameterClick;
     property    OnConnectorClick : TConnectorClickEvent read FOnConnectorClick write FOnConnectorClick;
     property    Selected : boolean read GetSelected write SetSelected;
-    property    NewRow : TBits7 read GetNewRow;
-    property    NewCol : TBits7 read GetNewCol;
+    //property    NewRow : TBits7 read GetNewRow;
+    //property    NewCol : TBits7 read GetNewCol;
     property    Data : TG2GraphModule read FData write FData;
     property    Location    : TLocationType read GetLocation;
     property    ModuleIndex : TBits8 read GetModuleIndex;
@@ -1405,8 +1405,8 @@ begin
   if assigned(FCopyPatch) then
     for i := 0 to FCopyPatch.ModuleList.Count - 1 do begin
       Module := FCopyPatch.ModuleList[i] as TG2GraphModule;
-      Module.Row := (VertScrollbar.Position + FStartY + trunc(Module.FOutlineRect.Top)) div UNITS_ROW;
-      Module.Col := (HorzScrollbar.Position + FStartX + trunc(Module.FOutlineRect.Left)) div UNITS_COL;
+      Module.NewRow := (VertScrollbar.Position + FStartY + trunc(Module.FOutlineRect.Top)) div UNITS_ROW;
+      Module.NewCol := (HorzScrollbar.Position + FStartX + trunc(Module.FOutlineRect.Left)) div UNITS_COL;
     end;
 end;
 
@@ -2206,8 +2206,9 @@ end;
 procedure TG2GraphPatch.MoveOutlines(dX, dY: integer);
 var i : integer;
 begin
-  for i := 0 to SelectedModuleList.Count - 1 do
+  for i := 0 to SelectedModuleList.Count - 1 do begin
     (SelectedModuleList[i] as TG2GraphModule).FPanel.MoveOutline( dX, dY);
+  end;
 end;
 
 function TG2GraphPatch.MessMoveModules: boolean;
@@ -2439,10 +2440,11 @@ begin
   Result := TG2GraphParameter.Create( PatchPart.Patch, TLocationType(Location), ModuleIndex, self);
 end;
 
-function TG2GraphModule.GetNewCol: TBits7;
+{function TG2GraphModule.GetNewCol: TBits7;
 begin
   if assigned(FPanel) then
-    Result := FPanel.GetNewCol
+    //Result := FPanel.GetNewCol
+    Result := FPanel.CalcNewCol
   else
     Result := 0;
 end;
@@ -2450,10 +2452,11 @@ end;
 function TG2GraphModule.GetNewRow: TBits7;
 begin
   if assigned(FPanel) then
-    Result := FPanel.GetNewRow
+    //Result := FPanel.GetNewRow
+    Result := FPanel.CalcNewRow
   else
     Result := 0;
-end;
+end;}
 
 function TG2GraphModule.GetOnConnectorClick: TConnectorClickEvent;
 begin
@@ -2810,6 +2813,8 @@ begin
   FData.FOutlineRect.Top := FOldY + dY;
   FData.FOutlineRect.Right := FData.FOutlineRect.Left + Width;
   FData.FOutlineRect.Bottom := FData.FOutlineRect.Top + Height;
+  FData.NewRow := CalcNewRow;
+  FData.NewCol := CalcNewCol;
 
   if assigned( Parent) then begin
     (Parent as TG2GraphScrollbox).DrawOutline(FData.FOutlineRect);
@@ -2833,7 +2838,7 @@ procedure TG2GraphModulePanel.MoveModule;
     Patch.MoveModule( Location, ModuleIndex, NewCol, NewRow);}
 end;
 
-function TG2GraphModulePanel.GetNewCol: TBits7;
+function TG2GraphModulePanel.CalcNewCol: TBits7;
 var NewCol : integer;
 begin
   NewCol := (ScrollPosX + FData.FOutlineRect.Left - FOldX + FStartX) div UNITS_COL;
@@ -2843,7 +2848,7 @@ begin
     Result := NewCol;
 end;
 
-function TG2GraphModulePanel.GetNewRow: TBits7;
+function TG2GraphModulePanel.CalcNewRow: TBits7;
 var NewRow : integer;
 begin
   NewRow := (ScrollPosY + FData.FOutlineRect.Top - FOldY + FStartY) div UNITS_ROW;

@@ -322,7 +322,7 @@ uses
 
     function    FindCable( Location : TLocationType; FromModule : byte; FromConnector : byte; ToModule : byte; ToConnector : byte): TG2FileCable;
 
-    procedure   AddReplaceModulesMessages( SendMessage : TG2SendMessage; aModuleList : TModuleList; aToLocation : TLocationType);
+    procedure   AddReplaceModulesMessages( SendMessage : TG2SendMessage; aModulesToReplaceList, aModulesMovedList : TModuleList);
     procedure   AddNewModuleMessage( SendMessage : TG2SendMessage; aLocation : TLocationType; aNewModuleIndex, aModuleType, aCol, aRow: byte);
     procedure   AddCopyModuleMessage( SendMessage : TG2SendMessage; aLocation : TLocationType; aModule : TG2FileModule);
     procedure   AddCopyModuleParametersMessage( SendMessage : TG2SendMessage; aLocation : TLocationType; aModule : TG2FileModule);
@@ -3343,6 +3343,145 @@ begin
   end;
 end;
 
+procedure TG2MessPatch.AddReplaceModulesMessages( SendMessage : TG2SendMessage; aModulesToReplaceList, aModulesMovedList : TModuleList);
+var i, j, m, col_min, col_max, col_module_count, new_row : integer;
+    DestModuleOrder, SrceModuleOrder : TModuleColOrder;
+    DestColList, SrceColList : TObjectList;
+    Module : TG2FileModule;
+begin
+  // Get the start and end column of the srcepatch modules
+  col_min := -1;
+  col_max := -1;
+  for m := 0 to aModulesMovedList.Count - 1 do begin
+    Module := aModulesMovedList[m];
+    if (Module.NewCol < col_min) or (col_min = -1) then
+      col_min := Module.NewCol;
+    if (Module.NewCol > col_max) or (col_max = -1) then
+      col_max := Module.NewCol;
+  end;
+  // Go through the colums en move the existing modules
+  for i := col_min to col_max do begin
+    // Detrmine the amound of modules in the srcepatch of this column
+    col_module_count := 0;
+    for m := 0 to aModulesMovedList.Count - 1 do begin
+      Module := aModulesMovedList[m];
+      if Module.NewCol = i then
+        inc(col_module_count);
+    end;
+
+    if col_module_count > 0 then begin
+      SrceColList := TObjectList.Create( True);
+      DestColList := TObjectList.Create( True);
+      try
+        // Make a list of existing modules in this column sorted by row
+        for m := 0 to aModulesToReplaceList.Count - 1 do begin
+          Module := aModulesToReplaceList[m];
+          if Module.Col = i then begin
+
+            DestModuleOrder :=  TModuleColOrder.Create;
+            DestModuleOrder.ModuleIndex := Module.ModuleIndex;
+            DestModuleOrder.Row := Module.Row;
+            DestModuleOrder.Height := Module.HeightUnits;
+            DestModuleOrder.Source := False;
+
+            j := 0;
+            while (j<DestColList.Count) and ((DestColList[j] as TModuleColOrder).Row < DestModuleOrder.Row) do
+              inc(j);
+            if (j<DestColList.Count) then
+              DestColList.Insert(j, DestModuleOrder)
+            else
+              DestColList.Add( DestModuleOrder);
+          end;
+        end;
+        // Make a list of srcepatch modules in this column sorted by row
+        for m := 0 to aModulesMovedList.Count - 1 do begin
+          Module := aModulesMovedList[m];
+          if Module.NewCol = i then begin
+
+            SrceModuleOrder :=  TModuleColOrder.Create;
+            SrceModuleOrder.ModuleIndex := Module.ModuleIndex;
+            SrceModuleOrder.Row := Module.NewRow;
+            SrceModuleOrder.Height := Module.HeightUnits;
+            SrceModuleOrder.Source := True;
+
+            j := 0;
+            while (j<SrceColList.Count) and ((SrceColList[j] as TModuleColOrder).Row < SrceModuleOrder.Row) do
+              inc(j);
+            if (j<SrceColList.Count) then
+              SrceColList.Insert(j, SrceModuleOrder)
+            else
+              SrceColList.Add( SrceModuleOrder);
+          end;
+        end;
+
+        // Merge lists
+        for m := 0 to SrceColList.Count - 1 do begin
+          j := 0;
+          while (j<DestColList.Count) and ((DestColList[j] as TModuleColOrder).Row < (SrceColList[m] as TModuleColOrder).Row) do
+            inc(j);
+
+          SrceModuleOrder :=  TModuleColOrder.Create;
+          SrceModuleOrder.ModuleIndex := (SrceColList[m] as TModuleColOrder).ModuleIndex;
+          SrceModuleOrder.Row := (SrceColList[m] as TModuleColOrder).Row;
+          SrceModuleOrder.Height := (SrceColList[m] as TModuleColOrder).Height;
+          SrceModuleOrder.Source := True;
+
+          if (j<DestColList.Count) then
+            DestColList.Insert( j, SrceModuleOrder)
+          else
+            DestColList.Add( SrceModuleOrder);
+        end;
+
+        // Calc new positions
+        new_row := (DestColList[0] as TModuleColOrder).Row + (DestColList[0] as TModuleColOrder).Height;
+        for m := 1 to DestColList.Count - 1 do begin
+          if new_row > (DestColList[m] as TModuleColOrder).Row then begin
+            (DestColList[m] as TModuleColOrder).Row := new_row;
+          end;
+          new_row := (DestColList[m] as TModuleColOrder).Row + (DestColList[m] as TModuleColOrder).Height;;
+        end;
+
+        // Determine wich modules have to moved (finally...)
+        for m := 0 to DestColList.Count - 1 do begin
+          // Srce patch or dest patch?
+          if (DestColList[m] as TModuleColOrder).Source then begin
+            // source patch, just alter the row in the srcepatch
+            j := 0;
+            while (j<aModulesMovedList.Count) and (aModulesMovedList[j].ModuleIndex <> (DestColList[m] as TModuleColOrder).ModuleIndex) do
+              inc(j);
+
+            if (j<aModulesMovedList.Count) then begin
+              aModulesMovedList[j].NewRow := (DestColList[m] as TModuleColOrder).Row;
+            end else begin
+              // shouldnt happen...
+            end;
+          end else begin
+            // Destination patch
+            j := 0;
+            while (j < aModulesToReplaceList.Count) and ( aModulesToReplaceList[j].ModuleIndex <> (DestColList[m] as TModuleColOrder).ModuleIndex) do
+              inc(j);
+
+            if (j < aModulesToReplaceList.Count) then begin
+              // destination patch, make a move module message if row differs
+              Module := aModulesToReplaceList[j];
+              if Module.Row <> (DestColList[m] as TModuleColOrder).Row then begin
+                AddMoveModuleMessage( FUndoMessage, Module, Module.Col, Module.Row);
+                AddMoveModuleMessage( SendMessage, Module, Module.Col, (DestColList[m] as TModuleColOrder).Row);
+              end;
+            end else begin
+              // Shouldnt happen....
+            end;
+          end
+        end;
+
+      finally
+        DestColList.Free;
+        SrceColList.Free;
+      end;
+    end;
+  end;
+end;
+
 procedure TG2MessPatch.AddNewModuleMessage( SendMessage : TG2SendMessage; aLocation : TLocationType; aNewModuleIndex, aModuleType, aCol, aRow: byte);
 var Chunk : TPatchChunk;
     BitWriter : TBitWriter;
@@ -3351,6 +3490,9 @@ var Chunk : TPatchChunk;
     ParamList : TXMLParamListType;
     ParamDef : TXMLParamDefType;
     ParameterLabels : TParameterLabels;
+    TempModuleList : TModuleList;
+    TempModule : TG2FileModule;
+
     i : LongWord;
     j : integer;
 begin
@@ -3369,6 +3511,26 @@ begin
       raise Exception.Create('Module type ' + IntToStr(aModuleType) + ' not found.');
 
     ModuleDef := G2.FModuleDefList.ModuleDef[ i];
+
+    // Some quick and dirty code to calculate the new module positions....
+    TempModuleList := TModuleList.Create( False, nil);
+    TempModule := TG2FileModule.Create( nil);
+    try
+      TempModule.ModuleIndex := aNewModuleIndex;
+      TempModule.NewRow := aRow;
+      TempModule.NewCol := aCol;
+      TempModule.HeightUnits := ModuleDef.Height;
+
+      TempModuleList.AddModule( TempModule);
+      AddReplaceModulesMessages( SendMessage, PatchPart[ord(aLocation)].ModuleList, TempModuleList);
+      aCol := TempModule.NewCol;
+      aRow := TempModule.NewRow;
+
+    finally
+      TempModule.Free;
+      TempModuleList.Free;
+    end;
+
 
     // Create undo add module message
     AddDeleteModuleMessage( FUndoMessage, aLocation, aNewModuleIndex);
@@ -3509,145 +3671,6 @@ begin
   end;
 end;
 
-procedure TG2MessPatch.AddReplaceModulesMessages( SendMessage : TG2SendMessage; aModuleList : TModuleList; aToLocation : TLocationType);
-var i, j, m, col_min, col_max, col_module_count, d_row : integer;
-    DestModuleOrder, SrceModuleOrder : TModuleColOrder;
-    DestColList, SrceColList : TObjectList;
-    Module : TG2FileModule;
-begin
-  // Get the start and end column of the srcepatch modules
-  col_min := -1;
-  col_max := -1;
-  for m := 0 to aModuleList.Count - 1 do begin
-    Module := aModuleList[m];
-    if (Module.Col < col_min) or (col_min = -1) then
-      col_min := Module.Col;
-    if (Module.Col > col_max) or (col_max = -1) then
-      col_max := Module.Col;
-  end;
-  // Go through the colums en move the existing modules
-  for i := col_min to col_max do begin
-    // Detrmine the amound of modules in the srcepatch of this column
-    col_module_count := 0;
-    for m := 0 to aModuleList.Count - 1 do begin
-      Module := aModuleList[m];
-      if Module.Col = i then
-        inc(col_module_count);
-    end;
-
-    if col_module_count > 0 then begin
-      SrceColList := TObjectList.Create( True);
-      DestColList := TObjectList.Create( True);
-      try
-        // Make a list of existing modules in this column sorted by row
-        for m := 0 to PatchPart[ord(aToLocation)].ModuleList.Count - 1 do begin
-          Module := PatchPart[ord(aToLocation)].ModuleList[m];
-          if Module.Col = i then begin
-
-            DestModuleOrder :=  TModuleColOrder.Create;
-            DestModuleOrder.ModuleIndex := Module.ModuleIndex;
-            DestModuleOrder.Row := Module.Row;
-            DestModuleOrder.Height := Module.HeightUnits;
-            DestModuleOrder.Source := False;
-
-            j := 0;
-            while (j<DestColList.Count) and ((DestColList[j] as TModuleColOrder).Row < DestModuleOrder.Row) do
-              inc(j);
-            if (j<DestColList.Count) then
-              DestColList.Insert(j, DestModuleOrder)
-            else
-              DestColList.Add( DestModuleOrder);
-          end;
-        end;
-        // Make a list of srcepatch modules in this column sorted by row
-        for m := 0 to aModuleList.Count - 1 do begin
-          Module := aModuleList[m];
-          if Module.Col = i then begin
-
-            SrceModuleOrder :=  TModuleColOrder.Create;
-            SrceModuleOrder.ModuleIndex := Module.ModuleIndex;
-            SrceModuleOrder.Row := Module.Row;
-            SrceModuleOrder.Height := Module.HeightUnits;
-            SrceModuleOrder.Source := True;
-
-            j := 0;
-            while (j<SrceColList.Count) and ((SrceColList[j] as TModuleColOrder).Row < SrceModuleOrder.Row) do
-              inc(j);
-            if (j<SrceColList.Count) then
-              SrceColList.Insert(j, SrceModuleOrder)
-            else
-              SrceColList.Add( SrceModuleOrder);
-          end;
-        end;
-
-        // Merge lists
-        for m := 0 to SrceColList.Count - 1 do begin
-          j := 0;
-          while (j<DestColList.Count) and ((DestColList[j] as TModuleColOrder).Row < (SrceColList[m] as TModuleColOrder).Row) do
-            inc(j);
-
-          SrceModuleOrder :=  TModuleColOrder.Create;
-          SrceModuleOrder.ModuleIndex := (SrceColList[m] as TModuleColOrder).ModuleIndex;
-          SrceModuleOrder.Row := (SrceColList[m] as TModuleColOrder).Row;
-          SrceModuleOrder.Height := (SrceColList[m] as TModuleColOrder).Height;
-          SrceModuleOrder.Source := True;
-
-          if (j<DestColList.Count) then
-            DestColList.Insert( j, SrceModuleOrder)
-          else
-            DestColList.Add( SrceModuleOrder);
-        end;
-        // Calc new positions
-        for m := 1 to DestColList.Count - 1 do begin
-          if (DestColList[m] as TModuleColOrder).Row < ((DestColList[m-1] as TModuleColOrder).Row + (DestColList[m-1] as TModuleColOrder).Height) then begin
-            d_row := ((DestColList[m-1] as TModuleColOrder).Row + (DestColList[m-1] as TModuleColOrder).Height) - (DestColList[m] as TModuleColOrder).Row;
-            for j := m to DestColList.Count - 1 do begin
-              (DestColList[j] as TModuleColOrder).Row := (DestColList[j] as TModuleColOrder).Row + d_row;
-            end;
-          end;
-        end;
-
-        // Determine wich modules have to moved (finally...)
-        for m := 0 to DestColList.Count - 1 do begin
-          // Srce patch or dest patch?
-          if (DestColList[m] as TModuleColOrder).Source then begin
-            // source patch, just alter the row in the srcepatch
-            j := 0;
-            while (j<aModuleList.Count) and (aModuleList[j].ModuleIndex <> (DestColList[m] as TModuleColOrder).ModuleIndex) do
-              inc(j);
-
-            if (j<aModuleList.Count) then begin
-              aModuleList[j].Row := (DestColList[m] as TModuleColOrder).Row;
-            end else begin
-              // shouldnt happen...
-            end;
-          end else begin
-            // Destination patch
-            j := 0;
-            while (j<PatchPart[ord(aToLocation)].ModuleList.Count) and (PatchPart[ord(aToLocation)].ModuleList[j].ModuleIndex <> (DestColList[m] as TModuleColOrder).ModuleIndex) do
-              inc(j);
-
-            if (j<PatchPart[ord(aToLocation)].ModuleList.Count) then begin
-              // destination patch, make a move module message if row differs
-              Module := PatchPart[ord(aToLocation)].ModuleList[j];
-              if Module.Row <> (DestColList[m] as TModuleColOrder).Row then begin
-                AddMoveModuleMessage( FUndoMessage, Module, Module.Col, Module.Row);
-                AddMoveModuleMessage( SendMessage, Module, Module.Col, (DestColList[m] as TModuleColOrder).Row);
-              end;
-            end else begin
-              // Shouldnt happen....
-            end;
-          end
-        end;
-
-      finally
-        DestColList.Free;
-        SrceColList.Free;
-      end;
-    end;
-  end;
-end;
-
 procedure TG2MessPatch.AddCopyModulesMessage( SendMessage : TG2SendMessage; aSrcePatch : TG2FilePatchPart; aFromLocation, aToLocation : TLocationType; RenumberModules : boolean);
 var Chunk : TPatchChunk;
     BitWriter : TBitWriter;
@@ -3688,7 +3711,7 @@ begin
     Chunk := TPatchChunk.Create( MemStream);
     try
       // Create move messages for the existing modules
-      AddReplaceModulesMessages( SendMessage, aSrcePatch.ModuleList, aToLocation);
+      AddReplaceModulesMessages( SendMessage, PatchPart[ord(aToLocation)].ModuleList, aSrcePatch.ModuleList);
 
       for m := 0 to aSrcePatch.ModuleList.Count - 1 do begin
 
@@ -3701,8 +3724,8 @@ begin
         Chunk.WriteBits( Module.TypeID,                         8);
         Chunk.WriteBits( ord(aToLocation),                      8);
         Chunk.WriteBits( GetNewModuleIndex(Module.ModuleIndex), 8);
-        Chunk.WriteBits( Module.Col,                            8);
-        Chunk.WriteBits( Module.Row,                            8);
+        Chunk.WriteBits( Module.NewCol,                         8);
+        Chunk.WriteBits( Module.NewRow,                         8);
         Chunk.WriteBits( 0,                                     8);
         Chunk.WriteBits( Module.Uprate,                         8); // TODO Recalc uprate
         Chunk.WriteBits( Module.IsLed,                          8);
@@ -4229,8 +4252,28 @@ end;
 function TG2MessPatch.CreateMoveModulesMessage: TG2SendMessage;
 var Module : TG2FileModule;
     i, j : integer;
+    ModuleMovedList, ModulesToReplaceList : TModuleList;
+    ToLocation : TLocationType;
 begin
   Result := CreatePatchMessage;
+
+  ModuleMovedList := TModuleList.Create( False, nil);
+  ModulesToReplaceList := TModuleList.Create( False, nil);
+  try
+    for i := 0 to 1 do
+      for j := 0 to ModuleCount[i] - 1 do begin
+        Module := ModuleList[i].Items[j];
+        if Module.Selected then begin
+
+          ModuleMovedList.AddModule(Module);
+        end else
+          ModulesToReplaceList.AddModule(Module);
+      end;
+    AddReplaceModulesMessages( Result, ModulesToReplaceList, ModuleMovedList);
+  finally
+    ModulesToReplaceList.Free;
+    ModuleMovedList.Free;
+  end;
 
   for i := 0 to 1 do
     for j := 0 to ModuleCount[i] - 1 do begin

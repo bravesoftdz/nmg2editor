@@ -931,6 +931,33 @@ object frmG2Main: TfrmG2Main
         Action = aExit
       end
     end
+    object Edit1: TMenuItem
+      Caption = 'Edit'
+      object Undo1: TMenuItem
+        Action = aUndo
+      end
+      object N12: TMenuItem
+        Caption = '-'
+      end
+      object Cut2: TMenuItem
+        Action = aCut
+      end
+      object Copy2: TMenuItem
+        Action = aCopy
+      end
+      object Paste2: TMenuItem
+        Action = aPaste
+      end
+      object Delete2: TMenuItem
+        Action = aDelete
+      end
+      object N13: TMenuItem
+        Caption = '-'
+      end
+      object Selectall1: TMenuItem
+        Action = aSelectAll
+      end
+    end
     object miSelect: TMenuItem
       Caption = '&Select'
       OnClick = miSelectClick
@@ -961,33 +988,6 @@ object frmG2Main: TfrmG2Main
       end
       object miAddcable: TMenuItem
         Action = aShowAddCable
-      end
-    end
-    object Edit1: TMenuItem
-      Caption = 'Edit'
-      object Undo1: TMenuItem
-        Action = aUndo
-      end
-      object N12: TMenuItem
-        Caption = '-'
-      end
-      object Cut2: TMenuItem
-        Action = aCut
-      end
-      object Copy2: TMenuItem
-        Action = aCopy
-      end
-      object Paste2: TMenuItem
-        Action = aPaste
-      end
-      object Delete2: TMenuItem
-        Action = aDelete
-      end
-      object N13: TMenuItem
-        Caption = '-'
-      end
-      object Selectall1: TMenuItem
-        Action = aSelectAll
       end
     end
     object View1: TMenuItem

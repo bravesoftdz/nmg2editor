@@ -142,20 +142,22 @@ type
   TG2FileModule = class(TComponent)
   private
     // File storage
-    FTypeID       : TBits8;
-    FModuleIndex  : TBits8;
-    FCol          : TBits7;
-    FRow          : TBits7;
-    FModuleColor  : TBits8;
-    FUprate       : TBits1; // processing rate increased due to audio modulation
-    FIsLed        : TBits1; // unknown function
-    //FUnknown1   : TBits8;
-    FUnknown1     : TBits6;
-    //FUnknown2   : TBits4;
-    FModeCount    : TBits4;
-    FModeInfo     : array of TBits6;
+    FTypeID        : TBits8;
+    FModuleIndex   : TBits8;
+    FCol           : TBits7;
+    FRow           : TBits7;
+    FModuleColor   : TBits8;
+    FUprate        : TBits1; // processing rate increased due to audio modulation
+    FIsLed         : TBits1; // unknown function
+    //FUnknown1    : TBits8;
+    FUnknown1      : TBits6;
+    //FUnknown2    : TBits4;
+    FModeCount     : TBits4;
+    FModeInfo      : array of TBits6;
 
-    FHeightUnits  : integer;
+    FHeightUnits   : integer;
+    FNewCol        : integer;
+    FNewRow        : integer;
 
     // Interface
     FSelected      : Boolean;
@@ -189,6 +191,8 @@ type
     procedure   SetModuleColor( Value : TBits8); virtual;
     procedure   SetModuleName( aValue : AnsiString); virtual;
     procedure   SetSelected( aValue: boolean); virtual;
+    procedure   SetNewCol( aValue : TBits7);
+    procedure   SetNewRow( aValue : TBits7);
     function    GetNewCol : TBits7; virtual;
     function    GetNewRow : TBits7; virtual;
     function    GetAssignableKnobCount : integer;
@@ -237,8 +241,8 @@ type
     property    Location : TLocationType read FLocation write Flocation;
     property    Color : integer read GetColor;
     property    Selected    : boolean read FSelected write SetSelected;
-    property    NewRow : TBits7 read GetNewRow;
-    property    NewCol : TBits7 read GetNewCol;
+    property    NewRow : TBits7 read GetNewRow write SetNewRow;
+    property    NewCol : TBits7 read GetNewCol write SetNewCol;
     property    NewUprate : TBits1 read FNewUprate write FNewUprate;
     property    SelectedParam : TG2FileParameter read GetSelectedParam write SetSelectedParam;
     property    AssignableKnobCount : integer read GetAssignableKnobCount;
@@ -1636,14 +1640,24 @@ begin
     raise Exception.Create('Set ModeInfo, index ' + IntToStr(aModeIndex) + ' out of range.');
 end;
 
+procedure TG2FileModule.SetNewCol( aValue : TBits7);
+begin
+  FNewCol := aValue;
+end;
+
 function TG2FileModule.GetNewCol : TBits7;
 begin
-  Result := 0;
+  Result := FNewCol;
+end;
+
+procedure TG2FileModule.SetNewRow( aValue : TBits7);
+begin
+  FNewRow := aValue;
 end;
 
 function TG2FileModule.GetNewRow : TBits7;
 begin
-  Result := 0;
+  Result := FNewRow;
 end;
 
 function TG2FileModule.GetSelectedParam : TG2FileParameter;
