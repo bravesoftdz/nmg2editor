@@ -973,9 +973,6 @@ object frmG2Main: TfrmG2Main
       object miSelectparameter: TMenuItem
         Action = aShowSelectParam
       end
-      object miSelectconnector: TMenuItem
-        Action = aShowSelectConnector
-      end
       object miSelectcable: TMenuItem
         Action = aShowSelectCable
       end
@@ -1462,6 +1459,7 @@ object frmG2Main: TfrmG2Main
       Category = 'Select'
       Caption = 'Select cable'
       ShortCut = 67
+      OnExecute = aShowSelectCableExecute
     end
     object aShowAddModule: TAction
       Category = 'Add'

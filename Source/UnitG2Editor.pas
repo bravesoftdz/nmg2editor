@@ -90,12 +90,13 @@ unit UnitG2Editor;
    // ha    : 00 0C 01 28 00 6F 00 02 68 61 56 C9
    // hal   : 00 0D 01 28 00 6F 00 03 68 61 6C 28 AD
    // enz.
-
-// Menu-driven patching for the blind one
-// Variation init function
+// Numbering modules when adding modules, check change module names
+// Finish module param mappings to parameter pages in xml def file
+// Menu-driven patching
+// Variation init function:
    // Copy from var 1 to init 00 0A 01 28 00 44 00 08 0F 5C
    // Init on var 2           00 0A 01 28 00 44 08 01 17 DC
-// CTRL E, parameter paste
+// CTRL E, parameter paste:
    // Osc B to Osc B : 00 19 01 28 00 4D 00 0F 40 40 40 45 80 D9 80 04 00 00 00 00 02 02 00 53 D3
 
 
@@ -355,7 +356,6 @@ type
     miSelectlocation: TMenuItem;
     miSelectmodule: TMenuItem;
     miSelectparameter: TMenuItem;
-    miSelectconnector: TMenuItem;
     miSelectcable: TMenuItem;
     miAdd: TMenuItem;
     miAddModule: TMenuItem;
@@ -453,6 +453,7 @@ type
     procedure miAddClick(Sender: TObject);
     procedure aShowAddModuleExecute(Sender: TObject);
     procedure aShowAddCableExecute(Sender: TObject);
+    procedure aShowSelectCableExecute(Sender: TObject);
   private
     { Private declarations }
     FCtrlMidiEnabled : boolean;
@@ -518,8 +519,7 @@ type
     procedure DoSelectLocation( Sender: TObject);
     procedure DoSelectModule( Sender: TObject);
     procedure DoSelectParam( Sender: TObject);
-    procedure DoSelectConnector( Sender: TObject);
-    procedure DoSelectCable( Sender: TObject);
+    procedure DoDeleteCable( Sender: TObject);
     procedure DoAddCable( Sender: TObject);
     function  GetSelectedModule: TG2FileModule;
     function  GetSelectedParam : TG2FileParameter;
@@ -2222,8 +2222,7 @@ begin
     exit;
 
   if Sender is TMenuItem then begin
-     ModuleIndex := (Sender as TMenuItem).Tag;
-     Module := G2.SelectedPatch.Modules[ ord(FLocation), ModuleIndex];
+     Module := TG2FileModule((Sender as TMenuItem).Tag);
      if assigned(Module) then begin
        G2.SelectedPatch.UnSelectModules( FLocation);
        Module.Selected := True;
@@ -2232,76 +2231,56 @@ begin
 end;
 
 procedure TfrmG2Main.DoSelectParam(Sender: TObject);
-var ParamIndex : integer;
-    Module : TG2FileModule;
-    Param : TG2FileParameter;
+var Param : TG2FileParameter;
     G2 : TG2;
-    i : integer;
 begin
   G2 := SelectedG2;
   if not assigned(G2) then
     exit;
 
   if Sender is TMenuItem then begin
-     ParamIndex := (Sender as TMenuItem).Tag;
-     if G2.SelectedPatch.SelectedModuleList.Count > 0 then begin
-       Module := G2.SelectedPatch.SelectedModuleList[0];
-       if assigned(Module) and (ParamIndex < Module.ParameterCount) then begin
-         i := 0;
-         while (i < Module.ParameterCount) and (ParamIndex <> Module.Parameter[i].ParamIndex) do
-           inc(i);
-
-         if (i < Module.ParameterCount) then begin
-           Param := Module.Parameter[i];
-           Param.Selected := True;
-         end;
-       end;
-     end;
+    Param := TG2FileParameter( (Sender as TMenuItem).Tag);
+    Param.Selected := True;
   end;
 end;
 
-procedure TfrmG2Main.DoSelectConnector( Sender: TObject);
+procedure TfrmG2Main.DoDeleteCable( Sender: TObject);
+var G2 : TG2;
+   Cable : TG2FileCable;
 begin
-  //
-end;
+  G2 := SelectedG2;
+  if not assigned(G2) then
+    exit;
 
-procedure TfrmG2Main.DoSelectCable( Sender: TObject);
-begin
-  //
+  if Sender is TMenuItem then begin
+    Cable := TG2FileCable((Sender as TMenuItem).tag);
+    if assigned(Cable) then
+      G2.SelectedPatch.MessDeleteConnection( FLocation, Cable);
+  end;
 end;
 
 procedure TfrmG2Main.DoAddCable(Sender: TObject);
-var ConToMenuItem, ModMenuItem : TMenuItem;
-    FromModule, ToModule : TG2FileModule;
+var ConnectorToMenuItem, ModuleMenuItem : TMenuItem;
     FromConnector, ToCOnnector : TG2FileConnector;
-    LinkType : byte;
-    Cable : TG2FileCable;
     G2 : TG2;
 begin
   G2 := SelectedG2;
   if not assigned(G2) then
     exit;
 
-  if (Sender is TMenuItem) {and (copy((Sender as TMenuItem).Name, 1, 15) = 'miDestConnector')} then begin
-    ConToMenuItem := Sender as TMenuItem;
-    if assigned(ConToMenuItem.Parent) then begin
-      ModMenuItem := ConToMenuItem.Parent;
+  if (Sender is TMenuItem) then begin
+    ConnectorToMenuItem := Sender as TMenuItem;
+    if assigned(ConnectorToMenuItem.Parent) then begin
+      ModuleMenuItem := ConnectorToMenuItem.Parent;
 
-      if assigned(ModMenuItem) and assigned(ModMenuItem.Parent) and assigned(ModMenuItem.Parent.Parent) then begin
+      if assigned(ModuleMenuItem) and assigned(ModuleMenuItem.Parent) and assigned(ModuleMenuItem.Parent.Parent) then begin
 
-        FromModule := GetSelectedModule;
-        ToModule := G2.SelectedPatch.Modules[ ord(FLocation), ModMenuItem.Tag];
-        if assigned(FromModule) and assigned(ToModule) then begin
-          if copy(ModMenuItem.Parent.Parent.Name, 1, 5) = 'miOut' then
-            FromConnector := FromModule.OutConnector[ ModMenuItem.Parent.Parent.Tag]
-          else
-            FromConnector := FromModule.InConnector[ ModMenuItem.Parent.Parent.Tag];
-
-          ToConnector := ToModule.InConnector[ConToMenuItem.Tag];
-          if assigned(FromConnector) and assigned(ToConnector) then begin
-            G2.SelectedPatch.MessAddConnection( FLocation, FromConnector, ToCOnnector);
-          end;
+        FromConnector := TG2FileConnector( ModuleMenuItem.Parent.Parent.Tag);
+        ToConnector := TG2FileConnector( ConnectorToMenuItem.Tag);
+        if assigned(FromConnector) and assigned(ToConnector) then begin
+          G2.SelectedPatch.MessAddConnection( FLocation, FromConnector, ToCOnnector);
         end;
+
       end;
     end;
   end;
@@ -2403,7 +2382,6 @@ begin
     exit;
 end;
 
-
 function TfrmG2Main.GetSlotName( aSlot : TG2FileSlot): string;
 begin
   if assigned( aSlot) then begin
@@ -2452,17 +2430,15 @@ end;
 
 function TfrmG2Main.GetConnectorName( aConnector : TG2FileConnector) : string;
 begin
-  Result := '';
+  if aConnector.ConnectorKind = ckInput then
+    Result := 'Input ' + aConnector.Name
+  else
+    Result := 'Output ' + aConnector.Name;
 end;
 
 function TfrmG2Main.GetCableName( aCable : TG2FileCable) : string;
 begin
   Result := '';
-end;
-
-procedure TfrmG2Main.UpdateSelectCable;
-begin
-//
 end;
 
 procedure TfrmG2Main.UpdateSelectLocation;
@@ -2495,12 +2471,12 @@ begin
       miSelectParameter.Caption := 'Select parameter, current ' + GetParameterName(Param) + ', value ' + GetParameterValue(Param)
     else
       miSelectParameter.Caption := 'Select parameter';
-    miSelectConnector.Caption := 'Select connector';
+    //miSelectConnector.Caption := 'Select connector';
     miSelectCable.Caption := 'Select cable';
   end else begin
     miSelectModule.Caption := 'Select module';
     miSelectParameter.Caption := 'Select parameter';
-    miSelectConnector.Caption := 'Select connector';
+    //miSelectConnector.Caption := 'Select connector';
     miSelectCable.Caption := 'Select cable';
   end;
 end;
@@ -2524,108 +2500,8 @@ begin
 end;
 
 procedure TfrmG2Main.UpdateSelectModule( aPopupMenu : TPopupMenu; CableDestSelect : boolean);
-var G2 : TG2;
-    i, j, c, p, m, mc : integer;
-    FromModule, Module : TG2FileModule;
-    Connector : TG2FileConnector;
-    PageName : string;
-    MenuItem, SubMenuItem, ConSubMenuItem : TMenuItem;
-    Allowed : boolean;
 begin
   AddSelectModuleMenu( aPopupMenu.Items, CableDestSelect);
-{  G2 := SelectedG2;
-  if not assigned(G2) then
-    exit;
-
-  if CableDestSelect then begin
-    FromModule := GetSelectedModule;
-    if not assigned(FromModule) then
-      exit;
-  end;
-
-  mc := 0;
-  aPopupMenu.Items.Clear;
-  for i := 0 to G2.SelectedPatch.ModuleCount[ ord(FLocation)] - 1 do begin
-    Module := G2.SelectedPatch.PatchPart[ ord(FLocation)].ModuleList[i];
-
-    if CableDestSelect then begin
-      // Only select modules with a free in-connector
-      c := 0;
-      while (c < Module.InConnectorCount) and (Module.InConnector[c].CableCount <> 0) do
-        inc(c);
-
-      Allowed := (c < Module.InConnectorCount);
-    end else
-      Allowed := True;
-
-    if Allowed then begin
-
-      m := 0;
-      while ( m < G2.FModuleDefList.Count) and (G2.FModuleDefList.ModuleDef[ m].ModuleType <> Module.TypeID) do
-        inc(m);
-
-      if ( m >= G2.FModuleDefList.Count) then
-        raise Exception.Create('Module type ' + IntToStr(Module.TypeID) + ' not found.');
-
-      PageName := G2.FModuleDefList.ModuleDef[ m].Page;
-
-      p := 0;
-      while (p<16) and (MODULECATEGORIES[p] <> PageName) do
-        inc(p);
-
-      if (p>=16) then
-        raise Exception.Create( 'Module categorie ' + PageName + ' not found.');
-
-      j := 0;
-      while (j < aPopupMenu.Items.Count) and (aPopupMenu.Items[j].Tag < p) do
-        inc(j);
-
-      if (j < aPopupMenu.Items.Count) then begin
-
-        if aPopupMenu.Items[j].Tag <> p then begin
-          MenuItem := TMenuItem.Create(self);
-          MenuItem.Caption := PageName;
-          //MenuItem.ImageIndex := Module.TypeID;
-          MenuItem.Tag := p;
-
-          aPopupMenu.Items.Insert( j, MenuItem);
-        end else
-          MenuItem := aPopupMenu.Items[j];
-
-      end else begin
-        MenuItem := TMenuItem.Create(self);
-        MenuItem.Caption := PageName;
-        //MenuItem.ImageIndex := Module.TypeID;
-        MenuItem.Tag := p;
-
-        aPopupMenu.Items.Add( MenuItem);
-      end;
-
-      SubMenuItem := TMenuItem.Create(self);
-      SubMenuItem.Caption := G2.FModuleDefList.ModuleDef[ m].ShortName + ' - ' + Module.ModuleName;
-      //SubMenuItem.ImageIndex := Module.TypeID;
-      SubMenuItem.Tag := Module.ModuleIndex;
-      if not CableDestSelect then
-        SubMenuItem.OnClick := DoSelectModule;
-      MenuItem.Add( SubMenuItem);
-
-      if CableDestSelect then begin
-        // Add allowed in-connectors
-        for c := 0 to Module.InConnectorCount - 1 do begin
-          Connector := Module.InConnector[c];
-          if Connector.CableCount = 0 then begin
-            ConSubMenuItem := TMenuItem.Create(self);
-            //ConSubMenuItem.Name := 'miDestConnector' + IntToStr(mc);
-            inc(mc);
-            ConSubMenuItem.Caption := Connector.Name;
-            ConSubMenuItem.Tag := Connector.ConnectorIndex;
-            ConSubMenuItem.OnClick := DoAddCable;
-            SubMenuItem.Add(ConSubMenuItem);
-          end;
-        end;
-      end;
-    end;
-  end;}
 end;
 
 procedure TfrmG2Main.AddSelectModuleMenu( aMenuItem : TMenuItem; CableDestSelect : boolean);
@@ -2634,7 +2510,7 @@ var G2 : TG2;
     FromModule, Module : TG2FileModule;
     Connector : TG2FileConnector;
     PageName : string;
-    MenuItem, SubMenuItem, ConSubMenuItem : TMenuItem;
+    CategorieMenuItem, ModuleMenuItem, ConnectorMenuItem : TMenuItem;
     Allowed : boolean;
 begin
   G2 := SelectedG2;
@@ -2687,44 +2563,43 @@ begin
       if (j < aMenuItem.Count) then begin
 
         if aMenuItem[j].Tag <> p then begin
-          MenuItem := TMenuItem.Create(self);
-          MenuItem.Caption := PageName;
-          //MenuItem.ImageIndex := Module.TypeID;
-          MenuItem.Tag := p;
+          CategorieMenuItem := TMenuItem.Create(self);
+          CategorieMenuItem.Caption := PageName;
+          //CategorieMenuItem.ImageIndex := Module.TypeID;
+          CategorieMenuItem.Tag := p;
 
-          aMenuItem.Insert( j, MenuItem);
+          aMenuItem.Insert( j, CategorieMenuItem);
         end else
-          MenuItem := aMenuItem[j];
+          CategorieMenuItem := aMenuItem[j];
 
       end else begin
-        MenuItem := TMenuItem.Create(self);
-        MenuItem.Caption := PageName;
-        //MenuItem.ImageIndex := Module.TypeID;
-        MenuItem.Tag := p;
+        CategorieMenuItem := TMenuItem.Create(self);
+        CategorieMenuItem.Caption := PageName;
+        //CategorieMenuItem.ImageIndex := Module.TypeID;
+        CategorieMenuItem.Tag := p;
 
-        aMenuItem.Add( MenuItem);
+        aMenuItem.Add( CategorieMenuItem);
       end;
 
-      SubMenuItem := TMenuItem.Create(self);
-      SubMenuItem.Caption := G2.FModuleDefList.ModuleDef[ m].ShortName + ' - ' + Module.ModuleName;
-      //SubMenuItem.ImageIndex := Module.TypeID;
-      SubMenuItem.Tag := Module.ModuleIndex;
+      ModuleMenuItem := TMenuItem.Create(self);
+      ModuleMenuItem.Caption := G2.FModuleDefList.ModuleDef[ m].ShortName + ' - ' + Module.ModuleName;
+      //ModuleMenuItem.ImageIndex := Module.TypeID;
+      ModuleMenuItem.Tag := integer(Module);
       if not CableDestSelect then
-        SubMenuItem.OnClick := DoSelectModule;
-      MenuItem.Add( SubMenuItem);
+        ModuleMenuItem.OnClick := DoSelectModule;
+      CategorieMenuItem.Add( ModuleMenuItem);
 
       if CableDestSelect then begin
         // Add allowed in-connectors
         for c := 0 to Module.InConnectorCount - 1 do begin
           Connector := Module.InConnector[c];
           if Connector.CableCount = 0 then begin
-            ConSubMenuItem := TMenuItem.Create(self);
-            //ConSubMenuItem.Name := 'miDestConnector' + IntToStr(mc);
+            ConnectorMenuItem := TMenuItem.Create(self);
             inc(mc);
-            ConSubMenuItem.Caption := Connector.Name;
-            ConSubMenuItem.Tag := Connector.ConnectorIndex;
-            ConSubMenuItem.OnClick := DoAddCable;
-            SubMenuItem.Add(ConSubMenuItem);
+            ConnectorMenuItem.Caption := GetConnectorName( Connector);
+            ConnectorMenuItem.Tag := integer(Connector);
+            ConnectorMenuItem.OnClick := DoAddCable;
+            ModuleMenuItem.Add(ConnectorMenuItem);
           end;
         end;
       end;
@@ -2749,7 +2624,7 @@ begin
     for i := 0 to Module.ParameterCount - 1 do begin
       Param := Module.Parameter[i];
       MenuItem := FindOrAddMenuItem( puSelectParam, 'mi' + Param.ParamName, Param.ParamName + ', value ' + IntToStr(Param.GetParameterValue));
-      MenuItem.Tag := Param.ParamIndex;
+      MenuItem.Tag := integer(Param);
       MenuItem.OnClick := DoSelectParam;
     end;
   end;
@@ -2772,15 +2647,107 @@ begin
     Module := G2.SelectedPatch.SelectedModuleList[0];
     for i := 0 to Module.OutConnectorCount - 1 do begin
       Connector := Module.OutConnector[i];
-      MenuItem := FindOrAddMenuItem( puSelectConnector, 'miOut' + Connector.Name, 'Output ' + Connector.Name);
-      MenuItem.Tag := Connector.ConnectorIndex;
+      MenuItem := FindOrAddMenuItem( puSelectConnector, 'miOut' + IntToStr(Integer(Connector)), GetConnectorName(Connector));
+      MenuItem.Tag := integer(Connector);
       AddSelectModuleMenu( MenuItem, True);
     end;
     for i := 0 to Module.InConnectorCount - 1 do begin
       Connector := Module.InConnector[i];
-      MenuItem := FindOrAddMenuItem( puSelectConnector, 'miIn' + Connector.Name, 'Input ' + Connector.Name);
-      MenuItem.Tag := Connector.ConnectorIndex;
+      MenuItem := FindOrAddMenuItem( puSelectConnector, 'miIn' + IntToStr(Integer(Connector)), GetConnectorName(Connector));
+      MenuItem.Tag := integer(Connector);
       AddSelectModuleMenu( MenuItem, True);
+    end;
+  end;
+end;
+
+procedure TfrmG2Main.UpdateSelectCable;
+var G2 : TG2;
+    i : integer;
+    Module, OtherModule : TG2FileModule;
+    Connector, OtherConnector : TG2FileConnector;
+    ConnectorMenuItem, CableMenuItem, CableOptionsMenu : TMenuItem;
+
+  procedure AddCableMenuItem;
+  var j : integer;
+  begin
+    if Connector.CableCount > 0 then begin
+      if Connector.ConnectorKind = ckInput then
+        ConnectorMenuItem := FindOrAddMenuItem( puSelectCable, 'miIn' + Connector.Name, GetConnectorName( Connector))
+      else
+        ConnectorMenuItem := FindOrAddMenuItem( puSelectCable, 'miOut' + Connector.Name, GetConnectorName( Connector));
+
+      ConnectorMenuItem.Tag := Connector.ConnectorIndex;
+
+      for j := 0 to Connector.CableCount - 1 do begin
+
+        OtherModule := nil;
+        OtherConnector := nil;
+
+        if Module.ModuleIndex = Connector.Cables[j].ModuleFrom then begin
+          OtherModule := G2.SelectedPatch.Modules[ ord(FLocation), Connector.Cables[j].ModuleTo];
+          if assigned(OtherModule) then begin
+            if Connector.Cables[j].LinkType = 0 then // input to input
+              OtherConnector := OtherModule.InConnector[ Connector.Cables[j].ToConnector.ConnectorIndex]
+            else
+              if Connector.ConnectorKind = ckOutput then
+                OtherConnector := OtherModule.InConnector[ Connector.Cables[j].ToConnector.ConnectorIndex]
+              else
+                OtherConnector := OtherModule.OutConnector[ Connector.Cables[j].ToConnector.ConnectorIndex];
+          end;
+        end else begin
+          OtherModule := G2.SelectedPatch.Modules[ ord(FLocation), Connector.Cables[j].ModuleFrom];
+          if assigned(OtherModule) then begin
+            if Connector.Cables[j].LinkType = 0 then // input to input
+              OtherConnector := OtherModule.InConnector[ Connector.Cables[j].FromConnector.ConnectorIndex]
+            else
+              if Connector.ConnectorKind = ckOutput then
+                OtherConnector := OtherModule.InConnector[ Connector.Cables[j].FromConnector.ConnectorIndex]
+              else
+                OtherConnector := OtherModule.OutConnector[ Connector.Cables[j].FromConnector.ConnectorIndex];
+          end;
+        end;
+
+        if assigned(OtherConnector) then begin
+          CableMenuItem := TMenuItem.Create(self);
+          if OtherConnector.ConnectorKind = ckInput then
+            CableMenuItem.Caption := 'Connected to ' + OtherModule.ModuleName + ', input ' + OtherConnector.Name
+          else
+            CableMenuItem.Caption := 'Connected to ' + OtherModule.ModuleName + ', output ' + OtherConnector.Name;
+          CableMenuItem.Tag := integer(Connector.Cables[j]);
+          ConnectorMenuItem.Add(CableMenuItem);
+
+          CableOptionsMenu := TMenuItem.Create(self);
+          CableOptionsMenu.Caption := 'Select module ' + OtherModule.ModuleName;
+          CableOptionsMenu.Tag := integer(OtherModule);
+          CableOptionsMenu.OnClick := DoSelectModule;
+          CableMenuItem.Add( CableOptionsMenu);
+
+          CableOptionsMenu := TMenuItem.Create(self);
+          CableOptionsMenu.Caption := 'Delete cable';
+          CableOptionsMenu.Tag := integer(Connector.Cables[j]);
+          CableOptionsMenu.OnClick := DoDeleteCable;
+          CableMenuItem.Add( CableOptionsMenu);
+        end;
+      end;
+    end;
+  end;
+
+begin
+  // Add all output connectors of selected module
+  G2 := SelectedG2;
+  if not assigned(G2) then
+    exit;
+
+  puSelectCable.Items.Clear;
+  if G2.SelectedPatch.SelectedModuleList.Count > 0 then begin
+    Module := G2.SelectedPatch.SelectedModuleList[0];
+    for i := 0 to Module.OutConnectorCount - 1 do begin
+      Connector := Module.OutConnector[i];
+      AddCableMenuItem;
+    end;
+    for i := 0 to Module.InConnectorCount - 1 do begin
+      Connector := Module.InConnector[i];
+      AddCableMenuItem;
     end;
   end;
 end;
@@ -2806,8 +2773,6 @@ procedure TfrmG2Main.aShowAddCableExecute(Sender: TObject);
 var P : TPoint;
 begin
   GetCursorPos( P);
-  //UpdateSelectModule( puSelectModule, True);
-  //puSelectModule.Popup( P.X, P.Y);
   UpdateSelectConnector;
   puSelectConnector.Popup( P.X, P.Y);
 end;
@@ -2824,6 +2789,14 @@ begin
       FAddPoint := sbFX.ScreenToClient(P);
       puAddModule.Popup(P.X, P.Y);
     end;
+end;
+
+procedure TfrmG2Main.aShowSelectCableExecute(Sender: TObject);
+var P : TPoint;
+begin
+  GetCursorPos( P);
+  UpdateSelectCable;
+  puSelectCable.Popup( P.X, P.Y);
 end;
 
 procedure TfrmG2Main.aShowSelectLocationExecute(Sender: TObject);
@@ -3398,7 +3371,8 @@ begin
       else
         aMenuItem.Caption := 'Cable to ' + string(G2.SelectedPatch.GetModuleLabel( Connector.Module.Location, Connector.Cables[i].ModuleFrom));
       aMenuItem.Tag := integer(Connector.Cables[i]);
-      aMenuItem.OnClick := miDeleteCablesClick;
+      //aMenuItem.OnClick := miDeleteCablesClick;
+      aMenuItem.OnClick := DoDeleteCable;
       miDeleteCable.Add(aMenuItem);
     end;
 
@@ -3422,14 +3396,7 @@ begin
 end;
 
 procedure TfrmG2Main.miDeleteCablesClick(Sender: TObject);
-var G2 : TG2;
 begin
-  G2 := SelectedG2;
-  if not assigned(G2) then
-    exit;
-
-  with Sender as TMenuItem do
-    G2.SelectedPatch.MessDeleteConnection( FLocation, TG2FileCable(tag));
 end;
 
 // ==== Communication menu =====================================================

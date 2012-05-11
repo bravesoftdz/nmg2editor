@@ -1,0 +1,72 @@
+
+
+Key			: Function
+
+
+Selection
+=========
+
+L			: Patch location popup menu
+M                       : Module selection popup menu
+P 			: Parameter selection popup menu
+
+1..8			: Select variation 1 to 8
+F       		: Select patch location FX
+V			: Select patch location VA
+A..D    		: Select slot A to D
+
+Arrow Left		: Select previous parameter of module
+Arrow Right		: Select next parameter of module
+
+Shift + Arrow Left	: Select module left
+Shift + Arrow Right	: Select module right
+Shift + Arrow Up	: Select module up
+Shift + Arrow Down	: Select module down
+
+Add menu shortcuts
+==================
+
+Shift + M		: Add new module to patch popup menu
+Shift + C		: Add new cable to module pop menu
+
+Edit menu shortcuts
+===================
+
+Ctrl + Z		: Undo
+Ctrl + Y		: Redo
+Ctrl + X		: Cut
+Ctrl + C		: Copy
+Ctrl + V		: Paste
+Del			: Delete
+Ctrl + A		: Select all
+
+Edit parameter values
+=====================
+
+Arrow Up		: Increase selected parameter value
+Arrow Down		: Decrease selected parameter value
+
+Ctrl + Arrow Up		: Increase selected parameter morph value
+Ctrl + Arrow Down	: Decrease selected parameter morph value
+
+
+Settings dialogs
+================
+
+Ctrl + B		: Patch manager
+Ctrl + F		: Parameter pages
+Ctrl + G		: Synth settings
+Ctrl + R		: Performance settings
+
+
+Midi sysex shortcuts
+====================
+
+F1			: Get active patch sysex
+F2			: Get active performance sysex
+F3			: Get patch sysex from bank
+F4			: Get performance sysex from bank
+F5			: Send patch sysex
+F6			: Send performance sysex
+
+
