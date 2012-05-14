@@ -76,6 +76,7 @@ type
       Shift: TShiftState);
     procedure lvExternalPerfColumnClick(Sender: TObject; Column: TListColumn);
     procedure aLoadPerfExecute(Sender: TObject);
+    procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
   private
     { Private declarations }
   public
@@ -414,6 +415,12 @@ end;
 procedure TfrmPatchManager.FormCreate(Sender: TObject);
 begin
   LoadIniXML;
+end;
+
+procedure TfrmPatchManager.FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  if Key = VK_ESCAPE  then
+    Close;
 end;
 
 procedure TfrmPatchManager.FormShow(Sender: TObject);

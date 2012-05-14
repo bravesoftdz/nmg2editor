@@ -11,9 +11,11 @@ object frmSeqGrid: TfrmSeqGrid
   Font.Height = -11
   Font.Name = 'Tahoma'
   Font.Style = []
+  KeyPreview = True
   OldCreateOrder = False
   OnActivate = FormActivate
   OnCreate = FormCreate
+  OnKeyUp = FormKeyUp
   PixelsPerInch = 96
   TextHeight = 13
   object b1: TG2GraphButtonText

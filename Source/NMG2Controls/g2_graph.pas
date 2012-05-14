@@ -255,6 +255,7 @@ type
     procedure   SetSelectedControl( aValue : TG2GraphChildControl);
   protected
     procedure   SetSelectedMorphIndex( aValue : integer); override;
+    procedure   SetSelectedLocation( aLocation : TLocationType); override;
   public
     constructor Create( AOwner: TComponent); override;
     destructor  Destroy; override;
@@ -268,8 +269,8 @@ type
 
     //procedure   SelectModules;
     procedure   SelectModulesInRect( aLocation : TLocationType; aRect : TRect);
-    procedure   MoveOutlines( dX, dY : integer);
-    function    MessMoveModules: boolean; override;
+    procedure   MoveOutlines( aLocation : TLocationType; dX, dY : integer);
+    function    MessMoveModules( aLocation : TLocationType): boolean; override;
 
     function    GetG2 : TG2Graph;
     function    CreateParameter( aModuleIndex : byte): TG2FileParameter; override;
@@ -2203,20 +2204,25 @@ begin
   end;
 end;
 
-procedure TG2GraphPatch.MoveOutlines(dX, dY: integer);
+procedure TG2GraphPatch.MoveOutlines( aLocation : TLocationType; dX, dY: integer);
 var i : integer;
 begin
-  for i := 0 to SelectedModuleList.Count - 1 do begin
+  {for i := 0 to SelectedModuleList.Count - 1 do begin
     (SelectedModuleList[i] as TG2GraphModule).FPanel.MoveOutline( dX, dY);
-  end;
+  end;}
+  for i := 0 to PatchPart[ ord(aLocation)].SelectedModuleList.Count - 1 do
+    (PatchPart[ ord(aLocation)].SelectedModuleList[i] as TG2GraphModule).FPanel.MoveOutline( dX, dY);
+
 end;
 
-function TG2GraphPatch.MessMoveModules: boolean;
+function TG2GraphPatch.MessMoveModules( aLocation : TLocationType): boolean;
 var i : integer;
 begin
-  Result := inherited MessMoveModules;
-  for i := 0 to SelectedModuleList.Count - 1 do
-    (SelectedModuleList[i] as TG2GraphModule).FPanel.MoveModule;
+  Result := inherited MessMoveModules( aLocation);
+  {for i := 0 to SelectedModuleList.Count - 1 do
+    (SelectedModuleList[i] as TG2GraphModule).FPanel.MoveModule;}
+  for i := 0 to PatchPart[ ord(aLocation)].SelectedModuleList.Count - 1 do
+    (PatchPart[ ord(aLocation)].SelectedModuleList[i] as TG2GraphModule).FPanel.MoveModule;
 end;
 
 {procedure TG2GraphPatch.UnselectModules( aLocation : TLocationType);
@@ -2270,6 +2276,16 @@ begin
     FSelectedControl.Select;
     if assigned(FSelectedControl.FParameter) then
       FSelectedControl.FParameter.Selected := True;
+  end;
+end;
+
+procedure TG2GraphPatch.SetSelectedLocation(aLocation: TLocationType);
+begin
+  inherited;
+
+  if assigned(G2) then begin
+    (G2 as TG2Graph).FScrollboxVA.Invalidate;
+    (G2 as TG2Graph).FScrollboxFX.Invalidate;
   end;
 end;
 
@@ -2720,16 +2736,19 @@ begin
     Patch.SelectedControl.MouseDown( Button, Shift, X - Patch.SelectedControl.Left, Y - Patch.SelectedControl.Top);
   end else begin
 
-    case Location of
+    {case Location of
       ltVA : Patch.UnselectModules(ltFX);
       ltFX : Patch.UnselectModules(ltVA);
-    end;
+    end;}
 
     if not FData.Selected then begin
       if not(ssCtrl in Shift) then
         Patch.UnSelectModules( Location);
       FData.Selected := True;
     end;
+
+    if Location <> Patch.SelectedLocation then
+      Patch.SelectedLocation := Location;
 
     {if ssLeft in Shift then begin
       FStartX := X;
@@ -2758,7 +2777,7 @@ begin
     if assigned(Patch.SelectedControl) then begin
       Patch.SelectedControl.MouseMove( Shift, X - Patch.SelectedControl.Left, Y - Patch.SelectedControl.Top);
     end else begin
-      Patch.MoveOutlines( X - FStartX, Y - FStartY);
+      Patch.MoveOutlines( Data.Location, X - FStartX, Y - FStartY);
     end;
   end;
 
@@ -2784,7 +2803,7 @@ begin
   end else begin
 
     if (FStartX <> X) or (FStartY <> Y) then
-      Patch.MessMoveModules;
+      Patch.MessMoveModules( Data.Location);
 
     if assigned( FOnModuleClick) then
       FOnModuleClick( self, Button, Shift, X, Y, FData);
@@ -2905,7 +2924,7 @@ begin
   Rect2 := AddRect( Rect2, BoundsRect);
   Rect2 := SubRect( Rect2, ExtBoundsRect);
 
-  if FData.Selected then
+  if (FData.Selected) and (Location = FData.PatchPart.Patch.SelectedLocation) then
     ExtCanvas.Brush.Color := clWhite;
   ExtCanvas.TextRect(Rect2, Rect2.Left + 1, Rect2.Top, Title);
 
@@ -2941,10 +2960,10 @@ begin
 
   Patch := GetPatch;
 
-  if FileExists( aPath + string(FData.ModuleName) + '.txt') then begin
+  if FileExists( aPath + string(FData.ModuleFileName) + '.txt') then begin
     //MemStream := TMemoryStream.Create;
     //MemStream.LoadFromFile( aPath + FData.ModuleName + '.txt');
-    ModuleStream := TModuleDefStream.Create(aPath + string(FData.ModuleName) + '.txt');
+    ModuleStream := TModuleDefStream.Create(aPath + string(FData.ModuleFileName) + '.txt');
     try
       if ModuleStream.ReadConst('<#Module') then begin
         aName := 'Module';

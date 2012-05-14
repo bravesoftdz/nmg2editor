@@ -484,7 +484,7 @@ type
     function    MessDeleteConnection( aLocation : TLocationType; aCable : TG2FileCable): boolean; override;
     function    MessDeleteModule( aLocation : TLocationType; aModuleIndex : byte): boolean; override;
     function    MessDeleteModules( aLocation : TLocationType): boolean; override;
-    function    MessMoveModules: boolean; virtual;
+    function    MessMoveModules( aLocation : TLocationType): boolean; virtual;
     function    MessSetModuleColor( aLocation: TLocationType; aModuleIndex, aColor : byte): boolean; override;
     function    MessAssignKnob( aLocation : TLocationType; aModule, aParam, aKnob: integer): boolean;
     function    MessDeAssignKnob( aKnob: integer): boolean;
@@ -2716,10 +2716,10 @@ begin
   Result := SendCmdMessage( MemStream);
 end;
 
-function TG2USBPatch.MessMoveModules: boolean;
+function TG2USBPatch.MessMoveModules( aLocation : TLocationType): boolean;
 var MemStream : TG2SendMessage;
 begin
-  MemStream := CreateMoveModulesMessage;
+  MemStream := CreateMoveModulesMessage( aLocation);
   Result := SendCmdMessage( MemStream);
 end;
 

@@ -60,6 +60,7 @@ type
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure btGlobalPagesChange(Sender: TObject);
+    procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
   private
     { Private declarations }
     FExtBitmap       : TBitmap;
@@ -142,6 +143,13 @@ end;
 procedure TfrmParameterPages.FormDestroy(Sender: TObject);
 begin
   FExtBitmap.Free;
+end;
+
+procedure TfrmParameterPages.FormKeyUp(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+  if Key = VK_ESCAPE then
+    Close;
 end;
 
 procedure TfrmParameterPages.LoadIniXML;

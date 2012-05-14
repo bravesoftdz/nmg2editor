@@ -85,20 +85,26 @@ unit UnitG2Editor;
 // ==============
 
 // Auto adjust module positions on module insert (no overlapping modules)
+// Numbering modules when adding modules, check change module names
+// Menu-driven patching
+// Close dialogs with ESC
+
+
+// PatchSettings: add popup menu for patch parameters
+// Add Slot settings dialog
+// Make dialogs Jaws compatible
 // Patch notes screen
    // h     : 00 0B 01 28 00 6F 00 01 68 D3 88
    // ha    : 00 0C 01 28 00 6F 00 02 68 61 56 C9
    // hal   : 00 0D 01 28 00 6F 00 03 68 61 6C 28 AD
    // enz.
-// Numbering modules when adding modules, check change module names
 // Finish module param mappings to parameter pages in xml def file
-// Menu-driven patching
 // Variation init function:
    // Copy from var 1 to init 00 0A 01 28 00 44 00 08 0F 5C
    // Init on var 2           00 0A 01 28 00 44 08 01 17 DC
 // CTRL E, parameter paste:
    // Osc B to Osc B : 00 19 01 28 00 4D 00 0F 40 40 40 45 80 D9 80 04 00 00 00 00 02 02 00 53 D3
-
+// Reclass controls for use with Jaws : TEdit : DEdit, TListView : DListView etc.
 
 // TODO List next
 // ==============
@@ -281,7 +287,6 @@ type
     aSelectAll: TAction;
     N12: TMenuItem;
     N13: TMenuItem;
-    Selectall1: TMenuItem;
     aPatchManager: TAction;
     Patchmanager1: TMenuItem;
     aParameterPages: TAction;
@@ -362,6 +367,13 @@ type
     aShowAddModule: TAction;
     aShowAddCable: TAction;
     miAddcable: TMenuItem;
+    pPatchArea: TPanel;
+    N16: TMenuItem;
+    Selectall1: TMenuItem;
+    aEditModuleProperties: TAction;
+    aEditParamProperties: TAction;
+    Moduleproperties1: TMenuItem;
+    Parameterproperties1: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure cbModeClick(Sender: TObject);
     procedure aPatchSettingsExecute(Sender: TObject);
@@ -454,6 +466,11 @@ type
     procedure aShowAddModuleExecute(Sender: TObject);
     procedure aShowAddCableExecute(Sender: TObject);
     procedure aShowSelectCableExecute(Sender: TObject);
+    procedure G2DeleteModule(Sender : TObject; SenderID : integer; Location: TLocationType; ModuleIndex : integer);
+    procedure G2AddModule(Sender: TObject; SenderID : integer; Module : TG2FileModule);
+    procedure G2SetModuleLabel(Sender: TObject; SenderID : integer; PatchIndex : byte; Location : TLocationType;  ModuleIndex : byte);
+    procedure aEditModulePropertiesExecute(Sender: TObject);
+    procedure aEditParamPropertiesExecute(Sender: TObject);
   private
     { Private declarations }
     FCtrlMidiEnabled : boolean;
@@ -465,7 +482,7 @@ type
     FDisableControls      : boolean;
     FSlotPanel            : array[0..3] of TSlotPanel;
     FAddPoint             : TPoint;
-    FLocation             : TLocationType;
+    //FLocation             : TLocationType;
     FOldSplitterPos       : integer;
     FLastReceivedMidiCC   : byte;
     FCopyPatch            : TG2FilePatchPart;
@@ -489,7 +506,7 @@ type
     procedure GetPatchversion;
     procedure UpdateControls;
     procedure SetSelectedModuleColor( aColor : byte);
-    function  GetPatchWindowHeight: integer;
+    //function  GetPatchWindowHeight: integer;
 
     procedure LoadImageMap( aBitmap : TBitmap;aCols, aRows: integer; aImageList : TImageList);
     procedure SetEditorSettings( aSlotStripColor, aSlotStripInverseColor, aSlotStripDisabledColor, aHighLightColor : TColor;
@@ -514,6 +531,7 @@ type
     procedure UpdateSelectCable;
     procedure UpdateSelectMenu;
     procedure UpdateAddMenu;
+    procedure UpdateParamMenu( aParam : TG2FileParameter);
     procedure CurrentlySelected;
     procedure DoSelectSlot( Sender: TObject);
     procedure DoSelectLocation( Sender: TObject);
@@ -1025,6 +1043,9 @@ begin
   G2.OnSynthSettingsUpdate := G2SynthSettingsUpdate;
   G2.OnUSBActiveChange := G2USBActiveChange;
   G2.OnVariationChange := G2VariationChange;
+  G2.OnAddModule := G2AddModule;
+  G2.OnDeleteModule := G2DeleteModule;
+  G2.OnSetModuleLabel := G2SetModuleLabel;
 
   FG2List.Add(G2);
 
@@ -1578,6 +1599,8 @@ end;
 
 procedure TfrmG2Main.UpdateActions;
 var G2 : TG2;
+    SelectedModuleText,
+    SelectedParamText : string;
 begin
   if not Initialized then
     exit;
@@ -1631,6 +1654,61 @@ begin
       aGetActivePatchSysex.Enabled := False;
       aGetActivePerfSysex.Enabled := False;
     end;
+
+  if assigned(G2.SelectedPatch) then begin
+    if assigned(G2.SelectedPatchPart.SelectedParam) then begin
+      SelectedParamText := G2.SelectedPatchPart.SelectedParam.ParamName;
+      aEditParamProperties.Caption := 'Parameter proprties ' + SelectedParamText;
+      aEditParamProperties.Enabled := True;
+    end else begin
+      aEditParamProperties.Caption := 'Parameter proprties';
+      aEditParamProperties.Enabled := False;
+    end;
+
+    if G2.SelectedPatchPart.SelectedModuleList.Count > 0 then begin
+      if G2.SelectedPatchPart.SelectedModuleList.Count = 1 then begin
+        SelectedModuleText := 'module ' + G2.SelectedPatchPart.SelectedModuleList[0].ModuleName;
+        aCut.Caption := 'Cut ' + SelectedModuleText;
+        aCut.Enabled := True;
+        aCopy.Caption := 'Copy ' + SelectedModuleText;
+        aCopy.Enabled := True;
+        aDelete.Caption := 'Delete ' + SelectedModuleText;
+        aDelete.Enabled := True;
+        aEditModuleProperties.Caption := 'Module proprties ' + SelectedModuleText;
+        aEditModuleProperties.Enabled := True;
+      end else begin
+        SelectedModuleText := IntToStr(G2.SelectedPatchPart.SelectedModuleList.Count) + ' modules';
+        aCut.Caption := 'Cut ' + SelectedModuleText;
+        aCut.Enabled := True;
+        aCopy.Caption := 'Copy ' + SelectedModuleText;
+        aCopy.Enabled := True;
+        aDelete.Caption := 'Delete ' + SelectedModuleText;
+        aDelete.Enabled := True;
+        aEditModuleProperties.Caption := 'Module proprties';
+        aEditModuleProperties.Enabled := False;
+      end;
+    end else begin
+      aCut.Caption := 'Cut';
+      aCut.Enabled := False;
+      aCopy.Caption := 'Copy';
+      aCopy.Enabled := False;
+      aDelete.Caption := 'Delete';
+      aDelete.Enabled := False;
+      aEditModuleProperties.Caption := 'Module proprties';
+      aEditModuleProperties.Enabled := False;
+    end;
+
+    if assigned(FCopyPatch) then begin
+      aPaste.Enabled := True;
+    end else begin
+      aPaste.Enabled := False;
+    end;
+
+    if G2.SelectedPatch.UndoCount > 0 then
+      aUndo.Enabled := True
+    else
+      aUndo.Enabled := False;
+  end;
 end;
 
 procedure TfrmG2Main.UpdateControls;
@@ -1675,13 +1753,13 @@ begin
   UpdateActions;
 end;
 
-function TfrmG2Main.GetPatchWindowHeight: integer;
+{function TfrmG2Main.GetPatchWindowHeight: integer;
 var i : integer;
 begin
   Result := ClientHeight - PerfPanel.Height;
   for i := 0 to 3 do
     Result := Result - FSlotPanel[i].Height;
-end;
+end;}
 
 procedure TfrmG2Main.DialogKey(var Msg: TWMKey);
 begin
@@ -1719,22 +1797,31 @@ begin
     ord('C') : SelectSlot(2);
     ord('D') : SelectSlot(3);
     VK_LEFT  : begin
-                 if ssShift in Shift then G2.SelectedPatch.SelectModuleLeft;
-                 if not(ssShift in Shift) then G2.SelectedPatch.SelectPrevModuleParam;
+                 if ssShift in Shift then G2.SelectedPatchPart.SelectModuleLeft;
+                 if not(ssShift in Shift) then G2.SelectedPatchPart.SelectPrevModuleParam;
                end;
     VK_RIGHT : begin
-                 if ssShift in Shift then G2.SelectedPatch.SelectModuleRight;
-                 if not(ssShift in Shift) then G2.SelectedPatch.SelectNextModuleParam;
+                 if ssShift in Shift then G2.SelectedPatchPart.SelectModuleRight;
+                 if not(ssShift in Shift) then G2.SelectedPatchPart.SelectNextModuleParam;
                end;
     VK_UP    : begin
-                 if ssShift in Shift then G2.SelectedPatch.SelectModuleAbove;
-                 if not(ssShift in Shift) and not(ssCtrl in Shift) then if assigned(G2.SelectedPatch.SelectedParam) then G2.SelectedPatch.SelectedParam.IncValue;
-                 if ssCtrl in Shift then if assigned(G2.SelectedPatch.SelectedParam) then G2.SelectedPatch.SelectedParam.IncMorphValue;
+                 if ssShift in Shift then G2.SelectedPatchPart.SelectModuleAbove;
+                 if not(ssShift in Shift) and not(ssCtrl in Shift) then
+                   if assigned(G2.SelectedPatchPart.SelectedParam) then
+                     G2.SelectedPatchPart.SelectedParam.IncValue;
+                 if ssCtrl in Shift then
+                   if assigned(G2.SelectedPatchPart.SelectedParam) then
+                     G2.SelectedPatchPart.SelectedParam.IncMorphValue;
                end;
     VK_DOWN  : begin
-                 if ssShift in Shift then G2.SelectedPatch.SelectModuleUnder;
-                 if not(ssShift in Shift) and not(ssCtrl in Shift) then if assigned(G2.SelectedPatch.SelectedParam) then G2.SelectedPatch.SelectedParam.DecValue;
-                 if ssCtrl in Shift then if assigned(G2.SelectedPatch.SelectedParam) then G2.SelectedPatch.SelectedParam.DecMorphValue;
+                 if ssShift in Shift then
+                   G2.SelectedPatchPart.SelectModuleUnder;
+                 if not(ssShift in Shift) and not(ssCtrl in Shift) then
+                   if assigned(G2.SelectedPatchPart.SelectedParam) then
+                     G2.SelectedPatchPart.SelectedParam.DecValue;
+                 if ssCtrl in Shift then
+                   if assigned(G2.SelectedPatchPart.SelectedParam) then
+                     G2.SelectedPatchPart.SelectedParam.DecMorphValue;
                end;
   end;
 end;
@@ -1778,6 +1865,8 @@ begin
   if not assigned(G2) then
     exit;
 
+  G2.SelectedPatch.SelectedLocation := ltFX;
+
   if assigned( FCopyPatch) and assigned(sbFX.CopyPatch) then begin
     sbFX.SetPositionsInCopyPatch;
     sbFX.CopyPatch := nil;
@@ -1787,11 +1876,11 @@ begin
 
   if Button = mbRight then begin
     GetCursorPos( P);
-    FLocation := ltFX;
     FAddPoint := sbFX.ScreenToClient(P);
 
     puAddModule.Popup(P.X, P.Y);
   end;
+  UpdateActions;
 end;
 
 procedure TfrmG2Main.sbVAMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
@@ -1802,6 +1891,8 @@ begin
   if not assigned(G2) then
     exit;
 
+  G2.SelectedPatch.SelectedLocation := ltVA;
+
   if assigned( FCopyPatch) and assigned(sbFX.CopyPatch) then begin
     sbVA.SetPositionsInCopyPatch;
     sbFX.CopyPatch := nil;
@@ -1811,11 +1902,11 @@ begin
 
   if Button = mbRight then begin
     GetCursorPos( P);
-    FLocation := ltVA;
     FAddPoint := sbVA.ScreenToClient(P);
 
     puAddModule.Popup(P.X, P.Y);
   end;
+  UpdateActions;
 end;
 
 procedure TfrmG2Main.SetSelectedModuleColor(aColor: byte);
@@ -2184,8 +2275,59 @@ begin
 end;
 
 procedure TfrmG2Main.aSelectAllExecute(Sender: TObject);
+var i : integer;
+    G2 : TG2;
 begin
-//
+  G2 := SelectedG2;
+  if not assigned(G2) then
+    exit;
+
+ for i := 0 to G2.SelectedPatchPart.ModuleList.Count - 1 do
+   G2.SelectedPatchPart.ModuleList[i].Selected := True;
+
+ UpdateActions;
+end;
+
+procedure TfrmG2Main.aEditModulePropertiesExecute(Sender: TObject);
+var P : TPoint;
+    G2 : TG2;
+    Module : TG2FileModule;
+begin
+  G2 := SelectedG2;
+  if not assigned(G2) then
+    exit;
+
+  Module := nil;
+  if G2.SelectedPatchPart.SelectedModuleList.Count = 1 then
+    Module := G2.SelectedPatchPart.SelectedModuleList[0];
+
+  if assigned(Module) then begin
+    GetCursorPos(P);
+    puModuleMenu.Tag := integer(Module);
+    puModuleMenu.Popup( P.X, P.Y);
+  end;
+end;
+
+procedure TfrmG2Main.aEditParamPropertiesExecute(Sender: TObject);
+var P : TPoint;
+    G2 : TG2;
+    Param : TG2FileParameter;
+begin
+  G2 := SelectedG2;
+  if not assigned(G2) then
+    exit;
+
+  Param := G2.SelectedPatchPart.SelectedParam;
+
+  if assigned(Param) then begin
+    UpdateParamMenu( Param);
+    GetCursorPos(P);
+
+    miEditParamName.Enabled := sender is TG2GraphButtonText;
+
+    puParamMenu.Popup( P.X, P.Y);
+    puParamMenu.Tag := integer( Param);
+  end;
 end;
 
 // ==== Selection menu =========================================================
@@ -2209,6 +2351,7 @@ begin
     0 : SelectPatchLocation(ltVA);
     1 : SelectPatchLocation(ltFX);
     end;
+    UpdateActions;
   end;
 end;
 
@@ -2224,8 +2367,9 @@ begin
   if Sender is TMenuItem then begin
      Module := TG2FileModule((Sender as TMenuItem).Tag);
      if assigned(Module) then begin
-       G2.SelectedPatch.UnSelectModules( FLocation);
+       G2.SelectedPatchPart.UnSelectModules;
        Module.Selected := True;
+       UpdateActions;
      end;
   end;
 end;
@@ -2241,6 +2385,7 @@ begin
   if Sender is TMenuItem then begin
     Param := TG2FileParameter( (Sender as TMenuItem).Tag);
     Param.Selected := True;
+    UpdateActions;
   end;
 end;
 
@@ -2255,7 +2400,7 @@ begin
   if Sender is TMenuItem then begin
     Cable := TG2FileCable((Sender as TMenuItem).tag);
     if assigned(Cable) then
-      G2.SelectedPatch.MessDeleteConnection( FLocation, Cable);
+      G2.SelectedPatch.MessDeleteConnection( G2.SelectedPatch.SelectedLocation, Cable);
   end;
 end;
 
@@ -2278,7 +2423,7 @@ begin
         FromConnector := TG2FileConnector( ModuleMenuItem.Parent.Parent.Tag);
         ToConnector := TG2FileConnector( ConnectorToMenuItem.Tag);
         if assigned(FromConnector) and assigned(ToConnector) then begin
-          G2.SelectedPatch.MessAddConnection( FLocation, FromConnector, ToCOnnector);
+          G2.SelectedPatch.MessAddConnection( G2.SelectedPatch.SelectedLocation, FromConnector, ToCOnnector);
         end;
 
       end;
@@ -2340,8 +2485,8 @@ begin
     exit;
 
   Result := nil;
-  if G2.SelectedPatch.SelectedModuleList.Count > 0 then begin
-    Result := G2.SelectedPatch.SelectedModuleList[0];
+  if G2.SelectedPatchPart.SelectedModuleList.Count > 0 then begin
+    Result := G2.SelectedPatchPart.SelectedModuleList[0];
   end;
 end;
 
@@ -2383,13 +2528,19 @@ begin
 end;
 
 function TfrmG2Main.GetSlotName( aSlot : TG2FileSlot): string;
+var patchname : string;
 begin
   if assigned( aSlot) then begin
+    if trim(aSlot.PatchName) = '' then
+      patchname := 'no patch loaded'
+    else
+      patchName := aSlot.PatchName;
+
     case aSlot.SlotIndex of
-    0 : Result := 'A';
-    1 : Result := 'B';
-    2 : Result := 'C';
-    3 : Result := 'D';
+    0 : Result := 'Slot A, ' + patchname;
+    1 : Result := 'Slot B, ' + patchname;
+    2 : Result := 'Slot C, ' + patchname;
+    3 : Result := 'Slot D, ' + patchname;
     end;
   end else
     Result := '';
@@ -2441,6 +2592,28 @@ begin
   Result := '';
 end;
 
+procedure TfrmG2Main.UpdateSelectSlot;
+var MenuItem : TMenuItem;
+    G2 : TG2;
+begin
+  G2 := SelectedG2;
+  if not assigned(G2) then
+    exit;
+
+  MenuItem := FindOrAddMenuItem( puSelectSlot, 'miSlotA', GetSlotName(G2.SlotA));
+  MenuItem.Tag := 0;
+  MenuItem.OnClick := DoSelectSlot;
+  MenuItem := FindOrAddMenuItem( puSelectSlot, 'miSlotB', GetSlotName(G2.SlotB));
+  MenuItem.Tag := 1;
+  MenuItem.OnClick := DoSelectSlot;
+  MenuItem := FindOrAddMenuItem( puSelectSlot, 'miSlotC', GetSlotName(G2.SlotC));
+  MenuItem.Tag := 2;
+  MenuItem.OnClick := DoSelectSlot;
+  MenuItem := FindOrAddMenuItem( puSelectSlot, 'miSlotD', GetSlotName(G2.SlotD));
+  MenuItem.Tag := 3;
+  MenuItem.OnClick := DoSelectSlot;
+end;
+
 procedure TfrmG2Main.UpdateSelectLocation;
 var MenuItem : TMenuItem;
 begin
@@ -2462,7 +2635,7 @@ begin
     exit;
 
   miSelectSlot.Caption := 'Select slot, current ' + GetSlotName(G2.SelectedSlot);
-  miSelectLocation.Caption := 'Select location, current ' + GetLocationName(FLocation);
+  miSelectLocation.Caption := 'Select location, current ' + GetLocationName( G2.SelectedPatch.SelectedLocation);
   Module := GetSelectedModule;
   if assigned(Module) then begin
     miSelectModule.Caption := 'Select module, current ' + GetModuleName(Module);
@@ -2489,7 +2662,7 @@ begin
   if not assigned(G2) then
     exit;
 
-  miAddModule.Caption := 'Add module to slot ' + GetSlotName(G2.SelectedSlot) + ', location ' + GetLocationName(FLocation);
+  miAddModule.Caption := 'Add module to slot ' + GetSlotName(G2.SelectedSlot) + ', location ' + GetLocationName( G2.SelectedPatch.SelectedLocation);
 
   Module := GetSelectedModule;
   if assigned(Module) then begin
@@ -2525,8 +2698,8 @@ begin
 
   mc := 0;
   aMenuItem.Clear;
-  for i := 0 to G2.SelectedPatch.ModuleCount[ ord(FLocation)] - 1 do begin
-    Module := G2.SelectedPatch.PatchPart[ ord(FLocation)].ModuleList[i];
+  for i := 0 to G2.SelectedPatchPart.ModuleList.Count - 1 do begin
+    Module := G2.SelectedPatchPart.ModuleList[i];
 
     if CableDestSelect then begin
       // Only select modules with a free in-connector
@@ -2582,7 +2755,7 @@ begin
       end;
 
       ModuleMenuItem := TMenuItem.Create(self);
-      ModuleMenuItem.Caption := G2.FModuleDefList.ModuleDef[ m].ShortName + ' - ' + Module.ModuleName;
+      ModuleMenuItem.Caption := G2.FModuleDefList.ModuleDef[ m].ShortName + ' - ' + G2.SelectedPatchPart.GetModuleLabel( Module.ModuleIndex);
       //ModuleMenuItem.ImageIndex := Module.TypeID;
       ModuleMenuItem.Tag := integer(Module);
       if not CableDestSelect then
@@ -2619,8 +2792,8 @@ begin
     exit;
 
   puSelectParam.Items.Clear;
-  if G2.SelectedPatch.SelectedModuleList.Count > 0 then begin
-    Module := G2.SelectedPatch.SelectedModuleList[0];
+  if G2.SelectedPatchPart.SelectedModuleList.Count > 0 then begin
+    Module := G2.SelectedPatchPart.SelectedModuleList[0];
     for i := 0 to Module.ParameterCount - 1 do begin
       Param := Module.Parameter[i];
       MenuItem := FindOrAddMenuItem( puSelectParam, 'mi' + Param.ParamName, Param.ParamName + ', value ' + IntToStr(Param.GetParameterValue));
@@ -2643,8 +2816,8 @@ begin
     exit;
 
   puSelectConnector.Items.Clear;
-  if G2.SelectedPatch.SelectedModuleList.Count > 0 then begin
-    Module := G2.SelectedPatch.SelectedModuleList[0];
+  if G2.SelectedPatchPart.SelectedModuleList.Count > 0 then begin
+    Module := G2.SelectedPatchPart.SelectedModuleList[0];
     for i := 0 to Module.OutConnectorCount - 1 do begin
       Connector := Module.OutConnector[i];
       MenuItem := FindOrAddMenuItem( puSelectConnector, 'miOut' + IntToStr(Integer(Connector)), GetConnectorName(Connector));
@@ -2684,7 +2857,7 @@ var G2 : TG2;
         OtherConnector := nil;
 
         if Module.ModuleIndex = Connector.Cables[j].ModuleFrom then begin
-          OtherModule := G2.SelectedPatch.Modules[ ord(FLocation), Connector.Cables[j].ModuleTo];
+          OtherModule := G2.SelectedPatch.Modules[ ord( G2.SelectedPatch.SelectedLocation), Connector.Cables[j].ModuleTo];
           if assigned(OtherModule) then begin
             if Connector.Cables[j].LinkType = 0 then // input to input
               OtherConnector := OtherModule.InConnector[ Connector.Cables[j].ToConnector.ConnectorIndex]
@@ -2695,7 +2868,7 @@ var G2 : TG2;
                 OtherConnector := OtherModule.OutConnector[ Connector.Cables[j].ToConnector.ConnectorIndex];
           end;
         end else begin
-          OtherModule := G2.SelectedPatch.Modules[ ord(FLocation), Connector.Cables[j].ModuleFrom];
+          OtherModule := G2.SelectedPatch.Modules[ ord( G2.SelectedPatch.SelectedLocation), Connector.Cables[j].ModuleFrom];
           if assigned(OtherModule) then begin
             if Connector.Cables[j].LinkType = 0 then // input to input
               OtherConnector := OtherModule.InConnector[ Connector.Cables[j].FromConnector.ConnectorIndex]
@@ -2739,8 +2912,8 @@ begin
     exit;
 
   puSelectCable.Items.Clear;
-  if G2.SelectedPatch.SelectedModuleList.Count > 0 then begin
-    Module := G2.SelectedPatch.SelectedModuleList[0];
+  if G2.SelectedPatchPart.SelectedModuleList.Count > 0 then begin
+    Module := G2.SelectedPatchPart.SelectedModuleList[0];
     for i := 0 to Module.OutConnectorCount - 1 do begin
       Connector := Module.OutConnector[i];
       AddCableMenuItem;
@@ -2750,23 +2923,6 @@ begin
       AddCableMenuItem;
     end;
   end;
-end;
-
-procedure TfrmG2Main.UpdateSelectSlot;
-var MenuItem : TMenuItem;
-begin
-  MenuItem := FindOrAddMenuItem( puSelectSlot, 'miSlotA', 'Slot A');
-  MenuItem.Tag := 0;
-  MenuItem.OnClick := DoSelectSlot;
-  MenuItem := FindOrAddMenuItem( puSelectSlot, 'miSlotB', 'Slot B');
-  MenuItem.Tag := 1;
-  MenuItem.OnClick := DoSelectSlot;
-  MenuItem := FindOrAddMenuItem( puSelectSlot, 'miSlotC', 'Slot C');
-  MenuItem.Tag := 2;
-  MenuItem.OnClick := DoSelectSlot;
-  MenuItem := FindOrAddMenuItem( puSelectSlot, 'miSlotD', 'Slot D');
-  MenuItem.Tag := 3;
-  MenuItem.OnClick := DoSelectSlot;
 end;
 
 procedure TfrmG2Main.aShowAddCableExecute(Sender: TObject);
@@ -2779,13 +2935,18 @@ end;
 
 procedure TfrmG2Main.aShowAddModuleExecute(Sender: TObject);
 var P : TPoint;
+    G2 : TG2;
 begin
+  G2 := SelectedG2;
+  if not assigned(G2) then
+    exit;
+
   GetCursorPos( P);
-  if FLocation = ltVA then begin
+  if G2.SelectedPatch.SelectedLocation = ltVA then begin
     FAddPoint := sbVA.ScreenToClient(P);
     puAddModule.Popup(P.X, P.Y);
   end else
-    if FLocation = ltFX then begin
+    if G2.SelectedPatch.SelectedLocation = ltFX then begin
       FAddPoint := sbFX.ScreenToClient(P);
       puAddModule.Popup(P.X, P.Y);
     end;
@@ -3005,6 +3166,7 @@ end;
 procedure TfrmG2Main.ModuleClick(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X,  Y: Integer; Module: TG2FileModule);
 var P : TPoint;
 begin
+  UpdateActions;
   if Button = mbRight then begin
     GetCursorPos(P);
     puModuleMenu.Popup( P.X, P.Y);
@@ -3061,7 +3223,7 @@ begin
   if FAddPoint.Y < 0 then
     FAddPoint.Y := 0;
 
-  G2.SelectedPatch.MessAddModule( FLocation, aModuleType, FAddPoint.X div UNITS_COL, FAddPoint.y div UNITS_ROW );
+  G2.SelectedPatch.MessAddModule( G2.SelectedPatch.SelectedLocation, aModuleType, FAddPoint.X div UNITS_COL, FAddPoint.y div UNITS_ROW );
 end;
 
 procedure TfrmG2Main.DoAddModule( Sender: TObject);
@@ -3258,9 +3420,8 @@ begin
   end;
 end;
 
-procedure TfrmG2Main.ParameterClick(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X,  Y: Integer; Parameter: TG2FileParameter);
-var P : TPoint;
-    Knob : TKnob;
+procedure TfrmG2Main.UpdateParamMenu( aParam : TG2FileParameter);
+var Knob : TKnob;
     G2 : TG2;
 
   procedure SetKnobCheck( index : integer);
@@ -3319,20 +3480,28 @@ var P : TPoint;
   end;
 
 begin
-  if not assigned(Parameter) then
+  if not assigned(aParam) then
     exit;
 
   G2 := SelectedG2;
   if not assigned(G2) then
     exit;
 
-  if Button = mbRight then begin
-    GetCursorPos(P);
+  SetKnobCheck( G2.SelectedPatch.FindKnob( aParam.Location, aParam.ModuleIndex, aParam.ParamIndex));
+  SetGlobalKnobCheck( G2.Performance.GlobalKnobList.FindGlobalKnobIndex( G2.SelectedSlotIndex, aParam.Location, aParam.ModuleIndex, aParam.ParamIndex));
+  SetMidiCCCheck( G2.SelectedPatch.FindMidiCC( aParam.Location, aParam.ModuleIndex, aParam.ParamIndex));
+  SetMorphCheck( G2.SelectedPatch.GetMorph( aParam.Location, aParam.ModuleIndex, aParam.ParamIndex, G2.SelectedPatch.SelectedMorphIndex, G2.SelectedPatch.ActiveVariation) <> nil);
+end;
 
-    SetKnobCheck( G2.SelectedPatch.FindKnob( Parameter.Location, Parameter.ModuleIndex, Parameter.ParamIndex));
-    SetGlobalKnobCheck( G2.Performance.GlobalKnobList.FindGlobalKnobIndex( G2.SelectedSlotIndex, Parameter.Location, Parameter.ModuleIndex, Parameter.ParamIndex));
-    SetMidiCCCheck( G2.SelectedPatch.FindMidiCC( Parameter.Location, Parameter.ModuleIndex, Parameter.ParamIndex));
-    SetMorphCheck( G2.SelectedPatch.GetMorph( Parameter.Location, Parameter.ModuleIndex, Parameter.ParamIndex, G2.SelectedPatch.SelectedMorphIndex, G2.SelectedPatch.ActiveVariation) <> nil);
+procedure TfrmG2Main.ParameterClick(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X,  Y: Integer; Parameter: TG2FileParameter);
+var P : TPoint;
+begin
+  if not assigned(Parameter) then
+    exit;
+
+  if Button = mbRight then begin
+    UpdateParamMenu( Parameter);
+    GetCursorPos(P);
 
     miEditParamName.Enabled := sender is TG2GraphButtonText;
 
@@ -3392,7 +3561,7 @@ begin
 
   Connector := TG2FileConnector(puConnectorMenu.Tag);
   for i := 0 to Connector.CableCount - 1 do // TODO : Could be made more efficient (all in one message)
-    G2.SelectedPatch.MessDeleteConnection( FLocation, Connector.Cables[0]);
+    G2.SelectedPatch.MessDeleteConnection( G2.SelectedPatch.SelectedLocation, Connector.Cables[0]);
 end;
 
 procedure TfrmG2Main.miDeleteCablesClick(Sender: TObject);
@@ -3453,7 +3622,9 @@ begin
   if assigned( FCopyPatch) then
     FCopyPatch.Free;
 
-  FCopyPatch := TG2FilePatchPart.CopyModules( G2.SelectedPatch, G2.SelectedPatch.PatchPart[ ord(FLocation)], G2.SelectedPatch.SelectedModuleList);
+  FCopyPatch := TG2FilePatchPart.CopyModules( G2.SelectedPatch, G2.SelectedPatchPart, G2.SelectedPatchPart.SelectedModuleList);
+
+  UpdateActions;
 end;
 
 procedure TfrmG2Main.DeletePatchSelection;
@@ -3463,8 +3634,10 @@ begin
   if not assigned(G2) then
     exit;
 
-  if G2.SelectedPatch.SelectedModuleList.Count > 0 then
-    G2.SelectedPatch.MessDeleteModules( G2.SelectedPatch.SelectedModuleList[0].Location);
+  if G2.SelectedPatchPart.SelectedModuleList.Count > 0 then
+    G2.SelectedPatch.MessDeleteModules( G2.SelectedPatch.SelectedLocation);
+
+  UpdateActions;
 end;
 
 procedure TfrmG2Main.PastePatchSelection;
@@ -3472,6 +3645,8 @@ begin
   if assigned( FCopyPatch) then begin
     sbVA.CopyPatch := FCopyPatch;
     sbFX.CopyPatch := FCopyPatch;
+
+    UpdateActions;
   end;
 end;
 
@@ -3513,20 +3688,25 @@ begin
 end;
 
 procedure TfrmG2Main.SelectPatchLocation(aLocation: TLocationType);
+var G2 : TG2;
 begin
+  G2 := SelectedG2;
+  if not assigned(G2) then
+    exit;
+
   FDisableControls := True;
   try
     if (aLocation = ltVA) then begin
-      if (FLocation = ltFX) then
+      if (G2.SelectedPatch.SelectedLocation = ltFX) then
         sbFX.Height := 10
       else
-        sbFX.Height := GetPatchWindowHeight - FOldSplitterPos - Splitter1.Height;
+        sbFX.Height := {GetPatchWindowHeight}pPatchArea.Height - FOldSplitterPos - Splitter1.Height;
     end else
-      if FLocation = ltVA then
-        sbFX.Height := GetPatchWindowHeight - Splitter1.Height - 10
+      if G2.SelectedPatch.SelectedLocation = ltVA then
+        sbFX.Height := {GetPatchWindowHeight}pPatchArea.Height - Splitter1.Height - 10
       else
-        sbFX.Height := GetPatchWindowHeight - FOldSplitterPos - Splitter1.Height;
-    FLocation := aLocation;
+        sbFX.Height := {GetPatchWindowHeight}pPatchArea.Height - FOldSplitterPos - Splitter1.Height;
+    G2.SelectedPatch.SelectedLocation := aLocation;
     Invalidate;
   finally
     FDisableControls := False;
@@ -3601,6 +3781,11 @@ begin
   FSlotPanel[ PatchIndex].UpdateControls;
 end;
 
+procedure TfrmG2Main.G2DeleteModule(Sender: TObject; SenderID: integer; Location: TLocationType; ModuleIndex: integer);
+begin
+  UpdateActions;
+end;
+
 procedure TfrmG2Main.G2PerfSettingsUpdate(Sender: TObject; SenderID: Integer; PerfMode: Boolean);
 begin
   frmPerfSettings.updateDialog;
@@ -3610,6 +3795,22 @@ end;
 procedure TfrmG2Main.G2SelectSlot(Sender: TObject; SenderID: Integer; Slot: Integer);
 begin
   UpdateControls;
+end;
+
+procedure TfrmG2Main.G2SetModuleLabel(Sender: TObject; SenderID: integer;
+  PatchIndex: byte; Location: TLocationType; ModuleIndex: byte);
+var G2 : TG2;
+begin
+  G2 := SelectedG2;
+  if not assigned(G2) or (G2 <> Sender) then
+    exit;
+
+  if G2.SelectedSlotIndex = PatchIndex then begin
+    case Location of
+      ltFX: sbFX.Invalidate;
+      ltVA: sbVA.Invalidate;
+    end;
+  end;
 end;
 
 procedure TfrmG2Main.G2SynthSettingsUpdate(Sender: TObject;  SenderID: Integer);
@@ -3647,7 +3848,9 @@ begin
   if not assigned(G2) then
     exit;
 
-  G2.USBActive := cbOnline.Checked;
+  // Disabled to prevent accidents
+  //G2.USBActive := cbOnline.Checked;
+  cbOnline.Checked := G2.USBActive;
 end;
 
 procedure TfrmG2Main.G2VariationChange(Sender: TObject; SenderID: Integer; Slot, Variation: Integer);
@@ -3672,6 +3875,11 @@ begin
     exit;
 
   lbClientsConnected.Caption := IntToStr( G2.GetClientCount);
+end;
+
+procedure TfrmG2Main.G2AddModule(Sender: TObject; SenderID: integer; Module: TG2FileModule);
+begin
+  UpdateActions;
 end;
 
 procedure TfrmG2Main.G2DeleteClient(Sender: TObject; ClientIndex: Integer);
@@ -3726,11 +3934,16 @@ begin
 end;
 
 procedure TfrmG2Main.G2CreateModule(Sender: TObject; SenderID: Integer; Module: TG2FileModule);
+var G2 : TG2;
 begin
+  G2 := SelectedG2;
+  if not assigned(G2) then
+    exit;
+
   (Module as TG2GraphModule).OnModuleClick := ModuleClick;
   (Module as TG2GraphModule).OnParameterClick := ParameterClick;
   (Module as TG2GraphModule).OnConnectorClick := ConnectorClick;
-  FLocation := Module.Location;
+  G2.SelectedPatch.SelectedLocation := Module.Location;
 end;
 
 procedure TfrmG2Main.G2DeassignGlobalKnob(Sender: TObject; SenderID,  KnobIndex: Integer);

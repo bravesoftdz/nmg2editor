@@ -101,6 +101,7 @@ type
     procedure cbSlotStripDisabledColorChange(Sender: TObject);
     procedure cbHighLightColorChange(Sender: TObject);
     procedure cbOnlyTextMenusClick(Sender: TObject);
+    procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
   private
     { Private declarations }
     FDisableControls : boolean;
@@ -142,6 +143,13 @@ begin
       end;
     end;
   end;
+end;
+
+procedure TfrmSettings.FormKeyUp(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+  if Key = VK_ESCAPE then
+    Close;
 end;
 
 procedure TfrmSettings.FormShow(Sender: TObject);

@@ -73,6 +73,7 @@ type
       Shift: TShiftState; X, Y: Integer);
     procedure bNoteMouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
+    procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
   private
     { Private declarations }
   public
@@ -319,6 +320,13 @@ procedure TfrmSeqGrid.FormCreate(Sender: TObject);
 begin
   FModuleIndex := 0;
   FLocation := ltVA;
+end;
+
+procedure TfrmSeqGrid.FormKeyUp(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+  if Key = VK_ESCAPE then
+    Close;
 end;
 
 procedure TfrmSeqGrid.InitBtn(aBtn, aValue: byte);

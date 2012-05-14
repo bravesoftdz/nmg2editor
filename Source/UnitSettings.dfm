@@ -10,9 +10,11 @@ object frmSettings: TfrmSettings
   Font.Height = -11
   Font.Name = 'Tahoma'
   Font.Style = []
+  KeyPreview = True
   OldCreateOrder = False
   OnClose = FormClose
   OnCreate = FormCreate
+  OnKeyUp = FormKeyUp
   OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13
@@ -24,9 +26,11 @@ object frmSettings: TfrmSettings
     ActivePage = TabSheet5
     Align = alClient
     TabOrder = 0
-    ExplicitHeight = 249
     object TabSheet1: TTabSheet
       Caption = 'TCP-IP'
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
       ExplicitHeight = 221
       object Label3: TLabel
         Left = 16
@@ -86,6 +90,9 @@ object frmSettings: TfrmSettings
     object TabSheet4: TTabSheet
       Caption = 'Midi'
       ImageIndex = 3
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
       ExplicitHeight = 221
       object Label6: TLabel
         Left = 17
@@ -154,7 +161,6 @@ object frmSettings: TfrmSettings
     object TabSheet5: TTabSheet
       Caption = 'Editor'
       ImageIndex = 4
-      ExplicitHeight = 221
       object Label11: TLabel
         Left = 24
         Top = 53
@@ -256,6 +262,9 @@ object frmSettings: TfrmSettings
     object TabSheet3: TTabSheet
       Caption = 'Patch manager'
       ImageIndex = 2
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
       ExplicitHeight = 221
       DesignSize = (
         480
@@ -289,6 +298,9 @@ object frmSettings: TfrmSettings
     object TabSheet2: TTabSheet
       Caption = 'OSC'
       ImageIndex = 1
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
       ExplicitHeight = 221
       object Panel1: TPanel
         Left = 0
@@ -353,7 +365,6 @@ object frmSettings: TfrmSettings
         ParentFont = False
         ScrollBars = ssBoth
         TabOrder = 1
-        ExplicitHeight = 162
       end
     end
   end

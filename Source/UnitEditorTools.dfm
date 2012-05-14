@@ -12,9 +12,11 @@ object frmEditorTools: TfrmEditorTools
   Font.Name = 'Tahoma'
   Font.Style = []
   FormStyle = fsStayOnTop
+  KeyPreview = True
   OldCreateOrder = False
   Scaled = False
   OnCreate = FormCreate
+  OnKeyUp = FormKeyUp
   OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13

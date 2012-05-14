@@ -47,6 +47,7 @@ uses
   TPerfSettingsUpdateEvent = procedure(Sender: TObject; SenderID : integer; PerfMode : boolean) of object;
   TAfterRetrievePatch = procedure(Sender: TObject; SenderID : integer; aSlot, aBank, aPatch : byte) of object;
   TParamChangeMessEvent = procedure(Sender: TObject; SenderID : integer; Slot, Variation : byte; Location : TLocationType; ModuleIndex, ParamIndex : byte; aValue : byte) of object;
+  TSetModuleLabelEvent = procedure(Sender: TObject; SenderID : integer; PatchIndex : byte; Location : TLocationType;  ModuleIndex : byte) of object;
 
   TG2MessPerformance = class;
   TG2MessSlot = class;
@@ -107,6 +108,12 @@ uses
     Source : boolean; // True : the moved modules, False the modules that are in the way
   end;
 
+  TNewModuleIndexAndName = class
+    OldModuleIndex : integer;
+    NewModuleIndex : integer;
+    NewModuleName : AnsiString;
+  end;
+
   TG2Mess = class( TG2File)
   private
     // Synth settings
@@ -145,6 +152,7 @@ uses
     FOnPerfSettingsUpdate     : TPerfSettingsUpdateEvent;
     FOnAfterRetrievePatch     : TAfterRetrievePatch;
     FOnParamChangeMessage     : TParamChangeMessEvent;
+    FOnSetModuleLabel         : TSetModuleLabelEvent;
 
     FErrorMessage        : boolean;
     FErrorMessageNo      : integer;
@@ -239,6 +247,7 @@ uses
     property    OnSynthSettingsUpdate : TSynthSettingsUpdateEvent read FOnSynthSettingsUpdate write FOnSynthSettingsUpdate;
     property    OnAfterRetrievePatch : TAfterRetrievePatch read FOnAfterRetrievePatch write FOnAfterRetrievePatch;
     property    OnParamChangeMessage : TParamChangeMessEvent read FOnParamChangeMessage write FOnParamChangeMessage;
+    property    OnSetModuleLabel : TSetModuleLabelEvent read FOnSetModuleLabel write FOnSetModuleLabel;
   end;
 
   TG2MessPerformance = class( TG2FilePerformance)
@@ -354,12 +363,13 @@ uses
   protected
     FUndoStack   : TList;
 
+    function    GetUndoCount : integer;
     function    CreatePatchMessage: TG2SendMessage;
     procedure   ResetUprateValues( aLocation : TLocationType);
     procedure   CheckUprateChange( aStream: TG2SendMessage; aUprateValue : Byte; aToConnector : TG2FileConnector; aToModule : TG2FileModule);
     function    CreateAddNewModuleMessage( aLocation : TLocationType; aNewModuleIndex, aModuleType, aCol, aRow: byte): TG2SendMessage;
     function    CreateCopyModulesMessage( aSrcePatch : TG2FilePatchPart; aFromLocation, aToLocation : TLocationType; RenumberModules : boolean): TG2SendMessage;
-    function    CreateMoveModulesMessage: TG2SendMessage;
+    function    CreateMoveModulesMessage( aLocation : TLocationType): TG2SendMessage;
     function    CreateSetModuleColorMessage( aLocation: TLocationType; aModuleIndex, aColor : byte): TG2SendMessage;
     function    CreateDeleteModuleMessage( aLocation : TLocationType; aModuleIndex: byte): TG2SendMessage;
     function    CreateDeleteModulesMessage( aLocation : TLocationType): TG2SendMessage;
@@ -392,6 +402,8 @@ uses
     function    GetMiniVUListCount : integer; virtual;
     function    GetLedListCount : integer; virtual;
     procedure   RemoveFromLedList( aLocation: TLocationType; aModuleIndex : integer); virtual;
+
+    property    UndoCount : integer read GetUndoCount;
   end;
 
 implementation
@@ -2786,6 +2798,11 @@ begin
   Result := Slot as TG2MessSlot;
 end;
 
+function TG2MessPatch.GetUndoCount: integer;
+begin
+  Result := FUndoStack.Count;
+end;
+
 function TG2MessPatch.GetPerformance : TG2MessPerformance;
 begin
   if not assigned(Slot) then
@@ -3492,9 +3509,9 @@ var Chunk : TPatchChunk;
     ParameterLabels : TParameterLabels;
     TempModuleList : TModuleList;
     TempModule : TG2FileModule;
-
     i : LongWord;
     j : integer;
+    ModuleName : AnsiString;
 begin
   if not assigned(G2.FModuleDefList) then
     raise Exception.Create('Module database not loaded.');
@@ -3531,9 +3548,10 @@ begin
       TempModuleList.Free;
     end;
 
-
     // Create undo add module message
     AddDeleteModuleMessage( FUndoMessage, aLocation, aNewModuleIndex);
+
+    ModuleName := ModuleDef.ShortName + IntToStr(PatchPart[ ord(aLocation)].GetUniqueModuleNameSeqNr( ModuleDef.ShortName));
 
     // Create the add module message
     Chunk := TPatchChunk.Create( MemStream);
@@ -3559,7 +3577,8 @@ begin
           ParamList.Free;
         end;
 
-      Chunk.WriteName( ModuleDef.ShortName);
+      //Chunk.WriteName( ModuleDef.ShortName);
+      Chunk.WriteName( ModuleName);
       Chunk.Flush;
 
       // Write empty cablechunk
@@ -3657,7 +3676,8 @@ begin
       Chunk.WriteBits( 1,              8); // NameCount
 
       Chunk.WriteBits( aNewModuleIndex, 8);
-      Chunk.WriteName( ModuleDef.ShortName);
+      //Chunk.WriteName( ModuleDef.ShortName);
+      Chunk.WriteName( ModuleName);
       Chunk.WriteChunk( $5a);
 
       SendMessage.Add( MemStream);
@@ -3679,11 +3699,15 @@ var Chunk : TPatchChunk;
     Module : TG2FileModule;
     Cable : TG2FileCable;
     RenumberTable : array of integer;
+    RenumberRenameTable : TObjectList;
+    NewModuleIndexAndName : TNewModuleIndexAndName;
+    ext : integer;
+    found : boolean;
 
   function GetNewModuleIndex( aOldModuleIndex : integer): integer;
   var i : integer;
   begin
-    if not RenumberModules then begin
+    {if not RenumberModules then begin
       // Do not renumber (undo)
       GetNewModuleIndex := aOldModuleIndex;
     end else begin
@@ -3694,20 +3718,71 @@ var Chunk : TPatchChunk;
         Result := i + FromModuleIndex
       else
         raise Exception.Create('Error renumbering modules.');
-    end;
+    end;}
+    i := 0;
+    while (i<RenumberRenameTable.Count) and ((RenumberRenameTable[i] as TNewModuleIndexAndName).OldModuleIndex <> aOldModuleIndex) do
+      inc(i);
+    if (i<RenumberRenameTable.Count) then
+      Result := (RenumberRenameTable[i] as TNewModuleIndexAndName).NewModuleIndex
+    else
+      raise Exception.Create('Error renumbering modules.');
+  end;
+
+  function GetNewModuleName( aOldModuleIndex : integer): AnsiString;
+  var i : integer;
+  begin
+    i := 0;
+    while (i<RenumberRenameTable.Count) and ((RenumberRenameTable[i] as TNewModuleIndexAndName).OldModuleIndex <> aOldModuleIndex) do
+      inc(i);
+    if (i<RenumberRenameTable.Count) then
+      Result := (RenumberRenameTable[i] as TNewModuleIndexAndName).NewModuleName
+    else
+      raise Exception.Create('Error renaming modules.');
   end;
 
 begin
   // Renumber modules in sourcepatch;
-  FromModuleIndex := GetMaxModuleIndex( aToLocation) + 1;
+  {FromModuleIndex := GetMaxModuleIndex( aToLocation) + 1;
 
   SetLength( RenumberTable, aSrcePatch.ModuleList.Count);
   for i := 0 to aSrcePatch.ModuleList.Count - 1 do
-    RenumberTable[i] := aSrcePatch.ModuleList.Items[i].ModuleIndex;
+    RenumberTable[i] := aSrcePatch.ModuleList.Items[i].ModuleIndex;}
 
   MemStream := TG2Message.Create;
   BitWriter := TBitWriter.Create;
+  RenumberRenameTable := TObjectList.Create( True);
   try
+    // Create renumber and rename tables
+    FromModuleIndex := GetMaxModuleIndex( aToLocation) + 1;
+    SetLength( RenumberTable, aSrcePatch.ModuleList.Count);
+    for i := 0 to aSrcePatch.ModuleList.Count - 1 do begin
+
+      NewModuleIndexAndName := TNewModuleIndexAndName.Create;
+      NewModuleIndexAndName.OldModuleIndex := aSrcePatch.ModuleList[i].ModuleIndex;
+
+      if RenumberModules then begin
+        //RenumberTable[i] := FromModuleIndex;
+        NewModuleIndexAndName.NewModuleIndex := FromModuleIndex + i;
+        found := false;
+        ext := PatchPart[ ord(aToLocation)].GetUniqueModuleNameSeqNr(aSrcePatch.ModuleList[i].ModuleFileName);
+        repeat
+          j := 0;
+          while (j<RenumberRenameTable.Count) and ((RenumberRenameTable[j] as TNewModuleIndexAndName).NewModuleName <> aSrcePatch.ModuleList[i].ModuleFileName + IntToStr(ext)) do
+            inc(j);
+          found := (j<RenumberRenameTable.Count);
+          if found then begin
+            inc(ext);
+          end;
+        until not found;
+        NewModuleIndexAndName.NewModuleName := aSrcePatch.ModuleList[i].ModuleFileName + IntToStr(ext);
+      end else begin
+        NewModuleIndexAndName.NewModuleIndex := aSrcePatch.ModuleList[i].ModuleIndex;
+        NewModuleIndexAndName.NewModuleName := aSrcePatch.ModuleList[i].ModuleName;
+      end;
+      RenumberRenameTable.Add(NewModuleIndexAndName);
+    end;
+
+
     Chunk := TPatchChunk.Create( MemStream);
     try
       // Create move messages for the existing modules
@@ -3718,7 +3793,7 @@ begin
         Module := aSrcePatch.ModuleList[m];
 
         // Create undo add module message
-        AddDeleteModuleMessage( FUndoMessage, aToLocation,  GetNewModuleIndex(Module.ModuleIndex));
+        AddDeleteModuleMessage( FUndoMessage, aToLocation, GetNewModuleIndex(Module.ModuleIndex));
 
         Chunk.WriteBits( S_ADD_MODULE,                          8);
         Chunk.WriteBits( Module.TypeID,                         8);
@@ -3731,7 +3806,8 @@ begin
         Chunk.WriteBits( Module.IsLed,                          8);
         for i := 0 to Module.ModeCount - 1 do
           Chunk.WriteBits( Module.ModeInfo[i], 8);
-        Chunk.WriteName( Module.ModuleName);
+        //Chunk.WriteName( Module.ModuleName);
+        Chunk.WriteName( GetNewModuleName(Module.ModuleIndex));
         Chunk.Flush;
       end;
 
@@ -3809,7 +3885,8 @@ begin
       for i := 0 to  aSrcePatch.ModuleLabels.Count - 1 do begin
 
         Chunk.WriteBits( GetNewModuleIndex( aSrcePatch.ModuleLabels[i].ModuleIndex), 8);
-        Chunk.WriteName( aSrcePatch.ModuleLabels[i].ModuleLabel);
+        //Chunk.WriteName( aSrcePatch.ModuleLabels[i].ModuleLabel);
+        Chunk.WriteName( GetNewModuleName( aSrcePatch.ModuleLabels[i].ModuleIndex));
       end;
       Chunk.WriteChunk( $5a);
 
@@ -3820,6 +3897,8 @@ begin
     end;
 
   finally
+    Finalize(RenumberTable);
+    RenumberRenameTable.Free;
     BitWriter.Free;
     MemStream.Free;
   end;
@@ -4249,7 +4328,7 @@ begin
   (G2 as TG2Mess).dump_buffer( PStaticByteBuffer(Result.Memory)^[0], Result.Size);
 end;
 
-function TG2MessPatch.CreateMoveModulesMessage: TG2SendMessage;
+function TG2MessPatch.CreateMoveModulesMessage( aLocation : TLocationType): TG2SendMessage;
 var Module : TG2FileModule;
     i, j : integer;
     ModuleMovedList, ModulesToReplaceList : TModuleList;
@@ -4260,9 +4339,9 @@ begin
   ModuleMovedList := TModuleList.Create( False, nil);
   ModulesToReplaceList := TModuleList.Create( False, nil);
   try
-    for i := 0 to 1 do
-      for j := 0 to ModuleCount[i] - 1 do begin
-        Module := ModuleList[i].Items[j];
+    //for i := 0 to 1 do
+      for j := 0 to ModuleCount[ ord(aLocation)] - 1 do begin
+        Module := ModuleList[ ord(aLocation)].Items[j];
         if Module.Selected then begin
 
           ModuleMovedList.AddModule(Module);
@@ -4275,9 +4354,9 @@ begin
     ModuleMovedList.Free;
   end;
 
-  for i := 0 to 1 do
-    for j := 0 to ModuleCount[i] - 1 do begin
-      Module := ModuleList[i].Items[j];
+  //for i := 0 to 1 do
+    for j := 0 to ModuleCount[ ord(aLocation)] - 1 do begin
+      Module := ModuleList[ ord(aLocation)].Items[j];
       if Module.Selected then begin
         AddMoveModuleMessage( FUndoMessage, Module, Module.Col, Module.Row);
         AddMoveModuleMessage( Result, Module, Module.NewCol, Module.NewRow);
@@ -4932,6 +5011,10 @@ begin
               aModuleIndex := BitReader.ReadBits( MemStream, 8);
               aName := ReadClaviaString(MemStream);
               SetModuleLabel( aLocation, aModuleIndex, aName);
+
+              if assigned(G2) and assigned(Slot) then
+                if assigned((G2 as TG2Mess).OnSetModuleLabel) then
+                  (G2 as TG2Mess).OnSetModuleLabel( G2, G2.ID,  Slot.SlotIndex, aLocation, aModuleIndex);
             end;
       S_SET_MORPH_RANGE :
             begin

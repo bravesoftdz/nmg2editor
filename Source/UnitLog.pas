@@ -20,6 +20,7 @@ type
     procedure bRefreshClick(Sender: TObject);
     procedure bClearClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
+    procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
   private
     { Private declarations }
   public
@@ -111,6 +112,12 @@ end;
 procedure TfrmLog.FormCreate(Sender: TObject);
 begin
   //frmG2Main.G2.LogLines := Memo1.Lines;
+end;
+
+procedure TfrmLog.FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  if Key = VK_ESCAPE then
+    Close;
 end;
 
 procedure TfrmLog.FormShow(Sender: TObject);

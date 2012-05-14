@@ -101,6 +101,7 @@ type
     procedure udControlPedalGainChangingEx(Sender: TObject;
       var AllowChange: Boolean; NewValue: SmallInt;
       Direction: TUpDownDirection);
+    procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
   private
     { Private declarations }
     FDisableControls : boolean;
@@ -174,6 +175,13 @@ begin
     eMidiChannelD.Text := '17';
   udMidiChannelD.Position := StrToInt(eMidiChannelD.Text) - 1;
   SynthChange(self);
+end;
+
+procedure TfrmSynthSettings.FormKeyUp(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+  if Key = VK_ESCAPE then
+    Close;
 end;
 
 procedure TfrmSynthSettings.FormShow(Sender: TObject);

@@ -12,8 +12,10 @@ object frmPatchManager: TfrmPatchManager
   Font.Name = 'Tahoma'
   Font.Style = []
   FormStyle = fsStayOnTop
+  KeyPreview = True
   OldCreateOrder = False
   OnCreate = FormCreate
+  OnKeyUp = FormKeyUp
   OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13
@@ -31,7 +33,6 @@ object frmPatchManager: TfrmPatchManager
       'Patch')
     TabIndex = 0
     OnChange = TabControl1Change
-    ExplicitHeight = 432
     object lvExternalPatch: TListView
       Left = 16
       Top = 152

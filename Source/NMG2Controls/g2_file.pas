@@ -171,6 +171,8 @@ type
     FParams        : array of TG2FileParameter;
     FModes         : array of TG2FileParameter;
 
+    FModuleFileName : AnsiString;
+
     function    GetInputConnector( ConnectorIndex : integer): TG2FileConnector;
     function    GetOutputConnector( ConnectorIndex : integer): TG2FileConnector;
     function    GetInputConnectorCount : integer;
@@ -246,6 +248,7 @@ type
     property    NewUprate : TBits1 read FNewUprate write FNewUprate;
     property    SelectedParam : TG2FileParameter read GetSelectedParam write SetSelectedParam;
     property    AssignableKnobCount : integer read GetAssignableKnobCount;
+    property    ModuleFileName : AnsiString read FModuleFileName write FModuleFileName;
   end;
 
   TModuleList = class( TObjectList)
@@ -803,12 +806,16 @@ type
     FPatch              : TG2FilePatch;
     FLocation           : TLocationType;
     FModuleList         : TModuleList;
+    FSelectedModuleList : TModuleList;
+    FSelectedParam      : TG2FileParameter;
     FCableList          : TCableList;
     FParameterList      : TModuleParameters;
     FModuleLabels       : TModuleLabels;
     FParameterLabels    : TParameterLabels;
 
     procedure   SetLocation( aValue : TLocationType);
+    function    GetSelectedModuleList : TModuleList;
+    procedure   SetSelectedParam( aValue : TG2FileParameter); virtual;
   public
     constructor Create( aPatch : TG2FilePatch);
     constructor CopyModules( aPatch : TG2FilePatch; aSrcePatchPart : TG2FilePatchPart; aModuleList : TModuleList);
@@ -818,6 +825,7 @@ type
     procedure   AddCable( aCable : TG2FileCable);
     procedure   DeleteCable( aCable : TG2FileCable);
     function    GetMaxModuleIndex : integer;
+    function    GetUniqueModuleNameSeqNr( aModuleFileName : AnsiString): integer;
     function    GetNoOffModuleType( aModuleType : byte): integer;
     function    FindModuleLabel( aModuleIndex : byte): AnsiString;
     function    FindParamValue( aModuleIndex, aVariation, aParamIndex : byte): integer;
@@ -833,13 +841,22 @@ type
     procedure   AddParamLabel(aModuleIndex, aParamIndex : byte; aValue : AnsiString);
     procedure   AddNewModuleLabel( aModuleIndex : byte; aValue : AnsiString);
     procedure   SelectModule( aModule : TG2FileModule);
+    procedure   SelectModuleAbove;
+    procedure   SelectModuleUnder;
+    procedure   SelectModuleLeft;
+    procedure   SelectModuleRight;
     procedure   DeselectModule( aModule : TG2FileModule);
+    procedure   UnselectModules;
+    procedure   SelectNextModuleParam;
+    procedure   SelectPrevModuleParam;
     function    CreateModule( aModuleIndex : byte; aModuleType : byte): TG2FileModule;
     function    CreateCable( aColor : byte; aFromModule : byte; aFromConnector : byte; aLinkType : byte; aToModule : byte; aToConnector : byte): TG2FileCable; virtual;
 
     property    Patch : TG2FilePatch read FPatch write FPatch;
     property    Location : TLocationType read FLocation write SetLocation;
     property    ModuleList : TModuleList read FModuleList;
+    property    SelectedModuleList : TModuleList read GetSelectedModuleList;
+    property    SelectedParam : TG2FileParameter read FSelectedParam write SetSelectedParam;
     property    CableList : TCableList read FCableList;
     property    ParameterList : TModuleParameters read FParameterList;
     property    ModuleLabels : TModuleLabels read FModuleLabels;
@@ -849,7 +866,7 @@ type
   TG2FilePatch = class( TG2FileDataStream)
   private
     FPatchPart          : array[0..1] of TG2FilePatchPart;
-    FSelectedModuleList : TModuleList;
+    //FSelectedModuleList : TModuleList;
     FPatchSettings      : TPatchSettings;
     FPatchDescription   : TPatchDescription;
     FMorphParameters    : TMorphParameters;
@@ -860,7 +877,8 @@ type
     FPatchNotes         : TPatchNotes;
     // Not found it in the file so far
     FSelectedMorphIndex : integer;
-    FSelectedParam      : TG2FileParameter;
+    //FSelectedParam      : TG2FileParameter;
+    FSelectedLocation   : TLocationType;
 
     FEditAllVariations  : boolean;
 
@@ -875,18 +893,19 @@ type
     procedure   SetSlot( aValue : TG2FileSlot);
     function    GetPatchPart( aIndex : integer): TG2FilePatchPart;
     function    GetModuleList( aIndex : integer): TModuleList;
-    function    GetSelectedModuleList : TModuleList;
+    //function    GetSelectedModuleList : TModuleList;
     function    GetCableList( aIndex : integer): TCableList;
     function    GetParameterList( aIndex : integer): TModuleParameters;
     function    GetModuleLabels( aIndex : integer): TModuleLabels;
     function    GetParameterLabels( aIndex : integer): TParameterLabels;
     function    GetPatchName : AnsiString;
     procedure   SetPatchName( aValue : AnsiString);
-    procedure   SetSelectedParam( aValue : TG2FileParameter); virtual;
+    //procedure   SetSelectedParam( aValue : TG2FileParameter); virtual;
     function    GetVariation : byte;
     procedure   SetVariation( aValue : byte);
   protected
     procedure   SetSelectedMorphIndex( aValue : integer); virtual;
+    procedure   SetSelectedLocation( aLocation : TLocationType); virtual;
   public
 
     constructor Create( AOwner: TComponent); override;
@@ -932,8 +951,8 @@ type
 
     procedure   AddModuleToPatch( aLocation : TLocationType; aModule: TG2FileModule);
     procedure   DeleteModuleFromPatch( aLocation : TLocationType; aModule: TG2FileModule);
-    procedure   SelectModule( aModule : TG2FileModule);
-    procedure   DeselectModule( aModule : TG2FileModule);
+    //procedure   SelectModule( aModule : TG2FileModule);
+    //procedure   DeselectModule( aModule : TG2FileModule);
 
     procedure   AddCableToPatch( aLocation : TLocationType; aCable: TG2FileCable);
     procedure   DeleteCableFromPatch( aLocation : TLocationType; aCable: TG2FileCable); virtual;
@@ -961,12 +980,12 @@ type
     procedure   SetModuleLabel( aLocation : TLocationType; aModuleIndex : byte; aValue : AnsiString);
 
     procedure   UnselectModules( aLocation : TLocationType);
-    procedure   SelectModuleAbove;
+    {procedure   SelectModuleAbove;
     procedure   SelectModuleUnder;
     procedure   SelectModuleLeft;
     procedure   SelectModuleRight;
     procedure   SelectNextModuleParam;
-    procedure   SelectPrevModuleParam;
+    procedure   SelectPrevModuleParam;}
 
     function    MessAddModule( aLocation : TLocationType; aModuleType, aCol, aRow: byte): boolean; virtual;
     function    MessCopyModules( aSrcePatch : TG2FilePatchPart; aFromLocation, aToLocation : TLocationType): boolean; virtual;
@@ -1002,8 +1021,9 @@ type
     property    PatchSettings : TPatchSettings read FPatchSettings;
     property    KnobList : TKnobList read FKnobList;
     property    PatchDescription : TPatchDescription read FPatchDescription;
-    property    SelectedModuleList : TModuleList read GetSelectedModuleList;
-    property    SelectedParam : TG2FileParameter read FSelectedParam write SetSelectedParam;
+    //property    SelectedModuleList : TModuleList read GetSelectedModuleList;
+    //property    SelectedParam : TG2FileParameter read FSelectedParam write SetSelectedParam;
+    property    SelectedLocation : TLocationType read FSelectedLocation write SetSelectedLocation;
 
     property    G2 : TG2File read FG2 write SetG2;
     property    Performance : TG2FilePerformance read FPerformance write SetPerformance;
@@ -1323,6 +1343,7 @@ type
 
     procedure SetPerformance( aValue : TG2FilePerformance);
     procedure SetLogLevel( aValue : integer);
+    function  GetSelectedPatchPart : TG2FilePatchPart;
   protected
     function  GetID : integer; virtual;
   public
@@ -1355,6 +1376,7 @@ type
     property    LogLines : TStringList read FLogLines;
     property    LogLevel : integer read FLogLevel write SetLogLevel;
     property    LastError : string read FLastError write FLastError;
+    property    SelectedPatchPart : TG2FilePatchPart read GetSelectedPatchPart;
     property    OnCreateModule : TCreateModuleEvent read FOnCreateModule write FOnCreateModule;
     property    OnAddModule : TAddModuleEvent read FOnAddModule write FOnAddModule;
     property    OnDeleteModule : TDeleteModuleEvent read FOnDeleteModule write FOnDeleteModule;
@@ -1392,17 +1414,19 @@ end;
 procedure TG2FileModule.Copy( aModule : TG2FileModule);
 var i : integer;
 begin
-  FTypeID       := aModule.FTypeID;
-  FModuleIndex  := aModule.FModuleIndex;
-  FModuleName   := aModule.FModuleName;
-  FCol          := aModule.Col;
-  FRow          := aModule.Row;
-  FModuleColor  := aModule.ModuleColor;
-  FUprate       := aModule.Uprate;
-  FIsLed        := aModule.IsLed;
-  FUnknown1     := aModule.FUnknown1;
-  FModeCount    := aModule.ModeCount;
-  FHeightUnits  := aModule.HeightUnits;
+  FTypeID         := aModule.FTypeID;
+  FModuleIndex    := aModule.FModuleIndex;
+  FModuleName     := aModule.FModuleName;
+  //FModuleName     := aModule.PatchPart.GetUniqueModuleName(aModule.FModuleName);
+  FModuleFileName := aModule.FModuleFileName;
+  FCol            := aModule.Col;
+  FRow            := aModule.Row;
+  FModuleColor    := aModule.ModuleColor;
+  FUprate         := aModule.Uprate;
+  FIsLed          := aModule.IsLed;
+  FUnknown1       := aModule.FUnknown1;
+  FModeCount      := aModule.ModeCount;
+  FHeightUnits    := aModule.HeightUnits;
 
   SetLength(FModeInfo, FModeCount);
   for i := 0 to Length(FModeInfo) - 1 do
@@ -1454,6 +1478,7 @@ begin
   SetLength(FModeInfo, 0);
 
   ModuleName := '';
+  FModuleFileName := '';
 end;
 
 function TG2FileModule.CreateParameter: TG2FileParameter;
@@ -1472,13 +1497,15 @@ var i : integer;
     aConnectorList : TXMLConnectorListType;
     aParamList : TXMLParamListType;
 begin
-  FLocation    := aLocation;
-  FTypeID      := aModuleDef.ModuleType;
-  FUprate      := aModuleDef.Uprate;
-  FIsLed       := aModuleDef.IsLed;
-  FHeightUnits := aModuleDef.Height;
-  ModuleName   := aModuleDef.ShortName;
-  FModeCount   := 0;
+  FLocation      := aLocation;
+  FTypeID        := aModuleDef.ModuleType;
+  FUprate        := aModuleDef.Uprate;
+  FIsLed         := aModuleDef.IsLed;
+  FHeightUnits   := aModuleDef.Height;
+  ModuleName     := aModuleDef.ShortName;
+  //ModuleName     := FPatchPart.GetUniqueModuleName(aModuleDef.ShortName);
+  ModuleFileName := aModuleDef.ShortName;
+  FModeCount     := 0;
 
   aConnectorList := aModuleDef.Inputs;
   if assigned(aConnectorList) then
@@ -4570,6 +4597,8 @@ begin
   FParameterList := TModuleParameters.Create( True{, aPatch});
   FModuleLabels := TModuleLabels.Create( True);
   FParameterLabels := TParameterLabels.Create(True);
+
+  FSelectedModuleList := TModuleList.Create( False, nil);
 end;
 
 constructor TG2FilePatchPart.CopyModules( aPatch : TG2FilePatch; aSrcePatchPart : TG2FilePatchPart; aModuleList : TModuleList);
@@ -4582,10 +4611,14 @@ begin
   FParameterList := TModuleParameters.CopySelected( True, {FPatch,} aModuleList, aSrcePatchPart.FParameterList);
   FModuleLabels := TModuleLabels.CopySelected( True, aModuleList, aSrcePatchPart.FModuleLabels);
   FParameterLabels := TParameterLabels.CopySelected( True, aModuleList, aSrcePatchPart.FParameterLabels);
+
+  FSelectedModuleList := TModuleList.Create( False, nil);
 end;
 
 destructor TG2FilePatchPart.Destroy;
 begin
+  FSelectedModuleList.Free;
+
   FParameterLabels.Free;
   FModuleLabels.Free;
   FParameterList.Free;
@@ -4603,6 +4636,32 @@ begin
   FParameterList.Init;
   FModuleLabels.Init;
   FParameterLabels.Init;
+
+  FSelectedModuleList.Clear;
+  FSelectedParam := nil;
+end;
+
+function TG2FilePatchPart.GetSelectedModuleList: TModuleList;
+begin
+  Result := FSelectedModuleList;
+end;
+
+function TG2FilePatchPart.GetUniqueModuleNameSeqNr( aModuleFileName: AnsiString): integer;
+var m : integer;
+    found : boolean;
+begin
+  found := false;
+  Result := 1;
+  repeat
+    m := 0;
+    while (m < FModuleList.Count) and (FModuleList[m].ModuleName <> (aModuleFileName + IntToStr(Result))) do
+      inc(m);
+
+    found := m < FModuleList.Count;
+    if found then begin
+      inc(Result);
+    end;
+  until not found;
 end;
 
 procedure TG2FilePatchPart.SetLocation( aValue : TLocationType);
@@ -4717,17 +4776,140 @@ begin
     AddNewModuleLabel( aModuleIndex, aValue);
 end;
 
-procedure TG2FilePatchPart.SelectModule( aModule : TG2FileModule);
+{procedure TG2FilePatchPart.SelectModule( aModule : TG2FileModule);
 begin
   if assigned(FPatch) then
     FPatch.SelectModule( aModule);
-
 end;
 
 procedure TG2FilePatchPart.DeselectModule( aModule : TG2FileModule);
 begin
   if assigned(FPatch) then
     FPatch.DeselectModule( aModule);
+end;}
+
+procedure TG2FilePatchPart.SelectModule(aModule: TG2FileModule);
+begin
+  if not assigned(aModule) then
+    exit;
+
+  if SelectedModuleList.FindModule( aModule.ModuleIndex) = nil then
+    SelectedModuleList.AddModule( aModule);
+
+  if (SelectedModuleList.Count = 1) and (aModule.ParameterCount > 0) then begin
+    if (aModule.FSelectedParam = -1) then
+      aModule.FSelectedParam := 0;
+    if aModule.FSelectedParam >= aModule.ParameterCount then
+      aModule.FSelectedParam := 0;
+
+    aModule.Parameter[ aModule.FSelectedParam].Selected := True;
+  end;
+end;
+
+procedure TG2FilePatchPart.DeselectModule(aModule: TG2FileModule);
+var Param : TG2FileParameter;
+begin
+  Param := aModule.GetSelectedParam;
+  if Param = FSelectedParam then
+    FSelectedParam := nil;
+
+  FSelectedModuleList.DeleteModule( aModule.ModuleIndex);
+end;
+
+procedure TG2FilePatchPart.UnselectModules;
+var i : integer;
+begin
+  for i := 0 to FModuleList.Count - 1 do
+    if FModuleList.Items[i].Selected then
+      FModuleList.Items[i].Selected := False;
+end;
+
+procedure TG2FilePatchPart.SelectModuleAbove;
+var Module : TG2FileModule;
+begin
+  if FSelectedParam = nil then
+    exit;
+
+  Module := FModuleList.GetModuleAbove( FSelectedParam.FModuleIndex);
+  if assigned(Module) then begin
+    UnSelectModules;
+    Module.Selected := True;
+  end;
+end;
+
+procedure TG2FilePatchPart.SelectModuleUnder;
+var Module : TG2FileModule;
+begin
+  if FSelectedParam = nil then
+    exit;
+
+  Module := FModuleList.GetModuleUnder( FSelectedParam.FModuleIndex);
+  if assigned(Module) then begin
+    UnSelectModules;
+    Module.Selected := True;
+  end;
+end;
+
+procedure TG2FilePatchPart.SelectModuleLeft;
+var Module : TG2FileModule;
+begin
+  if FSelectedParam = nil then
+    exit;
+
+  Module := FModuleList.GetModuleLeft( FSelectedParam.FModuleIndex);
+  if assigned(Module) then begin
+    UnSelectModules;
+    Module.Selected := True;
+  end;
+end;
+
+procedure TG2FilePatchPart.SelectModuleRight;
+var Module : TG2FileModule;
+begin
+  if FSelectedParam = nil then
+    exit;
+
+  Module := FModuleList.GetModuleRight( FSelectedParam.FModuleIndex);
+  if assigned(Module) then begin
+    UnSelectModules;
+    Module.Selected := True;
+  end;
+end;
+
+procedure TG2FilePatchPart.SetSelectedParam(aValue: TG2FileParameter);
+var OldSelectedParam : TG2FileParameter;
+begin
+  OldSelectedParam := SelectedParam;
+  FSelectedParam := aValue;
+  if assigned(SelectedParam) then
+    SelectedParam.InvalidateControl;
+
+  if assigned(OldSelectedParam) then
+    OldSelectedParam.InvalidateControl;
+end;
+
+procedure TG2FilePatchPart.SelectNextModuleParam;
+var Module : TG2FileModule;
+begin
+  if FSelectedParam = nil then
+    exit;
+
+  Module := FModuleList.FindModule( FSelectedParam.FModuleIndex);
+  if assigned(Module) then begin
+    Module.SelectNextParam;
+  end;
+end;
+
+procedure TG2FilePatchPart.SelectPrevModuleParam;
+var Module : TG2FileModule;
+begin
+  if FSelectedParam = nil then
+    exit;
+
+  Module := FModuleList.FindModule( FSelectedParam.FModuleIndex);
+  if assigned(Module) then begin
+    Module.SelectPrevParam;
+  end;
 end;
 
 function TG2FilePatchPart.CreateModule( aModuleIndex : byte; aModuleType : byte): TG2FileModule;
@@ -4771,7 +4953,7 @@ begin
   FMorphNames := TMorphNames.Create(self);
   FPatchNotes := TPatchNotes.Create;
 
-  FSelectedModuleList := TModuleList.Create( False, nil);
+  //FSelectedModuleList := TModuleList.Create( False, nil);
 
   Init;
 end;
@@ -4783,7 +4965,7 @@ begin
 
   //FMaxVariations := aPatch.FMaxVariations;
 
-  FSelectedModuleList := TModuleList.Create( False, nil);
+  //FSelectedModuleList := TModuleList.Create( False, nil);
 
   for i := 0 to 1 do
     FPatchPart[i] := TG2FilePatchPart.CopyModules( self, aPatch.FPatchPart[i],  aModuleList);
@@ -4817,7 +4999,7 @@ begin
   for i := 0 to 1 do
     FPatchPart[i].Free;
 
-  FSelectedModuleList.Free;
+  //FSelectedModuleList.Free;
 
   inherited;
 end;
@@ -4862,10 +5044,10 @@ begin
     FParams[i].Free;
   SetLength(FParams, 0);
 
-  FSelectedModuleList.Clear;
+  //FSelectedModuleList.Clear;
 
   FEditAllVariations := False;
-  FSelectedParam := nil;
+  //FSelectedParam := nil;
 end;
 
 
@@ -4890,7 +5072,7 @@ begin
   FSlot := aValue;
 end;
 
-procedure TG2FilePatch.SetSelectedParam(aValue: TG2FileParameter);
+{procedure TG2FilePatch.SetSelectedParam(aValue: TG2FileParameter);
 var OldSelectedParam : TG2FileParameter;
 begin
   OldSelectedParam := SelectedParam;
@@ -4900,7 +5082,7 @@ begin
 
   if assigned(OldSelectedParam) then
     OldSelectedParam.InvalidateControl;
-end;
+end;}
 
 procedure TG2FilePatch.InitKnobs;
 var i : integer;
@@ -5370,7 +5552,8 @@ procedure TG2FilePatch.DeleteModuleFromPatch( aLocation : TLocationType; aModule
 var aModuleIndex : Byte;
     i : integer;
 begin
-  DeselectModule( aModule);
+  //DeselectModule( aModule);
+  FPatchPart[ ord(aLocation)].DeselectModule( aModule);
 
   if assigned(FPerformance) and assigned(FSlot) then
     FPerformance.DeleteModuleFromPerf( FSlot.SlotIndex, aLocation, aModule);
@@ -5384,7 +5567,7 @@ begin
     FPatchSettings.Variations[i].DeleteModule( ord(aLocation), aModuleIndex);
 end;
 
-procedure TG2FilePatch.SelectModule(aModule: TG2FileModule);
+{procedure TG2FilePatch.SelectModule(aModule: TG2FileModule);
 begin
   if not assigned(aModule) then
     exit;
@@ -5410,7 +5593,7 @@ begin
     FSelectedParam := nil;
 
   FSelectedModuleList.DeleteModule( aModule.ModuleIndex);
-end;
+end;}
 
 procedure TG2FilePatch.AddCableToPatch( aLocation : TLocationType; aCable: TG2FileCable);
 begin
@@ -5811,10 +5994,10 @@ begin
     raise Exception.Create('Module list index ' + IntToStr( aIndex) + ' out of range.');
 end;
 
-function TG2FilePatch.GetSelectedModuleList: TModuleList;
+{function TG2FilePatch.GetSelectedModuleList: TModuleList;
 begin
   Result := FSelectedModuleList;
-end;
+end;}
 
 function TG2FilePatch.GetCableList( aIndex : integer): TCableList;
 begin
@@ -5938,7 +6121,7 @@ begin
       ModuleList[ord(aLocation)].Items[i].Selected := False;
 end;
 
-procedure TG2FilePatch.SelectModuleAbove;
+{procedure TG2FilePatch.SelectModuleAbove;
 var Module : TG2FileModule;
 begin
   if FSelectedParam = nil then
@@ -5988,9 +6171,9 @@ begin
     UnSelectModules( FSelectedParam.FLocation);
     Module.Selected := True;
   end;
-end;
+end;}
 
-procedure TG2FilePatch.SelectNextModuleParam;
+{procedure TG2FilePatch.SelectNextModuleParam;
 var Module : TG2FileModule;
 begin
   if FSelectedParam = nil then
@@ -6012,7 +6195,7 @@ begin
   if assigned(Module) then begin
     Module.SelectPrevParam;
   end;
-end;
+end;}
 
 function TG2FilePatch.MessAddModule( aLocation : TLocationType; aModuleType, aCol, aRow: byte): boolean;
 begin
@@ -6079,6 +6262,11 @@ end;
 procedure TG2FilePatch.SortLeds;
 begin
   // Abstract
+end;
+
+procedure TG2FilePatch.SetSelectedLocation(aLocation: TLocationType);
+begin
+  FSelectedLocation := aLocation;
 end;
 
 procedure TG2FilePatch.SetSelectedMorphIndex( aValue : integer);
@@ -6566,10 +6754,18 @@ end;
 
 function TG2FileParameter.GetSelected : boolean;
 begin
-  if assigned(FPatch) then
+  {if assigned(FPatch) then
     Result := FPatch.SelectedParam = self
   else
-    Result := False;;
+    Result := False;}
+  if assigned(FPatch) then begin
+    case FLocation of
+      ltFX: Result := FPatch.PatchPart[ ord(ltFX)].SelectedParam = self;
+      ltVA: Result := FPatch.PatchPart[ ord(ltVA)].SelectedParam = self;
+      ltPatch: Result := False;
+    end;
+  end else
+    Result := False;
 end;
 
 function TG2FileParameter.GetSelectedButtonText: string;
@@ -6609,9 +6805,18 @@ var Module : TG2FileModule;
 begin
   if aValue then begin
     if assigned(FPatch) then begin
-      if (FPatch.SelectedParam <> self) then
+      {if (FPatch.SelectedParam <> self) then
         FPatch.SelectedParam := self;
-      Module := FPatch.ModuleList[ ord( FLocation)].FindModule( FModuleIndex);
+      Module := FPatch.ModuleList[ ord( FLocation)].FindModule( FModuleIndex);}
+      case FLocation of
+        ltFX, ltVA :
+          begin
+            if FPatch.PatchPart[ ord(FLocation)].SelectedParam <> self then
+              FPatch.PatchPart[ ord(FLocation)].SelectedParam := self;
+            Module := FPatch.PatchPart[ ord(FLocation)].FindModule( FModuleIndex);
+          end;
+        ltPatch: Module := nil;
+      end;
       if assigned(Module) then
         Module.SelectedParam := self;
     end;
@@ -8152,6 +8357,21 @@ end;
 function TG2File.GetID : integer;
 begin
   Result := 0;
+end;
+
+function TG2File.GetSelectedPatchPart: TG2FilePatchPart;
+var Patch : TG2FilePatch;
+    Slot : TG2FileSlot;
+begin
+  Result := nil;
+  if assigned(FPerformance) then begin
+    Slot := FPerformance.Slot[ FPerformance.SelectedSlot];
+    if assigned(Slot) then begin
+      Patch := Slot.Patch;
+      if assigned(Patch) then
+        Result := Patch.PatchPart[ ord(Patch.SelectedLocation)];
+    end;
+  end;
 end;
 
 procedure TG2File.add_log_line( tekst: string; log_cmd : integer);

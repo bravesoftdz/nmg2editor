@@ -12,8 +12,10 @@ object frmPatchSettings: TfrmPatchSettings
   Font.Name = 'Tahoma'
   Font.Style = []
   FormStyle = fsStayOnTop
+  KeyPreview = True
   OldCreateOrder = False
   OnCreate = FormCreate
+  OnKeyUp = FormKeyUp
   PixelsPerInch = 96
   TextHeight = 13
   object G2GraphPanel1: TG2GraphPanel

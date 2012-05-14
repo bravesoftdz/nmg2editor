@@ -46,6 +46,7 @@ type
     procedure PanelClick(Sender: TObject);
     procedure btCablesClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
+    procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
   private
     { Private declarations }
   public
@@ -67,6 +68,13 @@ uses UnitG2Editor;
 procedure TfrmEditorTools.FormCreate(Sender: TObject);
 begin
   LoadIniXML;
+end;
+
+procedure TfrmEditorTools.FormKeyUp(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+  if Key = VK_ESCAPE then
+    Close;
 end;
 
 procedure TfrmEditorTools.LoadIniXML;

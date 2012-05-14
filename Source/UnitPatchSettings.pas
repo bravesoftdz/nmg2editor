@@ -40,6 +40,7 @@ type
     obArpDir: TG2GraphButtonRadio;
     procedure PatchCtrlMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure FormCreate(Sender: TObject);
+    procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
   private
     { Private declarations }
   public
@@ -63,6 +64,13 @@ implementation
 procedure TfrmPatchSettings.FormCreate(Sender: TObject);
 begin
   LoadIniXML;
+end;
+
+procedure TfrmPatchSettings.FormKeyUp(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+  if Key = VK_ESCAPE then
+    Close;
 end;
 
 procedure TfrmPatchSettings.LoadIniXML;

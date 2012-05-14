@@ -47,6 +47,7 @@ type
     procedure ePerfNameExit(Sender: TObject);
     procedure PerfChange(Sender: TObject);
     procedure udRateClick(Sender: TObject; Button: TUDBtnType);
+    procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
   private
     { Private declarations }
     FDisableControls : boolean;
@@ -78,6 +79,13 @@ begin
 
   G2.Performance.PerformanceName := AnsiString(ePerfName.Text);
   G2.Performance.SendSetPerfNameMessage( G2.Performance.PerformanceName);
+end;
+
+procedure TfrmPerfSettings.FormKeyUp(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+  if Key = VK_ESCAPE then
+    Close;
 end;
 
 procedure TfrmPerfSettings.FormShow(Sender: TObject);
