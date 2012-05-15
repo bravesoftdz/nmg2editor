@@ -6,11 +6,11 @@
     <MIDI_settings MidiEnabled="False" MidiInDevice="In From MIDI Yoke:  1" MidiOutDevice=""/>
   </G2_Synth_1>
   <CTRL_MIDI_settings CtrlMidiEnabled="False" CtrlMidiInDevice="In From MIDI Yoke:  1"/>
-  <MainForm PosX="4" PosY="65" SizeX="791" SizeY="556" Visible="True"/>
+  <MainForm PosX="0" PosY="206" SizeX="791" SizeY="556" Visible="True"/>
   <PatchManagerSettings BaseFolder="C:\Users\Bruno\Documents\Nord Modular Patches\G2 Patches\" SelectedTab="3" ExternalSortCol="2" InternalSortCol="1"/>
   <PatchManagerForm PosX="1248" PosY="135" SizeX="302" SizeY="812" Visible="False"/>
   <SettingsForm PosX="483" PosY="568" SizeX="504" SizeY="287" Visible="False"/>
-  <ParameterPagesForm PosX="41" PosY="572" SizeX="629" SizeY="164" Visible="False"/>
+  <ParameterPagesForm PosX="11" PosY="555" SizeX="629" SizeY="164" Visible="False"/>
   <PatchSettingsForm PosX="150" PosY="150" SizeX="608" SizeY="185" Visible="False"/>
   <EditorToolsForm PosX="25" PosY="25" SizeX="151" SizeY="261" Visible="False"/>
   <G2_Synth_2>
