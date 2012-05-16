@@ -30,26 +30,6 @@ object frmG2Main: TfrmG2Main
     Color = clGradientActiveCaption
     ParentBackground = False
     TabOrder = 0
-    object Label13: TLabel
-      Left = 77
-      Top = 4
-      Width = 89
-      Height = 13
-      Caption = 'Clients connected:'
-    end
-    object lbClientsConnected: TLabel
-      Left = 172
-      Top = 4
-      Width = 7
-      Height = 13
-      Caption = '0'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -11
-      Font.Name = 'Tahoma'
-      Font.Style = [fsBold]
-      ParentFont = False
-    end
     object rbSynth: TG2GraphButtonRadio
       Left = 283
       Top = 3
@@ -76,24 +56,49 @@ object frmG2Main: TfrmG2Main
       ButtonCount = 1
     end
     object cbMode: TCheckBox
-      Left = 199
+      Left = 188
       Top = 2
       Width = 72
       Height = 17
       Caption = 'Perf mode'
       Checked = True
       State = cbChecked
-      TabOrder = 1
+      TabOrder = 3
       OnClick = cbModeClick
     end
     object cbOnline: TCheckBox
       Left = 15
       Top = 2
-      Width = 65
+      Width = 51
       Height = 17
       Caption = 'Online'
       TabOrder = 0
       OnClick = cbOnlineClick
+    end
+    object StaticText1: TStaticText
+      Left = 72
+      Top = 4
+      Width = 93
+      Height = 17
+      Caption = 'Clients connected:'
+      FocusControl = lbClientsConnected
+      TabOrder = 1
+      TabStop = True
+    end
+    object lbClientsConnected: TStaticText
+      Left = 168
+      Top = 4
+      Width = 11
+      Height = 17
+      Caption = '0'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = [fsBold]
+      ParentFont = False
+      TabOrder = 2
+      TabStop = True
     end
   end
   object StatusBar1: TStatusBar
@@ -879,11 +884,11 @@ object frmG2Main: TfrmG2Main
     end
   end
   object OpenDialog1: TOpenDialog
-    Left = 16
+    Left = 56
     Top = 160
   end
   object SaveDialog1: TSaveDialog
-    Left = 80
+    Left = 136
     Top = 160
   end
   object MainMenu1: TMainMenu
@@ -1081,8 +1086,8 @@ object frmG2Main: TfrmG2Main
   object StartupTimer: TTimer
     Enabled = False
     OnTimer = StartupTimerTimer
-    Left = 80
-    Top = 208
+    Left = 136
+    Top = 216
   end
   object puParamMenu: TPopupMenu
     Left = 672
@@ -1217,13 +1222,17 @@ object frmG2Main: TfrmG2Main
       Caption = 'Copy to 8'
       OnClick = VariaionCopytoClick
     end
+    object Initvariation1: TMenuItem
+      Tag = 8
+      Caption = 'Copy to init'
+      OnClick = VariaionCopytoClick
+    end
     object N3: TMenuItem
       Caption = '-'
     end
-    object Initvariation1: TMenuItem
-      Tag = 8
-      Caption = 'Init variation'
-      OnClick = VariaionCopytoClick
+    object Initvar1: TMenuItem
+      Tag = 9
+      Caption = 'Init var'
     end
   end
   object puConnectorMenu: TPopupMenu
@@ -1239,11 +1248,11 @@ object frmG2Main: TfrmG2Main
   end
   object ilModules: TImageList
     Masked = False
-    Left = 216
+    Left = 328
     Top = 160
   end
   object ActionManager1: TActionManager
-    Left = 312
+    Left = 416
     Top = 160
     StyleName = 'XP Style'
     object aUndo: TAction
@@ -1508,8 +1517,8 @@ object frmG2Main: TfrmG2Main
     Enabled = False
     Interval = 5000
     OnTimer = ResponseTimerTimer
-    Left = 80
-    Top = 264
+    Left = 136
+    Top = 272
   end
   object puSelectSlot: TPopupMenu
     Left = 832

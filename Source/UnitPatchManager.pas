@@ -12,7 +12,7 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics,
   Forms, Dialogs, StdCtrls, ActnList,  ExtCtrls, ComCtrls, Tabs,
   g2_types, g2_database, g2_file, g2_classes,
-  ActnMan, Controls, DOM, XMLRead, XMLWrite;
+  ActnMan, Controls, DOM, XMLRead, XMLWrite, JawsCtrls;
 
 const
   MAXBUFFER = 4096;
@@ -44,15 +44,15 @@ type
     aReadDir: TAction;
     aSearch: TAction;
     aLoadPatch: TAction;
-    lvExternalPatch: TListView;
     TabControl1: TTabControl;
     aShowPerfs: TAction;
     aShowPatches: TAction;
-    lvInternal: TListView;
     aRestore: TAction;
     aReadDirPerf: TAction;
-    lvExternalPerf: TListView;
     aLoadPerf: TAction;
+    lvInternal: DListView;
+    lvExternalPatch: DListView;
+    lvExternalPerf: DListView;
     procedure aReadDirExecute(Sender: TObject);
     procedure aSearchExecute(Sender: TObject);
     procedure aLoadPatchExecute(Sender: TObject);

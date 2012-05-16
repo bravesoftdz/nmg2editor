@@ -89,7 +89,7 @@ unit UnitG2Editor;
 // Menu-driven patching
 // Close dialogs with ESC
 
-
+// Shortcut key conflicts: C- cable or C slot C???
 // PatchSettings: add popup menu for patch parameters
 // Add Slot settings dialog
 // Make dialogs Jaws compatible
@@ -172,6 +172,7 @@ type
     FlbSlotName      : TG2GraphLabel;
     FePatchName      : TEdit;
     FlbVariation     : TG2GraphLabel;
+    FG2btInitVar     : TG2GraphButtonText;
     FG2btEditAllVars : TG2GraphButtonText;
     FG2rbVariation   : TG2GraphButtonRadio;
     FlbVolume        : TG2GraphLabel;
@@ -183,6 +184,7 @@ type
     FG2btMorphArray  : array[0..7] of TG2GraphButtonFlat;
     FpuVariationMenu : TPopupMenu;
     procedure ChangeAlleVariationsClick( Sender: TObject);
+    procedure InitVariationClick( Sender: TObject);
   protected
     procedure VariationClick(Sender: TObject);
     procedure VariationMouseUp(Sender: TObject; Button: TMouseButton;  Shift: TShiftState; X, Y: Integer);
@@ -250,8 +252,6 @@ type
     Initvariation1: TMenuItem;
     N4: TMenuItem;
     Properties1: TMenuItem;
-    Label13: TLabel;
-    lbClientsConnected: TLabel;
     miMidiCC: TMenuItem;
     miAssignMidiCC: TMenuItem;
     Deassign1: TMenuItem;
@@ -374,6 +374,9 @@ type
     aEditParamProperties: TAction;
     Moduleproperties1: TMenuItem;
     Parameterproperties1: TMenuItem;
+    StaticText1: TStaticText;
+    lbClientsConnected: TStaticText;
+    Initvar1: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure cbModeClick(Sender: TObject);
     procedure aPatchSettingsExecute(Sender: TObject);
@@ -673,9 +676,21 @@ begin
   FG2rbVariation.OnClick := VariationClick;
   FG2rbVariation.OnMouseUp := VariationMouseUp;
 
+  FG2btInitVar := TG2GraphButtonText.Create(self);
+  FG2btInitVar.Parent := Self;
+  FG2btInitVar.SetBounds( 355, 8, 35, 18);
+  FG2btInitVar.ParentColor := False;
+  FG2btInitVar.BorderColor := clBlack;
+  FG2btInitVar.Color := clBtnFace;
+  FG2btInitVar.HightlightColor := G_HighlightColor;
+  FG2btInitVar.ButtonTextType := bttPush;
+  FG2btInitVar.ButtonText.Add('Init');
+  FG2btInitVar.ButtonText.Add('Init');
+  FG2btInitVar.OnClick := InitVariationClick;
+
   FG2btEditAllVars := TG2GraphButtonText.Create(self);
   FG2btEditAllVars.Parent := Self;
-  FG2btEditAllVars.SetBounds( 355, 8, 35, 18);
+  FG2btEditAllVars.SetBounds( 396, 8, 35, 18);
   FG2btEditAllVars.ParentColor := False;
   FG2btEditAllVars.BorderColor := clBlack;
   FG2btEditAllVars.Color := clBtnFace;
@@ -692,19 +707,19 @@ begin
 
   FlbVolume.Font.Color := G_SlotStripInverseColor;
   FlbVolume.Caption := 'Vol';
-  FlbVolume.SetBounds( 396, 10, 36, 13);
+  FlbVolume.SetBounds( 437, 10, 36, 13);
   FlbVolume.OnClick := frmG2Main.PanelClick;
 
   FG2kVolume := TG2GraphKnob.Create(self);
   FG2kVolume.Parent := Self;
   FG2kVolume.Orientation := otHorizontal;
   FG2kVolume.KnobType := ktSlider;
-  FG2kVolume.SetBounds( 421, 10, 123, 15);
+  FG2kVolume.SetBounds( 462, 10, 123, 15);
   FG2kVolume.OnMouseUp := frmG2Main.PatchCtrlMouseUp;
 
   FG2btMute := TG2GraphButtonText.Create(self);
   FG2btMute.Parent := Self;
-  FG2btMute.SetBounds( 548, 8, 37, 18);
+  FG2btMute.SetBounds( 589, 8, 37, 18);
   FG2btMute.ParentColor := False;
   FG2btMute.BorderColor := clBlack;
   FG2btMute.Color := clBtnFace;
@@ -715,13 +730,13 @@ begin
 
   FG2dVoices := TG2GraphDisplay.Create(self);
   FG2dVoices.Parent := Self;
-  FG2dVoices.SetBounds( 598, 8, 45, 17);
+  FG2dVoices.SetBounds( 639, 8, 45, 17);
   FG2dVoices.Line[0] := '0';
   FG2dVoices.Color := CL_DISPLAY_BACKGRND;
 
   FG2idVoiceMode := TG2GraphButtonIncDec.Create(self);
   FG2idVoiceMode.Parent := Self;
-  FG2idVoiceMode.SetBounds( 643, 8, 28, 17);
+  FG2idVoiceMode.SetBounds( 684, 8, 28, 17);
   FG2idVoiceMode.HighValue := 32;
   FG2idVoiceMode.LowValue := 0;
   FG2idVoiceMode.Orientation := otHorizontal;
@@ -737,7 +752,7 @@ begin
     FG2kMorphArray[i] := TG2GraphKnob.Create(self);
     FG2kMorphArray[i].Parent := Self;
     FG2kMorphArray[i].KnobType := ktExtraSmall;
-    FG2kMorphArray[i].SetBounds( 696 + i * 40, 2, 18, 18);
+    FG2kMorphArray[i].SetBounds( 737 + i * 40, 2, 18, 18);
     FG2kMorphArray[i].Tag := i;
     if i = (FSlot.Patch as TG2Patch).SelectedMorphIndex then
       FG2kMorphArray[i].Color := CL_KNOB_MORPH_SELECTED
@@ -750,7 +765,7 @@ begin
 
     FG2btMorphArray[i] := TG2GraphButtonFlat.Create(self);
     FG2btMorphArray[i].Parent := Self;
-    FG2btMorphArray[i].SetBounds( 686 + i * 40, 20, 38, 11);
+    FG2btMorphArray[i].SetBounds( 737 + i * 40, 20, 38, 11);
     FG2btMorphArray[i].ParentColor := False;
     FG2btMorphArray[i].Bevel := True;
     FG2btMorphArray[i].Color := clBtnFace;
@@ -834,6 +849,7 @@ begin
   FlbSlotName.Font.Color := G_SlotStripInverseColor;
   FlbVariation.Font.Color := G_SlotStripInverseColor;
   FG2rbVariation.HightlightColor := G_HighlightColor;
+  FG2btInitVar.HightlightColor := G_HighlightColor;
   FG2btEditAllVars.HightlightColor := G_HighlightColor;
   FlbVolume.Font.Color := G_SlotStripInverseColor;
   FG2btMute.HightlightColor := G_HighlightColor;
@@ -856,6 +872,11 @@ begin
   with (Sender as TG2GraphButtonText).Parent as TSlotPanel do begin
     FSlot.Patch.EditAllVariations := (Sender as TG2GraphButtonText).Value = 1;
   end;
+end;
+
+procedure TSlotPanel.InitVariationClick(Sender: TObject);
+begin
+  FSlot.SendCopyVariationMessage( 8, FSlot.Patch.ActiveVariation);
 end;
 
 procedure TSlotPanel.VariationMouseUp(Sender: TObject; Button: TMouseButton;  Shift: TShiftState; X, Y: Integer);
@@ -891,6 +912,7 @@ begin
   6 : G2.SelectedSlot.SendCopyVariationMessage( G2.SelectedPatch.ActiveVariation, 6);
   7 : G2.SelectedSlot.SendCopyVariationMessage( G2.SelectedPatch.ActiveVariation, 7);
   8 : G2.SelectedSlot.SendCopyVariationMessage( G2.SelectedPatch.ActiveVariation, 8);
+  9 : G2.SelectedSlot.SendCopyVariationMessage( 8, G2.SelectedPatch.ActiveVariation);
   end;
 end;
 
@@ -1790,12 +1812,12 @@ begin
     ord('6') : SelectVariation( G2.SelectedSlotIndex, 5);
     ord('7') : SelectVariation( G2.SelectedSlotIndex, 6);
     ord('8') : SelectVariation( G2.SelectedSlotIndex, 7);
-    ord('F') : SelectPatchLocation( ltFX);
-    ord('V') : SelectPatchLocation( ltVA);
-    ord('A') : SelectSlot(0);
-    ord('B') : SelectSlot(1);
-    ord('C') : SelectSlot(2);
-    ord('D') : SelectSlot(3);
+    ord('F') : if not(ssShift in Shift) and not(ssAlt in Shift) and not(ssCtrl in Shift) then SelectPatchLocation( ltFX);
+    ord('V') : if not(ssShift in Shift) and not(ssAlt in Shift) and not(ssCtrl in Shift) then SelectPatchLocation( ltVA);
+    ord('A') : if not(ssShift in Shift) and not(ssAlt in Shift) and not(ssCtrl in Shift) then SelectSlot(0);
+    ord('B') : if not(ssShift in Shift) and not(ssAlt in Shift) and not(ssCtrl in Shift) then SelectSlot(1);
+    ord('C') : if not(ssShift in Shift) and not(ssAlt in Shift) and not(ssCtrl in Shift) then SelectSlot(2);
+    ord('D') : if not(ssShift in Shift) and not(ssAlt in Shift) and not(ssCtrl in Shift) then SelectSlot(3);
     VK_LEFT  : begin
                  if ssShift in Shift then G2.SelectedPatchPart.SelectModuleLeft;
                  if not(ssShift in Shift) then G2.SelectedPatchPart.SelectPrevModuleParam;

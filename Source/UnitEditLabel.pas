@@ -4,11 +4,11 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls;
+  Dialogs, StdCtrls, JawsCtrls;
 
 type
   TfrmEditLabel = class(TForm)
-    eLabel: TEdit;
+    eLabel: DEdit;
     procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
   private
     { Private declarations }

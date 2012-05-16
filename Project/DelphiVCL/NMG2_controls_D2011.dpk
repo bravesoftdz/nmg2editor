@@ -45,7 +45,8 @@ contains
   g2_midi in '..\..\Source\NMG2Controls\g2_midi.pas',
   graph_util_vcl in '..\..\Source\NMG2Controls\graph_util_vcl.pas',
   LibUSBWin in '..\..\Source\NMG2Controls\LibUSBWin.pas',
-  g2_database in '..\..\Source\NMG2Controls\g2_database.pas';
+  g2_database in '..\..\Source\NMG2Controls\g2_database.pas',
+  JawsCtrls in '..\..\Source\NMG2Controls\JawsCtrls.pas';
 
 end.
 

@@ -16,10 +16,10 @@ object frmEditLabel: TfrmEditLabel
   OnKeyUp = FormKeyUp
   PixelsPerInch = 96
   TextHeight = 13
-  object eLabel: TEdit
-    Left = 4
+  object eLabel: DEdit
+    Left = 5
     Top = 3
-    Width = 158
+    Width = 156
     Height = 21
     TabOrder = 0
   end

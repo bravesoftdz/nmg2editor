@@ -4654,9 +4654,9 @@ begin
 
     end else begin
 
-      if FButtonTextType = bttPush then
-        ExtCanvas.Brush.Color := Color
-      else
+      //if FButtonTextType = bttPush then
+      //  ExtCanvas.Brush.Color := Color
+      //else
         if Value = 0 then
           ExtCanvas.Brush.Color := Color
         else

@@ -34,7 +34,7 @@ uses
   IdBaseComponent, IdComponent, IdUDPBase,
   IdUDPClient, StdCtrls, IdSocketHandle, IdUDPServer, IdGlobal, ExtCtrls,
   g2_types, g2_database, g2_file, g2_classes, OSCUtils, ComCtrls, DOM, XMLRead, XMLWrite,
-  MidiDeviceComboBox, FileCtrl;
+  MidiDeviceComboBox, FileCtrl, JawsCtrls;
 
 type
   TfrmSettings = class(TForm)
@@ -42,46 +42,46 @@ type
     IdUDPServer1: TIdUDPServer;
     Button2: TButton;
     Panel1: TPanel;
-    eOSCServerIP: TEdit;
-    Label1: TLabel;
-    Label2: TLabel;
-    eOSCHostPort: TEdit;
     PageControl1: TPageControl;
     TabSheet1: TTabSheet;
     TabSheet2: TTabSheet;
-    ePort: TEdit;
-    Label3: TLabel;
-    eHost: TEdit;
-    Label4: TLabel;
     TabSheet3: TTabSheet;
-    eRootFolder: TEdit;
-    Label5: TLabel;
     bSelectRootFolder: TButton;
     TabSheet4: TTabSheet;
-    Label6: TLabel;
-    Label7: TLabel;
     cbIsServer: TCheckBox;
     cbMidiEnabled: TCheckBox;
-    eTimerBroadcastLedMessages: TEdit;
-    Label8: TLabel;
     cbMidiInDevices: TComboBox;
     cbMidiOutDevices: TComboBox;
     cbCtrlMidiInDevices: TComboBox;
-    Label9: TLabel;
     cbCtrlMidiEnabled: TCheckBox;
     TabSheet5: TTabSheet;
     cbSlotStripColor: TColorBox;
-    Label11: TLabel;
-    Label12: TLabel;
-    Label13: TLabel;
-    Label14: TLabel;
-    Label15: TLabel;
     cbSlotStripInverseColor: TColorBox;
     cbSlotStripDisabledColor: TColorBox;
     cbHighLightColor: TColorBox;
-    eCableThickness: TEdit;
     cbLogEnabled: TCheckBox;
     cbOnlyTextMenus: TCheckBox;
+    StaticText1: TStaticText;
+    StaticText2: TStaticText;
+    StaticText3: TStaticText;
+    StaticText4: TStaticText;
+    StaticText5: TStaticText;
+    StaticText6: TStaticText;
+    StaticText7: TStaticText;
+    StaticText8: TStaticText;
+    StaticText9: TStaticText;
+    StaticText10: TStaticText;
+    StaticText11: TStaticText;
+    StaticText12: TStaticText;
+    StaticText13: TStaticText;
+    StaticText14: TStaticText;
+    ePort: DEdit;
+    eHost: DEdit;
+    eTimerBroadcastLedMessages: DEdit;
+    eCableThickness: DEdit;
+    eRootFolder: DEdit;
+    eOSCServerIP: DEdit;
+    eOSCHostPort: DEdit;
     procedure Button2Click(Sender: TObject);
     procedure IdUDPServer1Status(ASender: TObject; const AStatus: TIdStatus;
       const AStatusText: string);

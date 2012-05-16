@@ -33,7 +33,34 @@ object frmPatchManager: TfrmPatchManager
       'Patch')
     TabIndex = 0
     OnChange = TabControl1Change
-    object lvExternalPatch: TListView
+    ExplicitTop = 8
+    object lvInternal: DListView
+      Left = 16
+      Top = 271
+      Width = 495
+      Height = 114
+      Columns = <
+        item
+          Caption = 'Name'
+          Width = 150
+        end
+        item
+          Caption = 'Category'
+          Width = 120
+        end
+        item
+          Caption = 'Slot'
+        end>
+      ReadOnly = True
+      RowSelect = True
+      TabOrder = 0
+      ViewStyle = vsReport
+      OnColumnClick = lvInternalColumnClick
+      OnCompare = lvInternalCompare
+      OnDblClick = aRestoreExecute
+      OnKeyUp = lvInternalKeyUp
+    end
+    object lvExternalPatch: DListView
       Left = 16
       Top = 152
       Width = 495
@@ -53,42 +80,18 @@ object frmPatchManager: TfrmPatchManager
         end>
       ReadOnly = True
       RowSelect = True
-      TabOrder = 0
+      TabOrder = 1
       ViewStyle = vsReport
       OnColumnClick = lvExternalPatchColumnClick
       OnCompare = lvExternalCompare
       OnDblClick = aLoadPatchExecute
       OnKeyUp = lvExternalPatchKeyUp
     end
-    object lvInternal: TListView
+    object lvExternalPerf: DListView
       Left = 16
-      Top = 271
+      Top = 39
       Width = 495
-      Height = 117
-      Columns = <
-        item
-          Caption = 'Name'
-          Width = 150
-        end
-        item
-          Caption = 'Category'
-          Width = 120
-        end
-        item
-          Caption = 'Slot'
-        end>
-      TabOrder = 1
-      ViewStyle = vsReport
-      OnColumnClick = lvInternalColumnClick
-      OnCompare = lvInternalCompare
-      OnDblClick = aRestoreExecute
-      OnKeyUp = lvInternalKeyUp
-    end
-    object lvExternalPerf: TListView
-      Left = 16
-      Top = 40
-      Width = 495
-      Height = 106
+      Height = 98
       Columns = <
         item
           Caption = 'Perf file'
