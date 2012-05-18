@@ -864,41 +864,52 @@
         <Name>Shape</Name>
         <DefaultValue>0</DefaultValue>
         <Id>34</Id>
+        <DefaultKnob>5</DefaultKnob>
+        <ButtonParam>5</ButtonParam>
       </Param>
       <Param>
         <Name>Attack</Name>
         <DefaultValue>0</DefaultValue>
         <Id>35</Id>
+        <DefaultKnob>0</DefaultKnob>
+        <ButtonParam>7</ButtonParam>
       </Param>
       <Param>
         <Name>Decay</Name>
         <DefaultValue>54</DefaultValue>
         <Id>35</Id>
+        <DefaultKnob>1</DefaultKnob>
       </Param>
       <Param>
         <Name>Sustain</Name>
         <DefaultValue>100</DefaultValue>
         <Id>32</Id>
+        <DefaultKnob>2</DefaultKnob>
       </Param>
       <Param>
         <Name>Release</Name>
         <DefaultValue>14</DefaultValue>
         <Id>35</Id>
+        <DefaultKnob>3</DefaultKnob>
       </Param>
       <Param>
         <Name>OutputType</Name>
         <DefaultValue>0</DefaultValue>
         <Id>137</Id>
+        <ButtonParam>5</ButtonParam>
       </Param>
       <Param>
         <Name>KB</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
+        <DefaultKnob>4</DefaultKnob>
+        <ButtonParam>6</ButtonParam>
       </Param>
       <Param>
         <Name>NR</Name>
         <DefaultValue>0</DefaultValue>
         <Id>33</Id>
+        <ButtonParam>7</ButtonParam>
       </Param>
     </Params>
   </ModuleDef>
@@ -1040,51 +1051,63 @@
         <Name>Attack</Name>
         <DefaultValue>0</DefaultValue>
         <Id>35</Id>
+        <DefaultKnob>0</DefaultKnob>
       </Param>
       <Param>
         <Name>Decay</Name>
         <DefaultValue>54</DefaultValue>
         <Id>35</Id>
+        <DefaultKnob>2</DefaultKnob>
       </Param>
       <Param>
         <Name>Sustain</Name>
         <DefaultValue>100</DefaultValue>
         <Id>32</Id>
+        <DefaultKnob>4</DefaultKnob>
       </Param>
       <Param>
         <Name>Release</Name>
         <DefaultValue>14</DefaultValue>
         <Id>35</Id>
+        <DefaultKnob>6</DefaultKnob>
       </Param>
       <Param>
         <Name>A_Mod</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>1</DefaultKnob>
       </Param>
       <Param>
         <Name>D_Mod</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>3</DefaultKnob>
       </Param>
       <Param>
         <Name>S_Mod</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>5</DefaultKnob>
       </Param>
       <Param>
         <Name>R_Mod</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>7</DefaultKnob>
       </Param>
       <Param>
         <Name>OutputType</Name>
         <DefaultValue>0</DefaultValue>
         <Id>137</Id>
+        <DefaultKnob>8</DefaultKnob>
+        <ButtonParam>8</ButtonParam>
       </Param>
       <Param>
         <Name>KB</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
+        <DefaultKnob>9</DefaultKnob>
+        <ButtonParam>9</ButtonParam>
       </Param>
     </Params>
   </ModuleDef>
@@ -2016,11 +2039,14 @@
         <Name>Hold</Name>
         <DefaultValue>32</DefaultValue>
         <Id>35</Id>
+        <DefaultKnob>0</DefaultKnob>
       </Param>
       <Param>
         <Name>OutputType</Name>
         <DefaultValue>0</DefaultValue>
         <Id>135</Id>
+        <DefaultKnob>1</DefaultKnob>
+        <ButtonParam>1</ButtonParam>
       </Param>
     </Params>
   </ModuleDef>
@@ -2265,36 +2291,46 @@
         <Name>Shape</Name>
         <DefaultValue>0</DefaultValue>
         <Id>34</Id>
+        <DefaultKnob>4</DefaultKnob>
+        <ButtonParam>5</ButtonParam>
       </Param>
       <Param>
         <Name>Attack</Name>
         <DefaultValue>0</DefaultValue>
         <Id>35</Id>
+        <DefaultKnob>0</DefaultKnob>
+        <ButtonParam>3</ButtonParam>
       </Param>
       <Param>
         <Name>Hold</Name>
         <DefaultValue>32</DefaultValue>
         <Id>35</Id>
+        <DefaultKnob>1</DefaultKnob>
       </Param>
       <Param>
         <Name>NR</Name>
         <DefaultValue>0</DefaultValue>
         <Id>33</Id>
+        <ButtonParam>3</ButtonParam>
       </Param>
       <Param>
         <Name>Decay</Name>
         <DefaultValue>14</DefaultValue>
         <Id>35</Id>
+        <DefaultKnob>2</DefaultKnob>
       </Param>
       <Param>
         <Name>OutputType</Name>
         <DefaultValue>0</DefaultValue>
         <Id>135</Id>
+        <ButtonParam>5</ButtonParam>
       </Param>
       <Param>
         <Name>KB</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
+        <DefaultKnob>3</DefaultKnob>
+        <ButtonParam>6</ButtonParam>
       </Param>
     </Params>
   </ModuleDef>
@@ -2726,66 +2762,83 @@
         <Name>Level1</Name>
         <DefaultValue>127</DefaultValue>
         <Id>32</Id>
+        <DefaultKnob>1</DefaultKnob>
+        <ButtonParam>8</ButtonParam>
       </Param>
       <Param>
         <Name>Level2</Name>
         <DefaultValue>45</DefaultValue>
         <Id>32</Id>
+        <DefaultKnob>3</DefaultKnob>
       </Param>
       <Param>
         <Name>Level3</Name>
         <DefaultValue>64</DefaultValue>
         <Id>32</Id>
+        <DefaultKnob>5</DefaultKnob>
       </Param>
       <Param>
         <Name>Level4</Name>
         <DefaultValue>0</DefaultValue>
         <Id>32</Id>
+        <DefaultKnob>7</DefaultKnob>
       </Param>
       <Param>
         <Name>Time1</Name>
         <DefaultValue>0</DefaultValue>
         <Id>35</Id>
+        <DefaultKnob>0</DefaultKnob>
       </Param>
       <Param>
         <Name>Time2</Name>
         <DefaultValue>30</DefaultValue>
         <Id>35</Id>
+        <DefaultKnob>2</DefaultKnob>
       </Param>
       <Param>
         <Name>Time3</Name>
         <DefaultValue>30</DefaultValue>
         <Id>35</Id>
+        <DefaultKnob>4</DefaultKnob>
       </Param>
       <Param>
         <Name>Time4</Name>
         <DefaultValue>14</DefaultValue>
         <Id>35</Id>
+        <DefaultKnob>6</DefaultKnob>
       </Param>
       <Param>
         <Name>NR</Name>
         <DefaultValue>0</DefaultValue>
         <Id>33</Id>
+        <ButtonParam>8</ButtonParam>
       </Param>
       <Param>
         <Name>SustainMode</Name>
         <DefaultValue>2</DefaultValue>
         <Id>166</Id>
+        <DefaultKnob>8</DefaultKnob>
+        <ButtonParam>9</ButtonParam>
       </Param>
       <Param>
         <Name>OutputType</Name>
         <DefaultValue>0</DefaultValue>
         <Id>136</Id>
+        <ButtonParam>10</ButtonParam>
       </Param>
       <Param>
         <Name>KB</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
+        <DefaultKnob>9</DefaultKnob>
+        <ButtonParam>11</ButtonParam>
       </Param>
       <Param>
         <Name>Shape</Name>
         <DefaultValue>0</DefaultValue>
         <Id>34</Id>
+        <DefaultKnob>10</DefaultKnob>
+        <ButtonParam>10</ButtonParam>
       </Param>
     </Params>
   </ModuleDef>
@@ -2910,11 +2963,14 @@
         <Name>Decay</Name>
         <DefaultValue>54</DefaultValue>
         <Id>35</Id>
+        <DefaultKnob>0</DefaultKnob>
       </Param>
       <Param>
         <Name>OutputType</Name>
         <DefaultValue>0</DefaultValue>
         <Id>135</Id>
+        <DefaultKnob>1</DefaultKnob>
+        <ButtonParam>1</ButtonParam>
       </Param>
     </Params>
   </ModuleDef>
@@ -3987,41 +4043,53 @@
         <Name>Shape</Name>
         <DefaultValue>0</DefaultValue>
         <Id>34</Id>
+        <DefaultKnob>3</DefaultKnob>
+        <ButtonParam>5</ButtonParam>
       </Param>
       <Param>
         <Name>Attack</Name>
         <DefaultValue>0</DefaultValue>
         <Id>35</Id>
+        <DefaultKnob>0</DefaultKnob>
+        <ButtonParam>2</ButtonParam>
       </Param>
       <Param>
         <Name>NR</Name>
         <DefaultValue>0</DefaultValue>
         <Id>33</Id>
+        <ButtonParam>2</ButtonParam>
       </Param>
       <Param>
         <Name>Release</Name>
         <DefaultValue>54</DefaultValue>
         <Id>35</Id>
+        <DefaultKnob>1</DefaultKnob>
+        <ButtonParam>7</ButtonParam>
       </Param>
       <Param>
         <Name>TG</Name>
         <DefaultValue>1</DefaultValue>
         <Id>173</Id>
+        <ButtonParam>4</ButtonParam>
       </Param>
       <Param>
         <Name>OutputType</Name>
         <DefaultValue>0</DefaultValue>
         <Id>135</Id>
+        <ButtonParam>5</ButtonParam>
       </Param>
       <Param>
         <Name>KB</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
+        <DefaultKnob>2</DefaultKnob>
+        <ButtonParam>4</ButtonParam>
       </Param>
       <Param>
         <Name>DcyRel</Name>
         <DefaultValue>0</DefaultValue>
         <Id>1</Id>
+        <ButtonParam>7</ButtonParam>
       </Param>
     </Params>
   </ModuleDef>
@@ -5466,56 +5534,71 @@
         <Name>KB</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
+        <DefaultKnob>7</DefaultKnob>
+        <ButtonParam>0</ButtonParam>
       </Param>
       <Param>
         <Name>Shape</Name>
         <DefaultValue>0</DefaultValue>
         <Id>34</Id>
+        <DefaultKnob>8</DefaultKnob>
+        <ButtonParam>9</ButtonParam>
       </Param>
       <Param>
         <Name>Attack</Name>
         <DefaultValue>0</DefaultValue>
         <Id>35</Id>
+        <DefaultKnob>0</DefaultKnob>
+        <ButtonParam>10</ButtonParam>
       </Param>
       <Param>
         <Name>Decay1</Name>
         <DefaultValue>54</DefaultValue>
         <Id>35</Id>
+        <DefaultKnob>1</DefaultKnob>
       </Param>
       <Param>
         <Name>Level1</Name>
         <DefaultValue>100</DefaultValue>
         <Id>32</Id>
+        <DefaultKnob>2</DefaultKnob>
       </Param>
       <Param>
         <Name>Decay2</Name>
         <DefaultValue>54</DefaultValue>
         <Id>35</Id>
+        <DefaultKnob>3</DefaultKnob>
       </Param>
       <Param>
         <Name>Level2</Name>
         <DefaultValue>70</DefaultValue>
         <Id>32</Id>
+        <DefaultKnob>4</DefaultKnob>
       </Param>
       <Param>
         <Name>Release</Name>
         <DefaultValue>14</DefaultValue>
         <Id>35</Id>
+        <DefaultKnob>5</DefaultKnob>
       </Param>
       <Param>
         <Name>SustainMode</Name>
         <DefaultValue>1</DefaultValue>
         <Id>165</Id>
+        <DefaultKnob>6</DefaultKnob>
+        <ButtonParam>8</ButtonParam>
       </Param>
       <Param>
         <Name>OutputType</Name>
         <DefaultValue>0</DefaultValue>
         <Id>137</Id>
+        <ButtonParam>9</ButtonParam>
       </Param>
       <Param>
         <Name>NR</Name>
         <DefaultValue>0</DefaultValue>
         <Id>33</Id>
+        <ButtonParam>10</ButtonParam>
       </Param>
     </Params>
   </ModuleDef>
@@ -8869,41 +8952,51 @@
         <Name>Attack</Name>
         <DefaultValue>0</DefaultValue>
         <Id>35</Id>
+        <DefaultKnob>0</DefaultKnob>
       </Param>
       <Param>
         <Name>Hold</Name>
         <DefaultValue>32</DefaultValue>
         <Id>35</Id>
+        <DefaultKnob>2</DefaultKnob>
       </Param>
       <Param>
         <Name>Decay</Name>
         <DefaultValue>14</DefaultValue>
         <Id>35</Id>
+        <DefaultKnob>4</DefaultKnob>
       </Param>
       <Param>
         <Name>A_Mod</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>1</DefaultKnob>
       </Param>
       <Param>
         <Name>H_Mod</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>3</DefaultKnob>
       </Param>
       <Param>
         <Name>D_Mod</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>5</DefaultKnob>
       </Param>
       <Param>
         <Name>OutputType</Name>
         <DefaultValue>0</DefaultValue>
         <Id>135</Id>
+        <DefaultKnob>6</DefaultKnob>
+        <ButtonParam>6</ButtonParam>
       </Param>
       <Param>
         <Name>KB</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
+        <DefaultKnob>7</DefaultKnob>
+        <ButtonParam>7</ButtonParam>
       </Param>
     </Params>
   </ModuleDef>
