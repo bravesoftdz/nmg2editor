@@ -221,6 +221,8 @@ type
     procedure   SelectNextParam;
     procedure   SelectPrevParam;
 
+    function    CableCount : integer;
+
     property    TypeID      : TBits8 read FTypeID write FTypeID;
     property    ModuleIndex : TBits8 read FModuleIndex write FModuleIndex;
     property    Col         : TBits7 read FCol write SetCol;
@@ -1757,6 +1759,16 @@ begin
     Param.Selected := True
   else
     FSelectedParam := -1;
+end;
+
+function TG2FileModule.CableCount : integer;
+var i : integer;
+begin
+  Result := 0;
+  for i := 0 to InConnectorCount - 1 do
+    Result := Result + InConnector[i].CableCount;
+  for i := 0 to OutConnectorCount - 1 do
+    Result := Result + OutConnector[i].CableCount;
 end;
 
 procedure TG2FileModule.Read( aChunk : TPatchChunk);

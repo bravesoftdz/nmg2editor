@@ -42,6 +42,7 @@ uses
   TSelectParamPageEvent = procedure( Sender: TObject; SenderID : integer; ParamPage : integer) of object;
   TPatchUpdateEvent = procedure(Sender: TObject; SenderID : integer; PatchIndex : integer) of object;
   TVariationChangeEvent = procedure(Sender: TObject; SenderID : integer; Slot, Variation : integer) of object;
+  TCopyVariationEvent = procedure(Sender: TObject; SenderID : integer; Slot, FromVariation, ToVariation : integer) of object;
   TSynthSettingsUpdateEvent = procedure( Sender : TObject; SenderID : integer) of Object;
   TStartStopCommunicationEvent = procedure(Sender: TObject; SenderID : integer; Stop : byte) of object;
   TPerfSettingsUpdateEvent = procedure(Sender: TObject; SenderID : integer; PerfMode : boolean) of object;
@@ -147,6 +148,7 @@ uses
     FOnSelectParamPage        : TSelectParamPageEvent;
     FOnPatchUpdate            : TPatchUpdateEvent;
     FOnVariationChange        : TVariationChangeEvent;
+    FOnCopyVariation          : TCopyVariationEvent;
     FOnSynthSettingsUpdate    : TSynthSettingsUpdateEvent;
     FOnStartStopCommunication : TStartStopCommunicationEvent;
     FOnPerfSettingsUpdate     : TPerfSettingsUpdateEvent;
@@ -242,6 +244,7 @@ uses
     property    OnSelectParamPage : TSelectParamPageEvent read FOnSelectParamPage write FOnSelectParamPage;
     property    OnPatchUpdate : TPatchUpdateEvent read FOnPatchUpdate write FOnPatchUpdate;
     property    OnVariationChange : TVariationChangeEvent read FOnVariationChange write FOnVariationChange;
+    property    OnCopyVariation : TCopyVariationEvent read FOnCopyVariation write FOnCopyVariation;
     property    OnStartStopCommunication : TStartStopCommunicationEvent read FOnStartStopCommunication write FOnStartStopCommunication;
     property    OnPerfSettingsUpdate : TPerfSettingsUpdateEvent read FOnPerfSettingsUpdate write FOnPerfSettingsUpdate;
     property    OnSynthSettingsUpdate : TSynthSettingsUpdateEvent read FOnSynthSettingsUpdate write FOnSynthSettingsUpdate;
@@ -2539,6 +2542,9 @@ begin
                         MemStream.Read( aToVariation, 1);
                         Result := True;
                         Patch.CopyVariation( aFromVariation, aToVariation);
+
+                        if assigned(G2) and assigned((G2 as TG2Mess).FOnCopyVariation) then
+                          (G2 as TG2Mess).FOnCopyVariation( G2, SenderID, SlotIndex, aFromVariation, aToVariation);
                       end;
                 end;
               end;

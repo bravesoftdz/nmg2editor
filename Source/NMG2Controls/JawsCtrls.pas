@@ -12,6 +12,8 @@ uses
 type
   DEdit = class(TEdit);
   DListView = class(TListView);
+  DCombobox = class(TCombobox);
+  DUpDown = class(TUpDown);
 
 procedure Register;
 
@@ -19,7 +21,7 @@ implementation
 
 procedure Register;
 begin
-  RegisterComponents('NM G2', [DEdit, DListView]);
+  RegisterComponents('NM G2', [DEdit, DCombobox, DListView, DUpDown]);
 end;
 
 

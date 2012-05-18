@@ -105,30 +105,6 @@ object frmSettings: TfrmSettings
         TabOrder = 0
         OnClick = cbMidiEnabledClick
       end
-      object cbMidiInDevices: TComboBox
-        Left = 104
-        Top = 48
-        Width = 261
-        Height = 21
-        TabOrder = 2
-        OnSelect = cbMidiInDevicesSelect
-      end
-      object cbMidiOutDevices: TComboBox
-        Left = 104
-        Top = 88
-        Width = 261
-        Height = 21
-        TabOrder = 4
-        OnSelect = cbMidiOutDevicesSelect
-      end
-      object cbCtrlMidiInDevices: TComboBox
-        Left = 104
-        Top = 152
-        Width = 261
-        Height = 21
-        TabOrder = 7
-        OnSelect = cbCtrlMidiInDevicesSelect
-      end
       object cbCtrlMidiEnabled: TCheckBox
         Left = 104
         Top = 124
@@ -144,7 +120,6 @@ object frmSettings: TfrmSettings
         Width = 73
         Height = 17
         Caption = 'Sysex midi out'
-        FocusControl = cbMidiOutDevices
         TabOrder = 3
         TabStop = True
       end
@@ -154,7 +129,6 @@ object frmSettings: TfrmSettings
         Width = 53
         Height = 17
         Caption = 'Ctrl midi in'
-        FocusControl = cbCtrlMidiInDevices
         TabOrder = 6
         TabStop = True
       end
@@ -164,16 +138,37 @@ object frmSettings: TfrmSettings
         Width = 65
         Height = 17
         Caption = 'Sysex midi in'
-        FocusControl = cbMidiInDevices
         TabOrder = 1
         TabStop = True
+      end
+      object cbMidiOutDevices: DCombobox
+        Left = 104
+        Top = 88
+        Width = 261
+        Height = 21
+        TabOrder = 4
+        OnSelect = cbMidiOutDevicesSelect
+      end
+      object cbCtrlMidiInDevices: DCombobox
+        Left = 104
+        Top = 152
+        Width = 261
+        Height = 21
+        TabOrder = 7
+        OnSelect = cbCtrlMidiInDevicesSelect
+      end
+      object cbMidiInDevices: DCombobox
+        Left = 104
+        Top = 48
+        Width = 261
+        Height = 21
+        TabOrder = 2
+        OnSelect = cbMidiInDevicesSelect
       end
     end
     object TabSheet5: TTabSheet
       Caption = 'Editor'
       ImageIndex = 4
-      ExplicitLeft = 8
-      ExplicitTop = 28
       object cbSlotStripColor: TColorBox
         Left = 152
         Top = 80
@@ -402,7 +397,7 @@ object frmSettings: TfrmSettings
     OnStatus = IdUDPServer1Status
     Bindings = <>
     DefaultPort = 5678
-    Left = 320
-    Top = 136
+    Left = 392
+    Top = 176
   end
 end

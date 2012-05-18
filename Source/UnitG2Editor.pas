@@ -88,6 +88,9 @@ unit UnitG2Editor;
 // Numbering modules when adding modules, check change module names
 // Menu-driven patching
 // Close dialogs with ESC
+// Variation init function:
+   // Copy from var 1 to init 00 0A 01 28 00 44 00 08 0F 5C
+   // Init on var 2           00 0A 01 28 00 44 08 01 17 DC
 
 // Shortcut key conflicts: C- cable or C slot C???
 // PatchSettings: add popup menu for patch parameters
@@ -99,9 +102,6 @@ unit UnitG2Editor;
    // hal   : 00 0D 01 28 00 6F 00 03 68 61 6C 28 AD
    // enz.
 // Finish module param mappings to parameter pages in xml def file
-// Variation init function:
-   // Copy from var 1 to init 00 0A 01 28 00 44 00 08 0F 5C
-   // Init on var 2           00 0A 01 28 00 44 08 01 17 DC
 // CTRL E, parameter paste:
    // Osc B to Osc B : 00 19 01 28 00 4D 00 0F 40 40 40 45 80 D9 80 04 00 00 00 00 02 02 00 53 D3
 // Reclass controls for use with Jaws : TEdit : DEdit, TListView : DListView etc.
@@ -472,6 +472,7 @@ type
     procedure G2DeleteModule(Sender : TObject; SenderID : integer; Location: TLocationType; ModuleIndex : integer);
     procedure G2AddModule(Sender: TObject; SenderID : integer; Module : TG2FileModule);
     procedure G2SetModuleLabel(Sender: TObject; SenderID : integer; PatchIndex : byte; Location : TLocationType;  ModuleIndex : byte);
+    procedure G2CopyVariation( Sender: TObject; SenderID : integer; SlotIndex, FromVariation, ToVariation : integer);
     procedure aEditModulePropertiesExecute(Sender: TObject);
     procedure aEditParamPropertiesExecute(Sender: TObject);
   private
@@ -1065,6 +1066,7 @@ begin
   G2.OnSynthSettingsUpdate := G2SynthSettingsUpdate;
   G2.OnUSBActiveChange := G2USBActiveChange;
   G2.OnVariationChange := G2VariationChange;
+  G2.OnCopyVariation := G2CopyVariation;
   G2.OnAddModule := G2AddModule;
   G2.OnDeleteModule := G2DeleteModule;
   G2.OnSetModuleLabel := G2SetModuleLabel;
@@ -1621,6 +1623,7 @@ end;
 
 procedure TfrmG2Main.UpdateActions;
 var G2 : TG2;
+    Module : TG2FileModule;
     SelectedModuleText,
     SelectedParamText : string;
 begin
@@ -1689,7 +1692,8 @@ begin
 
     if G2.SelectedPatchPart.SelectedModuleList.Count > 0 then begin
       if G2.SelectedPatchPart.SelectedModuleList.Count = 1 then begin
-        SelectedModuleText := 'module ' + G2.SelectedPatchPart.SelectedModuleList[0].ModuleName;
+        Module := G2.SelectedPatchPart.SelectedModuleList[0];
+        SelectedModuleText := 'module ' + Module.ModuleName;
         aCut.Caption := 'Cut ' + SelectedModuleText;
         aCut.Enabled := True;
         aCopy.Caption := 'Copy ' + SelectedModuleText;
@@ -1698,6 +1702,8 @@ begin
         aDelete.Enabled := True;
         aEditModuleProperties.Caption := 'Module proprties ' + SelectedModuleText;
         aEditModuleProperties.Enabled := True;
+        aShowSelectCable.Enabled := Module.CableCount > 0;
+        aShowSelectParam.Enabled := Module.ParameterCount > 0;
       end else begin
         SelectedModuleText := IntToStr(G2.SelectedPatchPart.SelectedModuleList.Count) + ' modules';
         aCut.Caption := 'Cut ' + SelectedModuleText;
@@ -1708,6 +1714,8 @@ begin
         aDelete.Enabled := True;
         aEditModuleProperties.Caption := 'Module proprties';
         aEditModuleProperties.Enabled := False;
+        aShowSelectCable.Enabled := False;
+        aShowSelectParam.Enabled := False;
       end;
     end else begin
       aCut.Caption := 'Cut';
@@ -1718,6 +1726,8 @@ begin
       aDelete.Enabled := False;
       aEditModuleProperties.Caption := 'Module proprties';
       aEditModuleProperties.Enabled := False;
+      aShowSelectCable.Enabled := False;
+      aShowSelectParam.Enabled := False;
     end;
 
     if assigned(FCopyPatch) then begin
@@ -3888,6 +3898,21 @@ begin
   end;
   UpdateControls;
 end;
+
+procedure TfrmG2Main.G2CopyVariation( Sender: TObject; SenderID : integer; SlotIndex, FromVariation, ToVariation : integer);
+var G2 : TG2;
+begin
+  G2 := SelectedG2;
+  if not assigned(G2) or (G2 <> Sender) then
+    exit;
+
+  if (G2.SelectedSlotIndex = SlotIndex) and (G2.SelectedPatch.ActiveVariation = ToVariation) then begin
+    sbVA.Invalidate;
+    sbFX.Invalidate;
+  end;
+  UpdateControls;
+end;
+
 
 procedure TfrmG2Main.G2AddClient(Sender: TObject; ClientIndex: Integer);
 var G2 : TG2;

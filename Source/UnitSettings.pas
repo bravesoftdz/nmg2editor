@@ -50,9 +50,6 @@ type
     TabSheet4: TTabSheet;
     cbIsServer: TCheckBox;
     cbMidiEnabled: TCheckBox;
-    cbMidiInDevices: TComboBox;
-    cbMidiOutDevices: TComboBox;
-    cbCtrlMidiInDevices: TComboBox;
     cbCtrlMidiEnabled: TCheckBox;
     TabSheet5: TTabSheet;
     cbSlotStripColor: TColorBox;
@@ -82,6 +79,9 @@ type
     eRootFolder: DEdit;
     eOSCServerIP: DEdit;
     eOSCHostPort: DEdit;
+    cbMidiInDevices: DCombobox;
+    cbMidiOutDevices: DCombobox;
+    cbCtrlMidiInDevices: DCombobox;
     procedure Button2Click(Sender: TObject);
     procedure IdUDPServer1Status(ASender: TObject; const AStatus: TIdStatus;
       const AStatusText: string);
