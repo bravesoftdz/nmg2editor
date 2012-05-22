@@ -1277,16 +1277,16 @@ begin
                                     MemStream.Read( b, 1); // read 4 unknown bytes
 
                                   MemStream.Read( aMode, 1);
-                                  MemStream.Read( b, 1);   // unknown;
-                                  MemStream.Read( aBank, 1);
-                                  MemStream.Read( aPatch, 1);
+                                  //MemStream.Read( b, 1);   // unknown;
+                                  //MemStream.Read( aBank, 1);
+                                  //MemStream.Read( aPatch, 1);
                                   patch_name := '';
                                   while MemStream.Read(b, 1) = 1 do begin
                                     case b of
-                                    $01 : begin
+                                    $01 : begin // ????
                                             i := 1;
                                           end;
-                                    $02 : begin
+                                    $02 : begin // ????
                                             with NextBankListCmd do begin
                                               Cmd   := b;
                                               Mode  := aMode;
@@ -1295,16 +1295,17 @@ begin
                                             end;
                                             break;
                                           end;
-                                    $03 : begin // next bank
+                                    $03 : begin // read bank
                                             MemStream.Read( aBank, 1);
-                                            aPatch := 0;
+                                            //aPatch := 0;
+                                            MemStream.Read( aPatch, 1);
                                             with NextBankListCmd do begin
                                               Cmd   := b;
                                               Mode  := aMode;
                                               Bank  := aBank;
                                               Patch := aPatch;
                                             end;
-                                            break;
+                                            //break;
                                           end;
                                     $04 : begin // next mode  0 = patch, 1 = perf, 2 = finished
                                             inc( aMode);
@@ -1318,7 +1319,7 @@ begin
                                             end;
                                             break;
                                           end;
-                                    $05 : begin;
+                                    $05 : begin; // last patch in message read
                                             inc( aPatch);
                                             with NextBankListCmd do begin
                                               Cmd   := b;
