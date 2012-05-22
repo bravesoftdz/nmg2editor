@@ -73,6 +73,22 @@ This error may occur when the tcp-ip port in the application settings is already
 Updates
 =======
 
+v0.23 update 19-5-2012
+======================
+
+- This is only a realease with binaries, mainly for testing the following:
+- user interface changes (popup menus and shortcut keys) for compatibility with Jaws screenreading software for visualy impaired users. See file "NMG2 Keyboard shortcuts.txt"
+
+Other changes:
+- Auto adjust module positions on module insert (no overlapping modules)
+- Numbering modules when adding modules
+- Menu-driven patching (for use with Jaws)
+- Close dialogs with ESC
+- Variation init function
+- Select parameter messaging between G2 and editor
+- Patch notes dialog window
+- Changes to the moduledef.xml (parameter mappings to parameter pages knobs, still some modules todo)
+
 v0.22 update 9-4-2012
 =====================
 

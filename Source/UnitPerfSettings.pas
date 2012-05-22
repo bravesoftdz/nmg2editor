@@ -4,26 +4,18 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, ComCtrls, g2_types, g2_classes;
+  Dialogs, StdCtrls, ComCtrls, g2_types, g2_classes, JawsCtrls;
 
 type
   TfrmPerfSettings = class(TForm)
     GroupBox1: TGroupBox;
     GroupBox2: TGroupBox;
-    ePerfName: TEdit;
-    Label1: TLabel;
-    eRate: TEdit;
-    udRate: TUpDown;
     rbStop: TRadioButton;
     rbRun: TRadioButton;
-    Label2: TLabel;
-    Label3: TLabel;
     cbEnableA: TCheckBox;
     cbEnableB: TCheckBox;
     cbEnableC: TCheckBox;
     cbEnableD: TCheckBox;
-    Label4: TLabel;
-    Label5: TLabel;
     cbKeyboardA: TCheckBox;
     cbKeyboardB: TCheckBox;
     cbKeyboardC: TCheckBox;
@@ -33,16 +25,27 @@ type
     cbHoldC: TCheckBox;
     cbHoldD: TCheckBox;
     cbKeyboardRange: TCheckBox;
-    eLowerA: TEdit;
-    eLowerB: TEdit;
-    eLowerC: TEdit;
-    eLowerD: TEdit;
-    eUpperA: TEdit;
-    eUpperB: TEdit;
-    eUpperC: TEdit;
-    eUpperD: TEdit;
-    Label6: TLabel;
-    Label7: TLabel;
+    StaticText1: TStaticText;
+    ePerfName: DEdit;
+    udRate: DUpDown;
+    eRate: DEdit;
+    StaticText2: TStaticText;
+    StaticText3: TStaticText;
+    StaticText4: TStaticText;
+    eLowerA: DEdit;
+    eLowerB: DEdit;
+    eLowerC: DEdit;
+    eLowerD: DEdit;
+    eUpperA: DEdit;
+    eUpperB: DEdit;
+    eUpperC: DEdit;
+    eUpperD: DEdit;
+    StaticText5: TStaticText;
+    StaticText6: TStaticText;
+    StaticText7: TStaticText;
+    StaticText8: TStaticText;
+    StaticText9: TStaticText;
+    StaticText10: TStaticText;
     procedure FormShow(Sender: TObject);
     procedure ePerfNameExit(Sender: TObject);
     procedure PerfChange(Sender: TObject);

@@ -478,6 +478,7 @@ type
 
     procedure   SetParamValue( aLocation : TLocationType; aModuleIndex : byte; aParameterIndex : byte; aVariation : byte; aValue: byte); override;
     function    MessSetPatchDescription( FPatchDescription : TPatchDescription): boolean;
+    function    MessSetPatchNotes( aLines : TStrings): boolean;
     function    MessAddModule( aLocation : TLocationType; aModuleType, aCol, aRow: byte): boolean; override;
     function    MessCopyModules( aSrcePatch : TG2FilePatchPart; aFromLocation, aToLocation : TLocationType): boolean; override;
     function    MessAddConnection( aLocation : TLocationType; aFromConnector, aToConnector : TG2FileConnector): boolean; override;
@@ -2676,6 +2677,13 @@ function TG2USBPatch.MessSetPatchDescription( FPatchDescription : TPatchDescript
 var MemStream : TG2SendMessage;
 begin
   MemStream := CreateSetPatchDescriptionMessage( FPatchDescription);
+  Result := SendCmdMessage( MemStream);
+end;
+
+function TG2USBPatch.MessSetPatchNotes( aLines: TStrings): boolean;
+var MemStream : TG2SendMessage;
+begin
+  MemStream := CreateSetPatchNotesMessage( aLines);
   Result := SendCmdMessage( MemStream);
 end;
 

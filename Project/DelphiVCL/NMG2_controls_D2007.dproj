@@ -30,17 +30,6 @@
     <Borland.ProjectType>Package</Borland.ProjectType>
     <BorlandProject>
 <BorlandProject><Delphi.Personality><Parameters><Parameters Name="UseLauncher">False</Parameters><Parameters Name="LoadAllSymbols">True</Parameters><Parameters Name="LoadUnspecifiedSymbols">False</Parameters></Parameters><Package_Options><Package_Options Name="ImplicitBuild">True</Package_Options><Package_Options Name="DesigntimeOnly">False</Package_Options><Package_Options Name="RuntimeOnly">False</Package_Options></Package_Options><VersionInfo><VersionInfo Name="IncludeVerInfo">True</VersionInfo><VersionInfo Name="AutoIncBuild">False</VersionInfo><VersionInfo Name="MajorVer">1</VersionInfo><VersionInfo Name="MinorVer">0</VersionInfo><VersionInfo Name="Release">0</VersionInfo><VersionInfo Name="Build">0</VersionInfo><VersionInfo Name="Debug">False</VersionInfo><VersionInfo Name="PreRelease">False</VersionInfo><VersionInfo Name="Special">False</VersionInfo><VersionInfo Name="Private">False</VersionInfo><VersionInfo Name="DLL">False</VersionInfo><VersionInfo Name="Locale">1033</VersionInfo><VersionInfo Name="CodePage">1252</VersionInfo></VersionInfo><VersionInfoKeys><VersionInfoKeys Name="CompanyName"></VersionInfoKeys><VersionInfoKeys Name="FileDescription"></VersionInfoKeys><VersionInfoKeys Name="FileVersion">1.0.0.0</VersionInfoKeys><VersionInfoKeys Name="InternalName"></VersionInfoKeys><VersionInfoKeys Name="LegalCopyright"></VersionInfoKeys><VersionInfoKeys Name="LegalTrademarks"></VersionInfoKeys><VersionInfoKeys Name="OriginalFilename"></VersionInfoKeys><VersionInfoKeys Name="ProductName"></VersionInfoKeys><VersionInfoKeys Name="ProductVersion">1.0.0.0</VersionInfoKeys><VersionInfoKeys Name="Comments"></VersionInfoKeys></VersionInfoKeys><Source><Source Name="MainSource">NMG2_controls_D2007.dpk</Source></Source><Excluded_Packages>
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
       <Excluded_Packages Name="C:\Users\Public\Documents\RAD Studio\5.0\Bpl\MidiPackage.bpl">(untitled)</Excluded_Packages>
       <Excluded_Packages Name="C:\Users\Public\Documents\RAD Studio\5.0\Bpl\NMG2_controls_D2007.bpl">(untitled)</Excluded_Packages>
       <Excluded_Packages Name="$(BDS)\bin\dclsoap100.bpl">CodeGear SOAP Components</Excluded_Packages>
@@ -59,6 +48,8 @@
     <DelphiCompile Include="NMG2_controls_D2007.dpk">
       <MainSource>MainSource</MainSource>
     </DelphiCompile>
+    <DCCReference Include="..\..\Source\NMG2Controls\dclIndyCore100.dcp" />
+    <DCCReference Include="..\..\Source\NMG2Controls\dclIndyProtocols100.dcp" />
     <DCCReference Include="..\..\Source\NMG2Controls\fastbitmap.pas" />
     <DCCReference Include="..\..\Source\NMG2Controls\g2_classes.pas" />
     <DCCReference Include="..\..\Source\NMG2Controls\g2_database.pas" />
@@ -69,10 +60,9 @@
     <DCCReference Include="..\..\Source\NMG2Controls\g2_types.pas" />
     <DCCReference Include="..\..\Source\NMG2Controls\G2_USB.pas" />
     <DCCReference Include="..\..\Source\NMG2Controls\graph_util_vcl.pas" />
-    <DCCReference Include="dclIndyCore100.dcp" />
-    <DCCReference Include="dclIndyProtocols100.dcp" />
-    <DCCReference Include="MidiComponents2007.dcp" />
-    <DCCReference Include="rtl.dcp" />
-    <DCCReference Include="vcl.dcp" />
+    <DCCReference Include="..\..\Source\NMG2Controls\JawsCtrls.pas" />
+    <DCCReference Include="..\..\Source\NMG2Controls\MidiComponents2007.dcp" />
+    <DCCReference Include="..\..\Source\NMG2Controls\rtl.dcp" />
+    <DCCReference Include="..\..\Source\NMG2Controls\vcl.dcp" />
   </ItemGroup>
 </Project>

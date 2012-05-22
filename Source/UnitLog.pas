@@ -15,6 +15,7 @@ type
     Panel2: TPanel;
     bRefresh: TButton;
     bClear: TButton;
+    Button1: TButton;
     procedure bSendMsgClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure bRefreshClick(Sender: TObject);

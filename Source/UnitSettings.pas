@@ -424,7 +424,7 @@ begin
   if FDisableControls then
     exit;
 
-  if cbLogEnabled.Checked then
+  if cbOnlyTextMenus.Checked then
     frmG2Main.OnlyTextMenus := True
   else
     frmG2Main.OnlyTextMenus := False;
@@ -481,6 +481,7 @@ begin
     cbSlotStripInverseColor.Selected := G_SlotStripInverseColor;
     cbSlotStripDisabledColor.Selected := G_SlotStripDisabledColor;
     cbHighLightColor.Selected := G_HighLightColor;
+    cbOnlyTextMenus.Checked := frmG2Main.OnlyTextMenus;
   finally
     FDisableControls := False;
   end;

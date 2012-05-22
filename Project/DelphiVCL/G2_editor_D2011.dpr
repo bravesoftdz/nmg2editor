@@ -22,7 +22,8 @@ uses
   g2_midi in '..\..\Source\NMG2Controls\g2_midi.pas',
   UnitPatchManager in '..\..\Source\UnitPatchManager.pas' {frmPatchManager},
   g2_mess in '..\..\Source\NMG2Controls\g2_mess.pas',
-  UnitModuleDef in '..\..\Source\UnitModuleDef.pas' {frmModuleDef};
+  UnitModuleDef in '..\..\Source\UnitModuleDef.pas' {frmModuleDef},
+  UnitPatchNotes in '..\..\Source\UnitPatchNotes.pas' {frmPatchNotes};
 
 {$R *.res}
 
@@ -44,5 +45,6 @@ begin
   Application.CreateForm(TfrmEditorTools, frmEditorTools);
   Application.CreateForm(TfrmPatchManager, frmPatchManager);
   Application.CreateForm(TfrmModuleDef, frmModuleDef);
+  Application.CreateForm(TfrmPatchNotes, frmPatchNotes);
   Application.Run;
 end.

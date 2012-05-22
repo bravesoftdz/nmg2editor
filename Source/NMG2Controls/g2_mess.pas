@@ -363,6 +363,7 @@ uses
     procedure   AddSetModuleLabelMessage( SendMessage : TG2SendMessage; aLocation: TLocationType; aModuleIndex: byte; aName: AnsiString);
     procedure   AddSetModuleColorMessage( SendMessage : TG2SendMessage; aLocation: TLocationType; aModuleIndex, aColor : byte);
     procedure   AddSetMorphMessage( SendMessage : TG2SendMessage; aLocation, aModule, aParam, aMorph, aValue, aNegative, aVariation: byte);
+    procedure   AddPatchNotesMessage( SendMessage : TG2SendMessage; aLines : TStrings);
   protected
     FUndoStack   : TList;
 
@@ -389,6 +390,7 @@ uses
     function    CreateSetPatchDescriptionMessage( FPatchDescription : TPatchDescription): TG2SendMessage;
     function    CreateSetModuleParamLabelsMessage( aLocation : TLocationType; aModuleIndex, aParamIndex : byte; aName : AnsiString): TG2SendMessage;
     function    CreateSetModuleLabelMessage( aLocation : TLocationType; aModuleIndex : byte; aName : AnsiString): TG2SendMessage;
+    function    CreateSetPatchNotesMessage( aLines : TStrings): TG2SendMessage;
   public
     constructor Create( AOwner: TComponent); override;
     destructor  Destroy; override;
@@ -1535,11 +1537,27 @@ begin
               MemStream.Read( b, 1); // Version
               MemStream.Read( SubCmd, 1);
               case SubCmd of
+                Q_VERSION_CNT :
+                  begin
+                    Result := True;
+                  end;
+                Q_SYNTH_SETTINGS :
+                  begin
+                    Result := True;
+                  end;
                 S_SYNTH_SETTINGS :
                   begin
                     Result := True;
                     if assigned(FOnSynthSettingsUpdate) then
                       FOnSynthSettingsUpdate(self, SenderID);
+                  end;
+                M_UNKNOWN_1 :
+                  begin
+                    Result := True;
+                  end;
+                M_UNKNOWN_2 :
+                  begin
+                    Result := True;
                   end;
                 S_SEL_SLOT,
                 Q_PERF_SETTINGS,
@@ -1569,6 +1587,10 @@ begin
 
                     if assigned( FOnAfterRetrievePatch) then
                       FOnAfterRetrievePatch( self, SenderID, Slot, Bank, Patch);
+                  end;
+                Q_GLOBAL_KNOBS :
+                  begin
+                    Result := True;
                   end;
                 Q_LIST_NAMES :
                   begin
@@ -2262,6 +2284,12 @@ begin
             end;
       S_SEL_PARAM :
             begin // selected parameter
+              MemStream.Read(b, 1); // Unknown
+              MemStream.Read(aLocation, 1);
+              MemStream.Read(aModuleIndex, 1);
+              MemStream.Read(aParamIndex, 1);
+              FPatch.SelectParameter( aLocation, aModuleIndex, aParamIndex);
+
               Result := True;
             end;
       R_VOLUME_DATA :
@@ -3130,6 +3158,30 @@ begin
     MemStream.WriteMessage( aPage);
     SendMessage.Add( MemStream);
   finally
+    MemStream.Free;
+  end;
+end;
+
+procedure TG2MessPatch.AddPatchNotesMessage(SendMessage: TG2SendMessage; aLines: TStrings);
+var Chunk : TPatchChunk;
+    MemStream : TG2Message;
+    PatchNotes : TPatchNotes;
+    i : integer;
+begin
+  MemStream := TG2Message.Create;
+  PatchNotes := TPatchNotes.Create;
+  try
+    Chunk := TPatchChunk.Create( MemStream);
+    try
+      PatchNotes.SetLines( aLines);
+      PatchNotes.Write( Chunk);
+      Chunk.WriteChunk( C_PATCH_NOTES);
+      SendMessage.Add( MemStream);
+    finally
+      Chunk.Free;
+    end;
+  finally
+    PatchNotes.Free;
     MemStream.Free;
   end;
 end;
@@ -4606,6 +4658,16 @@ begin
   (G2 as TG2Mess).dump_buffer( PStaticByteBuffer(Result.Memory)^[0], Result.Size);
 end;
 
+function TG2MessPatch.CreateSetPatchNotesMessage( aLines: TStrings): TG2SendMessage;
+begin
+  Result := CreatePatchMessage;
+  // No undo
+  AddPatchNotesMessage( Result, aLines);
+
+  (G2 as TG2Mess).dump_buffer( PStaticByteBuffer(Result.Memory)^[0], Result.Size);
+end;
+
+
 function TG2MessPatch.CreateSetModuleParamLabelsMessage( aLocation: TLocationType; aModuleIndex, aParamIndex: byte; aName: AnsiString): TG2SendMessage;
 begin
   Result := CreatePatchMessage;
@@ -4789,6 +4851,9 @@ begin
                                       aToConnectorIndex) as TG2FileCable;
                  AddCableToPatch( aLocation, Cable);
 
+                if assigned(G2) and assigned(G2.OnAddCable) then
+                  G2.OnAddCable(G2, G2.ID, Cable);
+
               end else
                 add_log_line( 'Cable already exists.', LOGCMD_ERR);
             end;
@@ -4806,11 +4871,19 @@ begin
               if assigned(Cable) then begin
 
                 DeleteCableFromPatch( aLocation, Cable);
+
+                if assigned(G2) and assigned(G2.OnDeleteCable) then
+                  G2.OnDeleteCable(G2, G2.ID, aLocation, aFromModuleIndex, aFromConnectorIndex, aToModuleIndex, aToConnectorIndex);
+
              end else begin
                 // Try the other way around...
                 Cable := FindCable( aLocation, aToModuleIndex, aToConnectorIndex, aFromModuleIndex, aFromConnectorIndex);
                 if assigned(Cable) then begin
-                  DeleteCableFromPatch( aLocation, Cable)
+                  DeleteCableFromPatch( aLocation, Cable);
+
+                  if assigned(G2) and assigned(G2.OnDeleteCable) then
+                    G2.OnDeleteCable(G2, G2.ID, aLocation, aToModuleIndex, aToConnectorIndex, aFromModuleIndex, aFromConnectorIndex);
+
                 end else begin
                   add_log_line( ' Delete cable : cable in location ' + IntToStr(ord(aLocation))
                                        + ' from module ' + IntToStr(aFromModuleIndex)

@@ -96,6 +96,10 @@ object frmSettings: TfrmSettings
     object TabSheet4: TTabSheet
       Caption = 'Midi'
       ImageIndex = 3
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object cbMidiEnabled: TCheckBox
         Left = 104
         Top = 16
@@ -169,6 +173,10 @@ object frmSettings: TfrmSettings
     object TabSheet5: TTabSheet
       Caption = 'Editor'
       ImageIndex = 4
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object cbSlotStripColor: TColorBox
         Left = 152
         Top = 80
@@ -286,6 +294,10 @@ object frmSettings: TfrmSettings
     object TabSheet3: TTabSheet
       Caption = 'Patch manager'
       ImageIndex = 2
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       DesignSize = (
         480
         234)
@@ -321,6 +333,10 @@ object frmSettings: TfrmSettings
     object TabSheet2: TTabSheet
       Caption = 'OSC'
       ImageIndex = 1
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object Panel1: TPanel
         Left = 0
         Top = 0

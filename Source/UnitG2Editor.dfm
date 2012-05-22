@@ -968,6 +968,12 @@ object frmG2Main: TfrmG2Main
       object N13: TMenuItem
         Caption = '-'
       end
+      object Copyvariation1: TMenuItem
+        Action = aShowCopyVariation
+      end
+      object N17: TMenuItem
+        Caption = '-'
+      end
       object Moduleproperties1: TMenuItem
         Action = aEditModuleProperties
       end
@@ -1021,6 +1027,9 @@ object frmG2Main: TfrmG2Main
       object Patchmanager1: TMenuItem
         Action = aPatchManager
       end
+      object Patchnotes1: TMenuItem
+        Action = aPatchNotes
+      end
       object Editortools1: TMenuItem
         Action = aEditTools
       end
@@ -1060,14 +1069,14 @@ object frmG2Main: TfrmG2Main
     end
     object Settings2: TMenuItem
       Caption = 'Se&ttings'
+      object Performancesettings2: TMenuItem
+        Action = aPerformanceSettings
+      end
       object Settings3: TMenuItem
         Action = aSettings
       end
       object Synthsettings2: TMenuItem
         Action = aSynthSettings
-      end
-      object Performancesettings2: TMenuItem
-        Action = aPerformanceSettings
       end
       object N7: TMenuItem
         Caption = '-'
@@ -1240,7 +1249,6 @@ object frmG2Main: TfrmG2Main
     Top = 128
     object miDeleteAllCables: TMenuItem
       Caption = 'Delete All'
-      OnClick = miDeleteAllCablesClick
     end
     object miDeleteCable: TMenuItem
       Caption = 'Delete'
@@ -1467,7 +1475,7 @@ object frmG2Main: TfrmG2Main
     end
     object aShowSelectModule: TAction
       Category = 'Select'
-      Caption = 'Select module'
+      Caption = 'Select &module'
       ShortCut = 77
       OnExecute = aShowSelectModuleExecute
     end
@@ -1477,40 +1485,52 @@ object frmG2Main: TfrmG2Main
       ShortCut = 80
       OnExecute = aShowSelectParamExecute
     end
-    object aShowSelectConnector: TAction
-      Category = 'Select'
-      Caption = 'Select connector'
-      ShortCut = 79
-    end
     object aShowSelectCable: TAction
       Category = 'Select'
       Caption = 'Select cable'
-      ShortCut = 67
+      ShortCut = 69
       OnExecute = aShowSelectCableExecute
     end
     object aShowAddModule: TAction
       Category = 'Add'
-      Caption = 'Add module'
+      Caption = 'Add &module'
       ShortCut = 8269
       OnExecute = aShowAddModuleExecute
     end
     object aShowAddCable: TAction
       Category = 'Add'
-      Caption = 'Add cable'
-      ShortCut = 8259
+      Caption = 'Add ca&ble'
+      ShortCut = 8261
       OnExecute = aShowAddCableExecute
     end
     object aEditModuleProperties: TAction
       Category = 'Edit'
-      Caption = 'Module properties'
-      ShortCut = 78
+      Caption = 'Edit module properties'
+      ShortCut = 32845
       OnExecute = aEditModulePropertiesExecute
     end
     object aEditParamProperties: TAction
       Category = 'Edit'
-      Caption = 'Parameter properties'
-      ShortCut = 79
+      Caption = 'Edit parameter properties'
+      ShortCut = 32848
       OnExecute = aEditParamPropertiesExecute
+    end
+    object aPatchNotes: TAction
+      Category = 'View'
+      Caption = 'Patch notes'
+      ShortCut = 16462
+      OnExecute = aPatchNotesExecute
+    end
+    object aShowCopyVariation: TAction
+      Category = 'Edit'
+      Caption = 'Copy variation'
+      ShortCut = 32854
+      OnExecute = aShowCopyVariationExecute
+    end
+    object aSaveLogFile: TAction
+      Category = 'Settings'
+      Caption = 'Save log file'
+      OnExecute = aSaveLogFileExecute
     end
   end
   object ResponseTimer: TTimer

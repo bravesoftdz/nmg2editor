@@ -102,7 +102,7 @@ object frmLog: TfrmLog
     Align = alTop
     TabOrder = 2
     object bRefresh: TButton
-      Left = 16
+      Left = 95
       Top = 4
       Width = 75
       Height = 25
@@ -111,13 +111,21 @@ object frmLog: TfrmLog
       OnClick = bRefreshClick
     end
     object bClear: TButton
-      Left = 104
+      Left = 176
       Top = 4
       Width = 75
       Height = 25
       Caption = 'Clear'
       TabOrder = 1
       OnClick = bClearClick
+    end
+    object Button1: TButton
+      Left = 14
+      Top = 4
+      Width = 75
+      Height = 25
+      Action = frmG2Main.aSaveLogFile
+      TabOrder = 2
     end
   end
 end

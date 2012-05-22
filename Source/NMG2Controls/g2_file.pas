@@ -57,6 +57,7 @@ type
   TG2FileSlot = class;
   TG2File = class;
   TG2FileModule = class;
+  TG2FileCable = class;
   TG2FileParameter = class;
   TG2FileConnector = class;
   TG2FilePerformance = class;
@@ -65,6 +66,8 @@ type
   TCreateModuleEvent = procedure(Sender: TObject; SenderID : integer; Module : TG2FileModule) of object;
   TAddModuleEvent = procedure(Sender: TObject; SenderID : integer; Module : TG2FileModule) of object;
   TDeleteModuleEvent = procedure(Sender : TObject; SenderID : integer; Location: TLocationType; ModuleIndex : integer) of object;
+  TAddCableEvent = procedure(Sender: TObject; SenderID : integer; Module : TG2FileCable) of object;
+  TDeleteCableEvent = procedure(Sender : TObject; SenderID : integer; Location: TLocationType; FromModuleIndex, FromConnectorIndex, ToModuleIndex, ToConnectorIndex : integer) of object;
   TAssignKnobEvent = procedure(Sender: TObject; SenderID : integer; Slot : byte; KnobIndex : integer) of object;
   TAssignGlobalKnobEvent = procedure(Sender: TObject; SenderID : integer; KnobIndex : integer) of object;
   TDeassignKnobEvent = procedure(Sender: TObject; SenderID : integer; Slot : byte; KnobIndex : integer) of object;
@@ -159,6 +162,9 @@ type
     FNewCol        : integer;
     FNewRow        : integer;
 
+    FPage : AnsiString;
+    FPageIndex : integer;
+
     // Interface
     FSelected      : Boolean;
     FSelectedParam : integer;
@@ -251,6 +257,8 @@ type
     property    SelectedParam : TG2FileParameter read GetSelectedParam write SetSelectedParam;
     property    AssignableKnobCount : integer read GetAssignableKnobCount;
     property    ModuleFileName : AnsiString read FModuleFileName write FModuleFileName;
+    property    Page : AnsiString read FPage;
+    property    PageIndex : integer read FPageIndex;
   end;
 
   TModuleList = class( TObjectList)
@@ -798,6 +806,8 @@ type
   public
     constructor Create;
     destructor  Destroy; override;
+    procedure   SetLines( aLines : TStrings);
+    procedure   GetLines( aLines : TStrings);
     procedure   Init;
     procedure   Read( aChunk : TPatchChunk);
     procedure   Write( aChunk : TPatchChunk);
@@ -923,6 +933,7 @@ type
     function    GetModule( LocationIndex, ModuleIndex: integer): TG2FileModule; //virtual;
     function    GetModuleCount( LocationIndex : integer): integer;
     function    GetParameter( ModuleIndex, ParamIndex : integer): TG2FileParameter;
+    procedure   SelectParameter( LocationIndex, ModuleIndex, ParamIndex : integer);
 
     procedure   InitParameters;
     procedure   InitNames;
@@ -1023,6 +1034,7 @@ type
     property    PatchSettings : TPatchSettings read FPatchSettings;
     property    KnobList : TKnobList read FKnobList;
     property    PatchDescription : TPatchDescription read FPatchDescription;
+    property    PatchNotes : TPatchNotes read FPatchNotes;
     //property    SelectedModuleList : TModuleList read GetSelectedModuleList;
     //property    SelectedParam : TG2FileParameter read FSelectedParam write SetSelectedParam;
     property    SelectedLocation : TLocationType read FSelectedLocation write SetSelectedLocation;
@@ -1326,6 +1338,8 @@ type
     FOnCreateModule       : TCreateModuleEvent;
     FOnAddModule          : TAddModuleEvent;
     FOnDeleteModule       : TDeleteModuleEvent;
+    FOnAddCable           : TAddCableEvent;
+    FOnDeleteCable        : TDeleteCableEvent;
     FOnAssignKnob         : TAssignKnobEvent;
     FOnAssignGlobalKnob   : TAssignGlobalKnobEvent;
     FOnDeassignKnob       : TDeassignKnobEvent;
@@ -1382,6 +1396,8 @@ type
     property    OnCreateModule : TCreateModuleEvent read FOnCreateModule write FOnCreateModule;
     property    OnAddModule : TAddModuleEvent read FOnAddModule write FOnAddModule;
     property    OnDeleteModule : TDeleteModuleEvent read FOnDeleteModule write FOnDeleteModule;
+    property    OnAddCable : TAddCableEvent read FOnAddCable write FOnAddCable;
+    property    OnDeleteCable : TDeleteCableEvent read FOnDeleteCable write FOnDeleteCable;
     property    OnAssignKnob : TAssignKnobEvent read FOnAssignKnob write FOnAssignKnob;
     property    OnDeassignKnob : TDeassignKnobEvent read FOnDeassignKnob write FOnDeassignKnob;
     property    OnAssignGlobalKnob : TAssignGlobalKnobEvent read FOnAssignGlobalKnob write FOnAssignGlobalKnob;
@@ -1508,6 +1524,9 @@ begin
   //ModuleName     := FPatchPart.GetUniqueModuleName(aModuleDef.ShortName);
   ModuleFileName := aModuleDef.ShortName;
   FModeCount     := 0;
+
+  FPage := aModuleDef.Page;
+  FPageIndex := aModuleDef.PageIndex;
 
   aConnectorList := aModuleDef.Inputs;
   if assigned(aConnectorList) then
@@ -4580,6 +4599,25 @@ begin
   inherited;
 end;
 
+procedure TPatchNotes.GetLines(aLines: TStrings);
+var i : integer;
+begin
+  aLines.Text := '';
+  for i := 0 to Length(FText) - 1 do
+    aLines.Text := aLines.Text + WideChar(FText[i]);
+end;
+
+procedure TPatchNotes.SetLines(aLines: TStrings);
+var i : integer;
+    c : AnsiChar;
+begin
+  SetLength(FText, Length(aLines.Text));
+  for i := 1 to Length(FText) do begin
+    c := AnsiChar(aLines.Text[i]);
+    FText[i-1] := byte(c);
+  end;
+end;
+
 procedure TPatchNotes.Init;
 begin
   SetLength(FText, 0);
@@ -4589,6 +4627,7 @@ procedure TPatchNotes.Read( aChunk : TPatchChunk);
 begin
   aChunk.FReadBuffer.Read(FText[0], Length(FText));
 end;
+
 
 procedure TPatchNotes.Write( aChunk : TPatchChunk);
 begin
@@ -5067,6 +5106,29 @@ procedure TG2FilePatch.SetPatchName( aValue : AnsiString);
 begin
   if assigned(FSlot) then
     FSlot.FPatchName := aValue;
+end;
+
+procedure TG2FilePatch.SelectParameter(LocationIndex, ModuleIndex, ParamIndex: integer);
+var Module : TG2FileModule;
+    Param : TG2FileParameter;
+begin
+  case TLocationType(LocationIndex) of
+  ltVA, ltFX :
+    begin
+      Module := Modules[ LocationIndex, ModuleIndex];
+      if assigned(Module) then begin
+        Param := Module.Parameter[ ParamIndex];
+        if assigned(Param) then
+          Param.Selected := True;
+      end;
+    end;
+  ltPatch :
+    begin
+       Param := Parameter[ ModuleIndex, ParamIndex];
+       if assigned(Param) then
+         Param.Selected := True;
+    end;
+  end;
 end;
 
 procedure TG2FilePatch.SetG2( aValue : TG2File);
