@@ -73,6 +73,16 @@ This error may occur when the tcp-ip port in the application settings is already
 Updates
 =======
 
+v0.23 update 22-5-2012
+======================
+
+- Fixed a bug in the loading of partch banks from the G2
+
+v0.23 update 21-5-2012
+======================
+
+- Added "Save log file" button on the View log form
+
 v0.23 update 19-5-2012
 ======================
 
