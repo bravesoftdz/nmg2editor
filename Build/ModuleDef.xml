@@ -505,21 +505,26 @@
         <Name>Time</Name>
         <DefaultValue>64</DefaultValue>
         <Id>150</Id>
+        <DefaultKnob>0</DefaultKnob>
       </Param>
       <Param>
         <Name>Brightness</Name>
         <DefaultValue>64</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>1</DefaultKnob>
       </Param>
       <Param>
         <Name>DryWet</Name>
         <DefaultValue>64</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>2</DefaultKnob>
+        <ButtonParam>3</ButtonParam>
       </Param>
       <Param>
         <Name>Active</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
+        <ButtonParam>3</ButtonParam>
       </Param>
     </Params>
     <Modes>
@@ -748,16 +753,20 @@
         <Name>MixMod</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>1</DefaultKnob>
       </Param>
       <Param>
         <Name>Mix</Name>
         <DefaultValue>64</DefaultValue>
         <Id>2</Id>
+        <DefaultKnob>0</DefaultKnob>
+        <ButtonParam>2</ButtonParam>
       </Param>
       <Param>
         <Name>LogLin</Name>
         <DefaultValue>0</DefaultValue>
         <Id>88</Id>
+        <ButtonParam>2</ButtonParam>
       </Param>
     </Params>
   </ModuleDef>
@@ -803,26 +812,32 @@
         <Name>Lev1</Name>
         <DefaultValue>100</DefaultValue>
         <Id>97</Id>
+        <DefaultKnob>0</DefaultKnob>
       </Param>
       <Param>
         <Name>Lev2</Name>
         <DefaultValue>100</DefaultValue>
         <Id>97</Id>
+        <DefaultKnob>1</DefaultKnob>
       </Param>
       <Param>
         <Name>Lev3</Name>
         <DefaultValue>100</DefaultValue>
         <Id>97</Id>
+        <DefaultKnob>2</DefaultKnob>
       </Param>
       <Param>
         <Name>Lev4</Name>
         <DefaultValue>100</DefaultValue>
         <Id>97</Id>
+        <DefaultKnob>3</DefaultKnob>
       </Param>
       <Param>
         <Name>ExpLin</Name>
         <DefaultValue>0</DefaultValue>
         <Id>42</Id>
+        <DefaultKnob>4</DefaultKnob>
+        <ButtonParam>4</ButtonParam>
       </Param>
     </Params>
   </ModuleDef>
@@ -1474,21 +1489,27 @@
         <Name>Amount</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>0</DefaultKnob>
       </Param>
       <Param>
         <Name>AmountMod</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>1</DefaultKnob>
       </Param>
       <Param>
         <Name>Active</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
+        <DefaultKnob>3</DefaultKnob>
+        <ButtonParam>2</ButtonParam>
       </Param>
       <Param>
         <Name>Curve</Name>
         <DefaultValue>0</DefaultValue>
         <Id>155</Id>
+        <DefaultKnob>2</DefaultKnob>
+        <ButtonParam>3</ButtonParam>
       </Param>
     </Params>
   </ModuleDef>
@@ -1791,21 +1812,27 @@
         <Name>Amount</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>0</DefaultKnob>
       </Param>
       <Param>
         <Name>AmountMod</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>1</DefaultKnob>
       </Param>
       <Param>
         <Name>Active</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
+        <DefaultKnob>3</DefaultKnob>
+        <ButtonParam>2</ButtonParam>
       </Param>
       <Param>
         <Name>Curve</Name>
         <DefaultValue>0</DefaultValue>
         <Id>160</Id>
+        <DefaultKnob>2</DefaultKnob>
+        <ButtonParam>3</ButtonParam>
       </Param>
     </Params>
   </ModuleDef>
@@ -1875,16 +1902,20 @@
         <Name>Time</Name>
         <DefaultValue>1</DefaultValue>
         <Id>87</Id>
+        <DefaultKnob>0</DefaultKnob>
+        <ButtonParam>2</ButtonParam>
       </Param>
       <Param>
         <Name>TimeMod</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>1</DefaultKnob>
       </Param>
       <Param>
         <Name>Range</Name>
         <DefaultValue>0</DefaultValue>
         <Id>86</Id>
+        <ButtonParam>2</ButtonParam>
       </Param>
     </Params>
     <Modes>
@@ -1953,51 +1984,63 @@
         <Name>Lev1</Name>
         <DefaultValue>100</DefaultValue>
         <Id>97</Id>
+        <DefaultKnob>0</DefaultKnob>
       </Param>
       <Param>
         <Name>Lev2</Name>
         <DefaultValue>100</DefaultValue>
         <Id>97</Id>
+        <DefaultKnob>1</DefaultKnob>
       </Param>
       <Param>
         <Name>Lev3</Name>
         <DefaultValue>100</DefaultValue>
         <Id>97</Id>
+        <DefaultKnob>2</DefaultKnob>
       </Param>
       <Param>
         <Name>Lev4</Name>
         <DefaultValue>100</DefaultValue>
         <Id>97</Id>
+        <DefaultKnob>3</DefaultKnob>
       </Param>
       <Param>
         <Name>Lev5</Name>
         <DefaultValue>100</DefaultValue>
         <Id>97</Id>
+        <DefaultKnob>4</DefaultKnob>
       </Param>
       <Param>
         <Name>Lev6</Name>
         <DefaultValue>100</DefaultValue>
         <Id>97</Id>
+        <DefaultKnob>5</DefaultKnob>
       </Param>
       <Param>
         <Name>Lev7</Name>
         <DefaultValue>100</DefaultValue>
         <Id>97</Id>
+        <DefaultKnob>6</DefaultKnob>
       </Param>
       <Param>
         <Name>Lev8</Name>
         <DefaultValue>100</DefaultValue>
         <Id>97</Id>
+        <DefaultKnob>7</DefaultKnob>
       </Param>
       <Param>
         <Name>ExpLin</Name>
         <DefaultValue>0</DefaultValue>
         <Id>42</Id>
+        <DefaultKnob>8</DefaultKnob>
+        <ButtonParam>8</ButtonParam>
       </Param>
       <Param>
         <Name>Pad</Name>
         <DefaultValue>0</DefaultValue>
         <Id>128</Id>
+        <DefaultKnob>9</DefaultKnob>
+        <ButtonParam>9</ButtonParam>
       </Param>
     </Params>
   </ModuleDef>
@@ -2080,16 +2123,20 @@
         <Name>Time</Name>
         <DefaultValue>64</DefaultValue>
         <Id>87</Id>
+        <DefaultKnob>0</DefaultKnob>
+        <ButtonParam>2</ButtonParam>
       </Param>
       <Param>
         <Name>TimeMod</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>1</DefaultKnob>
       </Param>
       <Param>
         <Name>Range</Name>
         <DefaultValue>1</DefaultValue>
         <Id>86</Id>
+        <ButtonParam>2</ButtonParam>
       </Param>
     </Params>
     <Modes>
@@ -2368,16 +2415,20 @@
         <Name>PanMod</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>1</DefaultKnob>
       </Param>
       <Param>
         <Name>Pan</Name>
         <DefaultValue>64</DefaultValue>
         <Id>2</Id>
+        <DefaultKnob>0</DefaultKnob>
+        <ButtonParam>2</ButtonParam>
       </Param>
       <Param>
         <Name>LogLin</Name>
         <DefaultValue>0</DefaultValue>
         <Id>88</Id>
+        <ButtonParam>2</ButtonParam>
       </Param>
     </Params>
   </ModuleDef>
@@ -2431,66 +2482,79 @@
         <Name>Lev1</Name>
         <DefaultValue>100</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>0</DefaultKnob>
       </Param>
       <Param>
         <Name>Lev2</Name>
         <DefaultValue>100</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>2</DefaultKnob>
       </Param>
       <Param>
         <Name>Lev3</Name>
         <DefaultValue>100</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>4</DefaultKnob>
       </Param>
       <Param>
         <Name>Lev4</Name>
         <DefaultValue>100</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>6</DefaultKnob>
       </Param>
       <Param>
         <Name>Lev5</Name>
         <DefaultValue>100</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>8</DefaultKnob>
       </Param>
       <Param>
         <Name>Lev6</Name>
         <DefaultValue>100</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>10</DefaultKnob>
       </Param>
       <Param>
         <Name>Pan1</Name>
         <DefaultValue>64</DefaultValue>
         <Id>2</Id>
+        <DefaultKnob>1</DefaultKnob>
       </Param>
       <Param>
         <Name>Pan2</Name>
         <DefaultValue>64</DefaultValue>
         <Id>2</Id>
+        <DefaultKnob>3</DefaultKnob>
       </Param>
       <Param>
         <Name>Pan3</Name>
         <DefaultValue>64</DefaultValue>
         <Id>2</Id>
+        <DefaultKnob>5</DefaultKnob>
       </Param>
       <Param>
         <Name>Pan4</Name>
         <DefaultValue>64</DefaultValue>
         <Id>2</Id>
+        <DefaultKnob>7</DefaultKnob>
       </Param>
       <Param>
         <Name>Pan5</Name>
         <DefaultValue>64</DefaultValue>
         <Id>2</Id>
+        <DefaultKnob>9</DefaultKnob>
       </Param>
       <Param>
         <Name>Pan6</Name>
         <DefaultValue>64</DefaultValue>
         <Id>2</Id>
+        <DefaultKnob>11</DefaultKnob>
       </Param>
       <Param>
         <Name>LevMaster</Name>
         <DefaultValue>100</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>12</DefaultKnob>
       </Param>
     </Params>
   </ModuleDef>
@@ -3270,21 +3334,27 @@
         <Name>ClipLevMod</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>1</DefaultKnob>
       </Param>
       <Param>
         <Name>ClipLev</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>0</DefaultKnob>
       </Param>
       <Param>
         <Name>Shape</Name>
         <DefaultValue>0</DefaultValue>
         <Id>6</Id>
+        <DefaultKnob>2</DefaultKnob>
+        <ButtonParam>2</ButtonParam>
       </Param>
       <Param>
         <Name>Active</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
+        <DefaultKnob>3</DefaultKnob>
+        <ButtonParam>3</ButtonParam>
       </Param>
     </Params>
   </ModuleDef>
@@ -3318,26 +3388,34 @@
         <Name>AmountMod</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>1</DefaultKnob>
       </Param>
       <Param>
         <Name>Amount</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>0</DefaultKnob>
       </Param>
       <Param>
         <Name>Active</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
+        <DefaultKnob>4</DefaultKnob>
+        <ButtonParam>2</ButtonParam>
       </Param>
       <Param>
         <Name>Type</Name>
         <DefaultValue>0</DefaultValue>
         <Id>125</Id>
+        <DefaultKnob>2</DefaultKnob>
+        <ButtonParam>3</ButtonParam>
       </Param>
       <Param>
         <Name>Shape</Name>
         <DefaultValue>1</DefaultValue>
         <Id>6</Id>
+        <DefaultKnob>3</DefaultKnob>
+        <ButtonParam>4</ButtonParam>
       </Param>
     </Params>
   </ModuleDef>
@@ -3371,21 +3449,27 @@
         <Name>Ratio</Name>
         <DefaultValue>80</DefaultValue>
         <Id>157</Id>
+        <DefaultKnob>0</DefaultKnob>
       </Param>
       <Param>
         <Name>RatioMod</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>1</DefaultKnob>
       </Param>
       <Param>
         <Name>Delay</Name>
         <DefaultValue>2</DefaultValue>
         <Id>156</Id>
+        <DefaultKnob>2</DefaultKnob>
+        <ButtonParam>2</ButtonParam>
       </Param>
       <Param>
         <Name>Active</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
+        <DefaultKnob>3</DefaultKnob>
+        <ButtonParam>3</ButtonParam>
       </Param>
     </Params>
   </ModuleDef>
@@ -3473,26 +3557,34 @@
         <Name>Inv1</Name>
         <DefaultValue>0</DefaultValue>
         <Id>96</Id>
+        <DefaultKnob>1</DefaultKnob>
+        <ButtonParam>0</ButtonParam>
       </Param>
       <Param>
         <Name>Lev1</Name>
         <DefaultValue>100</DefaultValue>
         <Id>97</Id>
+        <DefaultKnob>0</DefaultKnob>
       </Param>
       <Param>
         <Name>Inv2</Name>
         <DefaultValue>0</DefaultValue>
         <Id>96</Id>
+        <DefaultKnob>3</DefaultKnob>
+        <ButtonParam>2</ButtonParam>
       </Param>
       <Param>
         <Name>Lev2</Name>
         <DefaultValue>100</DefaultValue>
         <Id>97</Id>
+        <DefaultKnob>2</DefaultKnob>
       </Param>
       <Param>
         <Name>ExpLin</Name>
         <DefaultValue>0</DefaultValue>
         <Id>42</Id>
+        <DefaultKnob>4</DefaultKnob>
+        <ButtonParam>4</ButtonParam>
       </Param>
     </Params>
   </ModuleDef>
@@ -3595,6 +3687,7 @@
         <Name>Divider</Name>
         <DefaultValue>0</DefaultValue>
         <Id>143</Id>
+        <DefaultKnob>0</DefaultKnob>
       </Param>
     </Params>
     <Modes>
@@ -3701,16 +3794,20 @@
         <Name>AmountMod</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>1</DefaultKnob>
       </Param>
       <Param>
         <Name>Amount</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>0</DefaultKnob>
       </Param>
       <Param>
         <Name>Active</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
+        <DefaultKnob>2</DefaultKnob>
+        <ButtonParam>2</ButtonParam>
       </Param>
     </Params>
   </ModuleDef>
@@ -3959,11 +4056,15 @@
         <Name>Mode</Name>
         <DefaultValue>0</DefaultValue>
         <Id>148</Id>
+        <DefaultKnob>0</DefaultKnob>
+        <ButtonParam>0</ButtonParam>
       </Param>
       <Param>
         <Name>Active</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
+        <DefaultKnob>1</DefaultKnob>
+        <ButtonParam>1</ButtonParam>
       </Param>
     </Params>
   </ModuleDef>
@@ -3993,11 +4094,15 @@
         <Name>Mode</Name>
         <DefaultValue>1</DefaultValue>
         <Id>161</Id>
+        <DefaultKnob>0</DefaultKnob>
+        <ButtonParam>0</ButtonParam>
       </Param>
       <Param>
         <Name>Active</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
+        <DefaultKnob>1</DefaultKnob>
+        <ButtonParam>1</ButtonParam>
       </Param>
     </Params>
   </ModuleDef>
@@ -4325,21 +4430,26 @@
         <Name>Rate</Name>
         <DefaultValue>64</DefaultValue>
         <Id>45</Id>
+        <DefaultKnob>0</DefaultKnob>
       </Param>
       <Param>
         <Name>Range</Name>
         <DefaultValue>64</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>1</DefaultKnob>
       </Param>
       <Param>
         <Name>FeedBack</Name>
         <DefaultValue>64</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>2</DefaultKnob>
       </Param>
       <Param>
         <Name>Active</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
+        <DefaultKnob>3</DefaultKnob>
+        <ButtonParam>3</ButtonParam>
       </Param>
     </Params>
   </ModuleDef>
@@ -4524,16 +4634,20 @@
         <Name>Detune</Name>
         <DefaultValue>20</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>0</DefaultKnob>
       </Param>
       <Param>
         <Name>Amount</Name>
         <DefaultValue>127</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>1</DefaultKnob>
+        <ButtonParam>2</ButtonParam>
       </Param>
       <Param>
         <Name>Active</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
+        <ButtonParam>2</ButtonParam>
       </Param>
     </Params>
   </ModuleDef>
@@ -4708,21 +4822,27 @@
         <Name>FreqShift</Name>
         <DefaultValue>0</DefaultValue>
         <Id>60</Id>
+        <DefaultKnob>0</DefaultKnob>
       </Param>
       <Param>
         <Name>ShiftMod</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>1</DefaultKnob>
       </Param>
       <Param>
         <Name>Range</Name>
         <DefaultValue>2</DefaultValue>
         <Id>61</Id>
+        <DefaultKnob>2</DefaultKnob>
+        <ButtonParam>2</ButtonParam>
       </Param>
       <Param>
         <Name>Active</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
+        <DefaultKnob>3</DefaultKnob>
+        <ButtonParam>3</ButtonParam>
       </Param>
     </Params>
   </ModuleDef>
@@ -5240,11 +5360,13 @@
         <Name>Mix</Name>
         <DefaultValue>64</DefaultValue>
         <Id>43</Id>
+        <DefaultKnob>0</DefaultKnob>
       </Param>
       <Param>
         <Name>MixMod</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>1</DefaultKnob>
       </Param>
     </Params>
   </ModuleDef>
@@ -5282,11 +5404,13 @@
         <Name>Mix</Name>
         <DefaultValue>64</DefaultValue>
         <Id>44</Id>
+        <DefaultKnob>0</DefaultKnob>
       </Param>
       <Param>
         <Name>MixMod</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>1</DefaultKnob>
       </Param>
     </Params>
   </ModuleDef>
@@ -5401,6 +5525,8 @@
         <Name>Pad</Name>
         <DefaultValue>0</DefaultValue>
         <Id>128</Id>
+        <DefaultKnob>0</DefaultKnob>
+        <ButtonParam>0</ButtonParam>
       </Param>
     </Params>
   </ModuleDef>
@@ -5478,21 +5604,27 @@
         <Name>Bits</Name>
         <DefaultValue>11</DefaultValue>
         <Id>21</Id>
+        <DefaultKnob>0</DefaultKnob>
+        <ButtonParam>0</ButtonParam>
       </Param>
       <Param>
         <Name>Rate</Name>
         <DefaultValue>64</DefaultValue>
         <Id>22</Id>
+        <DefaultKnob>1</DefaultKnob>
       </Param>
       <Param>
         <Name>RateMod</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>2</DefaultKnob>
       </Param>
       <Param>
         <Name>Active</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
+        <DefaultKnob>3</DefaultKnob>
+        <ButtonParam>3</ButtonParam>
       </Param>
     </Params>
   </ModuleDef>
@@ -5947,55 +6079,71 @@
         <Name>Lev1</Name>
         <DefaultValue>100</DefaultValue>
         <Id>97</Id>
+        <DefaultKnob>0</DefaultKnob>
+        <ButtonParam>4</ButtonParam>
       </Param>
       <Param>
         <Name>Lev2</Name>
         <DefaultValue>100</DefaultValue>
         <Id>97</Id>
+        <DefaultKnob>1</DefaultKnob>
+        <ButtonParam>5</ButtonParam>
       </Param>
       <Param>
         <Name>Lev3</Name>
         <DefaultValue>100</DefaultValue>
         <Id>97</Id>
+        <DefaultKnob>2</DefaultKnob>
+        <ButtonParam>6</ButtonParam>
       </Param>
       <Param>
         <Name>Lev4</Name>
         <DefaultValue>100</DefaultValue>
         <Id>97</Id>
+        <DefaultKnob>3</DefaultKnob>
+        <ButtonParam>7</ButtonParam>
       </Param>
       <Param>
         <Name>On1</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
         <ParamLabel>Ch 1</ParamLabel>
+        <ButtonParam>4</ButtonParam>
       </Param>
       <Param>
         <Name>On2</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
         <ParamLabel>Ch 2</ParamLabel>
+        <ButtonParam>5</ButtonParam>
       </Param>
       <Param>
         <Name>On3</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
         <ParamLabel>Ch 3</ParamLabel>
+        <ButtonParam>6</ButtonParam>
       </Param>
       <Param>
         <Name>On4</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
         <ParamLabel>Ch 4</ParamLabel>
+        <ButtonParam>7</ButtonParam>
       </Param>
       <Param>
         <Name>Pad</Name>
         <DefaultValue>0</DefaultValue>
         <Id>127</Id>
+        <DefaultKnob>4</DefaultKnob>
+        <ButtonParam>8</ButtonParam>
       </Param>
       <Param>
         <Name>ExpLin</Name>
         <DefaultValue>0</DefaultValue>
         <Id>42</Id>
+        <DefaultKnob>5</DefaultKnob>
+        <ButtonParam>9</ButtonParam>
       </Param>
     </Params>
   </ModuleDef>
@@ -6484,50 +6632,64 @@
         <Name>Lev1</Name>
         <DefaultValue>100</DefaultValue>
         <Id>97</Id>
+        <DefaultKnob>0</DefaultKnob>
+        <ButtonParam>4</ButtonParam>
       </Param>
       <Param>
         <Name>Lev2</Name>
         <DefaultValue>100</DefaultValue>
         <Id>97</Id>
+        <DefaultKnob>1</DefaultKnob>
+        <ButtonParam>5</ButtonParam>
       </Param>
       <Param>
         <Name>Lev3</Name>
         <DefaultValue>100</DefaultValue>
         <Id>97</Id>
+        <DefaultKnob>2</DefaultKnob>
+        <ButtonParam>6</ButtonParam>
       </Param>
       <Param>
         <Name>Lev4</Name>
         <DefaultValue>100</DefaultValue>
         <Id>97</Id>
+        <DefaultKnob>3</DefaultKnob>
+        <ButtonParam>7</ButtonParam>
       </Param>
       <Param>
         <Name>On1</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
         <ParamLabel>Ch 1</ParamLabel>
+        <ButtonParam>4</ButtonParam>
       </Param>
       <Param>
         <Name>On2</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
         <ParamLabel>Ch 2</ParamLabel>
+        <ButtonParam>5</ButtonParam>
       </Param>
       <Param>
         <Name>On3</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
         <ParamLabel>Ch 3</ParamLabel>
+        <ButtonParam>6</ButtonParam>
       </Param>
       <Param>
         <Name>On4</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
         <ParamLabel>Ch 4</ParamLabel>
+        <ButtonParam>7</ButtonParam>
       </Param>
       <Param>
         <Name>ExpLin</Name>
         <DefaultValue>0</DefaultValue>
         <Id>42</Id>
+        <DefaultKnob>4</DefaultKnob>
+        <ButtonParam>4</ButtonParam>
       </Param>
     </Params>
   </ModuleDef>
@@ -7692,36 +7854,45 @@
         <Name>Treshold</Name>
         <DefaultValue>18</DefaultValue>
         <Id>172</Id>
+        <DefaultKnob>0</DefaultKnob>
       </Param>
       <Param>
         <Name>Ratio</Name>
         <DefaultValue>20</DefaultValue>
         <Id>12</Id>
+        <DefaultKnob>1</DefaultKnob>
       </Param>
       <Param>
         <Name>Attack</Name>
         <DefaultValue>1</DefaultValue>
         <Id>11</Id>
+        <DefaultKnob>2</DefaultKnob>
       </Param>
       <Param>
         <Name>Release</Name>
         <DefaultValue>20</DefaultValue>
         <Id>14</Id>
+        <DefaultKnob>3</DefaultKnob>
       </Param>
       <Param>
         <Name>RefLevel</Name>
         <DefaultValue>30</DefaultValue>
         <Id>13</Id>
+        <DefaultKnob>4</DefaultKnob>
+        <ButtonParam>6</ButtonParam>
       </Param>
       <Param>
         <Name>SideChain</Name>
         <DefaultValue>0</DefaultValue>
         <Id>106</Id>
+        <DefaultKnob>5</DefaultKnob>
+        <ButtonParam>5</ButtonParam>
       </Param>
       <Param>
         <Name>Active</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
+        <ButtonParam>6</ButtonParam>
       </Param>
     </Params>
   </ModuleDef>
@@ -8349,99 +8520,127 @@
         <Name>Lev1</Name>
         <DefaultValue>100</DefaultValue>
         <Id>97</Id>
+        <DefaultKnob>0</DefaultKnob>
+        <ButtonParam>8</ButtonParam>
       </Param>
       <Param>
         <Name>Lev2</Name>
         <DefaultValue>100</DefaultValue>
         <Id>97</Id>
+        <DefaultKnob>1</DefaultKnob>
+        <ButtonParam>9</ButtonParam>
       </Param>
       <Param>
         <Name>Lev3</Name>
         <DefaultValue>100</DefaultValue>
         <Id>97</Id>
+        <DefaultKnob>2</DefaultKnob>
+        <ButtonParam>10</ButtonParam>
       </Param>
       <Param>
         <Name>Lev4</Name>
         <DefaultValue>100</DefaultValue>
         <Id>97</Id>
+        <DefaultKnob>3</DefaultKnob>
+        <ButtonParam>11</ButtonParam>
       </Param>
       <Param>
         <Name>Lev5</Name>
         <DefaultValue>100</DefaultValue>
         <Id>97</Id>
+        <DefaultKnob>4</DefaultKnob>
+        <ButtonParam>12</ButtonParam>
       </Param>
       <Param>
         <Name>Lev6</Name>
         <DefaultValue>100</DefaultValue>
         <Id>97</Id>
+        <DefaultKnob>5</DefaultKnob>
+        <ButtonParam>13</ButtonParam>
       </Param>
       <Param>
         <Name>Lev7</Name>
         <DefaultValue>100</DefaultValue>
         <Id>97</Id>
+        <DefaultKnob>6</DefaultKnob>
+        <ButtonParam>14</ButtonParam>
       </Param>
       <Param>
         <Name>Lev8</Name>
         <DefaultValue>100</DefaultValue>
         <Id>97</Id>
+        <DefaultKnob>7</DefaultKnob>
+        <ButtonParam>15</ButtonParam>
       </Param>
       <Param>
         <Name>On1</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
         <ParamLabel>Ch 1</ParamLabel>
+        <ButtonParam>8</ButtonParam>
       </Param>
       <Param>
         <Name>On2</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
         <ParamLabel>Ch 2</ParamLabel>
+        <ButtonParam>9</ButtonParam>
       </Param>
       <Param>
         <Name>On3</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
         <ParamLabel>Ch 3</ParamLabel>
+        <ButtonParam>10</ButtonParam>
       </Param>
       <Param>
         <Name>On4</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
         <ParamLabel>Ch 4</ParamLabel>
+        <ButtonParam>11</ButtonParam>
       </Param>
       <Param>
         <Name>On5</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
         <ParamLabel>Ch 5</ParamLabel>
+        <ButtonParam>12</ButtonParam>
       </Param>
       <Param>
         <Name>On6</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
         <ParamLabel>Ch 6</ParamLabel>
+        <ButtonParam>13</ButtonParam>
       </Param>
       <Param>
         <Name>On7</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
         <ParamLabel>Ch 7</ParamLabel>
+        <ButtonParam>14</ButtonParam>
       </Param>
       <Param>
         <Name>On8</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
         <ParamLabel>Ch 8</ParamLabel>
+        <ButtonParam>15</ButtonParam>
       </Param>
       <Param>
         <Name>ExpLin</Name>
         <DefaultValue>0</DefaultValue>
         <Id>42</Id>
+        <DefaultKnob>8</DefaultKnob>
+        <ButtonParam>16</ButtonParam>
       </Param>
       <Param>
         <Name>Pad</Name>
         <DefaultValue>0</DefaultValue>
         <Id>128</Id>
+        <DefaultKnob>9</DefaultKnob>
+        <ButtonParam>17</ButtonParam>
       </Param>
     </Params>
   </ModuleDef>
@@ -8879,26 +9078,33 @@
         <Name>ShiftSemi</Name>
         <DefaultValue>64</DefaultValue>
         <Id>138</Id>
+        <DefaultKnob>0</DefaultKnob>
       </Param>
       <Param>
         <Name>ShiftFine</Name>
         <DefaultValue>64</DefaultValue>
         <Id>139</Id>
+        <DefaultKnob>1</DefaultKnob>
       </Param>
       <Param>
         <Name>ShiftMod</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>2</DefaultKnob>
       </Param>
       <Param>
         <Name>Delay</Name>
         <DefaultValue>2</DefaultValue>
         <Id>156</Id>
+        <DefaultKnob>3</DefaultKnob>
+        <ButtonParam>3</ButtonParam>
       </Param>
       <Param>
         <Name>Active</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
+        <DefaultKnob>4</DefaultKnob>
+        <ButtonParam>4</ButtonParam>
       </Param>
     </Params>
   </ModuleDef>
@@ -10062,17 +10268,22 @@
         <Name>Lev</Name>
         <DefaultValue>100</DefaultValue>
         <Id>97</Id>
+        <DefaultKnob>0</DefaultKnob>
+        <ButtonParam>1</ButtonParam>
       </Param>
       <Param>
         <Name>On</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
         <ParamLabel>Ch 1</ParamLabel>
+        <ButtonParam>1</ButtonParam>
       </Param>
       <Param>
         <Name>ExpLin</Name>
         <DefaultValue>0</DefaultValue>
         <Id>42</Id>
+        <DefaultKnob>1</DefaultKnob>
+        <ButtonParam>2</ButtonParam>
       </Param>
     </Params>
   </ModuleDef>
@@ -10118,17 +10329,22 @@
         <Name>Lev</Name>
         <DefaultValue>100</DefaultValue>
         <Id>97</Id>
+        <DefaultKnob>0</DefaultKnob>
+        <ButtonParam>1</ButtonParam>
       </Param>
       <Param>
         <Name>On</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
         <ParamLabel>Ch 1</ParamLabel>
+        <ButtonParam>1</ButtonParam>
       </Param>
       <Param>
         <Name>ExpLin</Name>
         <DefaultValue>0</DefaultValue>
         <Id>42</Id>
+        <DefaultKnob>1</DefaultKnob>
+        <ButtonParam>2</ButtonParam>
       </Param>
     </Params>
   </ModuleDef>
@@ -10435,21 +10651,27 @@
         <Name>Type</Name>
         <DefaultValue>0</DefaultValue>
         <Id>133</Id>
+        <DefaultKnob>0</DefaultKnob>
+        <ButtonParam>0</ButtonParam>
       </Param>
       <Param>
         <Name>Freq</Name>
         <DefaultValue>64</DefaultValue>
         <Id>132</Id>
+        <DefaultKnob>1</DefaultKnob>
       </Param>
       <Param>
         <Name>FeedBack</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
+        <DefaultKnob>2</DefaultKnob>
       </Param>
       <Param>
         <Name>Active</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
+        <DefaultKnob>3</DefaultKnob>
+        <ButtonParam>3</ButtonParam>
       </Param>
     </Params>
   </ModuleDef>
@@ -10521,28 +10743,36 @@
         <Name>Lev1</Name>
         <DefaultValue>100</DefaultValue>
         <Id>97</Id>
+        <DefaultKnob>0</DefaultKnob>
+        <ButtonParam>1</ButtonParam>
       </Param>
       <Param>
         <Name>On1</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
         <ParamLabel>Ch 1</ParamLabel>
+        <ButtonParam>1</ButtonParam>
       </Param>
       <Param>
         <Name>Lev2</Name>
         <DefaultValue>100</DefaultValue>
         <Id>97</Id>
+        <DefaultKnob>1</DefaultKnob>
+        <ButtonParam>3</ButtonParam>
       </Param>
       <Param>
         <Name>On2</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
         <ParamLabel>Ch 2</ParamLabel>
+        <ButtonParam>3</ButtonParam>
       </Param>
       <Param>
         <Name>ExpLin</Name>
         <DefaultValue>0</DefaultValue>
         <Id>42</Id>
+        <DefaultKnob>2</DefaultKnob>
+        <ButtonParam>4</ButtonParam>
       </Param>
     </Params>
   </ModuleDef>
