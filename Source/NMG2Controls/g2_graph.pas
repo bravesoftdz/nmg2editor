@@ -541,7 +541,8 @@ type
     FLine4 : AnsiString;
     FLineCount : integer;
     FTextFunction : integer;
-    FDependencies : array of integer;
+    //FDependencies : array of integer;
+    FMasterRef : integer;
   protected
     function    GetLine( LineNo : integer): AnsiString;
     procedure   SetLine( LineNo : integer; aValue : AnsiString);
@@ -707,6 +708,13 @@ type
     destructor  Destroy; override;
     procedure   PaintOn( ExtCanvas : TCanvas; ExtBoundsRect : TRect); override;
     procedure   ParsePanelData( fs : TModuleDefStream); override;
+  end;
+
+  TG2GraphLevelShift = class( TG2GraphButtonFlat)
+  public
+    constructor Create( AOwner: TComponent); override;
+    destructor  Destroy; override;
+    procedure   PaintOn( ExtCanvas : TCanvas; ExtBoundsRect : TRect); override;
   end;
 
   TG2GraphButtonRadio = class( TG2GraphButton)
@@ -1855,7 +1863,8 @@ begin
   if not(i < Length(FControlList)) then begin
     SetLength(FControlList, i + 1);
     FControlList[i] := aControl as TG2GraphChildControl;
-    FControlList[i].FParameter := self;
+    // check!
+    //FControlList[i].FParameter := self;
   end;
 end;
 
@@ -1870,7 +1879,8 @@ begin
     inc(i);
 
   if (i < Length(FControlList)) then begin
-    FControlList[i].FParameter := nil;
+    // check!
+    //FControlList[i].FParameter := nil;
     for j := i + 1 to Length(FControlList) - 1 do begin
       FControlList[j-1] := FControlList[j];
     end;
@@ -3107,6 +3117,9 @@ begin
   if aG2GraphChildControl is TG2GraphButtonFlat then
     Result := 'ButtonFlat';
 
+  if aG2GraphChildControl is TG2GraphLevelShift then
+    Result := 'LevelShift';
+
   if aG2GraphChildControl is  TG2GraphKnob then
     Result := 'Knob';
 
@@ -3174,7 +3187,7 @@ begin
   end;
 
   if (aControlType = 'LevelShift') then begin
-    Result := TG2GraphButtonFlat.Create(self);
+    Result := TG2GraphLevelShift.Create(self);
     Result.Module := self;
   end;
 
@@ -3492,6 +3505,12 @@ begin
   if aName = 'ZPos' then begin
     aValue := fs.ReadUntil( [#13]);
     FZOrder := StrToInt( string(aValue));
+  end else
+
+  if aName = 'InfoFunc' then begin
+    aValue := fs.ReadUntil( [#13]);
+    if assigned(FParameter) then
+      FParameter.InfoFunctionIndex := StrToInt( string(aValue));
   end else
 
     Result := False
@@ -4166,14 +4185,15 @@ begin
   Width := 38;
   Height := 13;
   FTextFunction := 0;
+  FMasterRef := -1;
 
-  SetLength(FDependencies, 0);
+  //SetLength(FDependencies, 0);
 end;
 
 destructor TG2GraphDisplay.Destroy;
 begin
   //FLines.Free;
-  Finalize(FDependencies);
+  //Finalize(FDependencies);
   inherited;
 end;
 
@@ -4267,8 +4287,8 @@ begin
     for i := 0 to FLineCount - 1 do begin
       Bitmap.Canvas.FillRect( LineRect);
       if assigned(FParameter) then
-        //TextCenter( Bitmap.Canvas, LineRect, FParameter.TextFunction(FTextFunction, i, FLines.Count))
-        TextCenter( Bitmap.Canvas, LineRect, FParameter.TextFunction(FTextFunction, i, FLineCount, FDependencies))
+        //TextCenter( Bitmap.Canvas, LineRect, FParameter.TextFunction(FTextFunction, i, FLineCount, FDependencies))
+        TextCenter( Bitmap.Canvas, LineRect, FParameter.TextFunction(FTextFunction, i, FLineCount))
       else
         TextCenter( Bitmap.Canvas, LineRect, Line[i]);
       LineRect.Top := LineRect.Top + LineHeight;
@@ -4292,6 +4312,7 @@ begin
 
     if aName = 'MasterRef' then begin
       aValue := fs.ReadUntil( [#13]);
+      FMasterRef := StrToInt(string(aValue));
       FParameter := FModule.FData.Parameter[ StrToInt(string(aValue))] as TG2GraphParameter;
       (FParameter as TG2GraphParameter).AssignControl(self);
 
@@ -4307,14 +4328,54 @@ begin
       sl := TStringList.Create;
       try
         fs.ReadOptions( sl, [','], ['"']);
-        SetLength(FDependencies, sl.Count);
+        if FMasterRef > -1 then begin
+          if FMasterRef < sl.Count then begin
+
+            // Assign master parameter first
+            if (length(sl[ FMasterRef])>0) and (Lowercase(sl[ FMasterRef][1]) = 's') then begin
+              val( copy(sl[FMasterRef], 2, Length(sl[FMasterRef]) - 1), value, c);
+              if c = 0 then begin
+                FParameter := FModule.FData.Mode[ value] as TG2GraphParameter;
+                (FModule.FData.Mode[ value] as TG2GraphParameter).AssignControl(self);
+              end;
+            end else begin
+              val(sl[i], value, c);
+              if c = 0 then begin
+                FParameter := FModule.FData.Parameter[ value] as TG2GraphParameter;
+                (FModule.FData.Parameter[ value] as TG2GraphParameter).AssignControl(self);
+              end;
+            end;
+
+            if assigned(FParameter) then begin
+
+              for i := 0 to sl.Count - 1 do begin
+                if (length(sl[i])>0) and (Lowercase(sl[i][1]) = 's') then begin
+                  val(copy(sl[i], 2, Length(sl[i]) - 1), value, c);
+                  if c = 0 then begin
+                    FParameter.AddDependency(ptMode, value);
+                    (FModule.FData.Mode[ value] as TG2GraphParameter).AssignControl(self);
+                  end;
+                end else begin
+                  val(sl[i], value, c);
+                  if c = 0 then begin
+                    FParameter.AddDependency(ptParam, value);
+                    (FModule.FData.Parameter[ value] as TG2GraphParameter).AssignControl(self);
+                  end;
+                end;
+              end;
+            end;
+          end;
+        end else
+          raise Exception.Create('Master param not assigned yet...');
+
+        {SetLength(FDependencies, sl.Count);
         for i := 0 to sl.Count - 1 do begin
           val(sl[i], value, c);
           if c = 0 then begin
             (FModule.FData.Parameter[ value] as TG2GraphParameter).AssignControl(self);
             FDependencies[i] := value;
           end;
-        end;
+        end;}
       finally
         sl.Free;
       end;
@@ -4790,6 +4851,10 @@ begin
     else
       if Value < FButtonText.Count then
         LabelText := FButtonText[Value];
+
+    if assigned(Parameter) and (LabelText = '') then
+      LabelText := Parameter.InfoFunction;
+
     TextCenter( ExtCanvas, Rect, LabelText)
   end;
 
@@ -4822,6 +4887,140 @@ begin
   end;
   inherited;
 end;
+
+// ==== TG2GraphLevelShift =====================================================
+
+constructor TG2GraphLevelShift.Create( AOwner: TComponent);
+begin
+  inherited;
+end;
+
+destructor TG2GraphLevelShift.Destroy;
+begin
+  inherited;
+end;
+
+procedure TG2GraphLevelShift.PaintOn( ExtCanvas : TCanvas; ExtBoundsRect : TRect);
+var Rect, RectTop, RectBottom : TRect;
+    HorzCenter, VertCenter: integer;
+    P1, P2 : TPoint;
+begin
+  inherited;
+
+  Rect := SubRect( GetRelToParentRect, ExtBoundsRect);
+
+  ExtCanvas.Font.Assign( Font);
+
+  ExtCanvas.Brush.Color := CL_BTN_FACE;
+  ExtCanvas.FillRect(Rect);
+
+  HorzCenter := (Rect.Right + Rect.Left) div 2;
+  VertCenter := (Rect.Top + Rect.Bottom) div 2;
+
+  RectTop.Top  := Rect.Top;
+  RectTop.Left := HorzCenter - 4;
+  RectTop.Right := HorzCenter + 5;
+  RectTop.Bottom := VertCenter;
+
+  RectBottom.Top  := VertCenter;
+  RectBottom.Left := HorzCenter - 4;
+  RectBottom.Right := HorzCenter + 5;
+  RectBottom.Bottom := Rect.Bottom;
+
+  ExtCanvas.Pen.Color := clBlack;
+  case Value of
+  0 : begin
+        ExtCanvas.Brush.Color := clLime;
+        ExtCanvas.FillRect(RectTop);
+        ExtCanvas.Brush.Color := CL_BTN_FACE;
+        ExtCanvas.FillRect(RectBottom);
+        P1.X := HorzCenter; P1.Y := RectTop.Top + 1;
+        P2.X := HorzCenter; P2.Y := RectTop.Bottom;
+        ExtCanvas.Brush.Color := clBlack;
+        DrawArrowHead( P1, 2, 0, ExtCanvas);
+        ExtCanvas.MoveTo(P1.X, P1.Y);
+        ExtCanvas.LineTo(P2.X, P2.Y);
+      end;
+  1 : begin
+        ExtCanvas.Brush.Color := clLime;
+        ExtCanvas.FillRect(RectTop);
+        ExtCanvas.Brush.Color := CL_BTN_FACE;
+        ExtCanvas.FillRect(RectBottom);
+        P1.X := HorzCenter; P1.Y := RectTop.Bottom - 1;
+        P2.X := HorzCenter; P2.Y := RectTop.Top;
+        ExtCanvas.Brush.Color := clBlack;
+        DrawArrowHead( P1, 2, 1, ExtCanvas);
+        ExtCanvas.MoveTo(P1.X, P1.Y);
+        ExtCanvas.LineTo(P2.X, P2.Y);
+      end;
+  2 : begin
+        ExtCanvas.Brush.Color :=CL_BTN_FACE;
+        ExtCanvas.FillRect(RectTop);
+        ExtCanvas.Brush.Color := clLime;
+        ExtCanvas.FillRect(RectBottom);
+        P1.X := HorzCenter; P1.Y := RectBottom.Top;
+        P2.X := HorzCenter; P2.Y := RectBottom.Bottom - 1;
+        ExtCanvas.Brush.Color := clBlack;
+        DrawArrowHead( P1, 2, 0, ExtCanvas);
+        ExtCanvas.MoveTo(P1.X, P1.Y);
+        ExtCanvas.LineTo(P2.X, P2.Y);
+      end;
+  3 : begin
+        ExtCanvas.Brush.Color := CL_BTN_FACE;
+        ExtCanvas.FillRect(RectTop);
+        ExtCanvas.Brush.Color := clLime;
+        ExtCanvas.FillRect(RectBottom);
+        P1.X := HorzCenter; P1.Y := RectBottom.Bottom - 2;
+        P2.X := HorzCenter; P2.Y := RectBottom.Top - 1;
+        ExtCanvas.Brush.Color := clBlack;
+        DrawArrowHead( P1, 2, 1, ExtCanvas);
+        ExtCanvas.MoveTo(P1.X, P1.Y);
+        ExtCanvas.LineTo(P2.X, P2.Y);
+      end;
+  4 : begin
+        ExtCanvas.Brush.Color := clLime;
+        ExtCanvas.FillRect(RectTop);
+        ExtCanvas.Brush.Color := clLime;
+        ExtCanvas.FillRect(RectBottom);
+        P1.X := HorzCenter; P1.Y := RectTop.Top + 1;
+        P2.X := HorzCenter; P2.Y := RectBottom.Bottom - 2;
+        ExtCanvas.Brush.Color := clBlack;
+        DrawArrowHead( P1, 2, 0, ExtCanvas);
+        ExtCanvas.MoveTo(P1.X, P1.Y);
+        ExtCanvas.LineTo(P2.X, P2.Y);
+        ExtCanvas.Pen.Color := CL_BTN_FACE;
+        P1.X := Rect.Left; P1.Y := VertCenter;
+        P2.X := Rect.Right; P2.Y := VertCenter;
+        ExtCanvas.MoveTo(P1.X, P1.Y);
+        ExtCanvas.LineTo(P2.X, P2.Y);
+      end;
+  5 : begin
+        ExtCanvas.Brush.Color := clLime;
+        ExtCanvas.FillRect(RectTop);
+        ExtCanvas.Brush.Color := clLime;
+        ExtCanvas.FillRect(RectBottom);
+        P1.X := HorzCenter; P1.Y := RectBottom.Bottom - 2;
+        P2.X := HorzCenter; P2.Y := RectTop.Top + 1;
+        ExtCanvas.Brush.Color := clBlack;
+        DrawArrowHead( P1, 2, 1, ExtCanvas);
+        ExtCanvas.MoveTo(P1.X, P1.Y);
+        ExtCanvas.LineTo(P2.X, P2.Y);
+        ExtCanvas.Pen.Color := CL_BTN_FACE;
+        P1.X := Rect.Left; P1.Y := VertCenter - 1;
+        P2.X := Rect.Right; P2.Y := VertCenter - 1;
+        ExtCanvas.MoveTo(P1.X, P1.Y);
+        ExtCanvas.LineTo(P2.X, P2.Y);
+      end;
+  end;
+
+  if Selected then
+    ExtCanvas.Pen.Color := CL_SELECTED_PARAM
+  else
+    ExtCanvas.Pen.Color := CL_BTN_BORDER;
+
+  DrawRect( ExtCanvas, Rect);
+end;
+
 
 // ==== TG2GraphButtonRadio ====================================================
 

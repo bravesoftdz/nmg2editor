@@ -12,7 +12,7 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics,
   Forms, Dialogs, StdCtrls, ActnList,  ExtCtrls, ComCtrls, Tabs,
   g2_types, g2_database, g2_file, g2_classes,
-  ActnMan, Controls, DOM, XMLRead, XMLWrite, JawsCtrls;
+  ActnMan, Controls, DOM, XMLRead, XMLWrite, JawsCtrls, Vcl.Menus;
 
 const
   MAXBUFFER = 4096;
@@ -53,6 +53,7 @@ type
     lvInternal: DListView;
     lvExternalPatch: DListView;
     lvExternalPerf: DListView;
+    puBank: TPopupMenu;
     procedure aReadDirExecute(Sender: TObject);
     procedure aSearchExecute(Sender: TObject);
     procedure aLoadPatchExecute(Sender: TObject);

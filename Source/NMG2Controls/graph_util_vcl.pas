@@ -58,6 +58,7 @@ procedure DrawWuLine(ABitmap : TBitmap ; Point1, Point2 : TPoint ; AColor : TCol
 //procedure DrawWuCircle( aBitmap : TBitmap; x, y, r : integer; AColor : TColor);
 procedure DrawDisk( Bitmap: TBitmap; CenterX, CenterY, Radius, Feather: single; aColor : TColor; aBrushStyle : TBrushStyle);
 procedure DrawBevel( aCanvas : TCanvas; aRect : TRect; aBevelType : TBevelCut);
+procedure DrawArrowHead( aPoint : TPoint; aSize : integer; aOrientation : integer; aCanvas : TCanvas);
 procedure DrawIcon( aCanvas : TCanvas; aBoundsRect, aIconRect : TRect; aIcon : TIconType);
 
 procedure DrawRect( aCanvas : TCanvas; aRect : TRect);
@@ -534,6 +535,36 @@ begin
 end;
 
 
+procedure DrawArrowHead( aPoint : TPoint; aSize : integer; aOrientation : integer; aCanvas : TCanvas);
+var pts : array of TPoint;
+begin
+  SetLength( pts, 3);
+  case aOrientation of
+  0 : begin // Up
+        pts[0] := aPoint;
+        pts[1].X := aPoint.X - aSize; pts[1].Y := aPoint.Y + aSize;
+        pts[2].X := aPoint.X + aSize; pts[2].Y := aPoint.Y + aSize;
+      end;
+  1 : begin // Down
+        pts[0] := aPoint;
+        pts[1].X := aPoint.X - aSize; pts[1].Y := aPoint.Y - aSize;
+        pts[2].X := aPoint.X + aSize; pts[2].Y := aPoint.Y - aSize;
+      end;
+  2 : begin // Left
+        pts[0] := aPoint;
+        pts[1].X := aPoint.X + aSize; pts[1].Y := aPoint.Y - aSize;
+        pts[2].X := aPoint.X + aSize; pts[2].Y := aPoint.Y + aSize;
+      end;
+  3 : begin // Right
+        pts[0] := aPoint;
+        pts[1].X := aPoint.X - aSize; pts[1].Y := aPoint.Y - aSize;
+        pts[2].X := aPoint.X - aSize; pts[2].Y := aPoint.Y + aSize;
+      end;
+  end;
+
+  aCanvas.Polygon(pts);
+end;
+
 procedure DrawIcon( aCanvas : TCanvas; aBoundsRect, aIconRect : TRect; aIcon : TIconType);
 var pts : array of TPoint;
     hx, hy, offsx, offsy, Width, Height : integer;

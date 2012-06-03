@@ -33,7 +33,6 @@ object frmPatchManager: TfrmPatchManager
       'Patch')
     TabIndex = 0
     OnChange = TabControl1Change
-    ExplicitTop = 8
     object lvInternal: DListView
       Left = 16
       Top = 271
@@ -117,7 +116,7 @@ object frmPatchManager: TfrmPatchManager
   end
   object ActionManager1: TActionManager
     Left = 184
-    Top = 136
+    Top = 184
     StyleName = 'XP Style'
     object aReadDir: TAction
       Caption = 'Read dir'
@@ -150,5 +149,9 @@ object frmPatchManager: TfrmPatchManager
       Caption = 'Load perf'
       OnExecute = aLoadPerfExecute
     end
+  end
+  object puBank: TPopupMenu
+    Left = 272
+    Top = 184
   end
 end

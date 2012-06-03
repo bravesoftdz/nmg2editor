@@ -1096,6 +1096,11 @@ type
     property    NewRate : TBits1 read GetNewRate;
   end;
 
+  TParamRef = record
+    ParamType : TParamType;
+    ParamIndex : byte;
+  end;
+
   // Interface class between file and application
 
   TG2FileParameter = class
@@ -1119,6 +1124,8 @@ type
     FDefaultKnob       : integer; // When a module is assigned to a parameter page
     FButtonParamIndex  : integer; // The parameter that is assigned to the button below the knob on the param page
     FButtonText        : TStrings;
+    FInfoFunctionIndex : integer;
+    FDependencies      : array of TParamRef;
   protected
     procedure   SetSelected( aValue : boolean); virtual;
     function    GetSelected : boolean;
@@ -1151,7 +1158,10 @@ type
     function    GetSelectedMorphValue : byte;
     function    GetMorphValue( aMorphIndex, aVariation : integer) : byte;
     procedure   SetSelectedMorphValue( Value: byte);
-    function    TextFunction( aTextFunction: integer; LineNo, TotalLines : integer; aParams : array of integer): string;
+    procedure   AddDependency( aParamType : TParamType; aParamIndex : byte);
+    function    InfoFunction: string;
+    //function    TextFunction( aTextFunction: integer; LineNo, TotalLines : integer; aParams : array of integer): string;
+    function    TextFunction( aTextFunction: integer; LineNo, TotalLines : integer): string;
     //FMX procedure   AssignControl( aControl : TGraphicControl); virtual; abstract;
     //FMX procedure   DeassignControl( aControl : TGraphicControl); virtual; abstract;
     procedure   InvalidateControl; virtual;
@@ -1171,6 +1181,7 @@ type
     property    Knob : TKnob read FKnob write FKnob;
     property    GlobalKnob : TGlobalKnob read FGlobalKnob write FGlobalKnob;
     property    Controller : TController read FController write FController;
+    property    InfoFunctionIndex : integer read FInfoFunctionIndex write FInfoFunctionIndex;
     property    ButtonParamIndex : integer read FButtonParamIndex write FButtonParamIndex;
     property    DefaultKnob : integer read FDefaultKnob write FDefaultKnob;
     property    ButtonText[ index : integer]: string read GetButtonText write SetButtonText;
@@ -6552,10 +6563,14 @@ begin
   FButtonParamIndex := -1;
   FButtonText := TStringList.Create;
   FButtonText.Delimiter := ';';
+  FButtonText.StrictDelimiter := True;
+  FInfoFunctionIndex := 0;
+  SetLength( FDependencies, 0);
 end;
 
 destructor TG2FileParameter.Destroy;
 begin
+  Finalize( FDependencies);
   FButtonText.Free;
   inherited;
 end;
@@ -6897,14 +6912,192 @@ begin
   end;
 end;
 
-function TG2FileParameter.TextFunction( aTextFunction: integer; LineNo, TotalLines : integer; aParams : array of integer): string;
+procedure TG2FileParameter.AddDependency( aParamType : TParamType; aParamIndex : byte);
+var i : integer;
+begin
+  i := Length(FDependencies);
+  SetLength( FDependencies, i + 1);
+  FDependencies[i].ParamType := aParamType;
+  FDependencies[i].ParamIndex := aParamIndex;
+end;
+
+function TG2FileParameter.InfoFunction: string;
+var t : single;
+    TempValue : integer;
+begin
+  case FInfoFunctionIndex of
+  3  : begin // KB
+         case GetParameterValue of
+         0 : Result := 'Off';
+         1 : Result := 'On';
+         end;
+       end;
+  7  : begin // On/Off
+         case GetParameterValue of
+         0 : Result := 'Muted';
+         1 : Result := 'Active';
+         end;
+       end;
+  8  : begin // Dly On/Off
+         case GetParameterValue of
+         0 : Result := 'Muted';
+         1 : Result := 'Active';
+         end;
+       end;
+  16 : begin // Env Sustain
+         Result := Format('%.1g', [1.0 * round(GetParameterValue/2)])
+       end;
+  26 : begin // Osc KB
+         case GetParameterValue of
+         0 : Result := 'KBT Off';
+         1 : Result := 'KBT On';
+         end;
+       end;
+  28 : begin // Env Attack, Decay, Release
+         t := ENV_TIMES[GetParameterValue];
+         if ENV_TIMES[GetParameterValue] < 1.0 then
+           Result := Format('%.3g', [t*1000]) + 'm'
+         else
+           Result := Format('%.3g', [t]) + 's';
+       end;
+  43 : begin // Env Gate/Trigger
+         case GetParameterValue of
+         0 : Result := 'Trig';
+         1 : Result := 'Gate';
+         end;
+       end;
+  46 : begin // LevelShift
+         case GetParameterValue of
+         0 : Result := 'Pos';
+         1 : Result := 'PosInv';
+         2 : Result := 'Neg';
+         3 : Result := 'NegInv';
+         4 : Result := 'Bip';
+         5 : Result := 'BipInv';
+         end;
+       end;
+  47 : begin // KB
+         case GetParameterValue of
+         0 : Result := 'Off';
+         1 : Result := 'On';
+         end;
+       end;
+  49 : begin // Env L1/L2
+         case GetParameterValue of
+         0 : Result := 'L1';
+         1 : Result := 'L2';
+         end;
+       end;
+  50 : begin // Env L1/L2/L3/Trig
+         case GetParameterValue of
+         0 : Result := 'L1';
+         1 : Result := 'L2';
+         2 : Result := 'L3';
+         3 : Result := 'Trg';
+         end;
+       end;
+  58 : begin // Osc Waveform
+         case GetParameterValue of
+         0 : Result := 'Sine';
+         1 : Result := 'Tri';
+         2 : Result := 'Saw';
+         3 : Result := 'Sqr50';
+         4 : Result := 'Sqr25';
+         5 : Result := 'Sqr10';
+         end;
+       end;
+  59 : begin // Osc Fine
+         TempValue := (GetParameterValue-64)*100 div 128;
+         if TempValue < 0 then
+           Result := IntToStr(TempValue)
+         else
+           Result := '+' + IntToStr(TempValue);
+       end;
+  63 : begin // Osc Freq mode
+          case GetParameterValue of
+          0 : Result := 'Semi';
+          1 : Result := 'Freq';
+          2 : Result := 'Factor';
+          3 : Result := 'Partial';
+          end;
+       end;
+  125 : begin // Osc FM Mod
+          case GetParameterValue of
+          0 : Result := 'FM Lin';
+          1 : Result := 'FM Trk';
+          end;
+        end;
+  126 : begin // Osc Shape
+          Result := IntToStr(trunc(50 + 50.0 * GetParameterValue / 128)) + '%';
+        end;
+  136 : begin // Env Shape
+          case GetParameterValue of
+          0 : Result := 'LogExp';
+          1 : Result := 'LinExp';
+          2 : Result := 'ExpExp';
+          3 : Result := 'LinLin';
+          end;
+        end;
+  138 : begin // Env NR Button
+          case GetParameterValue of
+          0 : Result := 'Normal';
+          1 : Result := 'Reset';
+          end;
+        end;
+  139 : begin // Env Decy/Release
+          case GetParameterValue of
+          0 : Result := 'AD';
+          1 : Result := 'AR';
+          end;
+        end;
+  144 : begin // Dly Time/Clk
+          case GetParameterValue of
+          0 : Result := 'Time';
+          1 : Result := 'ClkSync';
+          end;
+        end;
+  156 : begin // OscB Waveform
+         case GetParameterValue of
+         0 : Result := 'Sine';
+         1 : Result := 'Tri';
+         2 : Result := 'Saw';
+         3 : Result := 'Sqr';
+         4 : Result := 'DualSaw';
+         end;
+       end;
+
+
+  else
+    Result := IntToStr(GetParameterValue);
+  end;
+end;
+
+//function TG2FileParameter.TextFunction( aTextFunction : integer; LineNo, TotalLines : integer; aParams : array of integer): string;
+function TG2FileParameter.TextFunction( aTextFunction : integer; LineNo, TotalLines : integer): string;
 var aValue : byte;
     FreqCourse, FreqFine, FreqMode : Byte;
-    Exponent, Freq, Fact : single;
+    Exponent, Freq, Fact, DlyRange : single;
     iValue1, iValue2 : integer;
+
+  function GetDependendParamValue( aIndex : integer) : byte;
+  begin
+    if aIndex < Length(FDependencies) then begin
+      if FDependencies[aIndex].ParamType = ptParam then
+        Result := Module.Parameter[FDependencies[aIndex].ParamIndex].GetParameterValue
+      else
+        Result := Module.Mode[FDependencies[aIndex].ParamIndex].GetParameterValue;
+    end else
+      Result := 0;
+  end;
+
 begin
-  if (aTextFunction <> 0) and assigned(Module) and (Length(aParams)>0) then
+{  if (aTextFunction <> 0) and assigned(Module) and (Length(aParams)>0) then
     aValue := Module.Parameter[aParams[0]].GetParameterValue
+  else
+    aValue := GetParameterValue;}
+
+  if (aTextFunction <> 0) and assigned(Module) and (Length(FDependencies)>0) then
+    aValue := GetDependendParamValue( 0)
   else
     aValue := GetParameterValue;
 
@@ -6927,14 +7120,20 @@ begin
                   Result := IntToStr(GetParameterValue);
                 end;
            else
-             Result := IntToStr(GetParameterValue);
+             //Result := IntToStr(GetParameterValue);
+             Result := InfoFunction;
            end;
          end;
   60   : begin // Osc freq
-           if assigned(Module) and (Length(aParams)=3) then begin
+           {if assigned(Module) and (Length(aParams)=3) then begin
              FreqCourse := aValue;
              FreqFine := Module.Parameter[aParams[1]].GetParameterValue;
-             FreqMode := Module.Parameter[aParams[2]].GetParameterValue;
+             FreqMode := Module.Parameter[aParams[2]].GetParameterValue;}
+           if assigned(Module) and (Length(FDependencies)=3) then begin
+             FreqCourse := aValue;
+
+             FreqFine := GetDependendParamValue(1);
+             FreqMode := GetDependendParamValue(2);
              case FreqMode of
              0 : begin // Semi
                    iValue1 := FreqCourse - 64;
@@ -6999,9 +7198,12 @@ begin
            end;
          end;
   110  : begin //ClkGen
-           if assigned(Module) and (Length(aParams)=3) then begin
+           {if assigned(Module) and (Length(aParams)=3) then begin
              iValue1 := Module.Parameter[aParams[1]].GetParameterValue;
-             iValue2 := Module.Parameter[aParams[2]].GetParameterValue;
+             iValue2 := Module.Parameter[aParams[2]].GetParameterValue;}
+           if assigned(Module) and (Length(FDependencies)=3) then begin
+             iValue1 := GetDependendParamValue(1);
+             iValue2 := GetDependendParamValue(2);
              if iValue1 = 0 then
                Result := '--'
              else
@@ -7016,13 +7218,69 @@ begin
                    else
                      Result := IntToStr(152 + (aValue - 96)*2) + ' BPM';
            end;
+         end;
+  146  : begin // Dly time
+           if assigned(Module) and (Length(FDependencies)=3) then begin
+             iValue1 := GetDependendParamValue(1);
+             iValue2 := GetDependendParamValue(2);
 
+             case iValue2 of
+             0 : DlyRange := 500;
+             1 : DlyRange := 1000;
+             2 : DlyRange := 1351;
+             end;
+
+             case iValue1 of
+             0 : begin // Time
+                   if aValue = 0 then
+                     Result := '0,01'
+                   else
+                     Result := Format('%.1f', [DlyRange * aValue /127]);
+                 end;
+             1 : begin // ClkSync
+                   case aValue of
+                       0..3 : Result := '1/64T';
+                       4..7 : Result := '1/64';
+                      8..11 : Result := '1/32T';
+                     12..15 : Result := '1/64D';
+                     16..19 : Result := '1/32';
+                     20..23 : Result := '1/16T';
+                     24..27 : Result := '1/32D';
+                     28..31 : Result := '1/16';
+                     32..35 : Result := '1/16';
+                     36..39 : Result := '1/8T';
+                     40..43 : Result := '1/8T';
+                     44..47 : Result := '1/16D';
+                     48..51 : Result := '1/16D';
+                     52..55 : Result := '1/8';
+                     56..59 : Result := '1/8';
+                     60..63 : Result := '1/4T';
+                     64..67 : Result := '1/4T';
+                     68..71 : Result := '1/8D';
+                     72..75 : Result := '1/8D';
+                     76..79 : Result := '1/4';
+                     80..83 : Result := '1/4';
+                     84..87 : Result := '1/2T';
+                     88..91 : Result := '1/2T';
+                     92..95 : Result := '1/4D';
+                     96..99 : Result := '1/4D';
+                   100..103 : Result := '1/2';
+                   104..107 : Result := '1/2';
+                   108..111 : Result := '1/1T';
+                   112..115 : Result := '1/2D';
+                   116..119 : Result := '1/1';
+                   120..123 : Result := '1/1D';
+                   124..127 : Result := '2/1';
+                   end;
+                 end;
+             end;
+           end;
          end;
   1000 : Result := string(FModuleName);
   1001 : begin
            case LineNo of
            0 : Result := string(FParamName);
-           1 : Result := IntToStr(aValue);
+           1 : Result := InfoFunction;
            end;
          end;
   1002 : begin

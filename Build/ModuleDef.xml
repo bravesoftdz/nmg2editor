@@ -70,7 +70,7 @@
         <Id>27</Id>
       </Param>
       <Param>
-        <Name>Active</Name>
+        <Name>On/Off</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
       </Param>
@@ -109,7 +109,7 @@
         <ButtonParam>0</ButtonParam>
       </Param>
       <Param>
-        <Name>Active</Name>
+        <Name>On/OFF</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
         <DefaultKnob>2</DefaultKnob>
@@ -181,7 +181,7 @@
         <Type>red</Type>
       </Connector>
       <Connector>
-        <Name>ShapeMod</Name>
+        <Name>Shape M</Name>
         <Type>red</Type>
       </Connector>
     </Inputs>
@@ -193,14 +193,14 @@
     </Outputs>
     <Params>
       <Param>
-        <Name>FreqCoarse</Name>
+        <Name>Coarse</Name>
         <DefaultValue>64</DefaultValue>
         <Id>56</Id>
         <DefaultKnob>0</DefaultKnob>
         <ButtonParam>4</ButtonParam>
       </Param>
       <Param>
-        <Name>FreqFine</Name>
+        <Name>Fine</Name>
         <DefaultValue>64</DefaultValue>
         <Id>57</Id>
         <DefaultKnob>1</DefaultKnob>
@@ -213,19 +213,19 @@
         <ButtonParam>3</ButtonParam>
       </Param>
       <Param>
-        <Name>PitchMod</Name>
+        <Name>Pitch M</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
         <DefaultKnob>2</DefaultKnob>
       </Param>
       <Param>
-        <Name>FreqMode</Name>
+        <Name>Tune Md</Name>
         <DefaultValue>0</DefaultValue>
         <Id>59</Id>
         <ButtonParam>4</ButtonParam>
       </Param>
       <Param>
-        <Name>FmAmount</Name>
+        <Name>Fm M</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
         <DefaultKnob>6</DefaultKnob>
@@ -238,27 +238,27 @@
         <DefaultKnob>4</DefaultKnob>
       </Param>
       <Param>
-        <Name>ShapeMod</Name>
+        <Name>Shape M</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
         <DefaultKnob>5</DefaultKnob>
       </Param>
       <Param>
-        <Name>WaveForm</Name>
+        <Name>Wave</Name>
         <DefaultValue>2</DefaultValue>
         <Id>119</Id>
         <DefaultKnob>3</DefaultKnob>
         <ButtonParam>8</ButtonParam>
       </Param>
       <Param>
-        <Name>Active</Name>
+        <Name>On/OFF</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
         <DefaultKnob>7</DefaultKnob>
         <ButtonParam>9</ButtonParam>
       </Param>
       <Param>
-        <Name>FmMode</Name>
+        <Name>Fm PTrk</Name>
         <DefaultValue>0</DefaultValue>
         <Id>52</Id>
         <ButtonParam>10</ButtonParam>
@@ -292,7 +292,7 @@
         <Type>red</Type>
       </Connector>
       <Connector>
-        <Name>ShapeMod</Name>
+        <Name>Shape M</Name>
         <Type>red</Type>
       </Connector>
     </Inputs>
@@ -304,14 +304,14 @@
     </Outputs>
     <Params>
       <Param>
-        <Name>FreqCoarse</Name>
+        <Name>Coarse</Name>
         <DefaultValue>64</DefaultValue>
         <Id>56</Id>
         <DefaultKnob>0</DefaultKnob>
         <ButtonParam>4</ButtonParam>
       </Param>
       <Param>
-        <Name>FreqFine</Name>
+        <Name>Fine</Name>
         <DefaultValue>64</DefaultValue>
         <Id>57</Id>
         <DefaultKnob>1</DefaultKnob>
@@ -324,19 +324,19 @@
         <ButtonParam>2</ButtonParam>
       </Param>
       <Param>
-        <Name>PitchMod</Name>
+        <Name>Pitch M</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
         <DefaultKnob>2</DefaultKnob>
       </Param>
       <Param>
-        <Name>FreqMode</Name>
+        <Name>Tune Md</Name>
         <DefaultValue>0</DefaultValue>
         <Id>59</Id>
         <ButtonParam>4</ButtonParam>
       </Param>
       <Param>
-        <Name>FmAmount</Name>
+        <Name>Fm M</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
         <DefaultKnob>3</DefaultKnob>
@@ -349,20 +349,20 @@
         <DefaultKnob>4</DefaultKnob>
       </Param>
       <Param>
-        <Name>ShapeMod</Name>
+        <Name>Shape M</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
         <DefaultKnob>5</DefaultKnob>
       </Param>
       <Param>
-        <Name>Active</Name>
+        <Name>On/OFF</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
         <DefaultKnob>6</DefaultKnob>
         <ButtonParam>8</ButtonParam>
       </Param>
       <Param>
-        <Name>FmMode</Name>
+        <Name>Fm PTrk</Name>
         <DefaultValue>0</DefaultValue>
         <Id>52</Id>
         <ButtonParam>9</ButtonParam>
@@ -370,7 +370,7 @@
     </Params>
     <Modes>
       <Param>
-        <Name>WaveForm</Name>
+        <Name>Wave</Name>
         <DefaultValue>0</DefaultValue>
         <Id>123</Id>
       </Param>
@@ -411,14 +411,14 @@
     </Outputs>
     <Params>
       <Param>
-        <Name>FreqCoarse</Name>
+        <Name>Coarse</Name>
         <DefaultValue>64</DefaultValue>
         <Id>56</Id>
         <DefaultKnob>0</DefaultKnob>
         <ButtonParam>3</ButtonParam>
       </Param>
       <Param>
-        <Name>FreqFine</Name>
+        <Name>Fine</Name>
         <DefaultValue>64</DefaultValue>
         <Id>57</Id>
         <DefaultKnob>1</DefaultKnob>
@@ -431,33 +431,33 @@
         <ButtonParam>2</ButtonParam>
       </Param>
       <Param>
-        <Name>FreqMode</Name>
+        <Name>Tune Md</Name>
         <DefaultValue>0</DefaultValue>
         <Id>59</Id>
         <ButtonParam>3</ButtonParam>
       </Param>
       <Param>
-        <Name>FmAmount</Name>
+        <Name>Fm M</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
         <DefaultKnob>3</DefaultKnob>
         <ButtonParam>6</ButtonParam>
       </Param>
       <Param>
-        <Name>Active</Name>
+        <Name>On/OFF</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
         <DefaultKnob>4</DefaultKnob>
         <ButtonParam>5</ButtonParam>
       </Param>
       <Param>
-        <Name>FmMode</Name>
+        <Name>Fm PTrk</Name>
         <DefaultValue>0</DefaultValue>
         <Id>52</Id>
         <ButtonParam>6</ButtonParam>
       </Param>
       <Param>
-        <Name>PitchMod</Name>
+        <Name>Pitch M</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
         <DefaultKnob>2</DefaultKnob>
@@ -465,7 +465,7 @@
     </Params>
     <Modes>
       <Param>
-        <Name>WaveForm</Name>
+        <Name>Wave</Name>
         <DefaultValue>0</DefaultValue>
         <Id>122</Id>
       </Param>
@@ -521,7 +521,7 @@
         <ButtonParam>3</ButtonParam>
       </Param>
       <Param>
-        <Name>Active</Name>
+        <Name>On/OFF</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
         <ButtonParam>3</ButtonParam>
@@ -566,14 +566,14 @@
     </Outputs>
     <Params>
       <Param>
-        <Name>FreqCoarse</Name>
+        <Name>Coarse</Name>
         <DefaultValue>64</DefaultValue>
         <Id>56</Id>
         <DefaultKnob>0</DefaultKnob>
         <ButtonParam>4</ButtonParam>
       </Param>
       <Param>
-        <Name>FreqFine</Name>
+        <Name>Fine</Name>
         <DefaultValue>64</DefaultValue>
         <Id>57</Id>
         <DefaultKnob>1</DefaultKnob>
@@ -586,13 +586,13 @@
         <ButtonParam>2</ButtonParam>
       </Param>
       <Param>
-        <Name>PitchMod</Name>
+        <Name>Pitch M</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
         <DefaultKnob>2</DefaultKnob>
       </Param>
       <Param>
-        <Name>FreqMode</Name>
+        <Name>Tune Md</Name>
         <DefaultValue>0</DefaultValue>
         <Id>59</Id>
         <ButtonParam>4</ButtonParam>
@@ -610,7 +610,7 @@
         <DefaultKnob>4</DefaultKnob>
       </Param>
       <Param>
-        <Name>Active</Name>
+        <Name>On/OFF</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
         <DefaultKnob>5</DefaultKnob>
@@ -908,7 +908,7 @@
         <DefaultKnob>3</DefaultKnob>
       </Param>
       <Param>
-        <Name>OutputType</Name>
+        <Name>OutType</Name>
         <DefaultValue>0</DefaultValue>
         <Id>137</Id>
         <ButtonParam>5</ButtonParam>
@@ -1087,31 +1087,31 @@
         <DefaultKnob>6</DefaultKnob>
       </Param>
       <Param>
-        <Name>A_Mod</Name>
+        <Name>Atk M</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
         <DefaultKnob>1</DefaultKnob>
       </Param>
       <Param>
-        <Name>D_Mod</Name>
+        <Name>Dcy M</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
         <DefaultKnob>3</DefaultKnob>
       </Param>
       <Param>
-        <Name>S_Mod</Name>
+        <Name>Sust M</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
         <DefaultKnob>5</DefaultKnob>
       </Param>
       <Param>
-        <Name>R_Mod</Name>
+        <Name>Rel M</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
         <DefaultKnob>7</DefaultKnob>
       </Param>
       <Param>
-        <Name>OutputType</Name>
+        <Name>OutType</Name>
         <DefaultValue>0</DefaultValue>
         <Id>137</Id>
         <DefaultKnob>8</DefaultKnob>
@@ -1163,7 +1163,7 @@
         <ButtonParam>1</ButtonParam>
       </Param>
       <Param>
-        <Name>OutputType</Name>
+        <Name>OutType</Name>
         <DefaultValue>4</DefaultValue>
         <Id>124</Id>
         <DefaultKnob>2</DefaultKnob>
@@ -1176,7 +1176,7 @@
         <ButtonParam>3</ButtonParam>
       </Param>
       <Param>
-        <Name>Active</Name>
+        <Name>On/OFF</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
         <DefaultKnob>3</DefaultKnob>
@@ -1185,7 +1185,7 @@
     </Params>
     <Modes>
       <Param>
-        <Name>WaveForm</Name>
+        <Name>Wave</Name>
         <DefaultValue>0</DefaultValue>
         <Id>83</Id>
       </Param>
@@ -1214,7 +1214,7 @@
         <Type>blue</Type>
       </Connector>
       <Connector>
-        <Name>ShapeMod</Name>
+        <Name>Shape M</Name>
         <Type>blue</Type>
       </Connector>
       <Connector>
@@ -1264,7 +1264,7 @@
         <DefaultKnob>1</DefaultKnob>
       </Param>
       <Param>
-        <Name>Active</Name>
+        <Name>On/OFF</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
         <DefaultKnob>10</DefaultKnob>
@@ -1289,7 +1289,7 @@
         <DefaultKnob>7</DefaultKnob>
       </Param>
       <Param>
-        <Name>ShapeMod</Name>
+        <Name>Shape M</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
         <DefaultKnob>6</DefaultKnob>
@@ -1302,14 +1302,14 @@
         <ButtonParam>9</ButtonParam>
       </Param>
       <Param>
-        <Name>OutputType</Name>
+        <Name>OutType</Name>
         <DefaultValue>4</DefaultValue>
         <Id>124</Id>
         <DefaultKnob>9</DefaultKnob>
         <ButtonParam>10</ButtonParam>
       </Param>
       <Param>
-        <Name>WaveForm</Name>
+        <Name>Wave</Name>
         <DefaultValue>0</DefaultValue>
         <Id>81</Id>
         <DefaultKnob>2</DefaultKnob>
@@ -1371,21 +1371,21 @@
         <DefaultKnob>1</DefaultKnob>
       </Param>
       <Param>
-        <Name>WaveForm</Name>
+        <Name>Wave</Name>
         <DefaultValue>0</DefaultValue>
         <Id>75</Id>
         <DefaultKnob>2</DefaultKnob>
         <ButtonParam>4</ButtonParam>
       </Param>
       <Param>
-        <Name>Active</Name>
+        <Name>On/OFF</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
         <DefaultKnob>6</DefaultKnob>
         <ButtonParam>5</ButtonParam>
       </Param>
       <Param>
-        <Name>OutputType</Name>
+        <Name>OutType</Name>
         <DefaultValue>4</DefaultValue>
         <Id>124</Id>
         <DefaultKnob>5</DefaultKnob>
@@ -1426,14 +1426,14 @@
     </Outputs>
     <Params>
       <Param>
-        <Name>FreqCoarse</Name>
+        <Name>Coarse</Name>
         <DefaultValue>64</DefaultValue>
         <Id>56</Id>
         <DefaultKnob>0</DefaultKnob>
         <ButtonParam>3</ButtonParam>
       </Param>
       <Param>
-        <Name>FreqFine</Name>
+        <Name>Fine</Name>
         <DefaultValue>64</DefaultValue>
         <Id>57</Id>
         <DefaultKnob>1</DefaultKnob>
@@ -1446,13 +1446,13 @@
         <ButtonParam>2</ButtonParam>
       </Param>
       <Param>
-        <Name>FreqMode</Name>
+        <Name>Tune Md</Name>
         <DefaultValue>0</DefaultValue>
         <Id>58</Id>
         <ButtonParam>3</ButtonParam>
       </Param>
       <Param>
-        <Name>PitchMod</Name>
+        <Name>Pitch M</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
         <DefaultKnob>2</DefaultKnob>
@@ -1498,7 +1498,7 @@
         <DefaultKnob>1</DefaultKnob>
       </Param>
       <Param>
-        <Name>Active</Name>
+        <Name>On/OFF</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
         <DefaultKnob>3</DefaultKnob>
@@ -1552,7 +1552,7 @@
         <DefaultKnob>0</DefaultKnob>
       </Param>
       <Param>
-        <Name>Active</Name>
+        <Name>On/OFF</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
         <DefaultKnob>2</DefaultKnob>
@@ -1635,7 +1635,7 @@
         <DefaultKnob>0</DefaultKnob>
       </Param>
       <Param>
-        <Name>Active</Name>
+        <Name>On/OFF</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
         <DefaultKnob>1</DefaultKnob>
@@ -1686,7 +1686,7 @@
         <DefaultKnob>2</DefaultKnob>
       </Param>
       <Param>
-        <Name>Active</Name>
+        <Name>On/OFF</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
         <DefaultKnob>3</DefaultKnob>
@@ -1762,7 +1762,7 @@
         <DefaultKnob>4</DefaultKnob>
       </Param>
       <Param>
-        <Name>Active</Name>
+        <Name>On/OFF</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
         <DefaultKnob>5</DefaultKnob>
@@ -1821,7 +1821,7 @@
         <DefaultKnob>1</DefaultKnob>
       </Param>
       <Param>
-        <Name>Active</Name>
+        <Name>On/OFF</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
         <DefaultKnob>3</DefaultKnob>
@@ -2085,7 +2085,7 @@
         <DefaultKnob>0</DefaultKnob>
       </Param>
       <Param>
-        <Name>OutputType</Name>
+        <Name>OutType</Name>
         <DefaultValue>0</DefaultValue>
         <Id>135</Id>
         <DefaultKnob>1</DefaultKnob>
@@ -2292,7 +2292,7 @@
         <DefaultKnob>5</DefaultKnob>
       </Param>
       <Param>
-        <Name>Active</Name>
+        <Name>On/OFF</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
         <DefaultKnob>9</DefaultKnob>
@@ -2367,7 +2367,7 @@
         <DefaultKnob>2</DefaultKnob>
       </Param>
       <Param>
-        <Name>OutputType</Name>
+        <Name>OutType</Name>
         <DefaultValue>0</DefaultValue>
         <Id>135</Id>
         <ButtonParam>5</ButtonParam>
@@ -2604,7 +2604,7 @@
         <ButtonParam>2</ButtonParam>
       </Param>
       <Param>
-        <Name>PitchMod</Name>
+        <Name>Pitch M</Name>
         <DefaultValue>0</DefaultValue>
         <Id>72</Id>
         <DefaultKnob>1</DefaultKnob>
@@ -2636,7 +2636,7 @@
         <ButtonParam>5</ButtonParam>
       </Param>
       <Param>
-        <Name>Active</Name>
+        <Name>On/OFF</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
         <DefaultKnob>4</DefaultKnob>
@@ -2729,7 +2729,7 @@
         <ButtonParam>2</ButtonParam>
       </Param>
       <Param>
-        <Name>PitchMod</Name>
+        <Name>Pitch M</Name>
         <DefaultValue>0</DefaultValue>
         <Id>72</Id>
         <DefaultKnob>1</DefaultKnob>
@@ -2761,7 +2761,7 @@
         <ButtonParam>5</ButtonParam>
       </Param>
       <Param>
-        <Name>Active</Name>
+        <Name>On/OFF</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
         <DefaultKnob>7</DefaultKnob>
@@ -2885,7 +2885,7 @@
         <ButtonParam>9</ButtonParam>
       </Param>
       <Param>
-        <Name>OutputType</Name>
+        <Name>OutType</Name>
         <DefaultValue>0</DefaultValue>
         <Id>136</Id>
         <ButtonParam>10</ButtonParam>
@@ -2974,7 +2974,7 @@
         <ButtonParam>2</ButtonParam>
       </Param>
       <Param>
-        <Name>Active</Name>
+        <Name>On/OFF</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
         <DefaultKnob>3</DefaultKnob>
@@ -3030,7 +3030,7 @@
         <DefaultKnob>0</DefaultKnob>
       </Param>
       <Param>
-        <Name>OutputType</Name>
+        <Name>OutType</Name>
         <DefaultValue>0</DefaultValue>
         <Id>135</Id>
         <DefaultKnob>1</DefaultKnob>
@@ -3064,21 +3064,26 @@
         <Name>Ctrl</Name>
         <DefaultValue>7</DefaultValue>
         <Id>95</Id>
+        <DefaultKnob>0</DefaultKnob>
       </Param>
       <Param>
         <Name>Val</Name>
         <DefaultValue>64</DefaultValue>
         <Id>95</Id>
+        <DefaultKnob>1</DefaultKnob>
       </Param>
       <Param>
         <Name>Ch</Name>
         <DefaultValue>0</DefaultValue>
         <Id>94</Id>
+        <DefaultKnob>2</DefaultKnob>
       </Param>
       <Param>
         <Name>Echo</Name>
         <DefaultValue>0</DefaultValue>
         <Id>106</Id>
+        <DefaultKnob>3</DefaultKnob>
+        <ButtonParam>3</ButtonParam>
       </Param>
     </Params>
   </ModuleDef>
@@ -3204,7 +3209,7 @@
         <DefaultKnob>14</DefaultKnob>
       </Param>
       <Param>
-        <Name>Active</Name>
+        <Name>On/OFF</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
         <DefaultKnob>15</DefaultKnob>
@@ -3350,7 +3355,7 @@
         <ButtonParam>2</ButtonParam>
       </Param>
       <Param>
-        <Name>Active</Name>
+        <Name>On/OFF</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
         <DefaultKnob>3</DefaultKnob>
@@ -3397,7 +3402,7 @@
         <DefaultKnob>0</DefaultKnob>
       </Param>
       <Param>
-        <Name>Active</Name>
+        <Name>On/OFF</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
         <DefaultKnob>4</DefaultKnob>
@@ -3465,7 +3470,7 @@
         <ButtonParam>2</ButtonParam>
       </Param>
       <Param>
-        <Name>Active</Name>
+        <Name>On/OFF</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
         <DefaultKnob>3</DefaultKnob>
@@ -3629,7 +3634,7 @@
         <DefaultKnob>0</DefaultKnob>
       </Param>
       <Param>
-        <Name>Active</Name>
+        <Name>On/OFF</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
         <DefaultKnob>2</DefaultKnob>
@@ -3803,7 +3808,7 @@
         <DefaultKnob>0</DefaultKnob>
       </Param>
       <Param>
-        <Name>Active</Name>
+        <Name>On/OFF</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
         <DefaultKnob>2</DefaultKnob>
@@ -4060,7 +4065,7 @@
         <ButtonParam>0</ButtonParam>
       </Param>
       <Param>
-        <Name>Active</Name>
+        <Name>On/OFF</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
         <DefaultKnob>1</DefaultKnob>
@@ -4098,7 +4103,7 @@
         <ButtonParam>0</ButtonParam>
       </Param>
       <Param>
-        <Name>Active</Name>
+        <Name>On/OFF</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
         <DefaultKnob>1</DefaultKnob>
@@ -4178,7 +4183,7 @@
         <ButtonParam>4</ButtonParam>
       </Param>
       <Param>
-        <Name>OutputType</Name>
+        <Name>OutType</Name>
         <DefaultValue>0</DefaultValue>
         <Id>135</Id>
         <ButtonParam>5</ButtonParam>
@@ -4342,7 +4347,7 @@
         <ButtonParam>2</ButtonParam>
       </Param>
       <Param>
-        <Name>Active</Name>
+        <Name>On/OFF</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
         <DefaultKnob>2</DefaultKnob>
@@ -4445,7 +4450,7 @@
         <DefaultKnob>2</DefaultKnob>
       </Param>
       <Param>
-        <Name>Active</Name>
+        <Name>On/OFF</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
         <DefaultKnob>3</DefaultKnob>
@@ -4571,7 +4576,7 @@
         <ButtonParam>2</ButtonParam>
       </Param>
       <Param>
-        <Name>PitchMod</Name>
+        <Name>Pitch M</Name>
         <DefaultValue>0</DefaultValue>
         <Id>72</Id>
         <DefaultKnob>1</DefaultKnob>
@@ -4596,7 +4601,7 @@
         <ButtonParam>4</ButtonParam>
       </Param>
       <Param>
-        <Name>Active</Name>
+        <Name>On/OFF</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
         <DefaultKnob>4</DefaultKnob>
@@ -4644,7 +4649,7 @@
         <ButtonParam>2</ButtonParam>
       </Param>
       <Param>
-        <Name>Active</Name>
+        <Name>On/OFF</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
         <ButtonParam>2</ButtonParam>
@@ -4674,14 +4679,14 @@
     </Outputs>
     <Params>
       <Param>
-        <Name>FreqCoarse</Name>
+        <Name>Coarse</Name>
         <DefaultValue>64</DefaultValue>
         <Id>56</Id>
         <DefaultKnob>0</DefaultKnob>
         <ButtonParam>3</ButtonParam>
       </Param>
       <Param>
-        <Name>FreqFine</Name>
+        <Name>Fine</Name>
         <DefaultValue>64</DefaultValue>
         <Id>57</Id>
         <DefaultKnob>1</DefaultKnob>
@@ -4694,13 +4699,13 @@
         <ButtonParam>2</ButtonParam>
       </Param>
       <Param>
-        <Name>FreqMode</Name>
+        <Name>Tune Md</Name>
         <DefaultValue>0</DefaultValue>
         <Id>59</Id>
         <ButtonParam>3</ButtonParam>
       </Param>
       <Param>
-        <Name>Active</Name>
+        <Name>On/OFF</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
         <DefaultKnob>2</DefaultKnob>
@@ -4709,7 +4714,7 @@
     </Params>
     <Modes>
       <Param>
-        <Name>WaveForm</Name>
+        <Name>Wave</Name>
         <DefaultValue>0</DefaultValue>
         <Id>122</Id>
       </Param>
@@ -4742,14 +4747,14 @@
     </Outputs>
     <Params>
       <Param>
-        <Name>FreqCoarse</Name>
+        <Name>Coarse</Name>
         <DefaultValue>64</DefaultValue>
         <Id>56</Id>
         <DefaultKnob>0</DefaultKnob>
         <ButtonParam>6</ButtonParam>
       </Param>
       <Param>
-        <Name>FreqFine</Name>
+        <Name>Fine</Name>
         <DefaultValue>64</DefaultValue>
         <Id>57</Id>
         <DefaultKnob>1</DefaultKnob>
@@ -4762,27 +4767,27 @@
         <ButtonParam>2</ButtonParam>
       </Param>
       <Param>
-        <Name>PitchMod</Name>
+        <Name>Pitch M</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
         <DefaultKnob>2</DefaultKnob>
       </Param>
       <Param>
-        <Name>WaveForm</Name>
+        <Name>Wave</Name>
         <DefaultValue>2</DefaultValue>
         <Id>118</Id>
         <DefaultKnob>3</DefaultKnob>
         <ButtonParam>4</ButtonParam>
       </Param>
       <Param>
-        <Name>Active</Name>
+        <Name>On/OFF</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
         <DefaultKnob>4</DefaultKnob>
         <ButtonParam>5</ButtonParam>
       </Param>
       <Param>
-        <Name>FreqMode</Name>
+        <Name>Tune Md</Name>
         <DefaultValue>0</DefaultValue>
         <Id>59</Id>
       </Param>
@@ -4838,7 +4843,7 @@
         <ButtonParam>2</ButtonParam>
       </Param>
       <Param>
-        <Name>Active</Name>
+        <Name>On/OFF</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
         <DefaultKnob>3</DefaultKnob>
@@ -4924,7 +4929,7 @@
     </Outputs>
     <Params>
       <Param>
-        <Name>PitchMod</Name>
+        <Name>Pitch M</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
         <DefaultKnob>1</DefaultKnob>
@@ -4962,7 +4967,7 @@
         <DefaultKnob>2</DefaultKnob>
       </Param>
       <Param>
-        <Name>Active</Name>
+        <Name>On/OFF</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
         <DefaultKnob>7</DefaultKnob>
@@ -5036,7 +5041,7 @@
         <DefaultKnob>2</DefaultKnob>
       </Param>
       <Param>
-        <Name>Active</Name>
+        <Name>On/OFF</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
         <DefaultKnob>4</DefaultKnob>
@@ -5119,14 +5124,14 @@
     </Outputs>
     <Params>
       <Param>
-        <Name>FreqCoarse</Name>
+        <Name>Coarse</Name>
         <DefaultValue>64</DefaultValue>
         <Id>56</Id>
         <DefaultKnob>0</DefaultKnob>
         <ButtonParam>4</ButtonParam>
       </Param>
       <Param>
-        <Name>FreqFine</Name>
+        <Name>Fine</Name>
         <DefaultValue>64</DefaultValue>
         <Id>57</Id>
         <DefaultKnob>1</DefaultKnob>
@@ -5139,13 +5144,13 @@
         <ButtonParam>2</ButtonParam>
       </Param>
       <Param>
-        <Name>PitchMod</Name>
+        <Name>Pitch M</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
         <DefaultKnob>2</DefaultKnob>
       </Param>
       <Param>
-        <Name>FreqMode</Name>
+        <Name>Tune Md</Name>
         <DefaultValue>0</DefaultValue>
         <Id>59</Id>
         <ButtonParam>4</ButtonParam>
@@ -5163,7 +5168,7 @@
         <DefaultKnob>4</DefaultKnob>
       </Param>
       <Param>
-        <Name>Active</Name>
+        <Name>On/OFF</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
         <DefaultKnob>5</DefaultKnob>
@@ -5620,7 +5625,7 @@
         <DefaultKnob>2</DefaultKnob>
       </Param>
       <Param>
-        <Name>Active</Name>
+        <Name>On/OFF</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
         <DefaultKnob>3</DefaultKnob>
@@ -5721,7 +5726,7 @@
         <ButtonParam>8</ButtonParam>
       </Param>
       <Param>
-        <Name>OutputType</Name>
+        <Name>OutType</Name>
         <DefaultValue>0</DefaultValue>
         <Id>137</Id>
         <ButtonParam>9</ButtonParam>
@@ -6240,7 +6245,7 @@
         <DefaultKnob>0</DefaultKnob>
       </Param>
       <Param>
-        <Name>Active</Name>
+        <Name>On/OFF</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
         <DefaultKnob>2</DefaultKnob>
@@ -6284,7 +6289,7 @@
         <Id>162</Id>
       </Param>
       <Param>
-        <Name>Active</Name>
+        <Name>On/OFF</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
       </Param>
@@ -6525,7 +6530,7 @@
         <ButtonParam>2</ButtonParam>
       </Param>
       <Param>
-        <Name>Active</Name>
+        <Name>On/OFF</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
         <DefaultKnob>2</DefaultKnob>
@@ -6723,16 +6728,19 @@
         <Name>Ctrl</Name>
         <DefaultValue>1</DefaultValue>
         <Id>95</Id>
+        <DefaultKnob>0</DefaultKnob>
       </Param>
       <Param>
         <Name>Val</Name>
         <DefaultValue>0</DefaultValue>
         <Id>95</Id>
+        <DefaultKnob>1</DefaultKnob>
       </Param>
       <Param>
         <Name>Ch</Name>
         <DefaultValue>0</DefaultValue>
         <Id>94</Id>
+        <DefaultKnob>2</DefaultKnob>
       </Param>
     </Params>
   </ModuleDef>
@@ -6766,11 +6774,14 @@
         <Name>Program</Name>
         <DefaultValue>0</DefaultValue>
         <Id>95</Id>
+        <DefaultKnob>0</DefaultKnob>
       </Param>
       <Param>
         <Name>Ch</Name>
         <DefaultValue>0</DefaultValue>
         <Id>92</Id>
+        <DefaultKnob>1</DefaultKnob>
+        <ButtonParam>1</ButtonParam>
       </Param>
     </Params>
   </ModuleDef>
@@ -6802,16 +6813,19 @@
         <Name>Vel</Name>
         <DefaultValue>100</DefaultValue>
         <Id>95</Id>
+        <DefaultKnob>0</DefaultKnob>
       </Param>
       <Param>
         <Name>Note</Name>
         <DefaultValue>64</DefaultValue>
         <Id>95</Id>
+        <DefaultKnob>1</DefaultKnob>
       </Param>
       <Param>
         <Name>Ch</Name>
         <DefaultValue>0</DefaultValue>
         <Id>94</Id>
+        <DefaultKnob>2</DefaultKnob>
       </Param>
     </Params>
   </ModuleDef>
@@ -7730,11 +7744,14 @@
         <Name>Ctrl</Name>
         <DefaultValue>7</DefaultValue>
         <Id>95</Id>
+        <DefaultKnob>0</DefaultKnob>
       </Param>
       <Param>
         <Name>Ch</Name>
         <DefaultValue>0</DefaultValue>
         <Id>92</Id>
+        <DefaultKnob>1</DefaultKnob>
+        <ButtonParam>1</ButtonParam>
       </Param>
     </Params>
   </ModuleDef>
@@ -7766,11 +7783,13 @@
         <Name>Note</Name>
         <DefaultValue>64</DefaultValue>
         <Id>95</Id>
+        <DefaultKnob>0</DefaultKnob>
       </Param>
       <Param>
         <Name>Ch</Name>
         <DefaultValue>0</DefaultValue>
         <Id>93</Id>
+        <DefaultKnob>1</DefaultKnob>
       </Param>
     </Params>
   </ModuleDef>
@@ -7788,31 +7807,38 @@
         <Name>RcvCh</Name>
         <DefaultValue>0</DefaultValue>
         <Id>93</Id>
+        <DefaultKnob>0</DefaultKnob>
       </Param>
       <Param>
         <Name>RcvMin</Name>
         <DefaultValue>0</DefaultValue>
         <Id>95</Id>
+        <DefaultKnob>1</DefaultKnob>
       </Param>
       <Param>
         <Name>RcvMax</Name>
         <DefaultValue>127</DefaultValue>
         <Id>95</Id>
+        <DefaultKnob>2</DefaultKnob>
       </Param>
       <Param>
         <Name>SendTrans</Name>
         <DefaultValue>64</DefaultValue>
         <Id>2</Id>
+        <DefaultKnob>3</DefaultKnob>
       </Param>
       <Param>
         <Name>SendCh</Name>
         <DefaultValue>0</DefaultValue>
         <Id>94</Id>
+        <DefaultKnob>4</DefaultKnob>
       </Param>
       <Param>
         <Name>ThruMode</Name>
         <DefaultValue>0</DefaultValue>
         <Id>105</Id>
+        <DefaultKnob>5</DefaultKnob>
+        <ButtonParam>5</ButtonParam>
       </Param>
     </Params>
   </ModuleDef>
@@ -7889,7 +7915,7 @@
         <ButtonParam>5</ButtonParam>
       </Param>
       <Param>
-        <Name>Active</Name>
+        <Name>On/OFF</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
         <ButtonParam>6</ButtonParam>
@@ -8351,7 +8377,7 @@
     </Outputs>
     <Params>
       <Param>
-        <Name>OutputType</Name>
+        <Name>OutType</Name>
         <DefaultValue>4</DefaultValue>
         <Id>137</Id>
         <DefaultKnob>1</DefaultKnob>
@@ -8686,7 +8712,7 @@
         <ButtonParam>2</ButtonParam>
       </Param>
       <Param>
-        <Name>PitchMod</Name>
+        <Name>Pitch M</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
         <DefaultKnob>1</DefaultKnob>
@@ -8723,7 +8749,7 @@
         <DefaultKnob>5</DefaultKnob>
       </Param>
       <Param>
-        <Name>Active</Name>
+        <Name>On/OFF</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
         <DefaultKnob>6</DefaultKnob>
@@ -8770,14 +8796,14 @@
     </Outputs>
     <Params>
       <Param>
-        <Name>FreqCoarse</Name>
+        <Name>Coarse</Name>
         <DefaultValue>64</DefaultValue>
         <Id>56</Id>
         <DefaultKnob>0</DefaultKnob>
         <ButtonParam>4</ButtonParam>
       </Param>
       <Param>
-        <Name>FreqFine</Name>
+        <Name>Fine</Name>
         <DefaultValue>64</DefaultValue>
         <Id>57</Id>
         <DefaultKnob>1</DefaultKnob>
@@ -8790,26 +8816,26 @@
         <ButtonParam>2</ButtonParam>
       </Param>
       <Param>
-        <Name>PitchMod</Name>
+        <Name>Pitch M</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
         <DefaultKnob>2</DefaultKnob>
       </Param>
       <Param>
-        <Name>FreqMode</Name>
+        <Name>Tune Md</Name>
         <DefaultValue>0</DefaultValue>
         <Id>59</Id>
         <ButtonParam>4</ButtonParam>
       </Param>
       <Param>
-        <Name>FmAmount</Name>
+        <Name>Fm M</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
         <DefaultKnob>6</DefaultKnob>
         <ButtonParam>6</ButtonParam>
       </Param>
       <Param>
-        <Name>FmMode</Name>
+        <Name>Fm PTrk</Name>
         <DefaultValue>0</DefaultValue>
         <Id>52</Id>
         <ButtonParam>6</ButtonParam>
@@ -8821,20 +8847,20 @@
         <DefaultKnob>4</DefaultKnob>
       </Param>
       <Param>
-        <Name>ShapeMod</Name>
+        <Name>Shape M</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
         <DefaultKnob>5</DefaultKnob>
       </Param>
       <Param>
-        <Name>WaveForm</Name>
+        <Name>Wave</Name>
         <DefaultValue>0</DefaultValue>
         <Id>120</Id>
         <DefaultKnob>3</DefaultKnob>
         <ButtonParam>9</ButtonParam>
       </Param>
       <Param>
-        <Name>Active</Name>
+        <Name>On/OFF</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
         <DefaultKnob>7</DefaultKnob>
@@ -8881,14 +8907,14 @@
     </Outputs>
     <Params>
       <Param>
-        <Name>FreqCoarse</Name>
+        <Name>Coarse</Name>
         <DefaultValue>64</DefaultValue>
         <Id>56</Id>
         <DefaultKnob>0</DefaultKnob>
         <ButtonParam>4</ButtonParam>
       </Param>
       <Param>
-        <Name>FreqFine</Name>
+        <Name>Fine</Name>
         <DefaultValue>64</DefaultValue>
         <Id>57</Id>
         <DefaultKnob>1</DefaultKnob>
@@ -8901,13 +8927,13 @@
         <ButtonParam>2</ButtonParam>
       </Param>
       <Param>
-        <Name>PitchMod</Name>
+        <Name>Pitch M</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
         <DefaultKnob>2</DefaultKnob>
       </Param>
       <Param>
-        <Name>FreqMode</Name>
+        <Name>Tune Md</Name>
         <DefaultValue>0</DefaultValue>
         <Id>59</Id>
         <ButtonParam>4</ButtonParam>
@@ -8944,7 +8970,7 @@
         <ButtonParam>13</ButtonParam>
       </Param>
       <Param>
-        <Name>Active</Name>
+        <Name>On/OFF</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
         <DefaultKnob>10</DefaultKnob>
@@ -9100,7 +9126,7 @@
         <ButtonParam>3</ButtonParam>
       </Param>
       <Param>
-        <Name>Active</Name>
+        <Name>On/OFF</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
         <DefaultKnob>4</DefaultKnob>
@@ -9173,25 +9199,25 @@
         <DefaultKnob>4</DefaultKnob>
       </Param>
       <Param>
-        <Name>A_Mod</Name>
+        <Name>Atk M</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
         <DefaultKnob>1</DefaultKnob>
       </Param>
       <Param>
-        <Name>H_Mod</Name>
+        <Name>Hold M</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
         <DefaultKnob>3</DefaultKnob>
       </Param>
       <Param>
-        <Name>D_Mod</Name>
+        <Name>Dcy M</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
         <DefaultKnob>5</DefaultKnob>
       </Param>
       <Param>
-        <Name>OutputType</Name>
+        <Name>OutType</Name>
         <DefaultValue>0</DefaultValue>
         <Id>135</Id>
         <DefaultKnob>6</DefaultKnob>
@@ -9232,7 +9258,7 @@
         <Id>163</Id>
       </Param>
       <Param>
-        <Name>Active</Name>
+        <Name>On/OFF</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
       </Param>
@@ -9277,7 +9303,7 @@
         <Id>164</Id>
       </Param>
       <Param>
-        <Name>Active</Name>
+        <Name>On/OFF</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
       </Param>
@@ -9605,7 +9631,7 @@
         <ButtonParam>4</ButtonParam>
       </Param>
       <Param>
-        <Name>Active</Name>
+        <Name>On/OFF</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
         <ButtonParam>4</ButtonParam>
@@ -9701,7 +9727,7 @@
         <DefaultKnob>7</DefaultKnob>
       </Param>
       <Param>
-        <Name>Active</Name>
+        <Name>On/OFF</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
         <ButtonParam>7</ButtonParam>
@@ -9871,12 +9897,12 @@
         <Id>147</Id>
       </Param>
       <Param>
-        <Name>FreqCoarse</Name>
+        <Name>Coarse</Name>
         <DefaultValue>1</DefaultValue>
         <Id>111</Id>
       </Param>
       <Param>
-        <Name>FreqFine</Name>
+        <Name>Fine</Name>
         <DefaultValue>0</DefaultValue>
         <Id>113</Id>
       </Param>
@@ -9971,7 +9997,7 @@
         <Id>114</Id>
       </Param>
       <Param>
-        <Name>Active</Name>
+        <Name>On/OFF</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
       </Param>
@@ -10130,7 +10156,7 @@
         <ButtonParam>9</ButtonParam>
       </Param>
       <Param>
-        <Name>Active</Name>
+        <Name>On/OFF</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
         <ButtonParam>9</ButtonParam>
@@ -10185,14 +10211,14 @@
     </Outputs>
     <Params>
       <Param>
-        <Name>FreqCoarse</Name>
+        <Name>Coarse</Name>
         <DefaultValue>64</DefaultValue>
         <Id>56</Id>
         <DefaultKnob>0</DefaultKnob>
         <ButtonParam>3</ButtonParam>
       </Param>
       <Param>
-        <Name>FreqFine</Name>
+        <Name>Fine</Name>
         <DefaultValue>64</DefaultValue>
         <Id>57</Id>
         <DefaultKnob>1</DefaultKnob>
@@ -10205,7 +10231,7 @@
         <ButtonParam>2</ButtonParam>
       </Param>
       <Param>
-        <Name>FreqMode</Name>
+        <Name>Tune Md</Name>
         <DefaultValue>0</DefaultValue>
         <Id>59</Id>
         <ButtonParam>3</ButtonParam>
@@ -10217,7 +10243,7 @@
         <DefaultKnob>3</DefaultKnob>
       </Param>
       <Param>
-        <Name>Active</Name>
+        <Name>On/OFF</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
         <DefaultKnob>4</DefaultKnob>
@@ -10232,7 +10258,7 @@
     </Params>
     <Modes>
       <Param>
-        <Name>WaveForm</Name>
+        <Name>Wave</Name>
         <DefaultValue>0</DefaultValue>
         <Id>121</Id>
       </Param>
@@ -10511,7 +10537,7 @@
         <DefaultKnob>1</DefaultKnob>
       </Param>
       <Param>
-        <Name>Active</Name>
+        <Name>On/OFF</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
         <DefaultKnob>3</DefaultKnob>
@@ -10584,7 +10610,7 @@
         <ButtonParam>3</ButtonParam>
       </Param>
       <Param>
-        <Name>WaveForm</Name>
+        <Name>Wave</Name>
         <DefaultValue>0</DefaultValue>
         <Id>76</Id>
         <DefaultKnob>2</DefaultKnob>
@@ -10604,14 +10630,14 @@
         <DefaultKnob>5</DefaultKnob>
       </Param>
       <Param>
-        <Name>Active</Name>
+        <Name>On/OFF</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
         <DefaultKnob>8</DefaultKnob>
         <ButtonParam>7</ButtonParam>
       </Param>
       <Param>
-        <Name>OutputType</Name>
+        <Name>OutType</Name>
         <DefaultValue>4</DefaultValue>
         <Id>124</Id>
         <DefaultKnob>7</DefaultKnob>
@@ -10667,7 +10693,7 @@
         <DefaultKnob>2</DefaultKnob>
       </Param>
       <Param>
-        <Name>Active</Name>
+        <Name>On/OFF</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
         <DefaultKnob>3</DefaultKnob>
@@ -10863,21 +10889,21 @@
     </Outputs>
     <Params>
       <Param>
-        <Name>FreqCoarse</Name>
+        <Name>Coarse</Name>
         <DefaultValue>64</DefaultValue>
         <Id>56</Id>
         <DefaultKnob>0</DefaultKnob>
         <ButtonParam>2</ButtonParam>
       </Param>
       <Param>
-        <Name>FreqFine</Name>
+        <Name>Fine</Name>
         <DefaultValue>64</DefaultValue>
         <Id>57</Id>
         <DefaultKnob>1</DefaultKnob>
         <ButtonParam>3</ButtonParam>
       </Param>
       <Param>
-        <Name>FreqMode</Name>
+        <Name>Tune Md</Name>
         <DefaultValue>0</DefaultValue>
         <Id>59</Id>
         <ButtonParam>2</ButtonParam>
@@ -10889,7 +10915,7 @@
         <ButtonParam>3</ButtonParam>
       </Param>
       <Param>
-        <Name>PitchMod</Name>
+        <Name>Pitch M</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
         <DefaultKnob>2</DefaultKnob>
@@ -10914,7 +10940,7 @@
         <ButtonParam>7</ButtonParam>
       </Param>
       <Param>
-        <Name>Active</Name>
+        <Name>On/OFF</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
         <DefaultKnob>6</DefaultKnob>
@@ -11054,7 +11080,7 @@
         <ButtonParam>1</ButtonParam>
       </Param>
       <Param>
-        <Name>OutputType</Name>
+        <Name>OutType</Name>
         <DefaultValue>0</DefaultValue>
         <Id>3</Id>
         <DefaultKnob>3</DefaultKnob>
@@ -11066,7 +11092,7 @@
         <Id>77</Id>
       </Param>
       <Param>
-        <Name>Active</Name>
+        <Name>On/OFF</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
         <DefaultKnob>4</DefaultKnob>
@@ -11148,14 +11174,14 @@
         <DefaultKnob>2</DefaultKnob>
       </Param>
       <Param>
-        <Name>Active</Name>
+        <Name>On/OFF</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
         <DefaultKnob>6</DefaultKnob>
         <ButtonParam>5</ButtonParam>
       </Param>
       <Param>
-        <Name>OutputType</Name>
+        <Name>OutType</Name>
         <DefaultValue>0</DefaultValue>
         <Id>3</Id>
         <DefaultKnob>5</DefaultKnob>
@@ -11227,14 +11253,14 @@
         <ButtonParam>2</ButtonParam>
       </Param>
       <Param>
-        <Name>OutputType</Name>
+        <Name>OutType</Name>
         <DefaultValue>0</DefaultValue>
         <Id>3</Id>
         <DefaultKnob>3</DefaultKnob>
         <ButtonParam>3</ButtonParam>
       </Param>
       <Param>
-        <Name>Active</Name>
+        <Name>On/OFF</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
         <DefaultKnob>4</DefaultKnob>
@@ -11289,7 +11315,7 @@
         <DefaultKnob>1</DefaultKnob>
       </Param>
       <Param>
-        <Name>Active</Name>
+        <Name>On/OFF</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
         <DefaultKnob>2</DefaultKnob>
@@ -11345,14 +11371,14 @@
         <DefaultKnob>0</DefaultKnob>
       </Param>
       <Param>
-        <Name>OutputType</Name>
+        <Name>OutType</Name>
         <DefaultValue>0</DefaultValue>
         <Id>3</Id>
         <DefaultKnob>1</DefaultKnob>
         <ButtonParam>1</ButtonParam>
       </Param>
       <Param>
-        <Name>Active</Name>
+        <Name>On/OFF</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
         <DefaultKnob>2</DefaultKnob>
@@ -11449,14 +11475,14 @@
         <DefaultKnob>4</DefaultKnob>
       </Param>
       <Param>
-        <Name>OutputType</Name>
+        <Name>OutType</Name>
         <DefaultValue>0</DefaultValue>
         <Id>3</Id>
         <DefaultKnob>5</DefaultKnob>
         <ButtonParam>5</ButtonParam>
       </Param>
       <Param>
-        <Name>Active</Name>
+        <Name>On/OFF</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
         <DefaultKnob>6</DefaultKnob>
@@ -11465,7 +11491,7 @@
     </Params>
     <Modes>
       <Param>
-        <Name>WaveForm</Name>
+        <Name>Wave</Name>
         <DefaultValue>0</DefaultValue>
         <Id>153</Id>
       </Param>
