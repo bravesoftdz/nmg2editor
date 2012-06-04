@@ -2604,7 +2604,7 @@
         <ButtonParam>2</ButtonParam>
       </Param>
       <Param>
-        <Name>Pitch M</Name>
+        <Name>Freq M</Name>
         <DefaultValue>0</DefaultValue>
         <Id>72</Id>
         <DefaultKnob>1</DefaultKnob>
@@ -2616,7 +2616,7 @@
         <ButtonParam>2</ButtonParam>
       </Param>
       <Param>
-        <Name>GC</Name>
+        <Name>GComp</Name>
         <DefaultValue>1</DefaultValue>
         <Id>63</Id>
         <ButtonParam>3</ButtonParam>
@@ -2629,7 +2629,7 @@
         <ButtonParam>3</ButtonParam>
       </Param>
       <Param>
-        <Name>Slope</Name>
+        <Name>dB/Oct</Name>
         <DefaultValue>1</DefaultValue>
         <Id>50</Id>
         <DefaultKnob>3</DefaultKnob>
@@ -2729,7 +2729,7 @@
         <ButtonParam>2</ButtonParam>
       </Param>
       <Param>
-        <Name>Pitch M</Name>
+        <Name>Freq M</Name>
         <DefaultValue>0</DefaultValue>
         <Id>72</Id>
         <DefaultKnob>1</DefaultKnob>
@@ -2741,7 +2741,7 @@
         <ButtonParam>2</ButtonParam>
       </Param>
       <Param>
-        <Name>GC</Name>
+        <Name>GComp</Name>
         <DefaultValue>1</DefaultValue>
         <Id>63</Id>
         <ButtonParam>3</ButtonParam>
@@ -2754,7 +2754,7 @@
         <ButtonParam>3</ButtonParam>
       </Param>
       <Param>
-        <Name>Slope</Name>
+        <Name>dB/Oct</Name>
         <DefaultValue>1</DefaultValue>
         <Id>51</Id>
         <DefaultKnob>6</DefaultKnob>
@@ -2981,7 +2981,7 @@
         <ButtonParam>3</ButtonParam>
       </Param>
       <Param>
-        <Name>GC</Name>
+        <Name>GComp</Name>
         <DefaultValue>0</DefaultValue>
         <Id>63</Id>
         <DefaultKnob>4</DefaultKnob>
@@ -4576,7 +4576,7 @@
         <ButtonParam>2</ButtonParam>
       </Param>
       <Param>
-        <Name>Pitch M</Name>
+        <Name>Freq M</Name>
         <DefaultValue>0</DefaultValue>
         <Id>72</Id>
         <DefaultKnob>1</DefaultKnob>
@@ -4594,7 +4594,7 @@
         <DefaultKnob>2</DefaultKnob>
       </Param>
       <Param>
-        <Name>Slope</Name>
+        <Name>dB/Oct</Name>
         <DefaultValue>2</DefaultValue>
         <Id>5</Id>
         <DefaultKnob>3</DefaultKnob>
@@ -4929,7 +4929,7 @@
     </Outputs>
     <Params>
       <Param>
-        <Name>Pitch M</Name>
+        <Name>Freq M</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
         <DefaultKnob>1</DefaultKnob>
@@ -8712,7 +8712,7 @@
         <ButtonParam>2</ButtonParam>
       </Param>
       <Param>
-        <Name>Pitch M</Name>
+        <Name>Freq M</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
         <DefaultKnob>1</DefaultKnob>

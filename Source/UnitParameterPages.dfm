@@ -38,6 +38,7 @@ object frmParameterPages: TfrmParameterPages
     ParentFont = False
     KnobType = ktMedium
     Orientation = otHorizontal
+    HightlightColor = clAqua
   end
   object skP2: TG2GraphKnob
     Tag = 1
@@ -58,6 +59,7 @@ object frmParameterPages: TfrmParameterPages
     ParentFont = False
     KnobType = ktMedium
     Orientation = otHorizontal
+    HightlightColor = clAqua
   end
   object skP3: TG2GraphKnob
     Tag = 2
@@ -78,6 +80,7 @@ object frmParameterPages: TfrmParameterPages
     ParentFont = False
     KnobType = ktMedium
     Orientation = otHorizontal
+    HightlightColor = clAqua
   end
   object skP4: TG2GraphKnob
     Tag = 3
@@ -98,6 +101,7 @@ object frmParameterPages: TfrmParameterPages
     ParentFont = False
     KnobType = ktMedium
     Orientation = otHorizontal
+    HightlightColor = clAqua
   end
   object skP5: TG2GraphKnob
     Tag = 4
@@ -118,6 +122,7 @@ object frmParameterPages: TfrmParameterPages
     ParentFont = False
     KnobType = ktMedium
     Orientation = otHorizontal
+    HightlightColor = clAqua
   end
   object skP6: TG2GraphKnob
     Tag = 5
@@ -138,6 +143,7 @@ object frmParameterPages: TfrmParameterPages
     ParentFont = False
     KnobType = ktMedium
     Orientation = otHorizontal
+    HightlightColor = clAqua
   end
   object skP7: TG2GraphKnob
     Tag = 6
@@ -158,6 +164,7 @@ object frmParameterPages: TfrmParameterPages
     ParentFont = False
     KnobType = ktMedium
     Orientation = otHorizontal
+    HightlightColor = clAqua
   end
   object skP8: TG2GraphKnob
     Tag = 7
@@ -178,6 +185,7 @@ object frmParameterPages: TfrmParameterPages
     ParentFont = False
     KnobType = ktMedium
     Orientation = otHorizontal
+    HightlightColor = clAqua
   end
   object Disp1A: TG2GraphDisplay
     Left = 8
@@ -485,7 +493,7 @@ object frmParameterPages: TfrmParameterPages
   end
   object bfP1: TG2GraphButtonFlat
     Left = 8
-    Top = 103
+    Top = 106
     Width = 60
     Height = 16
     Font.Charset = DEFAULT_CHARSET
@@ -508,7 +516,7 @@ object frmParameterPages: TfrmParameterPages
   object bfP2: TG2GraphButtonFlat
     Tag = 1
     Left = 72
-    Top = 103
+    Top = 106
     Width = 60
     Height = 16
     Font.Charset = DEFAULT_CHARSET
@@ -531,7 +539,7 @@ object frmParameterPages: TfrmParameterPages
   object bfP3: TG2GraphButtonFlat
     Tag = 2
     Left = 136
-    Top = 103
+    Top = 106
     Width = 60
     Height = 16
     Font.Charset = DEFAULT_CHARSET
@@ -554,7 +562,7 @@ object frmParameterPages: TfrmParameterPages
   object bfP4: TG2GraphButtonFlat
     Tag = 3
     Left = 199
-    Top = 103
+    Top = 106
     Width = 60
     Height = 16
     Font.Charset = DEFAULT_CHARSET
@@ -577,7 +585,7 @@ object frmParameterPages: TfrmParameterPages
   object bfP5: TG2GraphButtonFlat
     Tag = 4
     Left = 262
-    Top = 103
+    Top = 106
     Width = 60
     Height = 16
     Font.Charset = DEFAULT_CHARSET
@@ -600,7 +608,7 @@ object frmParameterPages: TfrmParameterPages
   object bfP6: TG2GraphButtonFlat
     Tag = 5
     Left = 325
-    Top = 103
+    Top = 106
     Width = 60
     Height = 16
     Font.Charset = DEFAULT_CHARSET
@@ -623,7 +631,7 @@ object frmParameterPages: TfrmParameterPages
   object bfP7: TG2GraphButtonFlat
     Tag = 6
     Left = 388
-    Top = 103
+    Top = 106
     Width = 60
     Height = 16
     Font.Charset = DEFAULT_CHARSET
@@ -646,7 +654,7 @@ object frmParameterPages: TfrmParameterPages
   object bfP8: TG2GraphButtonFlat
     Tag = 7
     Left = 451
-    Top = 103
+    Top = 106
     Width = 60
     Height = 16
     Font.Charset = DEFAULT_CHARSET
@@ -665,6 +673,158 @@ object frmParameterPages: TfrmParameterPages
     Bevel = True
     Orientation = otHorizontal
     ButtonCount = 0
+  end
+  object Disp1C: TG2GraphDisplay
+    Left = 8
+    Top = 88
+    Width = 60
+    Height = 17
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -9
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    Color = clBtnFace
+    Value = 0
+    LowValue = 0
+    HighValue = 0
+    ParentColor = False
+    ParentFont = False
+    LineCount = 1
+    TextFunction = 1001
+  end
+  object Disp2C: TG2GraphDisplay
+    Left = 72
+    Top = 88
+    Width = 60
+    Height = 17
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -9
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    Color = clBtnFace
+    Value = 0
+    LowValue = 0
+    HighValue = 0
+    ParentColor = False
+    ParentFont = False
+    LineCount = 1
+    TextFunction = 1001
+  end
+  object Disp3C: TG2GraphDisplay
+    Left = 136
+    Top = 88
+    Width = 60
+    Height = 17
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -9
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    Color = clBtnFace
+    Value = 0
+    LowValue = 0
+    HighValue = 0
+    ParentColor = False
+    ParentFont = False
+    LineCount = 1
+    TextFunction = 1001
+  end
+  object Disp4C: TG2GraphDisplay
+    Left = 199
+    Top = 88
+    Width = 60
+    Height = 17
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -9
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    Color = clBtnFace
+    Value = 0
+    LowValue = 0
+    HighValue = 0
+    ParentColor = False
+    ParentFont = False
+    LineCount = 1
+    TextFunction = 1001
+  end
+  object Disp5C: TG2GraphDisplay
+    Left = 262
+    Top = 88
+    Width = 60
+    Height = 17
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -9
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    Color = clBtnFace
+    Value = 0
+    LowValue = 0
+    HighValue = 0
+    ParentColor = False
+    ParentFont = False
+    LineCount = 1
+    TextFunction = 1001
+  end
+  object Disp6C: TG2GraphDisplay
+    Left = 325
+    Top = 88
+    Width = 60
+    Height = 17
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -9
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    Color = clBtnFace
+    Value = 0
+    LowValue = 0
+    HighValue = 0
+    ParentColor = False
+    ParentFont = False
+    LineCount = 1
+    TextFunction = 1001
+  end
+  object Disp7C: TG2GraphDisplay
+    Left = 388
+    Top = 88
+    Width = 60
+    Height = 17
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -9
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    Color = clBtnFace
+    Value = 0
+    LowValue = 0
+    HighValue = 0
+    ParentColor = False
+    ParentFont = False
+    LineCount = 1
+    TextFunction = 1001
+  end
+  object Disp8C: TG2GraphDisplay
+    Left = 451
+    Top = 88
+    Width = 60
+    Height = 17
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -9
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    Color = clBtnFace
+    Value = 0
+    LowValue = 0
+    HighValue = 0
+    ParentColor = False
+    ParentFont = False
+    LineCount = 1
+    TextFunction = 1001
   end
   object Panel1: TPanel
     Left = 521

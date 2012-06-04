@@ -10,7 +10,7 @@
   <PatchManagerSettings BaseFolder="C:\Users\Bruno\Documents\Nord Modular Patches\G2 Patches\" SelectedTab="1" ExternalSortCol="0" InternalSortCol="1"/>
   <PatchManagerForm PosX="1211" PosY="91" SizeX="452" SizeY="812" Visible="True"/>
   <SettingsForm PosX="483" PosY="568" SizeX="504" SizeY="287" Visible="False"/>
-  <ParameterPagesForm PosX="785" PosY="361" SizeX="629" SizeY="164" Visible="True"/>
+  <ParameterPagesForm PosX="406" PosY="254" SizeX="629" SizeY="164" Visible="True"/>
   <PatchSettingsForm PosX="150" PosY="150" SizeX="608" SizeY="185" Visible="False"/>
   <EditorToolsForm PosX="25" PosY="25" SizeX="151" SizeY="261" Visible="False"/>
   <G2_Synth_2>

@@ -1159,6 +1159,7 @@ type
     function    GetMorphValue( aMorphIndex, aVariation : integer) : byte;
     procedure   SetSelectedMorphValue( Value: byte);
     procedure   AddDependency( aParamType : TParamType; aParamIndex : byte);
+    function    GetDependendParamValue( aIndex : integer) : byte;
     function    InfoFunction: string;
     //function    TextFunction( aTextFunction: integer; LineNo, TotalLines : integer; aParams : array of integer): string;
     function    TextFunction( aTextFunction: integer; LineNo, TotalLines : integer): string;
@@ -6921,8 +6922,22 @@ begin
   FDependencies[i].ParamIndex := aParamIndex;
 end;
 
+function TG2FileParameter.GetDependendParamValue( aIndex : integer) : byte;
+begin
+  if aIndex < Length(FDependencies) then begin
+    if FDependencies[aIndex].ParamType = ptParam then
+      Result := Module.Parameter[FDependencies[aIndex].ParamIndex].GetParameterValue
+    else
+      Result := Module.Mode[FDependencies[aIndex].ParamIndex].GetParameterValue;
+  end else
+    Result := 0;
+end;
+
 function TG2FileParameter.InfoFunction: string;
 var t : single;
+    FreqCourse, FreqFine, FreqMode : Byte;
+    Exponent, Freq, Fact, DlyRange : single;
+    iValue1, iValue2 : integer;
     TempValue : integer;
 begin
   case FInfoFunctionIndex of
@@ -6938,9 +6953,9 @@ begin
          1 : Result := 'Active';
          end;
        end;
-  8  : begin // Dly On/Off
+  8  : begin // Dly,Flt On/Off
          case GetParameterValue of
-         0 : Result := 'Muted';
+         0 : Result := 'Bypass';
          1 : Result := 'Active';
          end;
        end;
@@ -7013,6 +7028,68 @@ begin
          else
            Result := '+' + IntToStr(TempValue);
        end;
+  61 : begin // Osc freq
+         {if assigned(Module) and (Length(aParams)=3) then begin
+           FreqCourse := aValue;
+           FreqFine := Module.Parameter[aParams[1]].GetParameterValue;
+           FreqMode := Module.Parameter[aParams[2]].GetParameterValue;}
+         if assigned(Module) and (Length(FDependencies)=3) then begin
+           FreqCourse := GetParameterValue;
+           FreqFine := GetDependendParamValue(1);
+           FreqMode := GetDependendParamValue(2);
+           case FreqMode of
+           0 : begin // Semi
+                 iValue1 := FreqCourse - 64;
+                 Result := '';
+                 if iValue1 < 0 then
+                   Result := Result + IntToStr(iValue1)
+                 else
+                   Result := Result + '+' + IntToStr(iValue1);
+                 Result := Result + '  ';
+                 iValue2 := (FreqFine-64)*100 div 128;
+                 if iValue2 < 0 then
+                   Result := Result + IntToStr(iValue2)
+                 else
+                   Result := Result + '+' + IntToStr(iValue2);
+               end;
+           1 : begin // Freq
+                 // http://www.phy.mtu.edu/~suits/NoteFreqCalcs.html
+                 Exponent := ((FreqCourse - 69) + (FreqFine - 64) / 128) / 12;
+                 Freq := 440.0 * power(2, Exponent);
+                 if Freq >= 1000 then
+                   Result := Format('%.5g', [Freq / 1000]) + 'kHz'
+                 else
+                   Result := Format('%.5g', [Freq]) + 'Hz';
+               end;
+           2 : begin // Fac
+                 Exponent := ((FreqCourse - 64) + (FreqFine - 64) / 128) / 12;
+                 Fact := power(2, Exponent);
+                 Result := 'x' + Format('%.5g', [Fact]);
+               end;
+           3 : begin // Part
+                 if FreqCourse <= 32 then begin
+                   Exponent := -(((32 - FreqCourse ) * 4) + 77 - (FreqFine - 64) / 128) / 12;
+                   Freq := 440.0 * power(2, Exponent);
+                   Result := Format('%.3g', [Freq]) + 'Hz';
+                 end else begin
+                   if (FreqCourse > 32) and (FreqCourse <=64) then begin
+                     iValue1 := 64 - FreqCourse + 1;
+                     Result := '1:' + IntToStr(iValue1);
+                   end else begin
+                     iValue1 := FreqCourse - 64 + 1;
+                     Result := IntToStr(iValue1) + ':1';
+                   end;
+                   Result := Result + '  ';
+                   iValue2 := (FreqFine-64)*100 div 128;
+                   if iValue2 < 0 then
+                     Result := Result + IntToStr(iValue2)
+                   else
+                     Result := Result + '+' + IntToStr(iValue2);
+                 end;
+               end;
+           end;
+         end;
+       end;
   63 : begin // Osc Freq mode
           case GetParameterValue of
           0 : Result := 'Semi';
@@ -7021,6 +7098,39 @@ begin
           3 : Result := 'Partial';
           end;
        end;
+  71 : begin // Flt KBT
+          case GetParameterValue of
+          0 : Result := 'KBT Off';
+          1 : Result := 'KBT 25%';
+          2 : Result := 'KBT 50%';
+          3 : Result := 'KBT75%';
+          4 : Result := 'KBT 100%';
+          end;
+       end;
+  72 : begin // Flt GC
+          case GetParameterValue of
+          0 : Result := 'GC Off';
+          1 : Result := 'GC On';
+          end;
+       end;
+  73 : begin // Flt Slope
+          case GetParameterValue of
+          0 : Result := '6dB';
+          1 : Result := '12dB';
+          end;
+       end;
+  123 : begin // Flt Freq
+          FreqCourse := GetParameterValue;
+          Exponent := (FreqCourse - 60) / 12;
+          Freq := 440.0 * power(2, Exponent);
+          if Freq >= 1000 then
+            Result := Format('%.4g', [Freq / 1000]) + 'kHz'
+          else
+            Result := Format('%.4g', [Freq]) + 'Hz';
+        end;
+  124 : begin // Flt Resonance
+          Result := IntToStr(GetParameterValue); // TODO
+        end;
   125 : begin // Osc FM Mod
           case GetParameterValue of
           0 : Result := 'FM Lin';
@@ -7065,8 +7175,9 @@ begin
          4 : Result := 'DualSaw';
          end;
        end;
-
-
+  191 : begin // Flt Freq Mod
+          Result := Format('%.1f',[200.0 * GetParameterValue / 127]) + '%';
+        end
   else
     Result := IntToStr(GetParameterValue);
   end;
@@ -7078,18 +7189,6 @@ var aValue : byte;
     FreqCourse, FreqFine, FreqMode : Byte;
     Exponent, Freq, Fact, DlyRange : single;
     iValue1, iValue2 : integer;
-
-  function GetDependendParamValue( aIndex : integer) : byte;
-  begin
-    if aIndex < Length(FDependencies) then begin
-      if FDependencies[aIndex].ParamType = ptParam then
-        Result := Module.Parameter[FDependencies[aIndex].ParamIndex].GetParameterValue
-      else
-        Result := Module.Mode[FDependencies[aIndex].ParamIndex].GetParameterValue;
-    end else
-      Result := 0;
-  end;
-
 begin
 {  if (aTextFunction <> 0) and assigned(Module) and (Length(aParams)>0) then
     aValue := Module.Parameter[aParams[0]].GetParameterValue
@@ -7104,7 +7203,7 @@ begin
   case aTextFunction of
   // Zero: displays that are dependend on one parameter only
   0    : begin // Filter freq Nord
-           case Module.FTypeID of
+           {case Module.FTypeID of
            134,92,87,54,51,49 :
                 case ParamIndex of
                 0 : begin // Freq
@@ -7122,14 +7221,11 @@ begin
            else
              //Result := IntToStr(GetParameterValue);
              Result := InfoFunction;
-           end;
+           end;}
+           Result := InfoFunction;
          end;
   60   : begin // Osc freq
-           {if assigned(Module) and (Length(aParams)=3) then begin
-             FreqCourse := aValue;
-             FreqFine := Module.Parameter[aParams[1]].GetParameterValue;
-             FreqMode := Module.Parameter[aParams[2]].GetParameterValue;}
-           if assigned(Module) and (Length(FDependencies)=3) then begin
+           {if assigned(Module) and (Length(FDependencies)=3) then begin
              FreqCourse := aValue;
 
              FreqFine := GetDependendParamValue(1);
@@ -7185,7 +7281,8 @@ begin
                    end;
                  end;
              end;
-           end;
+           end;}
+           Result := InfoFunction;
          end;
   108  : begin
            case aValue of

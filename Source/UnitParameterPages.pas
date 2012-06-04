@@ -54,6 +54,14 @@ type
     bfP6: TG2GraphButtonFlat;
     bfP7: TG2GraphButtonFlat;
     bfP8: TG2GraphButtonFlat;
+    Disp1C: TG2GraphDisplay;
+    Disp2C: TG2GraphDisplay;
+    Disp3C: TG2GraphDisplay;
+    Disp4C: TG2GraphDisplay;
+    Disp5C: TG2GraphDisplay;
+    Disp6C: TG2GraphDisplay;
+    Disp7C: TG2GraphDisplay;
+    Disp8C: TG2GraphDisplay;
     procedure obParamClick(Sender: TObject);
     procedure obPageClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
@@ -68,6 +76,7 @@ type
     FDispKnobArray   : array[0..7] of TG2GraphDisplay;
     FDispModuleArray : array[0..7] of TG2GraphDisplay;
     FButtonArray     : array[0..7] of TG2GraphButtonFlat;
+    FDispButtonArray : array[0..7] of TG2GraphDisplay;
 {$IFDEF FPC}
 {$ELSE}
     procedure WMPaint(var Msg: TWMPaint); message WM_PAINT;
@@ -136,6 +145,15 @@ begin
   FButtonArray[5] := bfP6;
   FButtonArray[6] := bfP7;
   FButtonArray[7] := bfP8;
+
+  FDispButtonArray[0] := Disp1C;
+  FDispButtonArray[1] := Disp2C;
+  FDispButtonArray[2] := Disp3C;
+  FDispButtonArray[3] := Disp4C;
+  FDispButtonArray[4] := Disp5C;
+  FDispButtonArray[5] := Disp6C;
+  FDispButtonArray[6] := Disp7C;
+  FDispButtonArray[7] := Disp8C;
 
   LoadIniXML;
 end;
@@ -275,17 +293,24 @@ begin
       for i := 0 to 7 do begin
         Knob := Patch.GetKnob( GetKnobIndexOffset + i);
         FDispModuleArray[i].TextFunction := 1000;
+        FDispButtonArray[i].TextFunction := 1001;
         if assigned(Knob) and (Knob.IsAssigned = 1) then begin
           FKnobArray[i].SetParameter( Knob.Parameter as TG2GraphParameter);
           FDispKnobArray[i].SetParameter( Knob.Parameter as TG2GraphParameter);
           FDispModuleArray[i].SetParameter( Knob.Parameter as TG2GraphParameter);
-          if assigned(Knob.Parameter.ButtonParam) then
+          if assigned(Knob.Parameter.ButtonParam) then begin
             FButtonArray[i].SetParameter( Knob.Parameter.ButtonParam);
+            FDispButtonArray[i].SetParameter( Knob.Parameter.ButtonParam);
+          end else begin
+            FButtonArray[i].SetParameter( nil);
+            FDispButtonArray[i].SetParameter( nil);
+          end;
         end else begin
           FKnobArray[i].SetParameter( nil);
           FDispKnobArray[i].SetParameter( nil);
           FDispModuleArray[i].SetParameter( nil);
           FButtonArray[i].SetParameter( nil);
+          FDispButtonArray[i].SetParameter(nil);
         end;
       end;
 
@@ -295,17 +320,24 @@ begin
       for i := 0 to 7 do begin
         Knob := Perf.GetGlobalKnob( GetKnobIndexOffset + i);
         FDispModuleArray[i].TextFunction := 1002;
+        FDispButtonArray[i].TextFunction := 1001;
         if assigned(Knob) and (Knob.IsAssigned = 1) then begin
           FKnobArray[i].SetParameter( Knob.Parameter as TG2GraphParameter);
           FDispKnobArray[i].SetParameter( Knob.Parameter as TG2GraphParameter);
           FDispModuleArray[i].SetParameter( Knob.Parameter as TG2GraphParameter);
-          if assigned(Knob.Parameter.ButtonParam) then
+          if assigned(Knob.Parameter.ButtonParam) then begin
             FButtonArray[i].SetParameter( Knob.Parameter.ButtonParam);
+            FDispButtonArray[i].SetParameter( Knob.Parameter.ButtonParam);
+          end else begin
+            FButtonArray[i].SetParameter( nil);
+            FDispButtonArray[i].SetParameter( nil);
+          end;
         end else begin
           FKnobArray[i].SetParameter( nil);
           FDispKnobArray[i].SetParameter( nil);
           FDispModuleArray[i].SetParameter( nil);
           FButtonArray[i].SetParameter( nil);
+          FDispButtonArray[i].SetParameter(nil);
         end;
       end;
     end;
