@@ -65,7 +65,7 @@
     </Inputs>
     <Params>
       <Param>
-        <Name>Destination</Name>
+        <Name>Dest</Name>
         <DefaultValue>0</DefaultValue>
         <Id>27</Id>
       </Param>
@@ -102,7 +102,7 @@
     </Inputs>
     <Params>
       <Param>
-        <Name>Destination</Name>
+        <Name>Dest</Name>
         <DefaultValue>0</DefaultValue>
         <Id>26</Id>
         <DefaultKnob>0</DefaultKnob>
@@ -7958,84 +7958,84 @@
         <ButtonParam>1</ButtonParam>
       </Param>
       <Param>
-        <Name>E</Name>
+        <Name>Note E</Name>
         <DefaultValue>0</DefaultValue>
         <Id>106</Id>
         <DefaultKnob>5</DefaultKnob>
         <ButtonParam>2</ButtonParam>
       </Param>
       <Param>
-        <Name>F</Name>
+        <Name>Note F</Name>
         <DefaultValue>0</DefaultValue>
         <Id>106</Id>
         <DefaultKnob>6</DefaultKnob>
         <ButtonParam>3</ButtonParam>
       </Param>
       <Param>
-        <Name>F#</Name>
+        <Name>Note F#</Name>
         <DefaultValue>0</DefaultValue>
         <Id>106</Id>
         <DefaultKnob>7</DefaultKnob>
         <ButtonParam>4</ButtonParam>
       </Param>
       <Param>
-        <Name>G</Name>
+        <Name>Note G</Name>
         <DefaultValue>0</DefaultValue>
         <Id>106</Id>
         <DefaultKnob>8</DefaultKnob>
         <ButtonParam>5</ButtonParam>
       </Param>
       <Param>
-        <Name>G#</Name>
+        <Name>Note G#</Name>
         <DefaultValue>0</DefaultValue>
         <Id>106</Id>
         <DefaultKnob>9</DefaultKnob>
         <ButtonParam>6</ButtonParam>
       </Param>
       <Param>
-        <Name>A</Name>
+        <Name>Note A</Name>
         <DefaultValue>0</DefaultValue>
         <Id>106</Id>
         <DefaultKnob>10</DefaultKnob>
         <ButtonParam>7</ButtonParam>
       </Param>
       <Param>
-        <Name>A#</Name>
+        <Name>Note A#</Name>
         <DefaultValue>0</DefaultValue>
         <Id>106</Id>
         <DefaultKnob>11</DefaultKnob>
         <ButtonParam>8</ButtonParam>
       </Param>
       <Param>
-        <Name>B</Name>
+        <Name>Note B</Name>
         <DefaultValue>0</DefaultValue>
         <Id>106</Id>
         <DefaultKnob>12</DefaultKnob>
         <ButtonParam>9</ButtonParam>
       </Param>
       <Param>
-        <Name>C</Name>
+        <Name>Note C</Name>
         <DefaultValue>0</DefaultValue>
         <Id>106</Id>
         <DefaultKnob>1</DefaultKnob>
         <ButtonParam>10</ButtonParam>
       </Param>
       <Param>
-        <Name>C#</Name>
+        <Name>Note C#</Name>
         <DefaultValue>0</DefaultValue>
         <Id>106</Id>
         <DefaultKnob>2</DefaultKnob>
         <ButtonParam>11</ButtonParam>
       </Param>
       <Param>
-        <Name>D</Name>
+        <Name>Note D</Name>
         <DefaultValue>0</DefaultValue>
         <Id>106</Id>
         <DefaultKnob>3</DefaultKnob>
         <ButtonParam>12</ButtonParam>
       </Param>
       <Param>
-        <Name>D#</Name>
+        <Name>Note D#</Name>
         <DefaultValue>0</DefaultValue>
         <Id>106</Id>
         <DefaultKnob>4</DefaultKnob>
@@ -11035,7 +11035,7 @@
     </Outputs>
     <Params>
       <Param>
-        <Name>Mode</Name>
+        <Name>Priorty</Name>
         <DefaultValue>0</DefaultValue>
         <Id>99</Id>
         <DefaultKnob>0</DefaultKnob>

@@ -333,6 +333,8 @@ const
   // Unknown: '12.0s','12.3s','12.7s','13.1s','13.7s','14.9s','16.4s','18.3s',
   // '19.3s','20.5s','21.5s','22.5s','23.5s'
 
+  KeyNames : array[0..11] of string = ('C','C#','D','D#','E','F','F#','G','G#','A','A#','B');
+
   MaxPixelCount = 32768;
 
 type
@@ -437,6 +439,8 @@ function  max( v1, v2 : integer): integer;
 function  min( v1, v2 : integer): integer;
 function  ConvertFwSlahsToBwSlash( filename : string): string;
 function  ConvertBwSlahsToFwSlash( filename : string): string;
+function  ConvertToObjectName( aValue : string): string;
+function  GetKeyName( aKeyNumber : integer): string;
 
 {$IFNDEF G2_VST}
 function  InRange(value: string; min, max: integer): integer;
@@ -484,6 +488,26 @@ var
   G_CableThickness : integer;
 
 implementation
+
+function GetKeyName( aKeyNumber : integer): string;
+var Key, Octave : integer;
+begin
+  Key := aKeyNumber mod 12;
+  Octave := aKeyNumber div 12 - 1;
+  Result := KeyNames[Key] + IntToStr(Octave);
+end;
+
+function ConvertToObjectName( aValue : string): string;
+var i : integer;
+begin
+  Result := '';
+  for i := 1 to Length(aValue) do begin
+    if aValue[i] in [' ','/','#'] then
+      Result := Result + '_'
+    else
+      Result := Result + aValue[i];
+  end;
+end;
 
 function ConvertFwSlahsToBwSlash( filename : string): string;
 var i : integer;

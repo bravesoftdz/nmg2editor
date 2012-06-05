@@ -5259,7 +5259,7 @@ begin
     if FOrientation = otHorizontal then begin
       FButtonPressed := X div FButtonWidth;
     end else begin
-      FButtonPressed := Y div FButtonHeight;
+      FButtonPressed := (2 * FButtonHeight - Y) div FButtonHeight;
     end;
 
     case FButtonPressed of

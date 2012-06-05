@@ -2754,7 +2754,7 @@ begin
     miSelectModule.Caption := 'Select &module, current ' + GetModuleName(Module);
     Param := GetSelectedParam;
     if assigned(Param) then
-      miSelectParameter.Caption := 'Select &parameter, current ' + GetParameterName(Param) + ', value ' + GetParameterValue(Param)
+      miSelectParameter.Caption := 'Select &parameter, current ' + GetParameterName(Param) + ', value ' + {GetParameterValue(Param)} Param.InfoFunction
     else
       miSelectParameter.Caption := 'Select &parameter';
     miSelectCable.Caption := 'Select cabl&e';
@@ -2926,7 +2926,7 @@ begin
     Module := G2.SelectedPatchPart.SelectedModuleList[0];
     for i := 0 to Module.ParameterCount - 1 do begin
       Param := Module.Parameter[i];
-      MenuItem := FindOrAddMenuItem( puSelectParam, 'mi' + Param.ParamName, Param.ParamName + ', value ' + IntToStr(Param.GetParameterValue));
+      MenuItem := FindOrAddMenuItem( puSelectParam, 'mi' + ConvertToObjectName(Param.ParamName), Param.ParamName + ', value ' + Param.InfoFunction{ + ' (' + IntToStr(Param.GetParameterValue) + ')'});
       MenuItem.Tag := integer(Param);
       MenuItem.OnClick := DoSelectParam;
     end;
@@ -3058,7 +3058,7 @@ begin
     for i := 0 to Module.OutConnectorCount - 1 do begin
       Connector := Module.OutConnector[i];
       if Connector.CableCount > 0 then begin
-        ConnectorMenuItem := FindOrAddMenuItem( puSelectCable, 'miOut' + Connector.Name, GetConnectorName( Connector));
+        ConnectorMenuItem := FindOrAddMenuItem( puSelectCable, 'miOut' + ConvertToObjectName(Connector.Name), GetConnectorName( Connector));
         ConnectorMenuItem.Tag := Connector.ConnectorIndex;
         AddCableMenuItem( ConnectorMenuItem, Connector);
       end;
@@ -3067,7 +3067,7 @@ begin
     for i := 0 to Module.InConnectorCount - 1 do begin
       Connector := Module.InConnector[i];
       if Connector.CableCount > 0 then begin
-        ConnectorMenuItem := FindOrAddMenuItem( puSelectCable, 'miIn' + Connector.Name, GetConnectorName( Connector));
+        ConnectorMenuItem := FindOrAddMenuItem( puSelectCable, 'miIn' + ConvertToObjectName(Connector.Name), GetConnectorName( Connector));
         ConnectorMenuItem.Tag := Connector.ConnectorIndex;
         AddCableMenuItem( ConnectorMenuItem, Connector);
       end;

@@ -6959,6 +6959,16 @@ begin
          1 : Result := 'Active';
          end;
        end;
+  11 : begin // Note quant, Notes
+         TempValue := GetParameterValue;
+         if TempValue = 0 then
+           Result := 'Off'
+         else
+           Result := IntToStr(TempValue);
+       end;
+  13 : begin // Note detect
+         Result := GetKeyName(GetParameterValue);
+       end;
   16 : begin // Env Sustain
          Result := Format('%.1g', [1.0 * round(GetParameterValue/2)])
        end;
@@ -6974,6 +6984,16 @@ begin
            Result := Format('%.3g', [t*1000]) + 'm'
          else
            Result := Format('%.3g', [t]) + 's';
+       end;
+  35 : begin // Note Quant, Range
+         TempValue := GetParameterValue;
+         if TempValue = 0 then
+           Result := '0'
+         else
+           if TempValue = 127 then
+             Result := '+-64'
+           else
+             Result := '+-' + Format('%.1f', [TempValue / 2]);
        end;
   43 : begin // Env Gate/Trigger
          case GetParameterValue of
@@ -7098,6 +7118,28 @@ begin
           3 : Result := 'Partial';
           end;
        end;
+  68 : begin // PartQuant, range
+          TempValue := GetParameterValue;
+          if TempValue > 64 then
+            Result := '+-' + IntToStr(Trunc(TempValue / 2)) + '*'
+          else
+            Result := '+-' + IntToStr(Trunc(TempValue / 2));
+       end;
+  69 : begin // NoteScaler, range
+          TempValue := GetParameterValue;
+          if TempValue = 127 then
+            Result := '+-64.0'
+          else
+            Result := '+-' + Format('%.1f',[TempValue / 2]);
+            if (TempValue mod 24 = 0) then
+              Result := Result + '-Oct'
+            else
+              if ((TempValue mod 24) mod 20 = 0) then
+                Result := Result + '-7th'
+              else
+                if ((TempValue mod 24) mod 14 = 0) then
+                  Result := Result + '-5th';
+       end;
   71 : begin // Flt KBT
           case GetParameterValue of
           0 : Result := 'KBT Off';
@@ -7140,6 +7182,13 @@ begin
   126 : begin // Osc Shape
           Result := IntToStr(trunc(50 + 50.0 * GetParameterValue / 128)) + '%';
         end;
+  132 : begin // Key Quant, Range
+          TempValue := GetParameterValue;
+          if TempValue = 127 then
+            Result := '+-64.0'
+          else
+            Result := '+-' + Format('%.1f', [TempValue / 2]);
+        end;
   136 : begin // Env Shape
           case GetParameterValue of
           0 : Result := 'LogExp';
@@ -7166,17 +7215,68 @@ begin
           1 : Result := 'ClkSync';
           end;
         end;
+  149 : begin // FX In, pad
+          case GetParameterValue of
+          0 : Result := '+6dB';
+          1 : Result := '0dB';
+          2 : Result := '-6dB';
+          3 : Result := '-12dB';
+          end;
+        end;
+  152 : begin // FX In, source
+          case GetParameterValue of
+          0 : Result := 'Fx 1/2';
+          1 : Result := 'Fx 3/4';
+          end;
+        end;
   156 : begin // OscB Waveform
-         case GetParameterValue of
-         0 : Result := 'Sine';
-         1 : Result := 'Tri';
-         2 : Result := 'Saw';
-         3 : Result := 'Sqr';
-         4 : Result := 'DualSaw';
-         end;
+          case GetParameterValue of
+          0 : Result := 'Sine';
+          1 : Result := 'Tri';
+          2 : Result := 'Saw';
+          3 : Result := 'Sqr';
+          4 : Result := 'DualSaw';
+          end;
        end;
+  157 : begin // Glide, shape
+          case GetParameterValue of
+          0 : Result := 'Log';
+          1 : Result := 'Lin';
+          end;
+        end;
+  180 : begin // Out Pad
+          case GetParameterValue of
+          0 : Result := '0dB';
+          1 : Result := '+6dB';
+          2 : Result := '+12dB';
+          3 : Result := '+18dB';
+          end;
+        end;
+  181 : begin // MonoKey, priority
+          case GetParameterValue of
+          0 : Result := 'Last';
+          1 : Result := 'Low';
+          2 : Result := 'High';
+          end;
+        end;
+  182 : begin // Out dest
+          case GetParameterValue of
+          0 : Result := 'Out 1/2';
+          1 : Result := 'Out 3/4';
+          2 : Result := 'Fx 1/2';
+          3 : Result := 'Fx 3/4';
+          4 : Result := 'Bus 1/2';
+          5 : Result := 'Bus 3/4';
+          end;
+        end;
   191 : begin // Flt Freq Mod
           Result := Format('%.1f',[200.0 * GetParameterValue / 127]) + '%';
+        end;
+  194 : begin // Key Quant, capture
+          case GetParameterValue of
+          0 : Result := 'Closest';
+          1 : Result := 'Evenly';
+          end;
         end
   else
     Result := IntToStr(GetParameterValue);
@@ -7202,7 +7302,7 @@ begin
 
   case aTextFunction of
   // Zero: displays that are dependend on one parameter only
-  0    : begin // Filter freq Nord
+  0, 13 : begin // Filter freq Nord
            {case Module.FTypeID of
            134,92,87,54,51,49 :
                 case ParamIndex of
@@ -7372,6 +7472,9 @@ begin
                  end;
              end;
            end;
+         end;
+  217  : begin // Glide time
+
          end;
   1000 : Result := string(FModuleName);
   1001 : begin
