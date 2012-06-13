@@ -34,7 +34,7 @@ interface
 uses
   SysUtils,
   Classes,
-  StdCtrls,
+  //StdCtrls,
   math;
 
 const

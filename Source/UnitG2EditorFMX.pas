@@ -62,9 +62,12 @@ type
     function    CreateModule( aLocation : TLocationType; aModuleIndex : byte; aModuleType : byte): TG2FileModule; override;
     function    CreateCable( aLocation : TLocationType; aColor : byte; aFromModule : byte; aFromConnector : byte; aLinkType : byte; aToModule : byte; aToConnector : byte): TG2FileCable; override;
 
-    procedure   SelectModules;
+    {procedure   SelectModules;
     procedure   MoveOutlines( dX, dY : single);
-    function    MessMoveModules: boolean; virtual;
+    function    MessMoveModules: boolean; virtual;}
+    procedure   SelectModulesInRect( aLocation : TLocationType; aRect : TRect);
+    procedure   MoveOutlines( aLocation : TLocationType; dX, dY: single);
+    function    MessMoveModules( aLocation : TLocationType): boolean;
 
     //function    GetG2 : TG2Graph; virtual;
     function    CreateParameter( aModuleIndex : byte): TG2FileParameter; override;
@@ -106,10 +109,13 @@ type
     function    GetOnConnectorClick: TConnectorClickEvent;
     procedure   SetOnConnectorClick( aValue : TConnectorClickEvent);
   public
-    constructor Create( AOwner: TComponent); override;
-    constructor CopyCreate( AOwner : TComponent; aModule : TG2GraphModule);
+    //constructor Create( AOwner: TComponent); override;
+    constructor Create( aPatchPart : TG2FilePatchPart); virtual;
+    //constructor CopyCreate( AOwner : TComponent; aModule : TG2GraphModule);
+    constructor CopyCreate( aPatchPart : TG2FilePatchPart; aModule : TG2GraphModule);
     destructor  Destroy; override;
-    function    CreateCopy( AOwner : TComponent) : TG2FileModule; override;
+    //function    CreateCopy( AOwner : TComponent) : TG2FileModule; override;
+    function    CreateCopy( aPatchPart : TG2FilePatchPart) : TG2FileModule; virtual;
     function    CreateParameter: TG2FileParameter; override;
     procedure   ParsePanelData;
     //procedure   Invalidate;
@@ -475,9 +481,9 @@ begin
 
   Result := nil;
 
-  Module := TG2GraphModule.Create( self);
-  Module.FTypeID := aModuleType;
-  Module.FModuleIndex := aModuleIndex;
+  Result := TG2GraphModule.Create( PatchPart[ ord(aLocation)]);
+  Result.ModuleIndex := aModuleIndex;
+  Result.TypeID := aModuleType;
 
   if assigned( FG2) and assigned(FG2.FModuleDefList) and assigned(FG2.FParamDefList) then begin
     i := 0;
@@ -533,13 +539,13 @@ begin
   if not assigned(ModuleTo) then
     raise Exception.Create('ModuleIndex ' + IntToStr( aToModule) + ' not found.');
 
-  Cable                := TG2GraphCable.Create( self);
-  Cable.Color          := aColor;
-  Cable.FModuleFrom    := aFromModule;
-  Cable.FConnectorFrom := aFromConnector;
-  Cable.FLinkType      := aLinkType;
-  Cable.FModuleTo      := aToModule;
-  Cable.FConnectorTo   := aToConnector;
+  Cable               := TG2GraphCable.Create( self);
+  Cable.CableColor    := aColor;
+  Cable.ModuleFrom    := aFromModule;
+  Cable.ConnectorFrom := aFromConnector;
+  Cable.LinkType      := aLinkType;
+  Cable.ModuleTo      := aToModule;
+  Cable.ConnectorTo   := aToConnector;
 
   // If Linktype is 1 then the first connector is an output, else it's an input (i guess)
   if aLinkType = 1 then
@@ -551,15 +557,15 @@ begin
 
     // Link connectors to cable
     if FromConnKind = ckInput then
-      Cable.FFromConnector := ModuleFrom.InConnector[ aFromConnector]
+      Cable.FromConnector := ModuleFrom.InConnector[ aFromConnector]
     else
-      Cable.FFromConnector := ModuleFrom.OutConnector[ aFromConnector];
+      Cable.FromConnector := ModuleFrom.OutConnector[ aFromConnector];
 
-    Cable.FToConnector := ModuleTo.InConnector[ aToConnector];
+    Cable.ToConnector := ModuleTo.InConnector[ aToConnector];
 
     // Add cable to connectors
-    Cable.FFromConnector.AddCable(Cable);
-    Cable.FToConnector.AddCable(Cable);
+    Cable.FromConnector.AddCable(Cable);
+    Cable.ToConnector.AddCable(Cable);
 
     if aLocation = ltFX then
       //Cable.Parent := FG2.ScrollboxFX
@@ -569,8 +575,8 @@ begin
       Cable.Parent := FG2.FLayoutVA;
 
     // Cable needs scrollbar coords
-    ConnectorFrom := Cable.FFromConnector.FControl as TG2GraphConnector;
-    ConnectorTo := Cable.FToConnector.FControl as TG2GraphConnector;
+    ConnectorFrom := Cable.FromConnector.GraphControl as TG2GraphConnector;
+    ConnectorTo := Cable.ToConnector.GraphControl as TG2GraphConnector;
 
     Cable.x1 := trunc(ModuleFrom.ScrollPosX +  ConnectorFrom.Position.X + ConnectorFrom.Width / 2);
     Cable.y1 := trunc(ModuleTo.ScrollPosY +  ConnectorFrom.Position.Y + ConnectorFrom.Height / 2);
@@ -578,13 +584,12 @@ begin
     Cable.y2 := Cable.y1;
     Cable.InitCable;
     Cable.ConnectorMoved;
-    //Cable.Invalidate;
   end;
 
   Result := Cable;
 end;
 
-procedure TG2GraphPatch.SelectModules;
+{procedure TG2GraphPatch.SelectModules;
 var i, j : integer;
 begin
   for i := 0 to 1 do
@@ -609,7 +614,50 @@ begin
     for j := 0 to ModuleCount[i] - 1 do
       if (FModuleList[i].FModules[j] as TG2GraphModule).Selected then
         (FModuleList[i].FModules[j] as TG2GraphModule).FPanel.MoveModule;
+end;}
+
+procedure TG2GraphPatch.SelectModulesInRect( aLocation : TLocationType; aRect : TRect);
+var i, temp : integer;
+begin
+  if aRect.Left > aRect.Right then begin
+    temp := aRect.Left;
+    aRect.Left := aRect.Right;
+    aRect.Right := temp;
+  end;
+
+  if aRect.Top > aRect.Bottom then begin
+    temp := aRect.Top;
+    aRect.Top := aRect.Bottom;
+    aRect.Bottom := temp;
+  end;
+
+  UnselectModules( ltFX);
+  UnselectModules( ltVA);
+  for i := 0 to ModuleList[ ord(aLocation)].Count - 1 do begin
+{    if PointInRect( (ModuleList[ ord(aLocation)][i] as TG2GraphModule).FPanel.Left,
+                    (ModuleList[ ord(aLocation)][i] as TG2GraphModule).FPanel.Top,
+                    aRect) then}
+      ModuleList[ ord(aLocation)][i].Selected := True;
+  end;
 end;
+
+procedure TG2GraphPatch.MoveOutlines( aLocation : TLocationType; dX, dY: single);
+var i : integer;
+begin
+  for i := 0 to PatchPart[ ord(aLocation)].SelectedModuleList.Count - 1 do
+    (PatchPart[ ord(aLocation)].SelectedModuleList[i] as TG2GraphModule).FPanel.MoveOutline( dX, dY);
+
+end;
+
+function TG2GraphPatch.MessMoveModules( aLocation : TLocationType): boolean;
+var i : integer;
+begin
+//  Result := inherited MessMoveModules( aLocation);
+  for i := 0 to PatchPart[ ord(aLocation)].SelectedModuleList.Count - 1 do
+    (PatchPart[ ord(aLocation)].SelectedModuleList[i] as TG2GraphModule).FPanel.MoveModule;
+end;
+
+
 
 {TODO function TG2GraphPatch.GetG2 : TG2Graph;
 begin
@@ -621,13 +669,13 @@ begin
   Result := TG2GraphParameter.Create( self, ltPatch, aModuleIndex);
 end;
 
-procedure TG2GraphPatch.UnselectModules( aLocation : TLocationType);
+{procedure TG2GraphPatch.UnselectModules( aLocation : TLocationType);
 var i : integer;
 begin
   for i := 0 to ModuleCount[ord(aLocation)] - 1 do
     if (FModuleList[ord(aLocation)].FModules[i] as TG2GraphModule).Selected then
       (FModuleList[ord(aLocation)].FModules[i] as TG2GraphModule).Selected := False;
-end;
+end;}
 
 {TODO function TG2GraphPatch.GetLed( Index: integer): TG2GraphLed;
 begin
@@ -758,7 +806,7 @@ begin
   if aValue <> FVisible then begin
     for i := 0 to 1 do
       for j := 0 to ModuleCount[i] - 1 do
-        (FModuleList[i].FModules[j] as TG2GraphModule).FPanel.Visible := aValue;
+        (ModuleList[i].Items[j] as TG2GraphModule).FPanel.Visible := aValue;
     FVisible := aValue;
   end;
 end;
@@ -821,7 +869,39 @@ end;
 
 // ==== G2GraphModule ==========================================================
 
-constructor TG2GraphModule.Create( AOwner: TComponent);
+constructor TG2GraphModule.Create( aPatchPart : TG2FilePatchPart);
+begin
+  inherited Create( aPatchPart);
+  FPanel := TG2GraphModulePanelFMX.Create( aPatchPart);
+  FPanel.FData := self;
+  FFreePanel := True;
+  FOutlineRect := FPanel.BoundsRect;
+  FOutlineVisible := False;
+end;
+
+constructor TG2GraphModule.CopyCreate( aPatchPart : TG2FilePatchPart; aModule : TG2GraphModule);
+begin
+  inherited Create( aPatchPart);
+  Copy( aModule);
+  FFreePanel := False;
+  FPanel := aModule.FPanel;
+  FOutlineRect := FPanel.BoundsRect;
+  FOutlineVisible := False;
+end;
+
+destructor TG2GraphModule.Destroy;
+begin
+  if FFreePanel then
+    FPanel.Free;
+  inherited;
+end;
+
+function TG2GraphModule.CreateCopy( aPatchPart : TG2FilePatchPart) : TG2FileModule;
+begin
+  Result := TG2GraphModule.CopyCreate( aPatchPart, self);
+end;
+
+{constructor TG2GraphModule.Create( AOwner: TComponent);
 begin
   inherited Create( AOwner);
   FPanel := TG2GraphModulePanelFMX.Create( AOwner);
@@ -853,11 +933,12 @@ end;
 function TG2GraphModule.CreateCopy(AOwner: TComponent) : TG2FileModule;
 begin
   Result := TG2GraphModule.CopyCreate(AOwner, self);
-end;
+end;}
 
 function TG2GraphModule.CreateParameter: TG2FileParameter;
 begin
-  Result := TG2GraphParameter.Create( FPatch, TLocationType(FLocation), FModuleIndex);
+  //Result := TG2GraphParameter.Create( FPatch, TLocationType(FLocation), FModuleIndex);
+  Result := TG2GraphParameter.Create( PatchPart.Patch, TLocationType(Location), ModuleIndex);
 end;
 
 function TG2GraphModule.GetNewCol: TBits7;
@@ -999,8 +1080,8 @@ end;
 
 procedure TG2GraphModule.SetSelected( aValue: boolean);
 begin
-  FSelected := aValue;
-  //Invalidate;
+  inherited;
+  FPanel.SetSelected( aValue);
 end;
 
 procedure TG2GraphModule.SetVisible(aValue: boolean);
@@ -1086,7 +1167,7 @@ end;
 
 function TG2GraphModulePanelFMX.GetSelected: boolean;
 begin
-  Result := FData.FSelected;
+  Result := FData.Selected;
 end;
 
 procedure TG2GraphModulePanelFMX.SetSelected(aValue: boolean);
@@ -1096,14 +1177,14 @@ end;
 
 procedure TG2GraphModulePanelFMX.SetCol(aValue: TBits7);
 begin
-  if aValue <> FData.FCol then begin
+  if aValue <> FData.Col then begin
     Position.X := aValue * UNITS_COL - ScrollBarX;
   end;
 end;
 
 procedure TG2GraphModulePanelFMX.SetRow(aValue: TBits7);
 begin
-  if aValue <> FData.FRow then begin
+  if aValue <> FData.Row then begin
     Position.Y := aValue * UNITS_ROW - ScrollbarY;
   end;
 end;
@@ -1125,14 +1206,19 @@ begin
       ltFX : Patch.UnselectModules(ltVA);
     end;
 
-    if not(ssCtrl in Shift) then
-      Patch.UnSelectModules( Location);
-    Selected := True;
+    if not FData.Selected then begin
+      if not(ssCtrl in Shift) then
+        Patch.UnSelectModules( Location);
+      FData.Selected := True;
+    end;
+
+    if Location <> Patch.SelectedLocation then
+      Patch.SelectedLocation := Location;
 
     if ssLeft in Shift then begin
       FStartX := X;
       FStartY := Y;
-      Patch.SelectModules;
+      //Patch.SelectModules;
     end;
 
   inherited;
@@ -1149,7 +1235,7 @@ begin
   if ssLeft in Shift then begin
     Patch := GetPatch;
 
-    Patch.MoveOutlines( X - FStartX, Y - FStartY);
+    Patch.MoveOutlines( Data.Location, X - FStartX, Y - FStartY);
   end;
 
   inherited;
@@ -1162,7 +1248,7 @@ begin
   Patch := GetPatch;
 
   if (FStartX <> X) or (FStartY <> Y) then
-    Patch.MessMoveModules;
+    Patch.MessMoveModules( Data.Location);
 
   if assigned( FOnModuleClick) then
     FOnModuleClick( self, Button, Shift, trunc(X), trunc(Y), FData);
@@ -1216,15 +1302,16 @@ end;
 
 function TG2GraphModulePanelFMX.GetPatch: TG2GraphPatch;
 begin
-  if not assigned(FData.FPatch) then
+  if not assigned(FData.PatchPart.Patch) then
     raise Exception.Create('Patch not assigned to module.');
 
-  Result := FData.FPatch as TG2GraphPatch;
+  Result := FData.PatchPart.Patch as TG2GraphPatch;
 end;
 
 procedure TG2GraphModulePanelFMX.ParsePanelData;
-var MemStream : TMemoryStream;
-    i, CodeRef, Err : integer;
+var //MemStream : TMemoryStream;
+    ModuleStream : TModuleDefStream;
+    CodeRef, Err : integer;
     aPath : string;
     aName, aValue, ControlType, CodeRefStr : AnsiString;
     ChildControl : TG2GraphControlFMX;
@@ -1242,9 +1329,139 @@ begin
 
   Patch := GetPatch;
 
-  if FileExists( aPath + FData.FModuleName + '.txt') then begin
+  if FileExists( aPath + string(FData.ModuleFileName) + '.txt') then begin
+    //MemStream := TMemoryStream.Create;
+    //MemStream.LoadFromFile( aPath + FData.ModuleName + '.txt');
+    ModuleStream := TModuleDefStream.Create(aPath + string(FData.ModuleFileName) + '.txt');
+    try
+      if ModuleStream.ReadConst('<#Module') then begin
+        aName := 'Module';
+        while (ModuleStream.Position < ModuleStream.Size) and (aName[1] <> '<') do begin
+          ModuleStream.ReadSpaces;
+          aName := ModuleStream.ReadUntil( [':', #13]);
+          if aName[1] <> '<' then begin
+            aValue := ModuleStream.ReadUntil( [#13]);
+
+            if aName = 'Height' then
+              Height := UNITS_ROW * StrToInt(string(aValue));
+          end;
+        end;
+
+        while aName[1] = '<' do begin
+          ControlType := copy(aName, 3, Length(aName) - 2);
+          if ControlType = 'Input' then begin
+
+            CodeRefStr := ModuleStream.PeekValue( 'CodeRef:', [#13, #10, '#'], ['#', '>']);
+            val( string(CodeRefStr), CodeRef, Err);
+            if Err = 0 then begin
+              Connector := TG2GraphConnector.Create(self);
+              Connector.FModule := self;
+              Connector.Data := FData.InConnector[ CodeRef];
+              if Connector.Data = nil then
+                raise Exception.Create('Data for connector not found...');
+
+              Connector.ParsePanelData( ModuleStream);
+              AddGraphControl( Connector);
+            end else
+              raise Exception.Create('Parse error, module  ' + string(FData.ModuleName) + ' input connector CodeRef not found.' );
+
+          end else
+            if ControlType = 'Output' then begin
+
+              CodeRefStr := ModuleStream.PeekValue( 'CodeRef:', [#13, #10, '#'], ['#', '>']);
+              val( string(CodeRefStr), CodeRef, Err);
+              if Err = 0 then begin
+                Connector := TG2GraphConnector.Create(self);
+                Connector.FModule := self;
+                Connector.Data := FData.OutConnector[ CodeRef];
+                if Connector.Data = nil then
+                  raise Exception.Create('Data for connector not found...');
+
+                Connector.ParsePanelData( ModuleStream);
+                AddGraphControl( Connector);
+              end else
+                raise Exception.Create('Parse error, module  ' + string(FData.ModuleName) + ' output connector CodeRef not found.' );
+
+            end else begin
+              ChildControl := NewG2GraphControl(ControlType);
+              if ChildControl <> nil then begin
+
+                AddGraphControl( ChildControl);
+
+                if ( ControlType = 'Knob') or
+                   ( ControlType = 'ButtonIncDec') or
+                   ( ControlType = 'ButtonRadio') or
+                   ( ControlType = 'LevelShift') or
+                   ( ControlType = 'ButtonFlat') or
+                   ( ControlType = 'TextEdit') or
+                   ( ControlType = 'PartSelector') or
+                   ( ControlType = 'ButtonText') then begin
+
+                  CodeRefStr := ModuleStream.PeekValue( 'CodeRef:', [#13, #10, '#'], ['#', '>']);
+                  val( string(CodeRefStr), CodeRef, Err);
+                  if Err = 0 then begin
+                    if ControlType = 'PartSelector' then begin
+                      Param := FData.Mode[ CodeRef] as TG2GraphParameter;
+                    end else begin
+                      Param := FData.Parameter[ CodeRef] as TG2GraphParameter;
+                    end;
+                    ChildControl.ParsePanelData( ModuleStream);
+                    ChildControl.Parameter := Param;
+                  end else
+                    raise Exception.Create('Parse error, module  ' + string(FData.ModuleName) + ' parameter CodeRef not found.' );
+
+                end else
+                  // No parameter associated
+                  ChildControl.ParsePanelData( ModuleStream);
+
+              end else begin
+                while ( ModuleStream.Position < ModuleStream.Size) and (aName <> '#>') do begin
+                  ModuleStream.ReadSpaces;
+                  aName := ModuleStream.ReadUntil( [':', #13]);
+                  if aName <> '#>' then begin
+                    aValue := ModuleStream.ReadUntil( [#13]);
+                  end;
+                end;
+              end;
+            end;
+          ModuleStream.ReadSpaces;
+          aName := ModuleStream.ReadUntil( [':', #13]);
+        end;
+
+//        FChildControls.Sort(@CompareZOrder);
+      end else
+        raise Exception.Create('Unknown file type.');
+
+      Patch.SortLeds;
+    finally
+      ModuleStream.Free;
+    end;
+  end;
+end;
+
+{procedure TG2GraphModulePanelFMX.ParsePanelData;
+var MemStream : TMemoryStream;
+    i, CodeRef, Err : integer;
+    aPath : string;
+    aName, aValue, ControlType, CodeRefStr : AnsiString;
+    ChildControl : TG2GraphControlFMX;
+    Connector : TG2GraphConnector;
+    Param : TG2GraphParameter;
+    Patch : TG2GraphPatch;
+begin
+  aPath := ExtractFilePath(ParamStr(0));
+  //aPath := GetCurrentDir;
+//{$IFDEF FPC}
+//  aPath := aPath + 'Modules/';
+//{$ELSE}
+{  aPath := aPath + '\Modules\';
+//{$ENDIF}
+
+{  Patch := GetPatch;
+
+  if FileExists( aPath + FData.ModuleName + '.txt') then begin
     MemStream := TMemoryStream.Create;
-    MemStream.LoadFromFile( aPath + FData.FModuleName + '.txt');
+    MemStream.LoadFromFile( aPath + FData.ModuleName + '.txt');
     try
       if ReadConst(MemStream, '<#Module') then begin
         aName := 'Module';
@@ -1353,7 +1570,7 @@ begin
       MemStream.Free;
     end;
   end;
-end;
+end;}
 
 function TG2GraphModulePanelFMX.GetControlType( aG2GraphChildControl: TG2GraphControlFMX): string;
 begin
@@ -1625,7 +1842,7 @@ end;
 function TG2GraphControlFMX.GetMorph: TMorphParameter;
 begin
   if assigned( FParameter) then
-    Result := FParameter.GetMorph
+    Result := FParameter.GetSelectedMorph
   else
     Result := nil;
 end;
@@ -1633,7 +1850,7 @@ end;
 function TG2GraphControlFMX.GetMorphValue: byte;
 begin
   if assigned( FParameter) then
-    Result := FParameter.GetMorphValue
+    Result := FParameter.GetSelectedMorphValue
   else
     Result := 0;
 end;

@@ -4169,7 +4169,7 @@ begin
   FMouseInput := False;
 
   Font.Name := 'Arial';
-  Font.Size := 7;
+  Font.Size := 8;
   Font.Style := [fsBold];
   Font.Color := clWhite;
 
@@ -4271,15 +4271,15 @@ begin
   Bitmap := TBitmap.Create;
   try
     Bitmap.Pixelformat := pf24bit;
-    Bitmap.Width := Rect.Right - Rect.Left;
-    Bitmap.Height := Rect.Bottom - Rect.Top;
+    Bitmap.Width := Rect.Right - Rect.Left + 1;
+    Bitmap.Height := Rect.Bottom - Rect.Top + 1;
     Bitmap.canvas.CopyRect(ClientRect, ExtCanvas, Rect);
 
     Bitmap.Canvas.Font.Assign( Font);
     Bitmap.Canvas.Brush.Color := Color;
 
     LineRect.Left := 0;
-    LineRect.Right := Width;
+    LineRect.Right := Width + 1;
     LineRect.Top := 0;
     LineRect.Bottom := LineRect.Top + LineHeight + 1;
 

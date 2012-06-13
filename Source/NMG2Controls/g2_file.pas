@@ -40,7 +40,7 @@ uses
 {$ELSE}
   Contnrs,
 {$ENDIF}
-  Windows, Classes, Dialogs, SysUtils, DOM, XMLRead, g2_types, g2_database, math;
+  Windows, Classes, SysUtils, DOM, XMLRead, g2_types, g2_database, math;
 
 const
   MIDI_BLOCK_SIZE = 479;//419; // The number of whole octets in  a full size MIDI packet
@@ -7287,7 +7287,7 @@ end;
 function TG2FileParameter.TextFunction( aTextFunction : integer; LineNo, TotalLines : integer): string;
 var aValue : byte;
     FreqCourse, FreqFine, FreqMode : Byte;
-    Exponent, Freq, Fact, DlyRange : single;
+    Exponent, Freq, Fact, DlyRange, DlyMin, DlyMax : single;
     iValue1, iValue2 : integer;
 begin
 {  if (aTextFunction <> 0) and assigned(Module) and (Length(aParams)>0) then
@@ -7414,6 +7414,26 @@ begin
                      Result := IntToStr(88 + aValue - 32) + ' BPM'
                    else
                      Result := IntToStr(152 + (aValue - 96)*2) + ' BPM';
+           end;
+         end;
+  141  : begin // Dly time
+           if assigned(Module) and (Length(FDependencies)=2) then begin
+             iValue1 := GetDependendParamValue(1);
+
+             case iValue1 of
+             0 : begin DlyMin := 0.05; DlyMax := 5.3; end;
+             1 : begin DlyMin := 0.21; DlyMax := 25.1; end;
+             2 : begin DlyMin := 0.8; DlyMax := 101; end;
+             3 : begin DlyMin := 3.95; DlyMax := 500; end;
+             4 : begin DlyMin := 7.89; DlyMax := 1000; end;
+             5 : begin DlyMin := 15.8; DlyMax := 2000; end;
+             6 : begin DlyMin := 21.3; DlyMax := 2700; end;
+             end;
+
+             if aValue = 0 then
+               Result := '0,01'
+             else
+               Result := Format('%.1f', [DlyMin + (DlyMax - DlyMin) * aValue /128]);
            end;
          end;
   146  : begin // Dly time
@@ -8835,8 +8855,8 @@ begin
 
   ReadXMLFile( FXMLModuleDefs, FModuleDefsFileName);
   FModuleDefList := TXMLModuleDefListType.Create( FXMLModuleDefs.FirstChild);
-  if FModuleDefList.FileVersion <> NMG2_VERSION then
-    ShowMessage('Warning, ModuleDef.xml version differs from application.');
+  //if FModuleDefList.FileVersion <> NMG2_VERSION then
+  //  ShowMessage('Warning, ModuleDef.xml version differs from application.');
 
   if assigned(FXMLParamDefs) then
     FXMLParamDefs.Free;
@@ -8844,8 +8864,8 @@ begin
   ReadXMLFile( FXMLParamDefs, FParamDefsFileName);
   FParamDefList := TXMLParamDefListType.Create( FXMLParamDefs.FirstChild);
 
-  if FParamDefList.FileVersion <> NMG2_VERSION then
-    ShowMessage('Warning, ParamDef.xml version differs from application.');
+  //if FParamDefList.FileVersion <> NMG2_VERSION then
+  //  ShowMessage('Warning, ParamDef.xml version differs from application.');
 end;
 
 function TG2File.TextFunction( No : integer; Param1, Param2, Param3 : byte): string;

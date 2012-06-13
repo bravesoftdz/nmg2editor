@@ -1179,6 +1179,13 @@ begin
   for i := 0 to FG2List.Count - 1 do begin
     G2 := FG2List[i] as TG2;
     G2.LoadModuleDefs('');
+
+    if G2.FModuleDefList.FileVersion <> NMG2_VERSION then
+      ShowMessage('Warning, ModuleDef.xml version differs from application.');
+
+    if G2.FParamDefList.FileVersion <> NMG2_VERSION then
+      ShowMessage('Warning, ParamDef.xml version differs from application.');
+
     G2.USBActive := True;
   end;
 

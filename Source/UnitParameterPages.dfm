@@ -1,10 +1,10 @@
 object frmParameterPages: TfrmParameterPages
   Left = 0
   Top = 0
-  BorderStyle = bsSizeToolWin
+  BorderStyle = bsToolWindow
   Caption = 'Parameter pages'
-  ClientHeight = 130
-  ClientWidth = 613
+  ClientHeight = 140
+  ClientWidth = 623
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -195,8 +195,8 @@ object frmParameterPages: TfrmParameterPages
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWhite
     Font.Height = -11
-    Font.Name = 'Tahoma'
-    Font.Style = []
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
     Color = 5592405
     Value = 0
     LowValue = 0
@@ -214,8 +214,8 @@ object frmParameterPages: TfrmParameterPages
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWhite
     Font.Height = -11
-    Font.Name = 'Tahoma'
-    Font.Style = []
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
     Color = 5592405
     Value = 0
     LowValue = 0
@@ -233,8 +233,8 @@ object frmParameterPages: TfrmParameterPages
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWhite
     Font.Height = -11
-    Font.Name = 'Tahoma'
-    Font.Style = []
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
     Color = 5592405
     Value = 0
     LowValue = 0
@@ -252,8 +252,8 @@ object frmParameterPages: TfrmParameterPages
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWhite
     Font.Height = -11
-    Font.Name = 'Tahoma'
-    Font.Style = []
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
     Color = 5592405
     Value = 0
     LowValue = 0
@@ -271,8 +271,8 @@ object frmParameterPages: TfrmParameterPages
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWhite
     Font.Height = -11
-    Font.Name = 'Tahoma'
-    Font.Style = []
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
     Color = 5592405
     Value = 0
     LowValue = 0
@@ -290,8 +290,8 @@ object frmParameterPages: TfrmParameterPages
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWhite
     Font.Height = -11
-    Font.Name = 'Tahoma'
-    Font.Style = []
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
     Color = 5592405
     Value = 0
     LowValue = 0
@@ -309,8 +309,8 @@ object frmParameterPages: TfrmParameterPages
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWhite
     Font.Height = -11
-    Font.Name = 'Tahoma'
-    Font.Style = []
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
     Color = 5592405
     Value = 0
     LowValue = 0
@@ -328,8 +328,8 @@ object frmParameterPages: TfrmParameterPages
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWhite
     Font.Height = -11
-    Font.Name = 'Tahoma'
-    Font.Style = []
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
     Color = 5592405
     Value = 0
     LowValue = 0
@@ -347,7 +347,7 @@ object frmParameterPages: TfrmParameterPages
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -11
-    Font.Name = 'Tahoma'
+    Font.Name = 'Arial'
     Font.Style = [fsBold]
     Color = clBtnFace
     Value = 0
@@ -366,7 +366,7 @@ object frmParameterPages: TfrmParameterPages
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -11
-    Font.Name = 'Tahoma'
+    Font.Name = 'Arial'
     Font.Style = [fsBold]
     Color = clBtnFace
     Value = 0
@@ -385,7 +385,7 @@ object frmParameterPages: TfrmParameterPages
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -11
-    Font.Name = 'Tahoma'
+    Font.Name = 'Arial'
     Font.Style = [fsBold]
     Color = clBtnFace
     Value = 0
@@ -404,7 +404,7 @@ object frmParameterPages: TfrmParameterPages
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -11
-    Font.Name = 'Tahoma'
+    Font.Name = 'Arial'
     Font.Style = [fsBold]
     Color = clBtnFace
     Value = 0
@@ -423,7 +423,7 @@ object frmParameterPages: TfrmParameterPages
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -11
-    Font.Name = 'Tahoma'
+    Font.Name = 'Arial'
     Font.Style = [fsBold]
     Color = clBtnFace
     Value = 0
@@ -442,7 +442,7 @@ object frmParameterPages: TfrmParameterPages
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -11
-    Font.Name = 'Tahoma'
+    Font.Name = 'Arial'
     Font.Style = [fsBold]
     Color = clBtnFace
     Value = 0
@@ -461,7 +461,7 @@ object frmParameterPages: TfrmParameterPages
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -11
-    Font.Name = 'Tahoma'
+    Font.Name = 'Arial'
     Font.Style = [fsBold]
     Color = clBtnFace
     Value = 0
@@ -480,7 +480,7 @@ object frmParameterPages: TfrmParameterPages
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -11
-    Font.Name = 'Tahoma'
+    Font.Name = 'Arial'
     Font.Style = [fsBold]
     Color = clBtnFace
     Value = 0
@@ -498,7 +498,7 @@ object frmParameterPages: TfrmParameterPages
     Height = 16
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
-    Font.Height = -9
+    Font.Height = -11
     Font.Name = 'Arial'
     Font.Style = []
     Color = 13684944
@@ -521,7 +521,7 @@ object frmParameterPages: TfrmParameterPages
     Height = 16
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
-    Font.Height = -9
+    Font.Height = -11
     Font.Name = 'Arial'
     Font.Style = []
     Color = 13684944
@@ -544,7 +544,7 @@ object frmParameterPages: TfrmParameterPages
     Height = 16
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
-    Font.Height = -9
+    Font.Height = -11
     Font.Name = 'Arial'
     Font.Style = []
     Color = 13684944
@@ -567,7 +567,7 @@ object frmParameterPages: TfrmParameterPages
     Height = 16
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
-    Font.Height = -9
+    Font.Height = -11
     Font.Name = 'Arial'
     Font.Style = []
     Color = 13684944
@@ -590,7 +590,7 @@ object frmParameterPages: TfrmParameterPages
     Height = 16
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
-    Font.Height = -9
+    Font.Height = -11
     Font.Name = 'Arial'
     Font.Style = []
     Color = 13684944
@@ -613,7 +613,7 @@ object frmParameterPages: TfrmParameterPages
     Height = 16
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
-    Font.Height = -9
+    Font.Height = -11
     Font.Name = 'Arial'
     Font.Style = []
     Color = 13684944
@@ -636,7 +636,7 @@ object frmParameterPages: TfrmParameterPages
     Height = 16
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
-    Font.Height = -9
+    Font.Height = -11
     Font.Name = 'Arial'
     Font.Style = []
     Color = 13684944
@@ -659,7 +659,7 @@ object frmParameterPages: TfrmParameterPages
     Height = 16
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
-    Font.Height = -9
+    Font.Height = -11
     Font.Name = 'Arial'
     Font.Style = []
     Color = 13684944
@@ -681,7 +681,7 @@ object frmParameterPages: TfrmParameterPages
     Height = 17
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
-    Font.Height = -9
+    Font.Height = -11
     Font.Name = 'Arial'
     Font.Style = [fsBold]
     Color = clBtnFace
@@ -700,7 +700,7 @@ object frmParameterPages: TfrmParameterPages
     Height = 17
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
-    Font.Height = -9
+    Font.Height = -11
     Font.Name = 'Arial'
     Font.Style = [fsBold]
     Color = clBtnFace
@@ -719,7 +719,7 @@ object frmParameterPages: TfrmParameterPages
     Height = 17
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
-    Font.Height = -9
+    Font.Height = -11
     Font.Name = 'Arial'
     Font.Style = [fsBold]
     Color = clBtnFace
@@ -738,7 +738,7 @@ object frmParameterPages: TfrmParameterPages
     Height = 17
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
-    Font.Height = -9
+    Font.Height = -11
     Font.Name = 'Arial'
     Font.Style = [fsBold]
     Color = clBtnFace
@@ -757,7 +757,7 @@ object frmParameterPages: TfrmParameterPages
     Height = 17
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
-    Font.Height = -9
+    Font.Height = -11
     Font.Name = 'Arial'
     Font.Style = [fsBold]
     Color = clBtnFace
@@ -776,7 +776,7 @@ object frmParameterPages: TfrmParameterPages
     Height = 17
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
-    Font.Height = -9
+    Font.Height = -11
     Font.Name = 'Arial'
     Font.Style = [fsBold]
     Color = clBtnFace
@@ -795,7 +795,7 @@ object frmParameterPages: TfrmParameterPages
     Height = 17
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
-    Font.Height = -9
+    Font.Height = -11
     Font.Name = 'Arial'
     Font.Style = [fsBold]
     Color = clBtnFace
@@ -814,7 +814,7 @@ object frmParameterPages: TfrmParameterPages
     Height = 17
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
-    Font.Height = -9
+    Font.Height = -11
     Font.Name = 'Arial'
     Font.Style = [fsBold]
     Color = clBtnFace
@@ -827,15 +827,17 @@ object frmParameterPages: TfrmParameterPages
     TextFunction = 1001
   end
   object Panel1: TPanel
-    Left = 521
+    Left = 531
     Top = 0
     Width = 92
-    Height = 130
+    Height = 140
     Align = alRight
     BevelOuter = bvNone
     Color = clAppWorkSpace
     ParentBackground = False
     TabOrder = 0
+    ExplicitLeft = 521
+    ExplicitHeight = 130
     object obParam: TG2GraphButtonRadio
       Left = 13
       Top = 23
