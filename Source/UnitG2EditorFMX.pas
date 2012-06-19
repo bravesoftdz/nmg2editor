@@ -71,7 +71,7 @@ type
 
     //function    GetG2 : TG2Graph; virtual;
     function    CreateParameter( aModuleIndex : byte): TG2FileParameter; override;
-    procedure   UnselectModules( aLocation : TLocationType);
+    //procedure   UnselectModules( aLocation : TLocationType);
     procedure   SetMiniVULevel( Index : integer; aValue : byte);
     procedure   SetLedLevel( Index : integer; aValue : byte);
     function    GetMiniVUListCount : integer;
@@ -253,8 +253,8 @@ type
     function    HasMorph: boolean;
     function    GetMorph : TMorphParameter;
     function    GetParamIndex : integer;
-    procedure   ParsePanelData( fs : TStream); virtual;
-    function    ParseProperties( fs: TStream; aName : string): boolean; virtual;
+    procedure   ParsePanelData( fs : TModuleDefStream); virtual;
+    function    ParseProperties( fs: TModuleDefStream; aName : string): boolean; virtual;
 
     property    Parameter   : TG2FileParameter read FParameter write SetParameter;
     property    ParamIndex  : integer read GetParamIndex;
@@ -276,7 +276,7 @@ type
   private
     FControlList  : array of TG2GraphControlFMX; // array of controls the parameter is assigned to
   public
-    constructor Create( aPatch : TG2FilePatch; aLocation : TLocationType; aModuleIndex : integer);
+    constructor Create( aPatch : TG2FilePatch; aLocation : TLocationType; aModuleIndex : integer; aModule : TG2FileModule);
     destructor  Destroy; override;
     procedure   AssignControl( aControl : TG2GraphControlFMX);
     procedure   DeassignControl( aControl : TG2GraphControlFMX);
@@ -290,8 +290,8 @@ type
     FData   : TG2FileConnector;
     constructor Create( AOwner: TComponent); override;
     destructor  Destroy; override;
-    procedure ParsePanelData(fs: TStream);
-    function ParseProperties( fs: TStream; aName : string): boolean;
+    procedure ParsePanelData(fs: TModuleDefStream);
+    function ParseProperties( fs: TModuleDefStream; aName : string): boolean;
     procedure SetData(aConnectorData: TG2FileConnector);
   published
     property Data : TG2FileConnector read FData write SetData;
@@ -666,7 +666,7 @@ end;}
 
 function TG2GraphPatch.CreateParameter( aModuleIndex : byte): TG2FileParameter;
 begin
-  Result := TG2GraphParameter.Create( self, ltPatch, aModuleIndex);
+  Result := TG2GraphParameter.Create( self, ltPatch, aModuleIndex, nil);
 end;
 
 {procedure TG2GraphPatch.UnselectModules( aLocation : TLocationType);
@@ -938,7 +938,7 @@ end;}
 function TG2GraphModule.CreateParameter: TG2FileParameter;
 begin
   //Result := TG2GraphParameter.Create( FPatch, TLocationType(FLocation), FModuleIndex);
-  Result := TG2GraphParameter.Create( PatchPart.Patch, TLocationType(Location), ModuleIndex);
+  Result := TG2GraphParameter.Create( PatchPart.Patch, TLocationType(Location), ModuleIndex, self);
 end;
 
 function TG2GraphModule.GetNewCol: TBits7;
@@ -1316,7 +1316,7 @@ var //MemStream : TMemoryStream;
     aName, aValue, ControlType, CodeRefStr : AnsiString;
     ChildControl : TG2GraphControlFMX;
     Connector : TG2GraphConnector;
-    Param : TG2GraphParameter;
+    Param : TG2FileParameter;
     Patch : TG2GraphPatch;
 begin
   aPath := ExtractFilePath(ParamStr(0));
@@ -1401,9 +1401,9 @@ begin
                   val( string(CodeRefStr), CodeRef, Err);
                   if Err = 0 then begin
                     if ControlType = 'PartSelector' then begin
-                      Param := FData.Mode[ CodeRef] as TG2GraphParameter;
+                      Param := FData.Mode[ CodeRef];
                     end else begin
-                      Param := FData.Parameter[ CodeRef] as TG2GraphParameter;
+                      Param := FData.Parameter[ CodeRef];
                     end;
                     ChildControl.ParsePanelData( ModuleStream);
                     ChildControl.Parameter := Param;
@@ -1792,7 +1792,7 @@ end;
 procedure TG2GraphControlFMX.SetParameter( aParam : TG2FileParameter);
 var Param : TG2GraphParameter;
 begin
-  if assigned(aParam) and not( aParam Is TG2GraphParameter) then
+  if assigned(aParam) and not( aParam is TG2FileParameter) then
     raise Exception.Create('Parameter must be of type TG2GraphParameter.');
 
   Param := aParam as TG2GraphParameter;
@@ -1898,41 +1898,41 @@ begin
   inherited;
 end;
 
-procedure TG2GraphControlFMX.ParsePanelData(fs: TStream);
+procedure TG2GraphControlFMX.ParsePanelData(fs: TModuleDefStream);
 var aName, aValue : string;
 begin
   while (fs.Position < fs.Size) and (aName <> '#>') do begin
-    ReadSpaces(fs);
-    aName := ReadUntil(fs, [':', #13]);
+    fs.ReadSpaces;
+    aName := fs.ReadUntil([':', #13]);
     if aName <> '#>' then begin
       //aValue := ReadUntil(fs, [#13]);
       if not ParseProperties( fs, aName) then begin
         // Unknown property
-        aValue := ReadUntil(fs, [#13]);
+        aValue := fs.ReadUntil([#13]);
       end;
     end;
   end;
 end;
 
-function TG2GraphControlFMX.ParseProperties( fs: TStream; aName : string): boolean;
+function TG2GraphControlFMX.ParseProperties( fs: TModuleDefStream; aName : string): boolean;
 var aValue : string;
 begin
   Result := True;
 
   if aName = 'XPos' then begin
-    aValue := ReadUntil(fs, [#13]);
+    aValue := fs.ReadUntil([#13]);
     //Left := FModule.Left + StrToInt( aValue);
     Position.X := StrToInt( aValue);
   end else
 
   if aName = 'YPos' then begin
-    aValue := ReadUntil(fs, [#13]);
+    aValue := fs.ReadUntil([#13]);
     //Top  := FModule.Top + StrToInt( aValue);
     Position.Y := StrToInt( aValue);
   end else
 
   if aName = 'Width' then begin
-    aValue := ReadUntil(fs, [#13]);
+    aValue := fs.ReadUntil([#13]);
     if aValue[1] = '"' then begin
       fs.Position := fs.Position - Length(aValue) - 1;
       Result := False;
@@ -1941,12 +1941,12 @@ begin
   end else
 
   if aName = 'Height' then begin
-    aValue := ReadUntil(fs, [#13]);
+    aValue := fs.ReadUntil([#13]);
     Height := StrToInt( aValue);
   end else
 
   if aName = 'ZPos' then begin
-    aValue := ReadUntil(fs, [#13]);
+    aValue := fs.ReadUntil([#13]);
     FZOrder := StrToInt( aValue);
   end else
 
@@ -2030,7 +2030,7 @@ var MorphParameter : TMorphParameter;
     TempValue : integer;
 begin
   if assigned( FParameter) then begin
-    FParameter.SetMorphValue( aValue);
+    FParameter.SetSelectedMorphValue( aValue);
     //Update;
   end;
 end;
@@ -2050,9 +2050,9 @@ end;
 
 // ==== TG2GraphParameter ======================================================
 
-constructor TG2GraphParameter.Create( aPatch : TG2FilePatch; aLocation : TLocationType; aModuleIndex : integer);
+constructor TG2GraphParameter.Create( aPatch : TG2FilePatch; aLocation : TLocationType; aModuleIndex : integer; aModule : TG2FileModule);
 begin
-  inherited Create( aPatch, aLocation, aModuleIndex);
+  inherited Create( aPatch, aLocation, aModuleIndex, aModule);
 
   SetLength(FControlList, 0);
 end;
@@ -2130,14 +2130,14 @@ begin
   inherited;
 end;
 
-procedure TG2GraphConnector.ParsePanelData(fs: TStream);
+procedure TG2GraphConnector.ParsePanelData(fs: TModuleDefStream);
 begin
   inherited;
 
   FData.CalcDefColor;
 end;
 
-function TG2GraphConnector.ParseProperties( fs: TStream; aName : string): boolean;
+function TG2GraphConnector.ParseProperties( fs: TModuleDefStream; aName : string): boolean;
 var aValue : string;
 begin
   Result := True;
@@ -2145,17 +2145,17 @@ begin
   if not inherited ParseProperties( fs, aName) then begin
 
     if aName = 'CodeRef' then begin
-      aValue := ReadUntil(fs, [#13]);
+      aValue := fs.ReadUntil([#13]);
       FData.ConnectorIndex := StrToInt(aValue);
     end else
 
     if aName = 'InfoFunc' then begin
-      aValue := ReadUntil(fs, [#13]);
+      aValue := fs.ReadUntil([#13]);
       //
     end else
 
     if aName = 'Type' then begin
-      aValue := ReadUntil(fs, [#13]);
+      aValue := fs.ReadUntil([#13]);
       if aValue = '"Audio"' then
         FData.ConnectorType := ctAudio
       else
@@ -2169,7 +2169,7 @@ begin
     end else
 
     if aName = 'Bandwidth' then begin
-      aValue := ReadUntil(fs, [#13]);
+      aValue := fs.ReadUntil([#13]);
       if aValue = '"Static"' then
         FData.Bandwidth := btStatic
       else
@@ -2187,7 +2187,8 @@ end;
 procedure TG2GraphConnector.SetData(aConnectorData: TG2FileConnector);
 begin
   FData := aConnectorData;
-  FData.FControl := self;
+  //FData.Control := self;
+  FData.GraphControl := self;
 end;
 
 // ==== TCableElements =========================================================
@@ -2229,8 +2230,8 @@ begin
   FPatch := AOwner as TG2GraphPatch;
   FParent := nil;
 
-  FFromConnector := nil;
-  FToConnector   := nil;
+  FromConnector := nil;
+  ToConnector   := nil;
   for i := 0 to NCABLE_ELEMENTS - 1 do begin
     FNode[i] := TCableElement.Create( nil);
     FNode[i].Parent := FParent;
@@ -2251,11 +2252,11 @@ begin
     FNode[i].Free;
 
   // Remove the cable from the connectors
-  if assigned(FFromConnector) then
-    FFromConnector.DelCable( self);
+  if assigned(FromConnector) then
+    FromConnector.DelCable( self);
 
-  if assigned(FToConnector) then
-    FToConnector.DelCable( self);
+  if assigned(ToConnector) then
+    ToConnector.DelCable( self);
 
   inherited;
 end;
@@ -2450,7 +2451,7 @@ var i, j, n : integer;
 begin
   inherited;
 
-  Color := GetG2Color(FCableColor);
+  Color := GetG2Color(CableColor);
 
   // Calc bitmap sizes
   for i := 1 to NCABLE_ELEMENTS - 1 do begin
@@ -2580,15 +2581,15 @@ var i : integer;
     ConnectorFrom, ConnectorTo : TG2GraphConnector;
 begin
   // TODO : make this better
-  if not(assigned(FFromConnector) and (assigned(FToConnector)
-      and (assigned(FFromConnector.Module)) and (assigned((FFromConnector.Module as TG2GraphModule).Parent)))) then
+  if not(assigned(FromConnector) and (assigned(ToConnector)
+      and (assigned(FromConnector.Module)) and (assigned((FromConnector.Module as TG2GraphModule).Parent)))) then
     exit;
 
-  ModuleFrom := (FFromConnector.Module as TG2GraphModule).FPanel;
-  ModuleTo := (FToConnector.Module as TG2GraphModule).FPanel;
+  ModuleFrom := (FromConnector.Module as TG2GraphModule).FPanel;
+  ModuleTo := (ToConnector.Module as TG2GraphModule).FPanel;
 
-  ConnectorFrom := FFromConnector.FControl as TG2GraphConnector;
-  ConnectorTo := FToConnector.FControl as TG2GraphConnector;
+  ConnectorFrom := FromConnector.GraphControl as TG2GraphConnector;
+  ConnectorTo := ToConnector.GraphControl as TG2GraphConnector;
 
   for i := 0 to 50 do
     CableResize( trunc(ModuleFrom.ScrollPosX + ConnectorFrom.Position.X + ConnectorFrom.Width / 2),

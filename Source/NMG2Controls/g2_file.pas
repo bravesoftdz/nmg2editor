@@ -6947,6 +6947,12 @@ begin
          1 : Result := 'On';
          end;
        end;
+  4  : begin // Mode
+         case GetParameterValue of
+         0 : Result := 'Poly';
+         1 : Result := 'Mono';
+         end;
+       end;
   7  : begin // On/Off
          case GetParameterValue of
          0 : Result := 'Muted';
@@ -7077,20 +7083,24 @@ begin
                  Exponent := ((FreqCourse - 69) + (FreqFine - 64) / 128) / 12;
                  Freq := 440.0 * power(2, Exponent);
                  if Freq >= 1000 then
-                   Result := Format('%.5g', [Freq / 1000]) + 'kHz'
+                   //Result := Format('%.5g', [Freq / 1000]) + 'kHz'
+                   Result :=  G2FloatToStrFixed( Freq / 1000, 5) + 'kHz'
                  else
-                   Result := Format('%.5g', [Freq]) + 'Hz';
+                   //Result := Format('%.5g', [Freq]) + 'Hz';
+                   Result := G2FloatToStrFixed( Freq, 5) + 'Hz';
                end;
            2 : begin // Fac
                  Exponent := ((FreqCourse - 64) + (FreqFine - 64) / 128) / 12;
                  Fact := power(2, Exponent);
-                 Result := 'x' + Format('%.5g', [Fact]);
+                 //Result := 'x' + Format('%.5g', [Fact]);
+                 Result :=  'x' + G2FloatToStrFixed( Fact, 6)
                end;
            3 : begin // Part
                  if FreqCourse <= 32 then begin
                    Exponent := -(((32 - FreqCourse ) * 4) + 77 - (FreqFine - 64) / 128) / 12;
                    Freq := 440.0 * power(2, Exponent);
-                   Result := Format('%.3g', [Freq]) + 'Hz';
+                   //Result := Format('%.3g', [Freq]) + 'Hz';
+                   Result := G2FloatToStrFixed( Freq, 5) + 'Hz';
                  end else begin
                    if (FreqCourse > 32) and (FreqCourse <=64) then begin
                      iValue1 := 64 - FreqCourse + 1;
@@ -7161,14 +7171,25 @@ begin
           1 : Result := '12dB';
           end;
        end;
+  104 : begin // LFO Range
+          case GetParameterValue of
+          0 : Result := 'Sub';
+          1 : Result := 'Lo';
+          2 : Result := 'Hi';
+          3 : Result := 'BPM';
+          4 : Result := 'Clk';
+          end;
+        end;
   123 : begin // Flt Freq
           FreqCourse := GetParameterValue;
           Exponent := (FreqCourse - 60) / 12;
           Freq := 440.0 * power(2, Exponent);
           if Freq >= 1000 then
-            Result := Format('%.4g', [Freq / 1000]) + 'kHz'
+            //Result := Format('%.4g', [Freq / 1000]) + 'kHz'
+            Result := G2FloatToStrFixed( Freq / 1000, 4) + 'kHz'
           else
-            Result := Format('%.4g', [Freq]) + 'Hz';
+            //Result := Format('%.4g', [Freq]) + 'Hz';
+            Result := G2FloatToStrFixed( Freq, 5) + 'Hz'
         end;
   124 : begin // Flt Resonance
           Result := IntToStr(GetParameterValue); // TODO
@@ -7244,6 +7265,17 @@ begin
           1 : Result := 'Lin';
           end;
         end;
+  163 : begin // LFO, phase
+          Result := IntToStr(round(GetParameterValue / 128 * 360));
+        end;
+  164 : begin // LFO, wave
+          case GetParameterValue of
+          0 : Result := 'Sine';
+          1 : Result := 'Tri';
+          2 : Result := 'Saw';
+          3 : Result := 'Sqr';
+          end;
+        end;
   180 : begin // Out Pad
           case GetParameterValue of
           0 : Result := '0dB';
@@ -7289,12 +7321,235 @@ var aValue : byte;
     FreqCourse, FreqFine, FreqMode : Byte;
     Exponent, Freq, Fact, DlyRange, DlyMin, DlyMax : single;
     iValue1, iValue2 : integer;
-begin
-{  if (aTextFunction <> 0) and assigned(Module) and (Length(aParams)>0) then
-    aValue := Module.Parameter[aParams[0]].GetParameterValue
-  else
-    aValue := GetParameterValue;}
 
+    function DelayDispValue( aType : integer; aRange : integer; aValue : integer): string;
+    begin
+      case aType of
+      0 : begin // ranges 5m,25m,100m,500m,1sm,2s,2.7s
+             case aRange of
+             0 : begin
+                   DlyMin := 0.05;
+                   DlyMax := 5.3;
+                   if aValue = 0 then
+                     Result := '0,01m'
+                   else
+                     Result := G2FloatToStr(DlyMin + (DlyMax - DlyMin) * (aValue - 1) /126, 4) + 'm';
+                 end;
+             1 : begin
+                   DlyMin := 0.21;
+                   DlyMax := 25.1;
+                   if aValue = 0 then
+                     Result := '0,01m'
+                   else
+                     Result := G2FloatToStr(DlyMin + (DlyMax - DlyMin) * (aValue - 1) /126, 4) + 'm';
+                 end;
+             2 : begin
+                   DlyMin := 0.8;
+                   DlyMax := 100;
+                   if aValue = 0 then
+                     Result := '0,01m'
+                   else
+                     Result := G2FloatToStr(DlyMin + (DlyMax - DlyMin) * (aValue - 1) /126, 4) + 'm';
+                 end;
+             3 : begin
+                   DlyMin := 3.95;
+                   DlyMax := 500;
+                   if aValue = 0 then
+                     Result := '0,01m'
+                   else
+                     Result := G2FloatToStr(DlyMin + (DlyMax - DlyMin) * (aValue - 1) /126, 4) + 'm';
+                 end;
+             4 : begin
+                   DlyMin := 7.89;
+                   DlyMax := 1000;
+                   if aValue = 0 then
+                     Result := '0,01m'
+                   else
+                     if aValue = 127 then
+                       Result := '1,000s'
+                     else
+                       Result := G2FloatToStr(DlyMin + (DlyMax - DlyMin) * (aValue - 1) /126, 4) + 'm';
+                 end;
+             5 : begin
+                   DlyMin := 15.8;
+                   DlyMax := 2000;
+                   if aValue = 0 then
+                     Result := '0,01m'
+                   else
+                     if aValue >= 64 then
+                       Result := G2FloatToStr((DlyMin + (DlyMax - DlyMin) * (aValue - 1) /126)/1000, 5) + 's'
+                     else
+                       Result := G2FloatToStr(DlyMin + (DlyMax - DlyMin) * (aValue - 1) /126, 4) + 'm';
+                 end;
+             6 : begin
+                   DlyMin := 21.3;
+                   DlyMax := 2700;
+                   if aValue = 0 then
+                     Result := '0,01m'
+                   else
+                     if aValue >= 48 then
+                       Result := G2FloatToStr((DlyMin + (DlyMax - DlyMin) * (aValue - 1) /126)/1000, 5) + 's'
+                     else
+                       Result := G2FloatToStr(DlyMin + (DlyMax - DlyMin) * (aValue - 1) /126, 5) + 'm';
+                 end;
+             end;
+          end;
+      1 : begin // ranges 5m,25m,100m,500m,1sm,2s,2.7s for DelayEight
+             case aRange of
+             0 : begin
+                   DlyMin := 0;
+                   DlyMax := 0.66;
+                 end;
+             1 : begin
+                   DlyMin := 0;
+                   DlyMax := 3.14;
+                 end;
+             2 : begin
+                   DlyMin := 0;
+                   DlyMax := 12.6;
+                 end;
+             3 : begin
+                   DlyMin := 0;
+                   DlyMax := 62.5;
+                 end;
+             4 : begin
+                   DlyMin := 0;
+                   DlyMax := 125;
+                 end;
+             5 : begin
+                   DlyMin := 0;
+                   DlyMax := 250;
+                 end;
+             6 : begin
+                   DlyMin := 0;
+                   DlyMax := 338;
+                 end;
+             end;
+             Result := G2FloatToStr(DlyMin + (DlyMax - DlyMin) * aValue /127, 4) + 'm';
+          end;
+      2 : begin // ranges 500m,1s,2s,2.7s
+             case aRange of
+             0 : begin
+                   DlyRange := 500;
+                   if aValue = 0 then
+                     Result := '0,01m'
+                   else
+                     Result := G2FloatToStr(DlyRange * aValue /127,4) + 'm';
+                 end;
+             1 : begin
+                   DlyRange := 1000;
+                   if aValue = 0 then
+                     Result := '0,01m'
+                   else
+                     if aValue = 127 then
+                       Result := '1,00s'
+                     else
+                       Result := G2FloatToStr(DlyRange * aValue /127,4) + 'm';
+                 end;
+             2 : begin
+                   DlyRange := 2000;
+                   if aValue = 0 then
+                     Result := '0,01m'
+                   else
+                     if aValue >= 64 then
+                       Result := G2FloatToStr(DlyRange * aValue /127000,5) + 's'
+                     else
+                       Result := G2FloatToStr(DlyRange * aValue /127,4) + 'm';
+                 end;
+             3 : begin
+                   DlyRange := 2700;
+                   if aValue = 0 then
+                     Result := '0,01m'
+                   else
+                     if aValue >= 48 then
+                       Result := G2FloatToStr(DlyRange * aValue /127000,5) + 's'
+                     else
+                       Result := G2FloatToStr(DlyRange * aValue /127,4) + 'm';
+                 end;
+             end;
+          end;
+      3 : begin // ranges 500m,1s,1.351s
+             case aRange of
+             0 : begin
+                   DlyRange := 500;
+                   if aValue = 0 then
+                     Result := '0,01m'
+                   else
+                     Result := G2FloatToStr(DlyRange * aValue /127,4) + 'm';
+                 end;
+             1 : begin
+                   DlyRange := 1000;
+                   if aValue = 0 then
+                     Result := '0,01m'
+                   else
+                     if aValue = 127 then
+                       Result := '1,00s'
+                     else
+                       Result := G2FloatToStr(DlyRange * aValue /127,4) + 'm';
+                 end;
+             2 : begin
+                   DlyRange := 1351;
+                   if aValue = 0 then
+                     Result := '0,01m'
+                   else
+                     if aValue >= 95 then
+                       Result := G2FloatToStr(DlyRange * aValue /127000,5) + 's'
+                     else
+                       Result := G2FloatToStr(DlyRange * aValue /127,4) + 'm';
+                 end;
+             end;
+          end;
+      4 : begin // Clock synced
+            case aValue of
+                0..3 : Result := '1/64T';
+                4..7 : Result := '1/64';
+               8..11 : Result := '1/32T';
+              12..15 : Result := '1/64D';
+              16..19 : Result := '1/32';
+              20..23 : Result := '1/16T';
+              24..27 : Result := '1/32D';
+              28..31 : Result := '1/16';
+              32..35 : Result := '1/16';
+              36..39 : Result := '1/8T';
+              40..43 : Result := '1/8T';
+              44..47 : Result := '1/16D';
+              48..51 : Result := '1/16D';
+              52..55 : Result := '1/8';
+              56..59 : Result := '1/8';
+              60..63 : Result := '1/4T';
+              64..67 : Result := '1/4T';
+              68..71 : Result := '1/8D';
+              72..75 : Result := '1/8D';
+              76..79 : Result := '1/4';
+              80..83 : Result := '1/4';
+              84..87 : Result := '1/2T';
+              88..91 : Result := '1/2T';
+              92..95 : Result := '1/4D';
+              96..99 : Result := '1/4D';
+            100..103 : Result := '1/2';
+            104..107 : Result := '1/2';
+            108..111 : Result := '1/1T';
+            112..115 : Result := '1/2D';
+            116..119 : Result := '1/1';
+            120..123 : Result := '1/1D';
+            124..127 : Result := '2/1';
+            end;
+          end;
+      end;
+    end;
+
+    function G2BPM( aValue : integer): string;
+    begin
+       if aValue <= 32 then
+         Result := IntToStr(24 + 2*aValue)
+       else
+         if aValue <= 96 then
+           Result := IntToStr(88 + aValue - 32)
+         else
+           Result := IntToStr(152 + (aValue - 96)*2);
+    end;
+
+begin
   if (aTextFunction <> 0) and assigned(Module) and (Length(FDependencies)>0) then
     aValue := GetDependendParamValue( 0)
   else
@@ -7303,88 +7558,30 @@ begin
   case aTextFunction of
   // Zero: displays that are dependend on one parameter only
   0, 13 : begin // Filter freq Nord
-           {case Module.FTypeID of
-           134,92,87,54,51,49 :
-                case ParamIndex of
-                0 : begin // Freq
-                      FreqCourse := GetParameterValue;
-                      Exponent := (FreqCourse - 60) / 12;
-                      Freq := 440.0 * power(2, Exponent);
-                      if Freq >= 1000 then
-                        Result := Format('%.4g', [Freq / 1000]) + 'kHz'
-                      else
-                        Result := Format('%.4g', [Freq]) + 'Hz';
-                    end;
-                else
-                  Result := IntToStr(GetParameterValue);
-                end;
-           else
-             //Result := IntToStr(GetParameterValue);
-             Result := InfoFunction;
-           end;}
            Result := InfoFunction;
+         end;
+  2    : begin //DlyClock
+           Result := IntToStr(aValue + 1);
          end;
   60   : begin // Osc freq
-           {if assigned(Module) and (Length(FDependencies)=3) then begin
-             FreqCourse := aValue;
-
-             FreqFine := GetDependendParamValue(1);
-             FreqMode := GetDependendParamValue(2);
-             case FreqMode of
-             0 : begin // Semi
-                   iValue1 := FreqCourse - 64;
-                   Result := '';
-                   if iValue1 < 0 then
-                     Result := Result + IntToStr(iValue1)
-                   else
-                     Result := Result + '+' + IntToStr(iValue1);
-                   Result := Result + '  ';
-                   iValue2 := (FreqFine-64)*100 div 128;
-                   if iValue2 < 0 then
-                     Result := Result + IntToStr(iValue2)
-                   else
-                     Result := Result + '+' + IntToStr(iValue2);
-                 end;
-             1 : begin // Freq
-                   // http://www.phy.mtu.edu/~suits/NoteFreqCalcs.html
-                   Exponent := ((FreqCourse - 69) + (FreqFine - 64) / 128) / 12;
-                   Freq := 440.0 * power(2, Exponent);
-                   if Freq >= 1000 then
-                     Result := Format('%.5g', [Freq / 1000]) + 'kHz'
-                   else
-                     Result := Format('%.5g', [Freq]) + 'Hz';
-                 end;
-             2 : begin // Fac
-                   Exponent := ((FreqCourse - 64) + (FreqFine - 64) / 128) / 12;
-                   Fact := power(2, Exponent);
-                   Result := 'x' + Format('%.5g', [Fact]);
-                 end;
-             3 : begin // Part
-                   if FreqCourse <= 32 then begin
-                     Exponent := -(((32 - FreqCourse ) * 4) + 77 - (FreqFine - 64) / 128) / 12;
-                     Freq := 440.0 * power(2, Exponent);
-                     Result := Format('%.3g', [Freq]) + 'Hz';
-                   end else begin
-                     if (FreqCourse > 32) and (FreqCourse <=64) then begin
-                       iValue1 := 64 - FreqCourse + 1;
-                       Result := '1:' + IntToStr(iValue1);
-                     end else begin
-                       iValue1 := FreqCourse - 64 + 1;
-                       Result := IntToStr(iValue1) + ':1';
-                     end;
-                     Result := Result + '  ';
-                     iValue2 := (FreqFine-64)*100 div 128;
-                     if iValue2 < 0 then
-                       Result := Result + IntToStr(iValue2)
-                     else
-                       Result := Result + '+' + IntToStr(iValue2);
-                   end;
-                 end;
-             end;
-           end;}
            Result := InfoFunction;
          end;
-  108  : begin
+  103  : begin // LFO Freq
+           if assigned(Module) and (Length(FDependencies)=2) then begin
+             iValue1 := GetDependendParamValue(1);
+             case iValue1 of
+             0 : Result := G2FloatToStr( 699 / (aValue+1), 4) + 's';
+             1 : if aValue < 32 then
+                   Result := G2FloatToStr(1/(0.0159 * power(2, aValue / 12)), 4) + 's'
+                 else
+                   Result := G2FloatToStr(0.0159 * power(2, aValue / 12), 4) + 'Hz';
+             2 : Result := G2FloatToStr(0.2555 * power(2, aValue / 12), 4) + 'Hz';
+             3 : Result := G2BPM( aValue);
+             4 :;
+             end;
+           end;
+         end;
+  108  : begin // Midi dest
            case aValue of
            0..15 : Result := IntToStr(aValue + 1);
            16 : Result := 'This';
@@ -7395,9 +7592,6 @@ begin
            end;
          end;
   110  : begin //ClkGen
-           {if assigned(Module) and (Length(aParams)=3) then begin
-             iValue1 := Module.Parameter[aParams[1]].GetParameterValue;
-             iValue2 := Module.Parameter[aParams[2]].GetParameterValue;}
            if assigned(Module) and (Length(FDependencies)=3) then begin
              iValue1 := GetDependendParamValue(1);
              iValue2 := GetDependendParamValue(2);
@@ -7407,94 +7601,53 @@ begin
                if iValue2 = 1 then
                  Result := 'MASTER'
                else
-                 if aValue <= 32 then
-                   Result := IntToStr(24 + 2*aValue) + ' BPM'
-                 else
-                   if aValue <= 96 then
-                     Result := IntToStr(88 + aValue - 32) + ' BPM'
-                   else
-                     Result := IntToStr(152 + (aValue - 96)*2) + ' BPM';
+                 Result := G2BPM( aValue) + ' BPM';
+           end;
+         end;
+  140  : begin // Dly time
+           if assigned(Module) and (Length(FDependencies)=3) then begin
+             iValue1 := GetDependendParamValue(1);
+             iValue2 := GetDependendParamValue(2);
+             if iValue1 = 0 then
+               Result := DelayDispValue(0, iValue2, aValue)
+             else
+               Result := DelayDispValue(4, iValue2, aValue);
            end;
          end;
   141  : begin // Dly time
            if assigned(Module) and (Length(FDependencies)=2) then begin
              iValue1 := GetDependendParamValue(1);
-
-             case iValue1 of
-             0 : begin DlyMin := 0.05; DlyMax := 5.3; end;
-             1 : begin DlyMin := 0.21; DlyMax := 25.1; end;
-             2 : begin DlyMin := 0.8; DlyMax := 101; end;
-             3 : begin DlyMin := 3.95; DlyMax := 500; end;
-             4 : begin DlyMin := 7.89; DlyMax := 1000; end;
-             5 : begin DlyMin := 15.8; DlyMax := 2000; end;
-             6 : begin DlyMin := 21.3; DlyMax := 2700; end;
-             end;
-
-             if aValue = 0 then
-               Result := '0,01'
+             Result := DelayDispValue(0, iValue1, aValue);
+           end;
+         end;
+  143  : begin // Dly time
+           if assigned(Module) and (Length(FDependencies)=3) then begin
+             iValue1 := GetDependendParamValue(1);
+             iValue2 := GetDependendParamValue(2);
+             if iValue1 = 0 then
+               Result := DelayDispValue(2, iValue2, aValue)
              else
-               Result := Format('%.1f', [DlyMin + (DlyMax - DlyMin) * aValue /128]);
+               Result := DelayDispValue(4, iValue2, aValue);
            end;
+         end;
+  145  : begin // Dly8 time
+           if assigned(Module) and (Length(FDependencies)=2) then begin
+             iValue1 := GetDependendParamValue(1);
+             Result := DelayDispValue(1, iValue1, aValue);
+           end;
          end;
   146  : begin // Dly time
            if assigned(Module) and (Length(FDependencies)=3) then begin
              iValue1 := GetDependendParamValue(1);
              iValue2 := GetDependendParamValue(2);
-
-             case iValue2 of
-             0 : DlyRange := 500;
-             1 : DlyRange := 1000;
-             2 : DlyRange := 1351;
-             end;
-
-             case iValue1 of
-             0 : begin // Time
-                   if aValue = 0 then
-                     Result := '0,01'
-                   else
-                     Result := Format('%.1f', [DlyRange * aValue /127]);
-                 end;
-             1 : begin // ClkSync
-                   case aValue of
-                       0..3 : Result := '1/64T';
-                       4..7 : Result := '1/64';
-                      8..11 : Result := '1/32T';
-                     12..15 : Result := '1/64D';
-                     16..19 : Result := '1/32';
-                     20..23 : Result := '1/16T';
-                     24..27 : Result := '1/32D';
-                     28..31 : Result := '1/16';
-                     32..35 : Result := '1/16';
-                     36..39 : Result := '1/8T';
-                     40..43 : Result := '1/8T';
-                     44..47 : Result := '1/16D';
-                     48..51 : Result := '1/16D';
-                     52..55 : Result := '1/8';
-                     56..59 : Result := '1/8';
-                     60..63 : Result := '1/4T';
-                     64..67 : Result := '1/4T';
-                     68..71 : Result := '1/8D';
-                     72..75 : Result := '1/8D';
-                     76..79 : Result := '1/4';
-                     80..83 : Result := '1/4';
-                     84..87 : Result := '1/2T';
-                     88..91 : Result := '1/2T';
-                     92..95 : Result := '1/4D';
-                     96..99 : Result := '1/4D';
-                   100..103 : Result := '1/2';
-                   104..107 : Result := '1/2';
-                   108..111 : Result := '1/1T';
-                   112..115 : Result := '1/2D';
-                   116..119 : Result := '1/1';
-                   120..123 : Result := '1/1D';
-                   124..127 : Result := '2/1';
-                   end;
-                 end;
-             end;
+             if iValue1 = 0 then
+               Result := DelayDispValue(3, iValue2, aValue)
+             else
+               Result := DelayDispValue(4, iValue2, aValue);
            end;
          end;
-  217  : begin // Glide time
-
+  217  : begin // Glide time: TODO
+           //
          end;
   1000 : Result := string(FModuleName);
   1001 : begin

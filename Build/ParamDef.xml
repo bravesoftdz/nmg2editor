@@ -659,7 +659,7 @@
     <DefaultValue>0</DefaultValue>
     <Definitions/>
     <Comments/>
-    <ButtonText>GC;</ButtonText>
+    <ButtonText>GC;GC;</ButtonText>
   </ParamDef>
   <ParamDef>
     <Id>64</Id>
@@ -940,7 +940,7 @@
     <DefaultValue>0</DefaultValue>
     <Definitions/>
     <Comments/>
-    <ButtonText>HP;BP;LP;</ButtonText>
+    <ButtonText>LP;BP;HP;</ButtonText>
   </ParamDef>
   <ParamDef>
     <Id>91</Id>
@@ -951,7 +951,7 @@
     <DefaultValue>0</DefaultValue>
     <Definitions/>
     <Comments/>
-    <ButtonText>BR;HP;BP;LP;</ButtonText>
+    <ButtonText>LP;BP;HP;BR;</ButtonText>
   </ParamDef>
   <ParamDef>
     <Id>92</Id>

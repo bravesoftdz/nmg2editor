@@ -441,6 +441,9 @@ function  ConvertFwSlahsToBwSlash( filename : string): string;
 function  ConvertBwSlahsToFwSlash( filename : string): string;
 function  ConvertToObjectName( aValue : string): string;
 function  GetKeyName( aKeyNumber : integer): string;
+function  G2FloatToStr( aValue : single; aLen : integer): string;
+function G2FloatToStrFixed( aValue : single; aLen : integer): string;
+
 
 {$IFNDEF G2_VST}
 function  InRange(value: string; min, max: integer): integer;
@@ -488,6 +491,59 @@ var
   G_CableThickness : integer;
 
 implementation
+
+function G2FloatToStr( aValue : single; aLen : integer): string;
+var intpart : single;
+    fl, t, p : integer;
+begin
+  intpart := aValue;
+  fl := 0;
+  while intpart > 1 do begin
+    inc(fl);
+    intpart := intpart / 10;
+  end;
+  fl := aLen - (fl+1);
+  if fl > 0 then begin
+    p := 1;
+    while fl > 0 do begin
+      p := p * 10;
+      dec(fl);
+    end;
+    t := round(aValue*p);
+    Result := FloatToStr(t/p);
+  end else
+    Result := IntToStr(round(aValue));
+end;
+
+function G2FloatToStrFixed( aValue : single; aLen : integer): string;
+var temp : single;
+    fl, t, p : integer;
+begin
+  temp := aValue;
+  fl := 0;
+  while temp > 1 do begin
+    inc(fl);
+    temp := temp / 10;
+  end;
+  fl := aLen - (fl+1);
+  if fl > 0 then begin
+    p := 1;
+    while fl > 0 do begin
+      p := p * 10;
+      dec(fl);
+    end;
+    t := round(aValue*p);
+    if p > 1 then begin
+      Result := FloatToStr(t/p);
+      if frac(t/p)=0 then
+        Result := Result + ',';
+      while Length(Result) < aLen do
+        Result := Result + '0';
+    end else
+      Result := FloatToStr(t/p);
+  end else
+    Result := IntToStr(round(aValue));
+end;
 
 function GetKeyName( aKeyNumber : integer): string;
 var Key, Octave : integer;

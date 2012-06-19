@@ -1156,7 +1156,7 @@
         <ButtonParam>3</ButtonParam>
       </Param>
       <Param>
-        <Name>PolyMono</Name>
+        <Name>Mode</Name>
         <DefaultValue>0</DefaultValue>
         <Id>134</Id>
         <DefaultKnob>1</DefaultKnob>
@@ -1218,7 +1218,7 @@
         <Type>blue</Type>
       </Connector>
       <Connector>
-        <Name>PhaseMod</Name>
+        <Name>Phase M</Name>
         <Type>blue</Type>
       </Connector>
       <Connector>
@@ -1258,7 +1258,7 @@
         <ButtonParam>2</ButtonParam>
       </Param>
       <Param>
-        <Name>RateMod</Name>
+        <Name>Rate M</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
         <DefaultKnob>1</DefaultKnob>
@@ -1277,7 +1277,7 @@
         <DefaultKnob>5</DefaultKnob>
       </Param>
       <Param>
-        <Name>PhaseMod</Name>
+        <Name>Phase M</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
         <DefaultKnob>8</DefaultKnob>
@@ -1295,7 +1295,7 @@
         <DefaultKnob>6</DefaultKnob>
       </Param>
       <Param>
-        <Name>PolyMono</Name>
+        <Name>Mode</Name>
         <DefaultValue>0</DefaultValue>
         <Id>134</Id>
         <DefaultKnob>4</DefaultKnob>
@@ -1351,7 +1351,7 @@
         <ButtonParam>7</ButtonParam>
       </Param>
       <Param>
-        <Name>PolyMono</Name>
+        <Name>Mode</Name>
         <DefaultValue>0</DefaultValue>
         <Id>134</Id>
         <DefaultKnob>4</DefaultKnob>
@@ -1365,7 +1365,7 @@
         <ButtonParam>2</ButtonParam>
       </Param>
       <Param>
-        <Name>RateMod</Name>
+        <Name>Rate M</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
         <DefaultKnob>1</DefaultKnob>
@@ -5619,7 +5619,7 @@
         <DefaultKnob>1</DefaultKnob>
       </Param>
       <Param>
-        <Name>RateMod</Name>
+        <Name>Rate M</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
         <DefaultKnob>2</DefaultKnob>
@@ -8983,7 +8983,7 @@
         <DefaultKnob>4</DefaultKnob>
       </Param>
       <Param>
-        <Name>PhaseMod</Name>
+        <Name>Phase M</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
         <DefaultKnob>8</DefaultKnob>
@@ -10195,7 +10195,7 @@
         <Type>red</Type>
       </Connector>
       <Connector>
-        <Name>PhaseMod</Name>
+        <Name>Phase M</Name>
         <Type>red</Type>
       </Connector>
       <Connector>
@@ -10237,7 +10237,7 @@
         <ButtonParam>3</ButtonParam>
       </Param>
       <Param>
-        <Name>PhaseMod</Name>
+        <Name>Phase M</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
         <DefaultKnob>3</DefaultKnob>
@@ -10591,7 +10591,7 @@
         <ButtonParam>2</ButtonParam>
       </Param>
       <Param>
-        <Name>RateMod</Name>
+        <Name>Rate M</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
         <DefaultKnob>1</DefaultKnob>
@@ -10617,7 +10617,7 @@
         <ButtonParam>4</ButtonParam>
       </Param>
       <Param>
-        <Name>PolyMono</Name>
+        <Name>Mode</Name>
         <DefaultValue>0</DefaultValue>
         <Id>134</Id>
         <DefaultKnob>4</DefaultKnob>
@@ -10644,7 +10644,7 @@
         <ButtonParam>8</ButtonParam>
       </Param>
       <Param>
-        <Name>PhaseMod</Name>
+        <Name>Phase M</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
         <DefaultKnob>6</DefaultKnob>
@@ -11073,7 +11073,7 @@
         <ButtonParam>3</ButtonParam>
       </Param>
       <Param>
-        <Name>PolyMono</Name>
+        <Name>Mode</Name>
         <DefaultValue>0</DefaultValue>
         <Id>134</Id>
         <DefaultKnob>1</DefaultKnob>
@@ -11148,7 +11148,7 @@
         <ButtonParam>7</ButtonParam>
       </Param>
       <Param>
-        <Name>PolyMono</Name>
+        <Name>Mode</Name>
         <DefaultValue>0</DefaultValue>
         <Id>134</Id>
         <DefaultKnob>4</DefaultKnob>
@@ -11162,7 +11162,7 @@
         <ButtonParam>2</ButtonParam>
       </Param>
       <Param>
-        <Name>RateMod</Name>
+        <Name>Rate M</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
         <DefaultKnob>1</DefaultKnob>
@@ -11238,7 +11238,7 @@
         <DefaultKnob>0</DefaultKnob>
       </Param>
       <Param>
-        <Name>PolyMono</Name>
+        <Name>Mode</Name>
         <DefaultValue>0</DefaultValue>
         <Id>134</Id>
         <DefaultKnob>1</DefaultKnob>
@@ -11322,7 +11322,7 @@
         <ButtonParam>2</ButtonParam>
       </Param>
       <Param>
-        <Name>PolyMono</Name>
+        <Name>Mode</Name>
         <DefaultValue>0</DefaultValue>
         <Id>134</Id>
         <DefaultKnob>3</DefaultKnob>
@@ -11385,7 +11385,7 @@
         <ButtonParam>2</ButtonParam>
       </Param>
       <Param>
-        <Name>PolyMono</Name>
+        <Name>Mode</Name>
         <DefaultValue>0</DefaultValue>
         <Id>134</Id>
         <DefaultKnob>3</DefaultKnob>

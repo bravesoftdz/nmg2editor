@@ -719,6 +719,7 @@ type
 
   TG2GraphButtonRadio = class( TG2GraphButton)
   protected
+    FUpsideDown : boolean;
     procedure   MouseDown(Button: TMouseButton; Shift: TShiftState; X: Integer; Y: Integer); override;
     procedure   SetOrientation( aValue : TOrientationType); override;
   public
@@ -728,6 +729,7 @@ type
     procedure   SetBounds(ALeft: Integer; ATop: Integer;  AWidth: Integer; AHeight: Integer); override;
     procedure   ParsePanelData( fs : TModuleDefStream); override;
     function    ParseProperties( fs: TModuleDefStream; aName : AnsiString): boolean; override;
+    property UpsideDown : boolean read FUpsideDown write FUpsideDown;
   end;
 
   TG2GraphButtonIncDec = class( TG2GraphButton)
@@ -3193,6 +3195,7 @@ begin
 
   if (aControlType = 'ButtonRadio') then begin
     Result := TG2GraphButtonRadio.Create(self);
+    (Result as TG2GraphButtonRadio).UpsideDown := True;
     Result.Module := self;
   end;
 
@@ -4328,45 +4331,61 @@ begin
       sl := TStringList.Create;
       try
         fs.ReadOptions( sl, [','], ['"']);
-        if FMasterRef > -1 then begin
-          if FMasterRef < sl.Count then begin
+        if sl.Count > 0 then
+          if FMasterRef > -1 then begin
+            //if FMasterRef < sl.Count then begin
 
-            // Assign master parameter first
-            if (length(sl[ FMasterRef])>0) and (Lowercase(sl[ FMasterRef][1]) = 's') then begin
-              val( copy(sl[FMasterRef], 2, Length(sl[FMasterRef]) - 1), value, c);
-              if c = 0 then begin
-                FParameter := FModule.FData.Mode[ value] as TG2GraphParameter;
-                (FModule.FData.Mode[ value] as TG2GraphParameter).AssignControl(self);
-              end;
-            end else begin
-              val(sl[i], value, c);
-              if c = 0 then begin
-                FParameter := FModule.FData.Parameter[ value] as TG2GraphParameter;
-                (FModule.FData.Parameter[ value] as TG2GraphParameter).AssignControl(self);
-              end;
-            end;
+              // Find ref to master parameter
+              i := 0;
+              while (i<sl.Count) and (sl[i]<>IntToStr(FMasterRef)) and (sl[i]<>'s'+IntToStr(FMasterRef)) do
+                inc(i);
 
-            if assigned(FParameter) then begin
-
-              for i := 0 to sl.Count - 1 do begin
-                if (length(sl[i])>0) and (Lowercase(sl[i][1]) = 's') then begin
-                  val(copy(sl[i], 2, Length(sl[i]) - 1), value, c);
-                  if c = 0 then begin
-                    FParameter.AddDependency(ptMode, value);
-                    (FModule.FData.Mode[ value] as TG2GraphParameter).AssignControl(self);
-                  end;
+              if (i<sl.Count) then begin
+                // Assign master parameter first
+                if (Lowercase(sl[ i][1]) = 's') then begin // One of the static params
+                  //val( copy(sl[i], 2, Length(sl[FMasterRef]) - 1), value, c);
+                  //if c = 0 then begin
+                  //  FParameter := FModule.FData.Mode[ value] as TG2GraphParameter;
+                  //  (FModule.FData.Mode[ value] as TG2GraphParameter).AssignControl(self);
+                  //end;
+                  FParameter := FModule.FData.Mode[ FMasterRef] as TG2GraphParameter;
+                  (FModule.FData.Mode[ FMasterRef] as TG2GraphParameter).AssignControl(self);
                 end else begin
-                  val(sl[i], value, c);
-                  if c = 0 then begin
-                    FParameter.AddDependency(ptParam, value);
-                    (FModule.FData.Parameter[ value] as TG2GraphParameter).AssignControl(self);
+                  //val(sl[i], value, c);
+                  //if c = 0 then begin
+                   // FParameter := FModule.FData.Parameter[ value] as TG2GraphParameter;
+                   // (FModule.FData.Parameter[ value] as TG2GraphParameter).AssignControl(self);
+                  //end;
+                   FParameter := FModule.FData.Parameter[ FMasterRef] as TG2GraphParameter;
+                   (FModule.FData.Parameter[ FMasterRef] as TG2GraphParameter).AssignControl(self);
+                end;
+              end else begin
+                //raise Exception.Create('Master ref not found in dependency list.');
+                 FParameter := FModule.FData.Parameter[ FMasterRef] as TG2GraphParameter;
+                 (FModule.FData.Parameter[ FMasterRef] as TG2GraphParameter).AssignControl(self);
+              end;
+
+              if assigned(FParameter) then begin
+
+                for i := 0 to sl.Count - 1 do begin
+                  if (length(sl[i])>0) and (Lowercase(sl[i][1]) = 's') then begin
+                    val(copy(sl[i], 2, Length(sl[i]) - 1), value, c);
+                    if c = 0 then begin
+                      FParameter.AddDependency(ptMode, value);
+                      (FModule.FData.Mode[ value] as TG2GraphParameter).AssignControl(self);
+                    end;
+                  end else begin
+                    val(sl[i], value, c);
+                    if c = 0 then begin
+                      FParameter.AddDependency(ptParam, value);
+                      (FModule.FData.Parameter[ value] as TG2GraphParameter).AssignControl(self);
+                    end;
                   end;
                 end;
               end;
-            end;
-          end;
-        end else
-          raise Exception.Create('Master param not assigned yet...');
+            //end;
+          end else
+            raise Exception.Create('Master param not assigned yet...');
 
         {SetLength(FDependencies, sl.Count);
         for i := 0 to sl.Count - 1 do begin
@@ -5030,6 +5049,7 @@ begin
   FHighlightColor := G_HighLightColor;
   Color := CL_BTN_FACE;
   FBevel := False;
+  FUpsideDown := False;
   Height := 14;
 end;
 
@@ -5047,7 +5067,10 @@ begin
       end;
     end else begin
       if (FButtonCount > 0) and (Height > 0) then begin
-        Value := Y * FButtonText.Count div Height;
+        if FUpsideDown then
+          Value := (Height - Y) * FButtonText.Count div Height
+        else
+          Value := Y * FButtonText.Count div Height;
       end;
     end;
   end;
@@ -5082,11 +5105,16 @@ begin
         Rect.Right := FButtonWidth;
         Rect.Bottom := Height;
       end else begin
-        FButtonHeight := Height div FButtonCount + 1;
+        FButtonHeight := (Height div FButtonCount) + 1;
         Rect.Left := 0;
-        Rect.Top := 0;
         Rect.Right := Width;
-        Rect.Bottom := FButtonHeight;
+        if FUpsideDown then begin
+          Rect.Top := Height - FButtonHeight;
+          Rect.Bottom := Height;
+        end else begin
+          Rect.Top := 0;
+          Rect.Bottom := FButtonHeight;
+        end;
       end;
 
       for i := 0 to FButtonCount - 1 do begin
@@ -5135,8 +5163,13 @@ begin
           Rect.Left := Rect.Left + FButtonWidth - 1;
           Rect.Right := Rect.Right + FButtonWidth - 1;
         end else begin
-          Rect.Top := Rect.Top + FButtonHeight - 1;
-          Rect.Bottom := Rect.Bottom + FButtonHeight - 1;
+          if FUpsideDown then begin
+            Rect.Top := Rect.Top - (FButtonHeight - 1);
+            Rect.Bottom := Rect.Bottom - (FButtonHeight - 1);
+          end else begin
+            Rect.Top := Rect.Top + FButtonHeight - 1;
+            Rect.Bottom := Rect.Bottom + FButtonHeight - 1;
+          end;
         end;
       end;
     end else
