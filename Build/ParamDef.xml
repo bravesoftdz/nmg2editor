@@ -804,7 +804,7 @@
     <DefaultValue>0</DefaultValue>
     <Definitions/>
     <Comments>Determines [LfoRate_3]</Comments>
-    <ButtonText>Rate Sub;Rate Lo;Rate Hi;BPM;Clk;</ButtonText>
+    <ButtonText>Sub;Lo;Hi;BPM;Clk;</ButtonText>
   </ParamDef>
   <ParamDef>
     <Id>78</Id>
@@ -815,7 +815,7 @@
     <DefaultValue>0</DefaultValue>
     <Definitions/>
     <Comments>Determines [LfoRate_4]</Comments>
-    <ButtonText>Rate Sub;Rate Lo;Rate Hi;BPM;Clk;</ButtonText>
+    <ButtonText>Sub;Lo;Hi;BPM;Clk;</ButtonText>
   </ParamDef>
   <ParamDef>
     <Id>79</Id>

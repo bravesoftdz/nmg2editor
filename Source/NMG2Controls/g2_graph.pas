@@ -696,6 +696,7 @@ type
   end;
 
   TG2GraphTextEdit = class( TG2GraphButtonText)
+  public
     constructor Create( AOwner: TComponent); override;
     destructor  Destroy; override;
   end;
@@ -4683,7 +4684,8 @@ constructor TG2GraphButtonText.Create(AOwner: TComponent);
 begin
   inherited;
 
-  FButtonTextType := bttNormal;
+  //FButtonTextType := bttNormal;
+  FButtonTextType := bttPush;
 end;
 
 destructor TG2GraphButtonText.Destroy;
@@ -4795,10 +4797,16 @@ begin
     if aName = 'Type' then begin
       aValue := fs.ReadUntil( [#13]);
 
+      {if aValue = '"Push"' then
+        FButtonTextType := bttPush
+      else
+        FButtonTextType := bttNormal;}
       if aValue = '"Push"' then
         FButtonTextType := bttPush
       else
-        FButtonTextType := bttNormal;
+        if aValue = '"Check"' then
+          FButtonTextType := bttCheck;
+
     end else
       Result := False
 
@@ -4818,7 +4826,6 @@ end;
 constructor TG2GraphTextEdit.Create(AOwner: TComponent);
 begin
   inherited;
-
 end;
 
 destructor TG2GraphTextEdit.Destroy;
@@ -4826,6 +4833,7 @@ begin
 
   inherited;
 end;
+
 
 // ==== TG2GraphButtonFlat =====================================================
 

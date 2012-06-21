@@ -6978,6 +6978,22 @@ begin
   16 : begin // Env Sustain
          Result := Format('%.1g', [1.0 * round(GetParameterValue/2)])
        end;
+  22 : begin // Drumsynth, Masterfreq
+         Result := G2FloatToStr(20.02 * power(2, GetParameterValue / 24), 4) + 'Hz';
+       end;
+  23 : begin // Drumsynth, SlaveRatio
+         TempValue := GetParameterValue;
+         case TempValue of
+         0  : Result := '1:1';
+         48 : Result := '2:1';
+         96 : Result := '4:1';
+           else begin
+             Exponent := (GetParameterValue / 48);
+             Fact := power(2, Exponent);
+             Result :=  'x' + G2FloatToStrFixed( Fact, 4)
+           end;
+         end;
+       end;
   26 : begin // Osc KB
          case GetParameterValue of
          0 : Result := 'KBT Off';
@@ -7092,14 +7108,12 @@ begin
            2 : begin // Fac
                  Exponent := ((FreqCourse - 64) + (FreqFine - 64) / 128) / 12;
                  Fact := power(2, Exponent);
-                 //Result := 'x' + Format('%.5g', [Fact]);
                  Result :=  'x' + G2FloatToStrFixed( Fact, 6)
                end;
            3 : begin // Part
                  if FreqCourse <= 32 then begin
                    Exponent := -(((32 - FreqCourse ) * 4) + 77 - (FreqFine - 64) / 128) / 12;
                    Freq := 440.0 * power(2, Exponent);
-                   //Result := Format('%.3g', [Freq]) + 'Hz';
                    Result := G2FloatToStrFixed( Freq, 5) + 'Hz';
                  end else begin
                    if (FreqCourse > 32) and (FreqCourse <=64) then begin
@@ -7149,6 +7163,17 @@ begin
               else
                 if ((TempValue mod 24) mod 14 = 0) then
                   Result := Result + '-5th';
+       end;
+  70 : begin // Level scaler, Gain
+         TempValue := GetParameterValue;
+         if TempValue < 64  then
+           Result := G2FloatToStrFixed( -8.0 + 16.0 * TempValue / 127, 3) + 'dB'
+         else
+           if TempValue > 64 then
+             Result := G2FloatToStrFixed( -8.0 + 16.0 * TempValue / 127, 3) + 'dB'
+           else
+             Result := '0.0dB';
+
        end;
   71 : begin // Flt KBT
           case GetParameterValue of
@@ -7309,7 +7334,22 @@ begin
           0 : Result := 'Closest';
           1 : Result := 'Evenly';
           end;
-        end
+        end;
+  203 : begin // Random Step
+          case GetParameterValue of
+          0 : Result := '0%';
+          1 : Result := '25%';
+          2 : Result := '50%';
+          3 : Result := '75%';
+          4 : Result := '100%';
+          end;
+        end;
+  205 : begin // Random Clk A, Step
+          Result := IntToStr(100 * GetParameterValue div 127) + '%';
+        end;
+  220 : begin // Pitch track
+          Result := IntToStr(GetParameterValue); // TODO
+        end;
   else
     Result := IntToStr(GetParameterValue);
   end;
@@ -7562,6 +7602,9 @@ begin
          end;
   2    : begin //DlyClock
            Result := IntToStr(aValue + 1);
+         end;
+  27   : begin // OscShpB, shape Mod
+           Result := InfoFunction;
          end;
   60   : begin // Osc freq
            Result := InfoFunction;

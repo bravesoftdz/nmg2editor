@@ -341,7 +341,7 @@ type
   TMessageDataType = (mdtResponseMessage = 0, mdtSendMessage = 1);
   TParamType = ( ptParam, ptMode);
   TKnobType = ( ktBig, ktMedium, ktSmall, ktExtraSmall, ktReset, ktResetMedium, ktSlider, ktSeqSlider);
-  TButtonTextType = (bttNormal, bttPush, bttCheck);
+  TButtonTextType = (bttNormal, bttPush, bttCheck, bttCheckBox);
   TOrientationType = ( otHorizontal, otVertical);
   TIconType = (itNone, itUp, itDown, itLeft, itRight, itCheck, itSine, itSaw, itPulse, itTri, itPulse25, itPulse10);
   TBandwidthType = (btStatic, btDynamic);
@@ -496,7 +496,7 @@ function G2FloatToStr( aValue : single; aLen : integer): string;
 var intpart : single;
     fl, t, p : integer;
 begin
-  intpart := aValue;
+  intpart := abs(aValue);
   fl := 0;
   while intpart > 1 do begin
     inc(fl);
@@ -519,15 +519,15 @@ function G2FloatToStrFixed( aValue : single; aLen : integer): string;
 var temp : single;
     fl, t, p : integer;
 begin
-  temp := aValue;
-  fl := 0;
-  while temp > 1 do begin
+  temp := abs(aValue);
+  fl := 1; // calc numbers before decimal point
+  while temp >= 10 do begin
     inc(fl);
     temp := temp / 10;
   end;
   fl := aLen - (fl+1);
   if fl > 0 then begin
-    p := 1;
+    p := 1; // calc number of visible decimals
     while fl > 0 do begin
       p := p * 10;
       dec(fl);
@@ -537,8 +537,10 @@ begin
       Result := FloatToStr(t/p);
       if frac(t/p)=0 then
         Result := Result + ',';
+      if t < 0 then
+        inc(aLen); // - sign
       while Length(Result) < aLen do
-        Result := Result + '0';
+        Result := Result + '0'
     end else
       Result := FloatToStr(t/p);
   end else

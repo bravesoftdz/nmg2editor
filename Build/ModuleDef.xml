@@ -11106,7 +11106,7 @@
         <ButtonParam>5</ButtonParam>
       </Param>
       <Param>
-        <Name>StepProb</Name>
+        <Name>Step</Name>
         <DefaultValue>3</DefaultValue>
         <Id>142</Id>
         <DefaultKnob>5</DefaultKnob>
@@ -11168,7 +11168,7 @@
         <DefaultKnob>1</DefaultKnob>
       </Param>
       <Param>
-        <Name>StepProb</Name>
+        <Name>Step</Name>
         <DefaultValue>127</DefaultValue>
         <Id>71</Id>
         <DefaultKnob>2</DefaultKnob>
@@ -11232,7 +11232,7 @@
     </Outputs>
     <Params>
       <Param>
-        <Name>StepProb</Name>
+        <Name>Step</Name>
         <DefaultValue>127</DefaultValue>
         <Id>71</Id>
         <DefaultKnob>0</DefaultKnob>
@@ -11303,13 +11303,13 @@
     </Outputs>
     <Params>
       <Param>
-        <Name>StepProb</Name>
+        <Name>Step</Name>
         <DefaultValue>64</DefaultValue>
         <Id>71</Id>
         <DefaultKnob>0</DefaultKnob>
       </Param>
       <Param>
-        <Name>StepProbMod</Name>
+        <Name>Step M</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
         <DefaultKnob>1</DefaultKnob>
@@ -11365,7 +11365,7 @@
     </Outputs>
     <Params>
       <Param>
-        <Name>StepProb</Name>
+        <Name>Step</Name>
         <DefaultValue>127</DefaultValue>
         <Id>71</Id>
         <DefaultKnob>0</DefaultKnob>
@@ -11392,7 +11392,7 @@
         <ButtonParam>3</ButtonParam>
       </Param>
       <Param>
-        <Name>StepProbMod</Name>
+        <Name>Step M</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
         <DefaultKnob>4</DefaultKnob>
@@ -11433,7 +11433,7 @@
         <Type>blue</Type>
       </Connector>
       <Connector>
-        <Name>StepProb</Name>
+        <Name>Step</Name>
         <Type>blue</Type>
       </Connector>
     </Inputs>
@@ -11457,7 +11457,7 @@
         <DefaultKnob>1</DefaultKnob>
       </Param>
       <Param>
-        <Name>StepProb</Name>
+        <Name>Step</Name>
         <DefaultValue>127</DefaultValue>
         <Id>145</Id>
         <DefaultKnob>3</DefaultKnob>
@@ -11469,7 +11469,7 @@
         <DefaultKnob>2</DefaultKnob>
       </Param>
       <Param>
-        <Name>StepProbMod</Name>
+        <Name>Step M</Name>
         <DefaultValue>0</DefaultValue>
         <Id>71</Id>
         <DefaultKnob>4</DefaultKnob>
