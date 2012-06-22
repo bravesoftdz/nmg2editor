@@ -698,10 +698,11 @@ type
     procedure   Init;
     function    FindParamLabelParam( aParamIndex : integer): TParamLabelParam;
     function    GetModuleLabelsLength: integer;
-    procedure   AddParamLabel( aParamIndex : byte; aName : AnsiString);
+    procedure   AddParamLabel( aParamIndex, aLabelIndex : byte; aName : AnsiString);
     procedure   Read( aChunk : TPatchChunk);
     procedure   Write( aChunk : TPatchChunk);
     function    AddParamLabelParam( aValue : TParamLabelParam): integer;
+    function    GetParameterLabelCount( aParamIndex: byte): integer;
 
     property    Items[ aIndex : integer]: TParamLabelParam read GetParamLabelParam write SetParamLabelParam; default;
     property    ModuleIndex : TBits8 read FModuleIndex write FModuleIndex;
@@ -718,8 +719,10 @@ type
     constructor CopySelected( AOwnsObjects: Boolean; aModuleList : TModuleList; aParameterLabels : TParameterLabels);
     destructor  Destroy; override;
     function    FindParamLabelModule( aModuleIndex : integer): TParamLabelModule;
-    function    FindParamLabel( aModuleIndex, aParamIndex : byte): AnsiString;
-    procedure   AddParamLabel( aModuleIndex, aParamIndex : byte; aName : AnsiString);
+    function    FindParamLabel( aModuleIndex, aParamIndex, aLabelIndex : byte): AnsiString;
+    procedure   AddParamLabel( aModuleIndex, aParamIndex, aLabelIndex : byte; aName : AnsiString);
+    procedure   AddParamLabels( aModuleIndex, aParamIndex : byte; aNames : AnsiString);
+    function    GetParameterLabelCount( aModuleIndex, aParamIndex: byte): integer;
     procedure   Init;
     procedure   DeleteParamLabel( aModuleIndex : Byte);
     procedure   Read( aChunk : TPatchChunk);
@@ -843,14 +846,15 @@ type
     function    FindParamValue( aModuleIndex, aVariation, aParamIndex : byte): integer;
     function    FindParamSet( aModuleIndex: byte): TParamSet;
     function    FindModule( aModuleIndex : byte): TG2FileModule;
-    function    GetParameterLabel( aModuleIndex, aParamIndex : byte): AnsiString;
-    procedure   SetParameterLabel( aModuleIndex, aParamIndex : byte; aValue : AnsiString);
+    function    GetParameterLabel( aModuleIndex, aParamIndex, aLabelIndex : byte): AnsiString;
+    procedure   SetParameterLabel( aModuleIndex, aParamIndex, aLabelIndex : byte; aValue : AnsiString);
+    function    GetParameterLabelCount( aModuleIndex, aParamIndex : byte) : integer;
     function    GetModuleLabel( aModuleIndex : byte): AnsiString;
     procedure   SetModuleLabel( aModuleIndex : byte; aValue : AnsiString);
     procedure   AddNewVariation;
     procedure   CopyVariation( aFromVariation, aToVariation : byte);
-    function    FindParamLabel( aModuleIndex, aParamIndex : byte): AnsiString;
-    procedure   AddParamLabel(aModuleIndex, aParamIndex : byte; aValue : AnsiString);
+    function    FindParamLabel( aModuleIndex, aParamIndex, aLabelIndex : byte): AnsiString;
+    procedure   AddParamLabel(aModuleIndex, aParamIndex, aLabelIndex : byte; aValue : AnsiString);
     procedure   AddNewModuleLabel( aModuleIndex : byte; aValue : AnsiString);
     procedure   SelectModule( aModule : TG2FileModule);
     procedure   SelectModuleAbove;
@@ -987,8 +991,9 @@ type
     procedure   AddVariation;
     procedure   CopyVariation( aFromVariation, aToVariation : byte);
 
-    function    GetParameterLabel( aLocation : TLocationType; aModuleIndex, aParamIndex : byte): AnsiString;
-    procedure   SetParameterLabel( aLocation : TLocationType; aModuleIndex, aParamIndex : byte; aValue : AnsiString);
+    function    GetParameterLabel( aLocation : TLocationType; aModuleIndex, aParamIndex, alabelIndex : byte): AnsiString;
+    procedure   SetParameterLabel( aLocation : TLocationType; aModuleIndex, aParamIndex, aLabelIndex : byte; aValue : AnsiString);
+    function    GetParameterLabelCount( aLocation : TLocationType; aModuleIndex, aParamIndex : byte) : integer;
     function    GetModuleLabel( aLocation : TLocationType; aModuleIndex : byte): AnsiString;
     procedure   SetModuleLabel( aLocation : TLocationType; aModuleIndex : byte; aValue : AnsiString);
 
@@ -1009,7 +1014,7 @@ type
     function    MessDeleteModules( aLocation : TLocationType): boolean; virtual;
     function    MessMoveModule( aLocation : TLocationType; aModuleIndex, aCol, aRow : byte): boolean; virtual;
     function    MessSetModuleColor( aLocation: TLocationType; aModuleIndex, aColor : byte): boolean; virtual;
-    function    MessSetModuleParamLabels( aLocation: TLocationType; aModuleIndex, aParamIndex: byte; aName: AnsiString): boolean; virtual;
+    function    MessSetModuleParamLabels( aLocation: TLocationType; aModuleIndex, aParamIndex, aLabelIndex: byte; aName: AnsiString): boolean; virtual;
     function    MessSetModuleLabel( aLocation : TLocationType; aModuleIndex : byte; aName : AnsiString): boolean; virtual;
 
     procedure   SortLeds; virtual;
@@ -1150,8 +1155,9 @@ type
     procedure   DecValue;
     procedure   IncMorphValue;
     procedure   DecMorphValue;
-    function    GetParamLabel: AnsiString;
-    procedure   SetParamLabel( aValue : AnsiString);
+    function    GetParameterLabelCount: integer;
+    function    GetParamLabel( aIndex : integer): AnsiString;
+    procedure   SetParamLabel( aIndex : integer; aValue : AnsiString);
     function    GetSelectedMorph : TMorphParameter;
     function    GetMorph( aMorphIndex, aVariation : integer) : TMorphParameter;
     function    HasMorph: boolean;
@@ -1176,7 +1182,8 @@ type
     property    ModuleIndex : integer read FModuleIndex write FModuleIndex;
     property    ParamName : AnsiString read FParamName write FParamName;
     property    ModuleName : AnsiString read FModuleName write FModuleName;
-    property    ParamLabel : AnsiString read GetParamLabel write SetParamLabel;
+    property    ParamLabel[ index : integer] : AnsiString read GetParamLabel write SetParamLabel;
+    property    ParamLabelCount : integer read GetParameterLabelCount;
     property    CanChangeLabel : boolean read FCanChangeLabel write FCanChangeLabel;
     property    Selected : boolean read GetSelected write SetSelected;
     property    Knob : TKnob read FKnob write FKnob;
@@ -4054,6 +4061,11 @@ begin
   inherited;
 end;
 
+function TParamLabelModule.GetParameterLabelCount( aParamIndex: byte): integer;
+begin
+  Result := Items[aParamIndex].Count;
+end;
+
 function TParamLabelModule.GetParamLabelParam( aIndex : integer) : TParamLabelParam;
 begin
   result := inherited Items[aindex] as TParamLabelParam;
@@ -4102,14 +4114,14 @@ begin
   end;
 end;
 
-procedure TParamLabelModule.AddParamLabel( aParamIndex : byte; aName : AnsiString);
+procedure TParamLabelModule.AddParamLabel( aParamIndex, aLabelIndex : byte; aName : AnsiString);
 var ParamLabelParam : TParamLabelParam;
     ParamLabel : TParamLabel;
 begin
-  ParamLabelParam := FindParamLabelParam( aParamIndex);
-  if assigned(ParamLabelParam) and (ParamLabelParam.Count > 0) then // TODO : there could be more than 1 label per paramindex!
-    ParamLabelParam.Items[0].SetName( aName)
-  else begin
+  {ParamLabelParam := FindParamLabelParam( aParamIndex);
+  if assigned(ParamLabelParam) and (ParamLabelParam.Count > 0) then begin
+    ParamLabelParam.Items[0].SetName( aName);
+  end else begin
     ParamLabelParam := TParamLabelParam.Create( True);
     ParamLabelParam.FIsString   := 1;
     ParamLabelParam.FParamLen   := 8;
@@ -4118,6 +4130,23 @@ begin
     ParamLabel.SetName( aName);
     ParamLabelParam.Add( ParamLabel);
     Add( ParamLabelParam);
+    FModuleLen := GetModuleLabelsLength;
+  end;}
+  ParamLabelParam := FindParamLabelParam( aParamIndex);
+  if not assigned(ParamLabelParam) then begin
+    ParamLabelParam := TParamLabelParam.Create( True);
+    ParamLabelParam.FIsString   := 1;
+    ParamLabelParam.FParamLen   := 8;
+    ParamLabelParam.FParamIndex := aParamIndex;
+    Add( ParamLabelParam);
+  end;
+
+  if (aLabelIndex < ParamLabelParam.Count) then begin
+    ParamLabelParam.Items[aLabelIndex].SetName( aName);
+  end else begin
+    ParamLabel := TParamLabel.Create;
+    ParamLabel.SetName( aName);
+    ParamLabelParam.Add( ParamLabel);
     FModuleLen := GetModuleLabelsLength;
   end;
 end;
@@ -4227,6 +4256,11 @@ begin
   inherited;
 end;
 
+function TParameterLabels.GetParameterLabelCount( aModuleIndex,  aParamIndex: byte): integer;
+begin
+  Result := Items[ aModuleIndex].GetParameterLabelCount( aParamIndex);
+end;
+
 function TParameterLabels.GetParamLabelModule( aIndex : integer) : TParamLabelModule;
 begin
   result := inherited Items[aindex] as TParamLabelModule;
@@ -4240,6 +4274,22 @@ end;
 function TParameterLabels.AddParamLabelModule( aValue : TParamLabelModule): integer;
 begin
   Result := inherited Add( aValue);
+end;
+
+procedure TParameterLabels.AddParamLabels(aModuleIndex, aParamIndex: byte; aNames: AnsiString);
+var sl : TStringList;
+    i : integer;
+begin
+  sl := TStringList.Create;
+  try
+    sl.Delimiter := ';';
+    sl.StrictDelimiter := True;
+    sl.DelimitedText := aNames;
+    for i := 0 to sl.Count - 1 do
+      AddParamLabel( aModuleIndex, aParamIndex, i, sl[i]);
+  finally
+    sl.Free;
+  end;
 end;
 
 procedure TParameterLabels.Init;
@@ -4261,31 +4311,34 @@ begin
     Result := nil;
 end;
 
-function TParameterLabels.FindParamLabel( aModuleIndex, aParamIndex : byte): AnsiString;
+function TParameterLabels.FindParamLabel( aModuleIndex, aParamIndex, aLabelIndex : byte): AnsiString;
 var ParamLabelModule : TParamLabelModule;
     ParamLabelParam : TParamLabelParam;
 begin
   ParamLabelModule := FindParamLabelModule( aModuleIndex);
   if assigned(ParamLabelModule) then begin
     ParamLabelParam := ParamLabelModule.FindParamLabelParam( aParamIndex);
-    if assigned(ParamLabelParam) and (ParamLabelParam.FIsString = 1) then
-      Result := ParamLabelParam.Items[0].GetName // TODO : Could be more than 1 label per paramindex
-    else
+    if assigned(ParamLabelParam) and (ParamLabelParam.FIsString = 1) then begin
+      if aLabelIndex < ParamLabelParam.Count then
+        Result := ParamLabelParam.Items[ aLabelIndex].GetName
+      else
+        Result := ParamLabelParam.Items[0].GetName;
+    end else
       Result := '';
   end else
     Result := '';
 end;
 
-procedure TParameterLabels.AddParamLabel( aModuleIndex, aParamIndex : byte; aName : AnsiString);
+procedure TParameterLabels.AddParamLabel( aModuleIndex, aParamIndex, aLabelIndex : byte; aName : AnsiString);
 var ParamLabelModule : TParamLabelModule;
 begin
   ParamLabelModule := FindParamLabelModule( aModuleIndex);
   if assigned(ParamLabelModule) then
-    ParamLabelModule.AddParamLabel( aParamIndex, aName)
+    ParamLabelModule.AddParamLabel( aParamIndex, aLabelIndex, aName)
   else begin
     ParamLabelModule := TParamLabelModule.Create( True);
     ParamLabelModule.FModuleIndex := aModuleIndex;
-    ParamLabelModule.AddParamLabel( aParamIndex, aName);
+    ParamLabelModule.AddParamLabel( aParamIndex, aLabelIndex, aName);
     Add( ParamLabelModule);
   end;
   FModuleCount := Count;
@@ -4796,14 +4849,14 @@ begin
   FParameterList.CopyVariation( aFromVariation, aToVariation);
 end;
 
-function TG2FilePatchPart.FindParamLabel( aModuleIndex, aParamIndex : byte): AnsiString;
+function TG2FilePatchPart.FindParamLabel( aModuleIndex, aParamIndex, aLabelIndex : byte): AnsiString;
 begin
-  Result := FParameterLabels.FindParamLabel( aModuleIndex, aParamIndex);
+  Result := FParameterLabels.FindParamLabel( aModuleIndex, aParamIndex, aLabelIndex);
 end;
 
-procedure TG2FilePatchPart.AddParamLabel(aModuleIndex, aParamIndex : byte; aValue : AnsiString);
+procedure TG2FilePatchPart.AddParamLabel(aModuleIndex, aParamIndex, aLabelIndex : byte; aValue : AnsiString);
 begin
-  FParameterLabels.AddParamLabel(aModuleIndex, aParamIndex, aValue);
+  FParameterLabels.AddParamLabel(aModuleIndex, aParamIndex, aLabelIndex, aValue);
 end;
 
 procedure TG2FilePatchPart.AddNewModuleLabel(aModuleIndex : byte; aValue : AnsiString);
@@ -4811,14 +4864,19 @@ begin
   FModuleLabels.AddNewModuleLabel( aModuleIndex, aValue);
 end;
 
-function TG2FilePatchPart.GetParameterLabel( aModuleIndex, aParamIndex : byte): AnsiString;
+function TG2FilePatchPart.GetParameterLabel( aModuleIndex, aParamIndex, aLabelIndex : byte): AnsiString;
 begin
-  Result := FindParamLabel( aModuleIndex, aParamIndex)
+  Result := FindParamLabel( aModuleIndex, aParamIndex, aLabelIndex)
 end;
 
-procedure TG2FilePatchPart.SetParameterLabel( aModuleIndex, aParamIndex : byte; aValue : AnsiString);
+function TG2FilePatchPart.GetParameterLabelCount( aModuleIndex,  aParamIndex: byte): integer;
 begin
-  AddParamLabel(aModuleIndex, aParamIndex, aValue);
+  Result := FParameterLabels.GetParameterLabelCount( aModuleIndex, aParamIndex);
+end;
+
+procedure TG2FilePatchPart.SetParameterLabel( aModuleIndex, aParamIndex, aLabelIndex : byte; aValue : AnsiString);
+begin
+  AddParamLabel(aModuleIndex, aParamIndex, aLabelIndex, aValue);
 end;
 
 function TG2FilePatchPart.GetModuleLabel( aModuleIndex : byte): AnsiString;
@@ -6171,18 +6229,26 @@ begin
 end;
 
 
-function TG2FilePatch.GetParameterLabel( aLocation : TLocationType; aModuleIndex, aParamIndex : byte): AnsiString;
+function TG2FilePatch.GetParameterLabel( aLocation : TLocationType; aModuleIndex, aParamIndex, aLabelIndex : byte): AnsiString;
 begin
   if (aLocation = ltFX) or (aLocation = ltVA) then begin
-    Result := FPatchPart[ ord(aLocation)].GetParameterLabel( aModuleIndex, aParamIndex)
+    Result := FPatchPart[ ord(aLocation)].GetParameterLabel( aModuleIndex, aParamIndex, aLabelIndex)
   end else
     Result := '';
 end;
 
-procedure TG2FilePatch.SetParameterLabel( aLocation : TLocationType; aModuleIndex, aParamIndex : byte; aValue : AnsiString);
+function TG2FilePatch.GetParameterLabelCount(aLocation: TLocationType;  aModuleIndex, aParamIndex: byte): integer;
+begin
+  if (aLocation = ltFX) or (aLocation = ltVA) then begin
+    Result := FPatchPart[ ord(aLocation)].GetParameterLabelCount( aModuleIndex, aParamIndex)
+  end else
+    Result := 0;
+end;
+
+procedure TG2FilePatch.SetParameterLabel( aLocation : TLocationType; aModuleIndex, aParamIndex, aLabelIndex : byte; aValue : AnsiString);
 begin
   if (aLocation = ltFX) or (aLocation = ltVA) then
-    FPatchPart[ ord(aLocation)].SetParameterLabel(aModuleIndex, aParamIndex, aValue);
+    FPatchPart[ ord(aLocation)].SetParameterLabel(aModuleIndex, aParamIndex, aLabelIndex, aValue);
 end;
 
 function TG2FilePatch.GetModuleLabel( aLocation : TLocationType; aModuleIndex : byte): AnsiString;
@@ -6333,7 +6399,7 @@ begin
   Result := False;
 end;
 
-function TG2FilePatch.MessSetModuleParamLabels( aLocation: TLocationType; aModuleIndex, aParamIndex: byte; aName: AnsiString): boolean;
+function TG2FilePatch.MessSetModuleParamLabels( aLocation: TLocationType; aModuleIndex, aParamIndex, aLabelIndex: byte; aName: AnsiString): boolean;
 begin
   // Abstract
   Result := False;
@@ -6828,18 +6894,26 @@ begin
   end;
 end;
 
-function TG2FileParameter.GetParamLabel: AnsiString;
+function TG2FileParameter.GetParameterLabelCount: integer;
 begin
   if assigned(FPatch) then
-    Result := FPatch.GetParameterLabel( FLocation, FModuleIndex, FParamIndex)
+    Result := FPatch.GetParameterLabelCount( FLocation, FModuleIndex, FParamIndex)
+  else
+    Result := 0;
+end;
+
+function TG2FileParameter.GetParamLabel( aIndex : integer): AnsiString;
+begin
+  if assigned(FPatch) then
+    Result := FPatch.GetParameterLabel( FLocation, FModuleIndex, FParamIndex, aIndex)
   else
     Result := '';
 end;
 
-procedure TG2FileParameter.SetParamLabel( aValue : AnsiString);
+procedure TG2FileParameter.SetParamLabel( aIndex : integer; aValue : AnsiString);
 begin
   if assigned(FPatch) then
-    FPatch.SetParameterLabel( FLocation, FModuleIndex, FParamIndex, aValue);
+    FPatch.SetParameterLabel( FLocation, FModuleIndex, FParamIndex, aIndex, aValue);
 end;
 
 function TG2FileParameter.GetSelected : boolean;
@@ -6861,7 +6935,7 @@ end;
 function TG2FileParameter.GetSelectedButtonText: string;
 var ParamValue : byte;
 begin
-  if FButtonText.Count > 0 then begin
+  {if FButtonText.Count > 0 then begin
     if FButtonText.Count = 1 then begin
       Result := string(ParamLabel);
       if Result = '' then
@@ -6874,7 +6948,16 @@ begin
         Result := 'Overflow';
     end;
   end else
-    Result := '';
+    Result := '';}
+  if CanChangeLabel then
+    Result := string(ParamLabel[0])
+  else begin
+    ParamValue := GetParameterValue;
+    if ParamValue < FButtonText.Count then
+      Result := FButtonText[ParamValue]
+    else
+      Result := 'Overflow';
+  end;
 end;
 
 function TG2FileParameter.GetButtonParam : TG2FileParameter;

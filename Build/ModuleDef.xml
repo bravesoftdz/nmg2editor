@@ -678,7 +678,7 @@
         <Id>169</Id>
         <DefaultKnob>0</DefaultKnob>
         <ButtonParam>0</ButtonParam>
-        <ParamLabel>In 1;In 2;In 3;In 4;In 5;In 6;In 7;In 8;</ParamLabel>
+        <ParamLabel>In 1;In 2;In 3;In 4;In 5;In 6;In 7;In 8</ParamLabel>
       </Param>
     </Params>
   </ModuleDef>
@@ -1867,7 +1867,7 @@
         <Name>On</Name>
         <DefaultValue>0</DefaultValue>
         <Id>106</Id>
-        <ParamLabel xmlns="">On</ParamLabel>
+        <ParamLabel>On</ParamLabel>
         <DefaultKnob>0</DefaultKnob>
         <ButtonParam>0</ButtonParam>
       </Param>
@@ -3946,10 +3946,10 @@
       <Param>
         <Name>Sel</Name>
         <DefaultValue>0</DefaultValue>
-        <Id>180</Id>
+        <Id>169</Id>
         <DefaultKnob>0</DefaultKnob>
         <ButtonParam>0</ButtonParam>
-        <ParamLabel>Out 1;Out 2;Out 3;Out 4;Out 5;Out 6;Out 7;Out 8;</ParamLabel>
+        <ParamLabel>Out 1;Out 2;Out 3;Out 4;Out 5;Out 6;Out 7;Out 8</ParamLabel>
       </Param>
     </Params>
   </ModuleDef>
@@ -3997,7 +3997,7 @@
         <Id>168</Id>
         <DefaultKnob>0</DefaultKnob>
         <ButtonParam>0</ButtonParam>
-        <ParamLabel>In 1;In 2;In 3;In 4;</ParamLabel>
+        <ParamLabel>In 1;In 2;In 3;In 4</ParamLabel>
       </Param>
     </Params>
   </ModuleDef>
@@ -4406,10 +4406,10 @@
       <Param>
         <Name>Sel</Name>
         <DefaultValue>0</DefaultValue>
-        <Id>179</Id>
+        <Id>168</Id>
         <DefaultKnob>0</DefaultKnob>
         <ButtonParam>0</ButtonParam>
-        <ParamLabel>Out 1;Out 2;Out 3;Out 4;</ParamLabel>
+        <ParamLabel>Out 1;Out 2;Out 3;Out 4</ParamLabel>
       </Param>
     </Params>
   </ModuleDef>
@@ -4495,10 +4495,10 @@
       <Param>
         <Name>Sel</Name>
         <DefaultValue>0</DefaultValue>
-        <Id>178</Id>
+        <Id>167</Id>
         <DefaultKnob>0</DefaultKnob>
         <ButtonParam>0</ButtonParam>
-        <ParamLabel>Out 1;Out 2;</ParamLabel>
+        <ParamLabel>Out 1;Out 2</ParamLabel>
       </Param>
     </Params>
   </ModuleDef>
@@ -4892,7 +4892,7 @@
         <Id>167</Id>
         <DefaultKnob>0</DefaultKnob>
         <ButtonParam>0</ButtonParam>
-        <ParamLabel>In 1;In 2;</ParamLabel>
+        <ParamLabel>In 1;In 2</ParamLabel>
       </Param>
     </Params>
   </ModuleDef>

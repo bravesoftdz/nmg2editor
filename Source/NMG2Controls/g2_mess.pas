@@ -359,7 +359,7 @@ uses
     procedure   AddSelectGlobalParamPageMessage( SendMessage : TG2SendMessage; aPage : integer);
     procedure   AddDeassignGlobalKnobMessage( SendMessage : TG2SendMessage; aKnob: integer);
     procedure   AddSetPatchDescriptionMessage( SendMessage : TG2SendMessage; FPatchDescription : TPatchDescription);
-    procedure   AddSetModuleParamLabelsMessage( SendMessage : TG2SendMessage; aLocation: TLocationType; aModuleIndex, aParamIndex: byte; aName: AnsiString);
+    procedure   AddSetModuleParamLabelsMessage( SendMessage : TG2SendMessage; aLocation: TLocationType; aModuleIndex, aParamIndex, aLabelIndex: byte; aName: AnsiString);
     procedure   AddSetModuleLabelMessage( SendMessage : TG2SendMessage; aLocation: TLocationType; aModuleIndex: byte; aName: AnsiString);
     procedure   AddSetModuleColorMessage( SendMessage : TG2SendMessage; aLocation: TLocationType; aModuleIndex, aColor : byte);
     procedure   AddSetMorphMessage( SendMessage : TG2SendMessage; aLocation, aModule, aParam, aMorph, aValue, aNegative, aVariation: byte);
@@ -388,7 +388,7 @@ uses
     function    CreateAssignMidiCCMessage( aLocation : TLocationType; aModule, aParam, aMidiCC: integer): TG2SendMessage;
     function    CreateDeassignMidiCCMessage( aMidiCC: integer): TG2SendMessage;
     function    CreateSetPatchDescriptionMessage( FPatchDescription : TPatchDescription): TG2SendMessage;
-    function    CreateSetModuleParamLabelsMessage( aLocation : TLocationType; aModuleIndex, aParamIndex : byte; aName : AnsiString): TG2SendMessage;
+    function    CreateSetModuleParamLabelsMessage( aLocation : TLocationType; aModuleIndex, aParamIndex, aLabelIndex : byte; aName : AnsiString): TG2SendMessage;
     function    CreateSetModuleLabelMessage( aLocation : TLocationType; aModuleIndex : byte; aName : AnsiString): TG2SendMessage;
     function    CreateSetPatchNotesMessage( aLines : TStrings): TG2SendMessage;
   public
@@ -3206,7 +3206,7 @@ begin
   end;
 end;
 
-procedure TG2MessPatch.AddSetModuleParamLabelsMessage( SendMessage : TG2SendMessage; aLocation: TLocationType; aModuleIndex, aParamIndex: byte; aName: AnsiString);
+procedure TG2MessPatch.AddSetModuleParamLabelsMessage( SendMessage : TG2SendMessage; aLocation: TLocationType; aModuleIndex, aParamIndex, aLabelIndex : byte; aName: AnsiString);
 var MemStream : TG2Message;
     Chunk : TPatchChunk;
     ParamLabelModule, NewParamLabelModule : TParamLabelModule;
@@ -3220,7 +3220,7 @@ begin
     if assigned( ParamLabelModule) then begin
       // Record with Param labels for the module already exists, copy record and change label
       NewParamLabelModule := TParamLabelModule.CopyCreate( True, ParamLabelModule);
-      NewParamLabelModule.AddParamLabel( aParamIndex, aName);
+      NewParamLabelModule.AddParamLabel( aParamIndex, aLabelIndex, aName);
     end else begin
       // Create a new record
       NewParamLabelModule := TParamLabelModule.Create( True);
@@ -3236,9 +3236,9 @@ begin
         if Parameter.CanChangeLabel then
           if Parameter.ParamIndex = p then begin
             if Parameter.ParamIndex = aParamIndex then
-              NewParamLabelModule.AddParamLabel( Parameter.ParamIndex, aName)
+              NewParamLabelModule.AddParamLabel( Parameter.ParamIndex, aLabelIndex, aName)
             else
-              NewParamLabelModule.AddParamLabel( Parameter.ParamIndex, Parameter.ParamLabel);
+              NewParamLabelModule.AddParamLabel( Parameter.ParamIndex, aLabelIndex, Parameter.ParamLabel[ aLabelIndex]);
           end;
       end;
     end;
@@ -3715,7 +3715,8 @@ begin
           try
             for i := 0 to ParamList.Count - 1 do begin
               if ModuleDef.Params[i].ParamLabel <> '' then begin
-                ParameterLabels.AddParamLabel( aNewModuleIndex, i,  ModuleDef.Params[i].ParamLabel);
+                //ParameterLabels.AddParamLabel( aNewModuleIndex, i, ModuleDef.Params[i].ParamLabel);
+                ParameterLabels.AddParamLabels( aNewModuleIndex, i, ModuleDef.Params[i].ParamLabel);
               end;
             end;
             ParameterLabels.Write( Chunk);
@@ -4669,11 +4670,11 @@ begin
 end;
 
 
-function TG2MessPatch.CreateSetModuleParamLabelsMessage( aLocation: TLocationType; aModuleIndex, aParamIndex: byte; aName: AnsiString): TG2SendMessage;
+function TG2MessPatch.CreateSetModuleParamLabelsMessage( aLocation: TLocationType; aModuleIndex, aParamIndex, aLabelIndex: byte; aName: AnsiString): TG2SendMessage;
 begin
   Result := CreatePatchMessage;
-  AddSetModuleParamLabelsMessage( FUndoMessage, aLocation, aModuleIndex, aParamIndex, GetParameterLabel(aLocation, aModuleIndex, aParamIndex));
-  AddSetModuleParamLabelsMessage( Result, aLocation, aModuleIndex, aParamIndex, aName);
+  AddSetModuleParamLabelsMessage( FUndoMessage, aLocation, aModuleIndex, aParamIndex, aLabelIndex, GetParameterLabel(aLocation, aModuleIndex, aParamIndex, aLabelIndex));
+  AddSetModuleParamLabelsMessage( Result, aLocation, aModuleIndex, aParamIndex, aLabelIndex, aName);
 
   (G2 as TG2Mess).dump_buffer( PStaticByteBuffer(Result.Memory)^[0], Result.Size);
 end;
@@ -5078,6 +5079,7 @@ begin
                   SetParameterLabel( aLocation,
                                      ParamLabelModule.ModuleIndex,
                                      ParamLabelModule.Items[i].ParamIndex,
+                                     0,
                                      ParamLabelModule.Items[i].Items[0].ParamLabel); // TODO : Could be more than 1 label per parameterindex
                 end;
               finally

@@ -495,7 +495,7 @@ type
     function    MessDeassignMidiCC( aMidiCC: integer): boolean;
     function    MessAssignGlobalKnob( aLocation : TLocationType; aModule, aParam, aKnob: integer): boolean;
     function    MessDeassignGlobalKnob( aKnob: integer): boolean;
-    function    MessSetModuleParamLabels( aLocation : TLocationType; aModuleIndex, aParamIndex : byte; aName : AnsiString): boolean; override;
+    function    MessSetModuleParamLabels( aLocation : TLocationType; aModuleIndex, aParamIndex, aLabelIndex : byte; aName : AnsiString): boolean; override;
     function    MessSetModuleLabel( aLocation : TLocationType; aModuleIndex : byte; aName : AnsiString): boolean; override;
   end;
 
@@ -2828,10 +2828,10 @@ begin
   Result := SendCmdMessage( MemStream);
 end;
 
-function TG2USBPatch.MessSetModuleParamLabels( aLocation: TLocationType; aModuleIndex, aParamIndex: byte; aName: AnsiString): boolean;
+function TG2USBPatch.MessSetModuleParamLabels( aLocation: TLocationType; aModuleIndex, aParamIndex, aLabelIndex: byte; aName: AnsiString): boolean;
 var MemStream : TG2SendMessage;
 begin
-  MemStream := CreateSetModuleParamLabelsMessage( aLocation, aModuleIndex, aParamIndex, aName);
+  MemStream := CreateSetModuleParamLabelsMessage( aLocation, aModuleIndex, aParamIndex, aLabelIndex, aName);
   Result := SendCmdMessage( MemStream);
 end;
 

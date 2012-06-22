@@ -1735,7 +1735,7 @@
     <LowValue>0</LowValue>
     <HighValue>1</HighValue>
     <DefaultValue>0</DefaultValue>
-    <ButtonText>In 1;In 2;</ButtonText>
+    <ButtonText>1;2</ButtonText>
     <Definitions/>
     <Comments/>
   </ParamDef>
@@ -1746,7 +1746,7 @@
     <LowValue>0</LowValue>
     <HighValue>3</HighValue>
     <DefaultValue>0</DefaultValue>
-    <ButtonText>In 1;In 2;In 3;In 4;</ButtonText>
+    <ButtonText>1;2;3;4</ButtonText>
     <Definitions/>
     <Comments/>
   </ParamDef>
@@ -1757,7 +1757,7 @@
     <LowValue>0</LowValue>
     <HighValue>7</HighValue>
     <DefaultValue>0</DefaultValue>
-    <ButtonText>In 1;In 2;In 3;In 4;In 5;In 6;In 7;In 8;</ButtonText>
+    <ButtonText>1;2;3;4;5;6;7;8</ButtonText>
     <Definitions/>
     <Comments/>
   </ParamDef>
@@ -1842,38 +1842,5 @@
     <DefaultValue>0</DefaultValue>
     <Definitions/>
     <Comments/>
-  </ParamDef>
-  <ParamDef>
-    <Id>178</Id>
-    <ParamType>2</ParamType>
-    <RangeType>Sw_1_out</RangeType>
-    <LowValue>0</LowValue>
-    <HighValue>1</HighValue>
-    <DefaultValue>0</DefaultValue>
-    <ButtonText>Out 1;Out 2;</ButtonText>
-    <Definitions/>
-    <Comments/>
-  </ParamDef>
-  <ParamDef>
-    <Id>179</Id>
-    <ParamType>2</ParamType>
-    <RangeType>sw_2_out</RangeType>
-    <LowValue>0</LowValue>
-    <HighValue>3</HighValue>
-    <DefaultValue>0</DefaultValue>
-    <ButtonText>Out 1;Out 2;Out 3;Out 4;</ButtonText>
-    <Definitions/>
-    <Comments/>
-  </ParamDef>
-  <ParamDef>
-    <Id>180</Id>
-    <ParamType>2</ParamType>
-    <RangeType>sw_3_out</RangeType>
-    <LowValue>0</LowValue>
-    <HighValue>7</HighValue>
-    <DefaultValue>0</DefaultValue>
-    <ButtonText>Out 1;Out 2;Out 3;Out 4;Out 5;Out 6;Out 7;Out 8;</ButtonText>
-    <Definitions/>
-    <Comments/>
-  </ParamDef>
+  </ParamDef>  
 </ParamDefList>

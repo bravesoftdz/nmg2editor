@@ -3513,6 +3513,7 @@ begin
     G2.SelectedPatch.MessSetModuleParamLabels( Parameter.Location,
                                                Parameter.ModuleIndex,
                                                Parameter.ParamIndex,
+                                               0, // Todo for switch
                                                AnsiString(frmEditLabel.eLabel.Text));
   end;
 end;

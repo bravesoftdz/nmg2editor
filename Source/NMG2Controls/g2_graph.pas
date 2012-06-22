@@ -449,8 +449,8 @@ type
     procedure   SetModule( aValue : TG2GraphModulePanel);
     procedure   SetValue( aValue : byte);
     function    GetValue : byte;
-    procedure   SetParamLabel( aValue : AnsiString);
-    function    GetParamLabel : AnsiString;
+    procedure   SetParamLabel( aIndex : integer; aValue : AnsiString);
+    function    GetParamLabel( aIndex : integer) : AnsiString;
     procedure   InitValue( aValue: integer);
     function    CheckValueBounds( aValue : integer): byte;
     procedure   SetMorphValue( aValue: byte);
@@ -469,6 +469,7 @@ type
     property    Module      : TG2GraphModulePanel read FModule write SetModule;
     property    MouseInput  : boolean read FMouseInput write FMouseInput;
     property    Selected    : boolean read GetSelected;
+    property    ParamLabel[ Index : integer]: AnsiString read GetParamLabel write SetParamLabel;
   published
     property    Font;
     property    Color;
@@ -476,7 +477,6 @@ type
     property    MorphValue  : byte read GetMorphValue;
     property    LowValue    : byte read GetLowValue write SetLowValue;
     property    HighValue   : byte read GetHighValue write SetHighValue;
-    property    ParamLabel  : AnsiString read GetParamLabel write SetParamLabel;
     property    OnMouseUp;
     property    OnMouseDown;
     property    OnMouseMove;
@@ -3454,10 +3454,10 @@ begin
     Result := -1;
 end;
 
-function TG2GraphChildControl.GetParamLabel: AnsiString;
+function TG2GraphChildControl.GetParamLabel( aIndex : integer): AnsiString;
 begin
   if assigned( FParameter) then
-    Result := FParameter.ParamLabel
+    Result := FParameter.ParamLabel[ aIndex]
   else
     Result := '';
 end;
@@ -3612,10 +3612,10 @@ begin
   end;
 end;
 
-procedure TG2GraphChildControl.SetParamLabel(aValue: AnsiString);
+procedure TG2GraphChildControl.SetParamLabel( aIndex : integer; aValue: AnsiString);
 begin
   if assigned( FParameter) then
-    FParameter.ParamLabel := aValue
+    FParameter.ParamLabel[ aIndex] := aValue
   else begin
     inherited Invalidate;
   end;
@@ -4824,7 +4824,7 @@ begin
           LabelText := Parameter.SelectedButtonText
         else
           if FButtonText.Count > 0 then begin
-            LabelText := string(ParamLabel);
+            LabelText := string(ParamLabel[0]);
             if LabelText = '' then
               LabelText := FButtonText[0];
           end;
@@ -5410,7 +5410,7 @@ begin
 
         LabelText := '';
         if assigned(Parameter) then
-          LabelText := Parameter.ButtonText[i]
+          LabelText := ParamLabel[i]
         else
           if i < FButtonText.Count then
             LabelText := FButtonText[i];
