@@ -2,16 +2,16 @@
 <BorlandProject>
 	<Transactions>
     <Transaction>1899-12-30 00:00:00.000.962,=MidiComponents2010.dcp</Transaction>
-    <Transaction>1899-12-30 00:00:00.000.649,=IndyCore.dcp</Transaction>
     <Transaction>1899-12-30 00:00:00.000.524,=C:\Users\Bruno\Delphi\NMG2\Source\NMG2Controls\g2_mess.pas</Transaction>
-    <Transaction>1899-12-30 00:00:00.000.846,=C:\Documents and Settings\BVerhue\My Documents\Delphi\nmg2editor\Source\NMG2Controls\LibUSBWin.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.649,=IndyCore.dcp</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.953,F:\NMG2\Source\NMG2Controls\NMG2_controls.dproj=F:\NMG2\Source\NMG2Controls\NMG2_controls_D2011.dproj</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.008,C:\Users\Bruno\Delphi\NMG2\Source\NMG2Controls\NMG2_controls_D2011.dproj=C:\Users\Bruno\Delphi\NMG2\Project\DelphiVCL\NMG2_controls_D2011.dproj</Transaction>
     <Transaction>1899-12-30 00:00:00.000.924,=C:\Documents and Settings\BVerhue\My Documents\Delphi\nmg2editor\Source\NMG2Controls\g2_database.pas</Transaction>
-    <Transaction>1899-12-30 00:00:00.000.953,F:\NMG2\Source\NMG2Controls\NMG2_controls_D2011.dproj=F:\NMG2\Source\NMG2Controls\NMG2_controls.dproj</Transaction>
     <Transaction>1899-12-30 00:00:00.000.661,=IndySystem.dcp</Transaction>
     <Transaction>1899-12-30 00:00:00.000.487,=C:\Documents and Settings\BVerhue\My Documents\Delphi\nmg2editor\Source\NMG2Controls\graph_util_vcl.pas</Transaction>
-    <Transaction>1899-12-30 00:00:00.000.008,C:\Users\Bruno\Delphi\NMG2\Project\DelphiVCL\NMG2_controls_D2011.dproj=C:\Users\Bruno\Delphi\NMG2\Source\NMG2Controls\NMG2_controls_D2011.dproj</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.846,=C:\Documents and Settings\BVerhue\My Documents\Delphi\nmg2editor\Source\NMG2Controls\LibUSBWin.pas</Transaction>
     <Transaction>1899-12-30 00:00:00.000.878,=C:\Documents and Settings\BVerhue\My Documents\Delphi\nmg2editor\Source\NMG2Controls\g2_midi.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.804,C:\Users\Bruno\Delphi\nmg2editor\Project\DelphiVCL\Unit1.pas=C:\Users\Bruno\Delphi\nmg2editor\Source\NMG2Controls\JawsCtrls.pas</Transaction>
     <Transaction>1899-12-30 00:00:00.000.722,=C:\Users\Bruno\Delphi\nmg2editor\Project\DelphiVCL\Unit1.pas</Transaction>
-    <Transaction>1899-12-30 00:00:00.000.804,C:\Users\Bruno\Delphi\nmg2editor\Source\NMG2Controls\JawsCtrls.pas=C:\Users\Bruno\Delphi\nmg2editor\Project\DelphiVCL\Unit1.pas</Transaction>
   </Transactions>
 </BorlandProject>

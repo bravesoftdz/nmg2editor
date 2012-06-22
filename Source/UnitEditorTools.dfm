@@ -42,7 +42,7 @@ object frmEditorTools: TfrmEditorTools
     Bevel = False
     Orientation = otHorizontal
     ButtonCount = 0
-    ButtonTextType = bttCheck
+    ButtonTextType = bttCheckBox
   end
   object btCablesBlue: TG2GraphButtonText
     Left = 21
@@ -66,7 +66,7 @@ object frmEditorTools: TfrmEditorTools
     Bevel = False
     Orientation = otHorizontal
     ButtonCount = 0
-    ButtonTextType = bttCheck
+    ButtonTextType = bttCheckBox
   end
   object btCablesYellow: TG2GraphButtonText
     Left = 35
@@ -90,7 +90,7 @@ object frmEditorTools: TfrmEditorTools
     Bevel = False
     Orientation = otHorizontal
     ButtonCount = 0
-    ButtonTextType = bttCheck
+    ButtonTextType = bttCheckBox
   end
   object btCablesOrange: TG2GraphButtonText
     Left = 49
@@ -114,7 +114,7 @@ object frmEditorTools: TfrmEditorTools
     Bevel = False
     Orientation = otHorizontal
     ButtonCount = 0
-    ButtonTextType = bttCheck
+    ButtonTextType = bttCheckBox
   end
   object btCablesGreen: TG2GraphButtonText
     Left = 63
@@ -138,7 +138,7 @@ object frmEditorTools: TfrmEditorTools
     Bevel = False
     Orientation = otHorizontal
     ButtonCount = 0
-    ButtonTextType = bttCheck
+    ButtonTextType = bttCheckBox
   end
   object btCablesPurple: TG2GraphButtonText
     Left = 77
@@ -162,7 +162,7 @@ object frmEditorTools: TfrmEditorTools
     Bevel = False
     Orientation = otHorizontal
     ButtonCount = 0
-    ButtonTextType = bttCheck
+    ButtonTextType = bttCheckBox
   end
   object btCablesWhite: TG2GraphButtonText
     Left = 92
@@ -186,7 +186,7 @@ object frmEditorTools: TfrmEditorTools
     Bevel = False
     Orientation = otHorizontal
     ButtonCount = 0
-    ButtonTextType = bttCheck
+    ButtonTextType = bttCheckBox
   end
   object Label1: TLabel
     Left = 8

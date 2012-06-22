@@ -1,12 +1,12 @@
 <?xml version="1.0"?>
 <G2_Editor_settings>
   <G2_Synth_1>
-    <Editor_settings LogEnabled="False" OnlyTextMenus="False" CableThickness="4" HighlightColor="65535" SlotStripColor="4341694" SlotStripInverseColor="5447424" SlotStripDisabledColor="13684944"/>
+    <Editor_settings LogEnabled="False" OnlyTextMenus="False" CableThickness="4" HighlightColor="8454143" SlotStripColor="4341694" SlotStripInverseColor="5447424" SlotStripDisabledColor="13684944"/>
     <TCP_settings IP="127.0.0.1" Port="2501" IsServer="True" TimerBroadcastLedMessages="0"/>
-    <MIDI_settings MidiEnabled="False" MidiInDevice="In From MIDI Yoke:  1" MidiOutDevice=""/>
+    <MIDI_settings MidiEnabled="False" MidiInDevice="UM-ONE" MidiOutDevice=""/>
   </G2_Synth_1>
-  <CTRL_MIDI_settings CtrlMidiEnabled="False" CtrlMidiInDevice="In From MIDI Yoke:  1"/>
-  <MainForm PosX="0" PosY="0" SizeX="1288" SizeY="774" Visible="True"/>
+  <CTRL_MIDI_settings CtrlMidiEnabled="False" CtrlMidiInDevice="UM-ONE"/>
+  <MainForm PosX="0" PosY="0" SizeX="1129" SizeY="906" Visible="True"/>
   <PatchManagerSettings BaseFolder="C:\Users\Bruno\Documents\Nord Modular Patches\G2 Patches\" SelectedTab="3" ExternalSortCol="0" InternalSortCol="1"/>
   <PatchManagerForm PosX="699" PosY="54" SizeX="488" SizeY="812" Visible="False"/>
   <SettingsForm PosX="483" PosY="568" SizeX="504" SizeY="287" Visible="False"/>

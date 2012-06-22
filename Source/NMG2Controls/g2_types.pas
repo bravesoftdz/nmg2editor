@@ -497,14 +497,14 @@ var intpart : single;
     fl, t, p : integer;
 begin
   intpart := abs(aValue);
-  fl := 0;
-  while intpart > 1 do begin
+  fl := 1; // calc numbers before decimal point
+  while intpart > 10 do begin
     inc(fl);
     intpart := intpart / 10;
   end;
   fl := aLen - (fl+1);
   if fl > 0 then begin
-    p := 1;
+    p := 1; // calc number of visible decimals
     while fl > 0 do begin
       p := p * 10;
       dec(fl);

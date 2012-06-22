@@ -1870,15 +1870,22 @@ begin
     ord('C') : if not(ssShift in Shift) and not(ssAlt in Shift) and not(ssCtrl in Shift) then SelectSlot(2);
     ord('D') : if not(ssShift in Shift) and not(ssAlt in Shift) and not(ssCtrl in Shift) then SelectSlot(3);
     VK_LEFT  : begin
-                 if ssShift in Shift then G2.SelectedPatchPart.SelectModuleLeft;
-                 if not(ssShift in Shift) then G2.SelectedPatchPart.SelectPrevModuleParam;
+                 if ssShift in Shift then
+                   G2.SelectedPatchPart.SelectModuleLeft;
+                 if not(ssShift in Shift) then
+                   //G2.SelectedPatchPart.SelectPrevModuleParam;
+                   (G2.SelectedPatch as TG2GraphPatch).SelectPrevModuleControl;
                end;
     VK_RIGHT : begin
-                 if ssShift in Shift then G2.SelectedPatchPart.SelectModuleRight;
-                 if not(ssShift in Shift) then G2.SelectedPatchPart.SelectNextModuleParam;
+                 if ssShift in Shift then
+                   G2.SelectedPatchPart.SelectModuleRight;
+                 if not(ssShift in Shift) then
+                   //G2.SelectedPatchPart.SelectNextModuleParam;
+                   (G2.SelectedPatch as TG2GraphPatch).SelectNextModuleControl;
                end;
     VK_UP    : begin
-                 if ssShift in Shift then G2.SelectedPatchPart.SelectModuleAbove;
+                 if ssShift in Shift then
+                   G2.SelectedPatchPart.SelectModuleAbove;
                  if not(ssShift in Shift) and not(ssCtrl in Shift) then
                    if assigned(G2.SelectedPatchPart.SelectedParam) then
                      G2.SelectedPatchPart.SelectedParam.IncValue;
@@ -2410,7 +2417,8 @@ begin
     UpdateParamMenu( Param);
     GetCursorPos(P);
 
-    miEditParamName.Enabled := sender is TG2GraphButtonText;
+    //miEditParamName.Enabled := sender is TG2GraphButtonText;
+    miEditParamName.Enabled := Param.CanChangeLabel;
 
     puParamMenu.Popup( P.X, P.Y);
     puParamMenu.Tag := integer( Param);
@@ -3704,7 +3712,8 @@ begin
     UpdateParamMenu( Parameter);
     GetCursorPos(P);
 
-    miEditParamName.Enabled := sender is TG2GraphButtonText;
+    //miEditParamName.Enabled := sender is TG2GraphButtonText;
+    miEditParamName.Enabled := Parameter.CanChangeLabel;
 
     puParamMenu.Popup( P.X, P.Y);
     puParamMenu.Tag := integer( Parameter);

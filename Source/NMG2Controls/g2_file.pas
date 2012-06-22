@@ -6941,6 +6941,10 @@ var t : single;
     TempValue : integer;
 begin
   case FInfoFunctionIndex of
+  0  : begin
+         Result :=Format('%.2g', [100 * GetParameterValue / 127]);
+         //Result := G2FloatToStrFixed(100 * GetParameterValue / 127, 4);
+       end;
   3  : begin // KB
          case GetParameterValue of
          0 : Result := 'Off';
@@ -7194,6 +7198,12 @@ begin
           case GetParameterValue of
           0 : Result := '6dB';
           1 : Result := '12dB';
+          end;
+       end;
+  82 : begin // Clip, shape
+          case GetParameterValue of
+          0 : Result := 'Asym';
+          1 : Result := 'Sym';
           end;
        end;
   104 : begin // LFO Range

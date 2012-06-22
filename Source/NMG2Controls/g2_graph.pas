@@ -282,6 +282,9 @@ type
     procedure   SortLeds; override;
     procedure   RemoveFromLedList( aLocation: TLocationType; aModuleIndex : integer); override;
 
+    procedure   SelectNextModuleControl;
+    procedure   SelectPrevModuleControl;
+
     property    Visible : boolean read FVisible write SetVisible;
     property    SelectedControl : TG2GraphChildControl read FSelectedControl write SetSelectedControl;
   end;
@@ -730,7 +733,25 @@ type
     procedure   SetBounds(ALeft: Integer; ATop: Integer;  AWidth: Integer; AHeight: Integer); override;
     procedure   ParsePanelData( fs : TModuleDefStream); override;
     function    ParseProperties( fs: TModuleDefStream; aName : AnsiString): boolean; override;
-    property UpsideDown : boolean read FUpsideDown write FUpsideDown;
+    property    UpsideDown : boolean read FUpsideDown write FUpsideDown;
+  end;
+
+  TG2GraphButtonRadioEdit = class( TG2GraphButtonRadio)
+  private
+    FButtonColumns : integer;
+    FButtonRows : integer;
+  protected
+    procedure   MouseDown(Button: TMouseButton; Shift: TShiftState; X: Integer; Y: Integer); override;
+  public
+    constructor Create( AOwner: TComponent); override;
+    destructor  Destroy; override;
+    procedure   PaintOn( ExtCanvas : TCanvas; ExtBoundsRect : TRect); override;
+    procedure   SetBounds(ALeft: Integer; ATop: Integer;  AWidth: Integer; AHeight: Integer); override;
+    procedure   ParsePanelData( fs : TModuleDefStream); override;
+    function    ParseProperties( fs: TModuleDefStream; aName : AnsiString): boolean; override;
+  published
+    property    ButtonColumns : integer read FButtonColumns write FButtonColumns;
+    property    ButtonRows : integer read FButtonRows write FButtonRows;
   end;
 
   TG2GraphButtonIncDec = class( TG2GraphButton)
@@ -1901,6 +1922,7 @@ begin
     FControlList[i].Update;
 end;
 
+
 { ==== TMiniVUList =============================================================}
 
 function TMiniVUList.Add(aMiniVU: TG2GraphMiniVU): integer;
@@ -2289,6 +2311,49 @@ begin
     FSelectedControl.Select;
     if assigned(FSelectedControl.FParameter) then
       FSelectedControl.FParameter.Selected := True;
+  end;
+end;
+
+procedure TG2GraphPatch.SelectNextModuleControl;
+var Module : TG2FileModule;
+    ModulePanel : TG2GraphModulePanel;
+    i : integer;
+begin
+  if PatchPart[ ord(SelectedLocation)].SelectedParam = nil then
+    exit;
+
+  Module := Modules[ ord(SelectedLocation), PatchPart[ ord(SelectedLocation)].SelectedParam.ModuleIndex];
+  if assigned(Module) then begin
+    Module.SelectNextParam;
+    ModulePanel := (Module as TG2GraphModule).Panel;
+    i := 0;
+    while (i< ModulePanel.ChildControlsCount) and not(ModulePanel.GraphChildControls[i].MouseInput
+                                         and (ModulePanel.GraphChildControls[i].FParameter = Module.SelectedParam)) do
+      inc(i);
+    if (i< ModulePanel.ChildControlsCount) then
+      SelectedControl := ModulePanel.GraphChildControls[i];
+  end;
+
+end;
+
+procedure TG2GraphPatch.SelectPrevModuleControl;
+var Module : TG2FileModule;
+    ModulePanel : TG2GraphModulePanel;
+    i : integer;
+begin
+  if PatchPart[ ord(SelectedLocation)].SelectedParam = nil then
+    exit;
+
+  Module := Modules[ ord(SelectedLocation), PatchPart[ ord(SelectedLocation)].SelectedParam.ModuleIndex];
+  if assigned(Module) then begin
+    Module.SelectPrevParam;
+    ModulePanel := (Module as TG2GraphModule).Panel;
+    i := 0;
+    while (i< ModulePanel.ChildControlsCount) and not(ModulePanel.GraphChildControls[i].MouseInput
+                                         and (ModulePanel.GraphChildControls[i].FParameter = Module.SelectedParam)) do
+      inc(i);
+    if (i< ModulePanel.ChildControlsCount) then
+      SelectedControl := ModulePanel.GraphChildControls[i];
   end;
 end;
 
@@ -3035,6 +3100,7 @@ begin
                 if ( ControlType = 'Knob') or
                    ( ControlType = 'ButtonIncDec') or
                    ( ControlType = 'ButtonRadio') or
+                   ( ControlType = 'ButtonRadioEdit') or
                    ( ControlType = 'LevelShift') or
                    ( ControlType = 'ButtonFlat') or
                    ( ControlType = 'TextEdit') or
@@ -3197,6 +3263,11 @@ begin
   if (aControlType = 'ButtonRadio') then begin
     Result := TG2GraphButtonRadio.Create(self);
     (Result as TG2GraphButtonRadio).UpsideDown := True;
+    Result.Module := self;
+  end;
+
+  if (aControlType = 'ButtonRadioEdit') then begin
+    Result := TG2GraphButtonRadioEdit.Create(self);
     Result.Module := self;
   end;
 
@@ -4722,7 +4793,7 @@ begin
 
     ExtCanvas.Font.Assign( Font);
 
-    if FButtonTextType = bttCheck then begin
+    if FButtonTextType = bttCheckBox then begin
 
       ExtCanvas.Brush.Color := Color;
       ExtCanvas.FillRect( Rect);
@@ -5273,6 +5344,145 @@ procedure TG2GraphButtonRadio.SetOrientation( aValue: TOrientationType);
 begin
   FOrientation := aValue;
   Invalidate;
+end;
+
+// ==== TG2GraphButtonRadioEdit ================================================
+
+constructor TG2GraphButtonRadioEdit.Create(AOwner: TComponent);
+begin
+  inherited;
+  FButtonRows := 1;
+  FButtonColumns := 1;
+end;
+
+destructor TG2GraphButtonRadioEdit.Destroy;
+begin
+  inherited;
+end;
+
+procedure TG2GraphButtonRadioEdit.MouseDown(Button: TMouseButton;  Shift: TShiftState; X, Y: Integer);
+var c, r : integer;
+begin
+  if ssLeft in Shift then begin
+    if (FButtonColumns > 0) and (Width > 0) and (FButtonRows > 0) and (Height > 0) then begin
+      c := X * FButtonColumns div Width;
+      r := Y * FButtonRows div Height;
+      Value := r * FButtonColumns + c;
+    end;
+  end else
+    inherited;
+end;
+
+procedure TG2GraphButtonRadioEdit.PaintOn(ExtCanvas: TCanvas; ExtBoundsRect: TRect);
+var ExtRect, Rect : TRect;
+    Bitmap : TBitmap;
+    i, r, c : integer;
+    LabelText : string;
+begin
+  ExtRect := SubRect( GetRelToParentRect, ExtBoundsRect);
+
+  Bitmap := TBitmap.Create;
+  try
+
+    Bitmap.Pixelformat := pf24bit;
+    Bitmap.Width := Width;
+    Bitmap.Height := Height;
+
+    Bitmap.Canvas.Brush.Color := Color;
+    Bitmap.Canvas.Pen.Color := FBorderColor;
+    Bitmap.Canvas.Font.Assign( Font);
+
+    FButtonWidth := Width div FButtonColumns;
+    FButtonHeight := Height div FButtonRows;
+    Rect.Top := 0;
+    Rect.Bottom := FButtonHeight;
+    i := 0;
+    for r := 0 to FButtonRows - 1 do begin
+      Rect.Left := 0;
+      Rect.Right := FButtonWidth;
+      for c := 0 to FButtonColumns - 1 do begin
+
+        if i = Value then
+          Bitmap.Canvas.Brush.Color := FHighlightColor
+        else
+          Bitmap.Canvas.Brush.Color := Color;
+        Bitmap.Canvas.FillRect( Rect);
+
+        LabelText := '';
+        if assigned(Parameter) then
+          LabelText := Parameter.ButtonText[i]
+        else
+          if i < FButtonText.Count then
+            LabelText := FButtonText[i];
+        TextCenter( Bitmap.Canvas, Rect, LabelText);
+
+        if FBevel then begin
+          if Selected then
+            Bitmap.Canvas.Brush.Color := CL_SELECTED_PARAM
+          else
+            Bitmap.Canvas.Brush.Color := Color;
+
+          if i <> Value then begin
+            DrawBevel( Bitmap.Canvas, Rect, bvRaised);
+          end else begin
+            DrawBevel( Bitmap.Canvas, Rect, bvNone);
+          end;
+        end else begin
+          if Selected then
+            Bitmap.Canvas.Pen.Color := CL_SELECTED_PARAM
+          else
+            Bitmap.Canvas.Pen.Color := CL_BTN_BORDER;
+
+          DrawRect( Bitmap.Canvas, Rect);
+        end;
+
+        Rect.Left := Rect.Left + FButtonWidth - 1;
+        Rect.Right := Rect.Right + FButtonWidth;
+
+        inc(i);
+      end;
+      Rect.Top := Rect.Top + FButtonHeight - 1;
+      Rect.Bottom := Rect.Bottom + FButtonHeight;
+    end;
+
+    ExtCanvas.Draw( ExtRect.Left, ExtRect.Top, Bitmap);
+
+  finally
+    Bitmap.Free;
+  end;
+end;
+
+procedure TG2GraphButtonRadioEdit.ParsePanelData(fs: TModuleDefStream);
+begin
+  inherited;
+end;
+
+function TG2GraphButtonRadioEdit.ParseProperties(fs: TModuleDefStream; aName: AnsiString): boolean;
+var aValue : AnsiString;
+begin
+  Result := True;
+
+  if not inherited ParseProperties( fs, aName) then begin
+    if aName = 'ButtonColumns' then begin
+      aValue := fs.ReadUntil( [#13]);
+      FButtonColumns := StrToInt(string(aValue));
+      Width := FButtonColumns * 43;
+    end else
+
+    if aName = 'ButtonRows' then begin
+      aValue := fs.ReadUntil( [#13]);
+      FButtonRows := StrToInt(string(aValue));
+      Height := FButtonRows * 12;
+    end else
+      Result := False
+
+  end;
+end;
+
+procedure TG2GraphButtonRadioEdit.SetBounds(ALeft, ATop, AWidth, AHeight: Integer);
+begin
+  inherited;
+
 end;
 
 // ==== TG2GraphButtonIncDec ===================================================
@@ -6888,6 +7098,7 @@ begin
       TG2GraphButtonText, TG2GraphButtonFlat, TG2GraphButtonIncDec, TG2GraphKnob, TG2GraphLine,
       TG2GraphLabel, TG2GraphPanel]);
 end;
+
 
 Initialization
   begin
