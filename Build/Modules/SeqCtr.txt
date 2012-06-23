@@ -554,7 +554,7 @@
     XPos:28
     YPos:39
     CodeRef:0
-    InfoFunc:0
+    InfoFunc:500
     Type:"Slider"
   #>
   <#Knob
@@ -562,7 +562,7 @@
     XPos:40
     YPos:39
     CodeRef:1
-    InfoFunc:0
+    InfoFunc:500
     Type:"Slider"
   #>
   <#Knob
@@ -570,7 +570,7 @@
     XPos:52
     YPos:39
     CodeRef:2
-    InfoFunc:0
+    InfoFunc:500
     Type:"Slider"
   #>
   <#Knob
@@ -578,7 +578,7 @@
     XPos:64
     YPos:39
     CodeRef:3
-    InfoFunc:0
+    InfoFunc:500
     Type:"Slider"
   #>
   <#Knob
@@ -586,7 +586,7 @@
     XPos:76
     YPos:39
     CodeRef:4
-    InfoFunc:0
+    InfoFunc:500
     Type:"Slider"
   #>
   <#Knob
@@ -594,7 +594,7 @@
     XPos:88
     YPos:39
     CodeRef:5
-    InfoFunc:0
+    InfoFunc:500
     Type:"Slider"
   #>
   <#Knob
@@ -602,7 +602,7 @@
     XPos:100
     YPos:39
     CodeRef:6
-    InfoFunc:0
+    InfoFunc:500
     Type:"Slider"
   #>
   <#Knob
@@ -610,7 +610,7 @@
     XPos:112
     YPos:39
     CodeRef:7
-    InfoFunc:0
+    InfoFunc:500
     Type:"Slider"
   #>
   <#Knob
@@ -618,7 +618,7 @@
     XPos:124
     YPos:39
     CodeRef:8
-    InfoFunc:0
+    InfoFunc:500
     Type:"Slider"
   #>
   <#Knob
@@ -626,7 +626,7 @@
     XPos:136
     YPos:39
     CodeRef:9
-    InfoFunc:0
+    InfoFunc:500
     Type:"Slider"
   #>
   <#Knob
@@ -634,7 +634,7 @@
     XPos:148
     YPos:39
     CodeRef:10
-    InfoFunc:0
+    InfoFunc:500
     Type:"Slider"
   #>
   <#Knob
@@ -642,7 +642,7 @@
     XPos:160
     YPos:39
     CodeRef:11
-    InfoFunc:0
+    InfoFunc:500
     Type:"Slider"
   #>
   <#Knob
@@ -650,7 +650,7 @@
     XPos:172
     YPos:39
     CodeRef:12
-    InfoFunc:0
+    InfoFunc:500
     Type:"Slider"
   #>
   <#Knob
@@ -658,7 +658,7 @@
     XPos:184
     YPos:39
     CodeRef:13
-    InfoFunc:0
+    InfoFunc:500
     Type:"Slider"
   #>
   <#Knob
@@ -666,7 +666,7 @@
     XPos:196
     YPos:39
     CodeRef:14
-    InfoFunc:0
+    InfoFunc:500
     Type:"Slider"
   #>
   <#Knob
@@ -674,7 +674,7 @@
     XPos:208
     YPos:39
     CodeRef:15
-    InfoFunc:0
+    InfoFunc:500
     Type:"Slider"
   #>
   <#Line

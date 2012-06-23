@@ -11,8 +11,7 @@
     <Height>2</Height>
     <Outputs>
       <Connector>S
-        <Name>Pitch</Name>
-        <Type>blue</Type>
+        <Name>Pitch</Name><Type>blue</Type>
       </Connector>
       <Connector>
         <Name>Gate</Name>
@@ -5804,215 +5803,215 @@
     </Outputs>
     <Params>
       <Param>
-        <Name>Val_01</Name>
+        <Name>Step 1</Name>
         <DefaultValue>64</DefaultValue>
         <Id>56</Id>
         <DefaultKnob>0</DefaultKnob>
         <ButtonParam>16</ButtonParam>
       </Param>
       <Param>
-        <Name>Val_02</Name>
+        <Name>Step 2</Name>
         <DefaultValue>64</DefaultValue>
         <Id>56</Id>
         <DefaultKnob>1</DefaultKnob>
         <ButtonParam>17</ButtonParam>
       </Param>
       <Param>
-        <Name>Val_03</Name>
+        <Name>Step 3</Name>
         <DefaultValue>64</DefaultValue>
         <Id>56</Id>
         <DefaultKnob>2</DefaultKnob>
         <ButtonParam>18</ButtonParam>
       </Param>
       <Param>
-        <Name>Val_04</Name>
+        <Name>Step 4</Name>
         <DefaultValue>64</DefaultValue>
         <Id>56</Id>
         <DefaultKnob>3</DefaultKnob>
         <ButtonParam>19</ButtonParam>
       </Param>
       <Param>
-        <Name>Val_05</Name>
+        <Name>Step 5</Name>
         <DefaultValue>64</DefaultValue>
         <Id>56</Id>
         <DefaultKnob>4</DefaultKnob>
         <ButtonParam>20</ButtonParam>
       </Param>
       <Param>
-        <Name>Val_06</Name>
+        <Name>Step 6</Name>
         <DefaultValue>64</DefaultValue>
         <Id>56</Id>
         <DefaultKnob>5</DefaultKnob>
         <ButtonParam>21</ButtonParam>
       </Param>
       <Param>
-        <Name>Val_07</Name>
+        <Name>Step 7</Name>
         <DefaultValue>64</DefaultValue>
         <Id>56</Id>
         <DefaultKnob>6</DefaultKnob>
         <ButtonParam>22</ButtonParam>
       </Param>
       <Param>
-        <Name>Val_08</Name>
+        <Name>Step 8</Name>
         <DefaultValue>64</DefaultValue>
         <Id>56</Id>
         <DefaultKnob>7</DefaultKnob>
         <ButtonParam>23</ButtonParam>
       </Param>
       <Param>
-        <Name>Val_09</Name>
+        <Name>Step 9</Name>
         <DefaultValue>64</DefaultValue>
         <Id>56</Id>
         <DefaultKnob>8</DefaultKnob>
         <ButtonParam>24</ButtonParam>
       </Param>
       <Param>
-        <Name>Val_10</Name>
+        <Name>Step 10</Name>
         <DefaultValue>64</DefaultValue>
         <Id>56</Id>
         <DefaultKnob>9</DefaultKnob>
         <ButtonParam>25</ButtonParam>
       </Param>
       <Param>
-        <Name>Val_11</Name>
+        <Name>Step 11</Name>
         <DefaultValue>64</DefaultValue>
         <Id>56</Id>
         <DefaultKnob>10</DefaultKnob>
         <ButtonParam>26</ButtonParam>
       </Param>
       <Param>
-        <Name>Val_12</Name>
+        <Name>Step 12</Name>
         <DefaultValue>64</DefaultValue>
         <Id>56</Id>
         <DefaultKnob>11</DefaultKnob>
         <ButtonParam>27</ButtonParam>
       </Param>
       <Param>
-        <Name>Val_13</Name>
+        <Name>Step 13</Name>
         <DefaultValue>64</DefaultValue>
         <Id>56</Id>
         <DefaultKnob>12</DefaultKnob>
         <ButtonParam>28</ButtonParam>
       </Param>
       <Param>
-        <Name>Val_14</Name>
+        <Name>Step 14</Name>
         <DefaultValue>64</DefaultValue>
         <Id>56</Id>
         <DefaultKnob>13</DefaultKnob>
         <ButtonParam>29</ButtonParam>
       </Param>
       <Param>
-        <Name>Val_15</Name>
+        <Name>Step 15</Name>
         <DefaultValue>64</DefaultValue>
         <Id>56</Id>
         <DefaultKnob>14</DefaultKnob>
         <ButtonParam>30</ButtonParam>
       </Param>
       <Param>
-        <Name>Val_16</Name>
+        <Name>Step 16</Name>
         <DefaultValue>64</DefaultValue>
         <Id>56</Id>
         <DefaultKnob>15</DefaultKnob>
         <ButtonParam>31</ButtonParam>
       </Param>
       <Param>
-        <Name>Ev_01</Name>
+        <Name>Evnt 1</Name>
         <DefaultValue>0</DefaultValue>
         <Id>177</Id>
         <ButtonParam>16</ButtonParam>
       </Param>
       <Param>
-        <Name>Ev_02</Name>
+        <Name>Evnt 2</Name>
         <DefaultValue>0</DefaultValue>
         <Id>177</Id>
         <ButtonParam>17</ButtonParam>
       </Param>
       <Param>
-        <Name>Ev_03</Name>
+        <Name>Evnt 3</Name>
         <DefaultValue>0</DefaultValue>
         <Id>177</Id>
         <ButtonParam>18</ButtonParam>
       </Param>
       <Param>
-        <Name>Ev_04</Name>
+        <Name>Evnt 4</Name>
         <DefaultValue>0</DefaultValue>
         <Id>177</Id>
         <ButtonParam>19</ButtonParam>
       </Param>
       <Param>
-        <Name>Ev_05</Name>
+        <Name>Evnt 5</Name>
         <DefaultValue>0</DefaultValue>
         <Id>177</Id>
         <ButtonParam>20</ButtonParam>
       </Param>
       <Param>
-        <Name>Ev_06</Name>
+        <Name>Evnt 6</Name>
         <DefaultValue>0</DefaultValue>
         <Id>177</Id>
         <ButtonParam>21</ButtonParam>
       </Param>
       <Param>
-        <Name>Ev_07</Name>
+        <Name>Evnt 7</Name>
         <DefaultValue>0</DefaultValue>
         <Id>177</Id>
         <ButtonParam>22</ButtonParam>
       </Param>
       <Param>
-        <Name>Ev_08</Name>
+        <Name>Evnt 8</Name>
         <DefaultValue>0</DefaultValue>
         <Id>177</Id>
         <ButtonParam>23</ButtonParam>
       </Param>
       <Param>
-        <Name>Ev_09</Name>
+        <Name>Evnt 9</Name>
         <DefaultValue>0</DefaultValue>
         <Id>177</Id>
         <ButtonParam>24</ButtonParam>
       </Param>
       <Param>
-        <Name>Ev_10</Name>
+        <Name>Evnt 10</Name>
         <DefaultValue>0</DefaultValue>
         <Id>177</Id>
         <ButtonParam>25</ButtonParam>
       </Param>
       <Param>
-        <Name>Ev_11</Name>
+        <Name>Evnt 11</Name>
         <DefaultValue>0</DefaultValue>
         <Id>177</Id>
         <ButtonParam>26</ButtonParam>
       </Param>
       <Param>
-        <Name>Ev_12</Name>
+        <Name>Evnt 12</Name>
         <DefaultValue>0</DefaultValue>
         <Id>177</Id>
         <ButtonParam>27</ButtonParam>
       </Param>
       <Param>
-        <Name>Ev_13</Name>
+        <Name>Evnt 13</Name>
         <DefaultValue>0</DefaultValue>
         <Id>177</Id>
         <ButtonParam>28</ButtonParam>
       </Param>
       <Param>
-        <Name>Ev_14</Name>
+        <Name>Evnt 14</Name>
         <DefaultValue>0</DefaultValue>
         <Id>177</Id>
         <ButtonParam>29</ButtonParam>
       </Param>
       <Param>
-        <Name>Ev_15</Name>
+        <Name>Evnt 15</Name>
         <DefaultValue>0</DefaultValue>
         <Id>177</Id>
         <ButtonParam>30</ButtonParam>
       </Param>
       <Param>
-        <Name>Ev_16</Name>
+        <Name>Evnt 16</Name>
         <DefaultValue>0</DefaultValue>
         <Id>177</Id>
         <ButtonParam>31</ButtonParam>
       </Param>
       <Param>
-        <Name>Loop</Name>
+        <Name>Cycles</Name>
         <DefaultValue>1</DefaultValue>
         <Id>89</Id>
         <DefaultKnob>17</DefaultKnob>
@@ -6026,21 +6025,21 @@
         <ButtonParam>33</ButtonParam>
       </Param>
       <Param>
-        <Name>TG</Name>
+        <Name>Pulse</Name>
         <DefaultValue>0</DefaultValue>
         <Id>173</Id>
         <DefaultKnob>16</DefaultKnob>
         <ButtonParam>34</ButtonParam>
       </Param>
       <Param>
-        <Name>Clr_Or_Rnd</Name>
+        <Name>Clear</Name>
         <DefaultValue>0</DefaultValue>
         <Id>106</Id>
         <DefaultKnob>19</DefaultKnob>
         <ButtonParam>35</ButtonParam>
       </Param>
       <Param>
-        <Name>Rnd_Or_Clr</Name>
+        <Name>Random</Name>
         <DefaultValue>0</DefaultValue>
         <Id>106</Id>
         <DefaultKnob>20</DefaultKnob>
@@ -6886,215 +6885,215 @@
     </Outputs>
     <Params>
       <Param>
-        <Name>Ev1_01</Name>
+        <Name>Step 1</Name>
         <DefaultValue>0</DefaultValue>
         <Id>177</Id>
         <DefaultKnob>0</DefaultKnob>
         <ButtonParam>16</ButtonParam>
       </Param>
       <Param>
-        <Name>Ev1_02</Name>
+        <Name>Step 2</Name>
         <DefaultValue>0</DefaultValue>
         <Id>177</Id>
         <DefaultKnob>1</DefaultKnob>
         <ButtonParam>17</ButtonParam>
       </Param>
       <Param>
-        <Name>Ev1_03</Name>
+        <Name>Step 3</Name>
         <DefaultValue>0</DefaultValue>
         <Id>177</Id>
         <DefaultKnob>2</DefaultKnob>
         <ButtonParam>18</ButtonParam>
       </Param>
       <Param>
-        <Name>Ev1_04</Name>
+        <Name>Step 4</Name>
         <DefaultValue>0</DefaultValue>
         <Id>177</Id>
         <DefaultKnob>3</DefaultKnob>
         <ButtonParam>19</ButtonParam>
       </Param>
       <Param>
-        <Name>Ev1_05</Name>
+        <Name>Step 5</Name>
         <DefaultValue>0</DefaultValue>
         <Id>177</Id>
         <DefaultKnob>4</DefaultKnob>
         <ButtonParam>20</ButtonParam>
       </Param>
       <Param>
-        <Name>Ev1_06</Name>
+        <Name>Step 6</Name>
         <DefaultValue>0</DefaultValue>
         <Id>177</Id>
         <DefaultKnob>5</DefaultKnob>
         <ButtonParam>21</ButtonParam>
       </Param>
       <Param>
-        <Name>Ev1_07</Name>
+        <Name>Step 7</Name>
         <DefaultValue>0</DefaultValue>
         <Id>177</Id>
         <DefaultKnob>6</DefaultKnob>
         <ButtonParam>22</ButtonParam>
       </Param>
       <Param>
-        <Name>Ev1_08</Name>
+        <Name>Step 8</Name>
         <DefaultValue>0</DefaultValue>
         <Id>177</Id>
         <DefaultKnob>7</DefaultKnob>
         <ButtonParam>23</ButtonParam>
       </Param>
       <Param>
-        <Name>Ev1_09</Name>
+        <Name>Step 9</Name>
         <DefaultValue>0</DefaultValue>
         <Id>177</Id>
         <DefaultKnob>8</DefaultKnob>
         <ButtonParam>24</ButtonParam>
       </Param>
       <Param>
-        <Name>Ev1_10</Name>
+        <Name>Step 10</Name>
         <DefaultValue>0</DefaultValue>
         <Id>177</Id>
         <DefaultKnob>9</DefaultKnob>
         <ButtonParam>25</ButtonParam>
       </Param>
       <Param>
-        <Name>Ev1_11</Name>
+        <Name>Step 11</Name>
         <DefaultValue>0</DefaultValue>
         <Id>177</Id>
         <DefaultKnob>10</DefaultKnob>
         <ButtonParam>26</ButtonParam>
       </Param>
       <Param>
-        <Name>Ev1_12</Name>
+        <Name>Step 12</Name>
         <DefaultValue>0</DefaultValue>
         <Id>177</Id>
         <DefaultKnob>11</DefaultKnob>
         <ButtonParam>27</ButtonParam>
       </Param>
       <Param>
-        <Name>Ev1_13</Name>
+        <Name>Step 13</Name>
         <DefaultValue>0</DefaultValue>
         <Id>177</Id>
         <DefaultKnob>12</DefaultKnob>
         <ButtonParam>28</ButtonParam>
       </Param>
       <Param>
-        <Name>Ev1_14</Name>
+        <Name>Step 14</Name>
         <DefaultValue>0</DefaultValue>
         <Id>177</Id>
         <DefaultKnob>13</DefaultKnob>
         <ButtonParam>29</ButtonParam>
       </Param>
       <Param>
-        <Name>Ev1_15</Name>
+        <Name>Step 15</Name>
         <DefaultValue>0</DefaultValue>
         <Id>177</Id>
         <DefaultKnob>14</DefaultKnob>
         <ButtonParam>30</ButtonParam>
       </Param>
       <Param>
-        <Name>Ev1_16</Name>
+        <Name>Step 16</Name>
         <DefaultValue>0</DefaultValue>
         <Id>177</Id>
         <DefaultKnob>15</DefaultKnob>
         <ButtonParam>31</ButtonParam>
       </Param>
       <Param>
-        <Name>Ev2_01</Name>
+        <Name>Evnt 1</Name>
         <DefaultValue>0</DefaultValue>
         <Id>177</Id>
         <ButtonParam>16</ButtonParam>
       </Param>
       <Param>
-        <Name>Ev2_02</Name>
+        <Name>Evnt 2</Name>
         <DefaultValue>0</DefaultValue>
         <Id>177</Id>
         <ButtonParam>17</ButtonParam>
       </Param>
       <Param>
-        <Name>Ev2_03</Name>
+        <Name>Evnt 3</Name>
         <DefaultValue>0</DefaultValue>
         <Id>177</Id>
         <ButtonParam>18</ButtonParam>
       </Param>
       <Param>
-        <Name>Ev2_04</Name>
+        <Name>Evnt 4</Name>
         <DefaultValue>0</DefaultValue>
         <Id>177</Id>
         <ButtonParam>19</ButtonParam>
       </Param>
       <Param>
-        <Name>Ev2_05</Name>
+        <Name>Evnt 5</Name>
         <DefaultValue>0</DefaultValue>
         <Id>177</Id>
         <ButtonParam>20</ButtonParam>
       </Param>
       <Param>
-        <Name>Ev2_06</Name>
+        <Name>Evnt 6</Name>
         <DefaultValue>0</DefaultValue>
         <Id>177</Id>
         <ButtonParam>21</ButtonParam>
       </Param>
       <Param>
-        <Name>Ev2_07</Name>
+        <Name>Evnt 7</Name>
         <DefaultValue>0</DefaultValue>
         <Id>177</Id>
         <ButtonParam>22</ButtonParam>
       </Param>
       <Param>
-        <Name>Ev2_08</Name>
+        <Name>Evnt 8</Name>
         <DefaultValue>0</DefaultValue>
         <Id>177</Id>
         <ButtonParam>23</ButtonParam>
       </Param>
       <Param>
-        <Name>Ev2_09</Name>
+        <Name>Evnt 9</Name>
         <DefaultValue>0</DefaultValue>
         <Id>177</Id>
         <ButtonParam>24</ButtonParam>
       </Param>
       <Param>
-        <Name>Ev2_10</Name>
+        <Name>Evnt 10</Name>
         <DefaultValue>0</DefaultValue>
         <Id>177</Id>
         <ButtonParam>25</ButtonParam>
       </Param>
       <Param>
-        <Name>Ev2_11</Name>
+        <Name>Evnt 11</Name>
         <DefaultValue>0</DefaultValue>
         <Id>177</Id>
         <ButtonParam>26</ButtonParam>
       </Param>
       <Param>
-        <Name>Ev2_12</Name>
+        <Name>Evnt 12</Name>
         <DefaultValue>0</DefaultValue>
         <Id>177</Id>
         <ButtonParam>27</ButtonParam>
       </Param>
       <Param>
-        <Name>Ev2_13</Name>
+        <Name>Evnt 13</Name>
         <DefaultValue>0</DefaultValue>
         <Id>177</Id>
         <ButtonParam>28</ButtonParam>
       </Param>
       <Param>
-        <Name>Ev2_14</Name>
+        <Name>Evnt 14</Name>
         <DefaultValue>0</DefaultValue>
         <Id>177</Id>
         <ButtonParam>29</ButtonParam>
       </Param>
       <Param>
-        <Name>Ev2_15</Name>
+        <Name>Evnt 15</Name>
         <DefaultValue>0</DefaultValue>
         <Id>177</Id>
         <ButtonParam>30</ButtonParam>
       </Param>
       <Param>
-        <Name>Ev2_16</Name>
+        <Name>Evnt 16</Name>
         <DefaultValue>0</DefaultValue>
         <Id>177</Id>
         <ButtonParam>31</ButtonParam>
       </Param>
       <Param>
-        <Name>Loop</Name>
+        <Name>Cycles</Name>
         <DefaultValue>1</DefaultValue>
         <Id>89</Id>
         <DefaultKnob>17</DefaultKnob>
@@ -7108,14 +7107,14 @@
         <ButtonParam>33</ButtonParam>
       </Param>
       <Param>
-        <Name>TG1</Name>
+        <Name>PulseUp</Name>
         <DefaultValue>0</DefaultValue>
         <Id>173</Id>
         <DefaultKnob>16</DefaultKnob>
         <ButtonParam>35</ButtonParam>
       </Param>
       <Param>
-        <Name>TG2</Name>
+        <Name>PulseLo</Name>
         <DefaultValue>0</DefaultValue>
         <Id>173</Id>
         <ButtonParam>35</ButtonParam>
@@ -7173,215 +7172,215 @@
     </Outputs>
     <Params>
       <Param>
-        <Name>Val_01</Name>
+        <Name>Step 1</Name>
         <DefaultValue>0</DefaultValue>
         <Id>70</Id>
         <DefaultKnob>0</DefaultKnob>
         <ButtonParam>16</ButtonParam>
       </Param>
       <Param>
-        <Name>Val_02</Name>
+        <Name>Step 2</Name>
         <DefaultValue>0</DefaultValue>
         <Id>70</Id>
         <DefaultKnob>1</DefaultKnob>
         <ButtonParam>17</ButtonParam>
       </Param>
       <Param>
-        <Name>Val_03</Name>
+        <Name>Step 3</Name>
         <DefaultValue>0</DefaultValue>
         <Id>70</Id>
         <DefaultKnob>2</DefaultKnob>
         <ButtonParam>18</ButtonParam>
       </Param>
       <Param>
-        <Name>Val_04</Name>
+        <Name>Step 4</Name>
         <DefaultValue>0</DefaultValue>
         <Id>70</Id>
         <DefaultKnob>3</DefaultKnob>
         <ButtonParam>19</ButtonParam>
       </Param>
       <Param>
-        <Name>Val_05</Name>
+        <Name>Step 5</Name>
         <DefaultValue>0</DefaultValue>
         <Id>70</Id>
         <DefaultKnob>4</DefaultKnob>
         <ButtonParam>20</ButtonParam>
       </Param>
       <Param>
-        <Name>Val_06</Name>
+        <Name>Step 6</Name>
         <DefaultValue>0</DefaultValue>
         <Id>70</Id>
         <DefaultKnob>5</DefaultKnob>
         <ButtonParam>21</ButtonParam>
       </Param>
       <Param>
-        <Name>Val_07</Name>
+        <Name>Step 7</Name>
         <DefaultValue>0</DefaultValue>
         <Id>70</Id>
         <DefaultKnob>6</DefaultKnob>
         <ButtonParam>22</ButtonParam>
       </Param>
       <Param>
-        <Name>Val_08</Name>
+        <Name>Step 8</Name>
         <DefaultValue>0</DefaultValue>
         <Id>70</Id>
         <DefaultKnob>7</DefaultKnob>
         <ButtonParam>23</ButtonParam>
       </Param>
       <Param>
-        <Name>Val_09</Name>
+        <Name>Step 9</Name>
         <DefaultValue>0</DefaultValue>
         <Id>70</Id>
         <DefaultKnob>8</DefaultKnob>
         <ButtonParam>24</ButtonParam>
       </Param>
       <Param>
-        <Name>Val_10</Name>
+        <Name>Step 10</Name>
         <DefaultValue>0</DefaultValue>
         <Id>70</Id>
         <DefaultKnob>9</DefaultKnob>
         <ButtonParam>25</ButtonParam>
       </Param>
       <Param>
-        <Name>Val_11</Name>
+        <Name>Step 11</Name>
         <DefaultValue>0</DefaultValue>
         <Id>70</Id>
         <DefaultKnob>10</DefaultKnob>
         <ButtonParam>26</ButtonParam>
       </Param>
       <Param>
-        <Name>Val_12</Name>
+        <Name>Step 12</Name>
         <DefaultValue>0</DefaultValue>
         <Id>70</Id>
         <DefaultKnob>11</DefaultKnob>
         <ButtonParam>27</ButtonParam>
       </Param>
       <Param>
-        <Name>Val_13</Name>
+        <Name>Step 13</Name>
         <DefaultValue>0</DefaultValue>
         <Id>70</Id>
         <DefaultKnob>12</DefaultKnob>
         <ButtonParam>28</ButtonParam>
       </Param>
       <Param>
-        <Name>Val_14</Name>
+        <Name>Step 14</Name>
         <DefaultValue>0</DefaultValue>
         <Id>70</Id>
         <DefaultKnob>13</DefaultKnob>
         <ButtonParam>29</ButtonParam>
       </Param>
       <Param>
-        <Name>Val_15</Name>
+        <Name>Step 15</Name>
         <DefaultValue>0</DefaultValue>
         <Id>70</Id>
         <DefaultKnob>14</DefaultKnob>
         <ButtonParam>30</ButtonParam>
       </Param>
       <Param>
-        <Name>Val_16</Name>
+        <Name>Step 16</Name>
         <DefaultValue>0</DefaultValue>
         <Id>70</Id>
         <DefaultKnob>15</DefaultKnob>
         <ButtonParam>31</ButtonParam>
       </Param>
       <Param>
-        <Name>Ev_01</Name>
+        <Name>Evnt 1</Name>
         <DefaultValue>0</DefaultValue>
         <Id>177</Id>
         <ButtonParam>16</ButtonParam>
       </Param>
       <Param>
-        <Name>Ev_02</Name>
+        <Name>Evnt 2</Name>
         <DefaultValue>0</DefaultValue>
         <Id>177</Id>
         <ButtonParam>17</ButtonParam>
       </Param>
       <Param>
-        <Name>Ev_03</Name>
+        <Name>Evnt 3</Name>
         <DefaultValue>0</DefaultValue>
         <Id>177</Id>
         <ButtonParam>18</ButtonParam>
       </Param>
       <Param>
-        <Name>Ev_04</Name>
+        <Name>Evnt 4</Name>
         <DefaultValue>0</DefaultValue>
         <Id>177</Id>
         <ButtonParam>19</ButtonParam>
       </Param>
       <Param>
-        <Name>Ev_05</Name>
+        <Name>Evnt 5</Name>
         <DefaultValue>0</DefaultValue>
         <Id>177</Id>
         <ButtonParam>20</ButtonParam>
       </Param>
       <Param>
-        <Name>Ev_06</Name>
+        <Name>Evnt 6</Name>
         <DefaultValue>0</DefaultValue>
         <Id>177</Id>
         <ButtonParam>21</ButtonParam>
       </Param>
       <Param>
-        <Name>Ev_07</Name>
+        <Name>Evnt 7</Name>
         <DefaultValue>0</DefaultValue>
         <Id>177</Id>
         <ButtonParam>22</ButtonParam>
       </Param>
       <Param>
-        <Name>Ev_08</Name>
+        <Name>Evnt 8</Name>
         <DefaultValue>0</DefaultValue>
         <Id>177</Id>
         <ButtonParam>23</ButtonParam>
       </Param>
       <Param>
-        <Name>Ev_09</Name>
+        <Name>Evnt 9</Name>
         <DefaultValue>0</DefaultValue>
         <Id>177</Id>
         <ButtonParam>24</ButtonParam>
       </Param>
       <Param>
-        <Name>Ev_10</Name>
+        <Name>Evnt 10</Name>
         <DefaultValue>0</DefaultValue>
         <Id>177</Id>
         <ButtonParam>25</ButtonParam>
       </Param>
       <Param>
-        <Name>Ev_11</Name>
+        <Name>Evnt 11</Name>
         <DefaultValue>0</DefaultValue>
         <Id>177</Id>
         <ButtonParam>26</ButtonParam>
       </Param>
       <Param>
-        <Name>Ev_12</Name>
+        <Name>Evnt 12</Name>
         <DefaultValue>0</DefaultValue>
         <Id>177</Id>
         <ButtonParam>27</ButtonParam>
       </Param>
       <Param>
-        <Name>Ev_13</Name>
+        <Name>Evnt 13</Name>
         <DefaultValue>0</DefaultValue>
         <Id>177</Id>
         <ButtonParam>28</ButtonParam>
       </Param>
       <Param>
-        <Name>Ev_14</Name>
+        <Name>Evnt 14</Name>
         <DefaultValue>0</DefaultValue>
         <Id>177</Id>
         <ButtonParam>29</ButtonParam>
       </Param>
       <Param>
-        <Name>Ev_15</Name>
+        <Name>Evnt 15</Name>
         <DefaultValue>0</DefaultValue>
         <Id>177</Id>
         <ButtonParam>30</ButtonParam>
       </Param>
       <Param>
-        <Name>Ev_16</Name>
+        <Name>Evnt 16</Name>
         <DefaultValue>0</DefaultValue>
         <Id>177</Id>
         <ButtonParam>31</ButtonParam>
       </Param>
       <Param>
-        <Name>Loop</Name>
+        <Name>Cycles</Name>
         <DefaultValue>1</DefaultValue>
         <Id>89</Id>
         <DefaultKnob>17</DefaultKnob>
@@ -7395,28 +7394,28 @@
         <ButtonParam>33</ButtonParam>
       </Param>
       <Param>
-        <Name>BipUni</Name>
+        <Name>Pol</Name>
         <DefaultValue>0</DefaultValue>
         <Id>4</Id>
         <DefaultKnob>21</DefaultKnob>
         <ButtonParam>34</ButtonParam>
       </Param>
       <Param>
-        <Name>TG</Name>
+        <Name>Pulse</Name>
         <DefaultValue>0</DefaultValue>
         <Id>173</Id>
         <DefaultKnob>16</DefaultKnob>
         <ButtonParam>35</ButtonParam>
       </Param>
       <Param>
-        <Name>Clr_Or_Rnd</Name>
+        <Name>Clear</Name>
         <DefaultValue>0</DefaultValue>
         <Id>106</Id>
         <DefaultKnob>19</DefaultKnob>
         <ButtonParam>36</ButtonParam>
       </Param>
       <Param>
-        <Name>Rnd_Or_Clr</Name>
+        <Name>Random</Name>
         <DefaultValue>0</DefaultValue>
         <Id>106</Id>
         <DefaultKnob>20</DefaultKnob>
@@ -7475,215 +7474,215 @@
     </Outputs>
     <Params>
       <Param>
-        <Name>Val_01</Name>
+        <Name>Step 1</Name>
         <DefaultValue>0</DefaultValue>
         <Id>70</Id>
         <DefaultKnob>0</DefaultKnob>
         <ButtonParam>16</ButtonParam>
       </Param>
       <Param>
-        <Name>Val_02</Name>
+        <Name>Step 2</Name>
         <DefaultValue>0</DefaultValue>
         <Id>70</Id>
         <DefaultKnob>1</DefaultKnob>
         <ButtonParam>17</ButtonParam>
       </Param>
       <Param>
-        <Name>Val_03</Name>
+        <Name>Step 3</Name>
         <DefaultValue>0</DefaultValue>
         <Id>70</Id>
         <DefaultKnob>2</DefaultKnob>
         <ButtonParam>18</ButtonParam>
       </Param>
       <Param>
-        <Name>Val_04</Name>
+        <Name>Step 4</Name>
         <DefaultValue>0</DefaultValue>
         <Id>70</Id>
         <DefaultKnob>3</DefaultKnob>
         <ButtonParam>19</ButtonParam>
       </Param>
       <Param>
-        <Name>Val_05</Name>
+        <Name>Step 5</Name>
         <DefaultValue>0</DefaultValue>
         <Id>70</Id>
         <DefaultKnob>4</DefaultKnob>
         <ButtonParam>20</ButtonParam>
       </Param>
       <Param>
-        <Name>Val_06</Name>
+        <Name>Step 6</Name>
         <DefaultValue>0</DefaultValue>
         <Id>70</Id>
         <DefaultKnob>5</DefaultKnob>
         <ButtonParam>21</ButtonParam>
       </Param>
       <Param>
-        <Name>Val_07</Name>
+        <Name>Step 7</Name>
         <DefaultValue>0</DefaultValue>
         <Id>70</Id>
         <DefaultKnob>6</DefaultKnob>
         <ButtonParam>22</ButtonParam>
       </Param>
       <Param>
-        <Name>Val_08</Name>
+        <Name>Step 8</Name>
         <DefaultValue>0</DefaultValue>
         <Id>70</Id>
         <DefaultKnob>7</DefaultKnob>
         <ButtonParam>23</ButtonParam>
       </Param>
       <Param>
-        <Name>Val_09</Name>
+        <Name>Step 9</Name>
         <DefaultValue>0</DefaultValue>
         <Id>70</Id>
         <DefaultKnob>8</DefaultKnob>
         <ButtonParam>24</ButtonParam>
       </Param>
       <Param>
-        <Name>Val_10</Name>
+        <Name>Step 10</Name>
         <DefaultValue>0</DefaultValue>
         <Id>70</Id>
         <DefaultKnob>9</DefaultKnob>
         <ButtonParam>25</ButtonParam>
       </Param>
       <Param>
-        <Name>Val_11</Name>
+        <Name>Step 11</Name>
         <DefaultValue>0</DefaultValue>
         <Id>70</Id>
         <DefaultKnob>10</DefaultKnob>
         <ButtonParam>26</ButtonParam>
       </Param>
       <Param>
-        <Name>Val_12</Name>
+        <Name>Step 12</Name>
         <DefaultValue>0</DefaultValue>
         <Id>70</Id>
         <DefaultKnob>11</DefaultKnob>
         <ButtonParam>27</ButtonParam>
       </Param>
       <Param>
-        <Name>Val_13</Name>
+        <Name>Step 13</Name>
         <DefaultValue>0</DefaultValue>
         <Id>70</Id>
         <DefaultKnob>12</DefaultKnob>
         <ButtonParam>28</ButtonParam>
       </Param>
       <Param>
-        <Name>Val_14</Name>
+        <Name>Step 14</Name>
         <DefaultValue>0</DefaultValue>
         <Id>70</Id>
         <DefaultKnob>13</DefaultKnob>
         <ButtonParam>29</ButtonParam>
       </Param>
       <Param>
-        <Name>Val_15</Name>
+        <Name>Step 15</Name>
         <DefaultValue>0</DefaultValue>
         <Id>70</Id>
         <DefaultKnob>14</DefaultKnob>
         <ButtonParam>30</ButtonParam>
       </Param>
       <Param>
-        <Name>Val_16</Name>
+        <Name>Step 16</Name>
         <DefaultValue>0</DefaultValue>
         <Id>70</Id>
         <DefaultKnob>15</DefaultKnob>
         <ButtonParam>31</ButtonParam>
       </Param>
       <Param>
-        <Name>Ev_01</Name>
+        <Name>Evnt 1</Name>
         <DefaultValue>0</DefaultValue>
         <Id>177</Id>
         <ButtonParam>16</ButtonParam>
       </Param>
       <Param>
-        <Name>Ev_02</Name>
+        <Name>Evnt 2</Name>
         <DefaultValue>0</DefaultValue>
         <Id>177</Id>
         <ButtonParam>17</ButtonParam>
       </Param>
       <Param>
-        <Name>Ev_03</Name>
+        <Name>Evnt 3</Name>
         <DefaultValue>0</DefaultValue>
         <Id>177</Id>
         <ButtonParam>18</ButtonParam>
       </Param>
       <Param>
-        <Name>Ev_04</Name>
+        <Name>Evnt 4</Name>
         <DefaultValue>0</DefaultValue>
         <Id>177</Id>
         <ButtonParam>19</ButtonParam>
       </Param>
       <Param>
-        <Name>Ev_05</Name>
+        <Name>Evnt 5</Name>
         <DefaultValue>0</DefaultValue>
         <Id>177</Id>
         <ButtonParam>20</ButtonParam>
       </Param>
       <Param>
-        <Name>Ev_06</Name>
+        <Name>Evnt 6</Name>
         <DefaultValue>0</DefaultValue>
         <Id>177</Id>
         <ButtonParam>21</ButtonParam>
       </Param>
       <Param>
-        <Name>Ev_07</Name>
+        <Name>Evnt 7</Name>
         <DefaultValue>0</DefaultValue>
         <Id>177</Id>
         <ButtonParam>22</ButtonParam>
       </Param>
       <Param>
-        <Name>Ev_08</Name>
+        <Name>Evnt 8</Name>
         <DefaultValue>0</DefaultValue>
         <Id>177</Id>
         <ButtonParam>23</ButtonParam>
       </Param>
       <Param>
-        <Name>Ev_09</Name>
+        <Name>Evnt 9</Name>
         <DefaultValue>0</DefaultValue>
         <Id>177</Id>
         <ButtonParam>24</ButtonParam>
       </Param>
       <Param>
-        <Name>Ev_10</Name>
+        <Name>Evnt 10</Name>
         <DefaultValue>0</DefaultValue>
         <Id>177</Id>
         <ButtonParam>25</ButtonParam>
       </Param>
       <Param>
-        <Name>Ev_11</Name>
+        <Name>Evnt 11</Name>
         <DefaultValue>0</DefaultValue>
         <Id>177</Id>
         <ButtonParam>26</ButtonParam>
       </Param>
       <Param>
-        <Name>Ev_12</Name>
+        <Name>Evnt 12</Name>
         <DefaultValue>0</DefaultValue>
         <Id>177</Id>
         <ButtonParam>27</ButtonParam>
       </Param>
       <Param>
-        <Name>Ev_13</Name>
+        <Name>Evnt 13</Name>
         <DefaultValue>0</DefaultValue>
         <Id>177</Id>
         <ButtonParam>28</ButtonParam>
       </Param>
       <Param>
-        <Name>Ev_14</Name>
+        <Name>Evnt 14</Name>
         <DefaultValue>0</DefaultValue>
         <Id>177</Id>
         <ButtonParam>29</ButtonParam>
       </Param>
       <Param>
-        <Name>Ev_15</Name>
+        <Name>Evnt 15</Name>
         <DefaultValue>0</DefaultValue>
         <Id>177</Id>
         <ButtonParam>30</ButtonParam>
       </Param>
       <Param>
-        <Name>Ev_16</Name>
+        <Name>Evnt 16</Name>
         <DefaultValue>0</DefaultValue>
         <Id>177</Id>
         <ButtonParam>31</ButtonParam>
       </Param>
       <Param>
-        <Name>Loop</Name>
+        <Name>Cycles</Name>
         <DefaultValue>1</DefaultValue>
         <Id>89</Id>
         <DefaultKnob>17</DefaultKnob>
@@ -7697,28 +7696,28 @@
         <ButtonParam>33</ButtonParam>
       </Param>
       <Param>
-        <Name>BipUni</Name>
+        <Name>Pol</Name>
         <DefaultValue>1</DefaultValue>
         <Id>4</Id>
         <DefaultKnob>21</DefaultKnob>
         <ButtonParam>34</ButtonParam>
       </Param>
       <Param>
-        <Name>TG</Name>
+        <Name>Pulse</Name>
         <DefaultValue>0</DefaultValue>
         <Id>173</Id>
         <DefaultKnob>16</DefaultKnob>
         <ButtonParam>35</ButtonParam>
       </Param>
       <Param>
-        <Name>Clr_Or_Rnd</Name>
+        <Name>Clear</Name>
         <DefaultValue>0</DefaultValue>
         <Id>106</Id>
         <DefaultKnob>19</DefaultKnob>
         <ButtonParam>36</ButtonParam>
       </Param>
       <Param>
-        <Name>Rnd_Or_Clr</Name>
+        <Name>Random</Name>
         <DefaultValue>0</DefaultValue>
         <Id>106</Id>
         <DefaultKnob>20</DefaultKnob>
@@ -8084,222 +8083,222 @@
     </Outputs>
     <Params>
       <Param>
-        <Name>Val_01</Name>
+        <Name>Step 1</Name>
         <DefaultValue>0</DefaultValue>
         <Id>70</Id>
         <DefaultKnob>0</DefaultKnob>
         <ButtonParam>16</ButtonParam>
       </Param>
       <Param>
-        <Name>Val_02</Name>
+        <Name>Step 2</Name>
         <DefaultValue>0</DefaultValue>
         <Id>70</Id>
         <DefaultKnob>1</DefaultKnob>
         <ButtonParam>17</ButtonParam>
       </Param>
       <Param>
-        <Name>Val_03</Name>
+        <Name>Step 3</Name>
         <DefaultValue>0</DefaultValue>
         <Id>70</Id>
         <DefaultKnob>2</DefaultKnob>
         <ButtonParam>18</ButtonParam>
       </Param>
       <Param>
-        <Name>Val_04</Name>
+        <Name>Step 4</Name>
         <DefaultValue>0</DefaultValue>
         <Id>70</Id>
         <DefaultKnob>3</DefaultKnob>
         <ButtonParam>19</ButtonParam>
       </Param>
       <Param>
-        <Name>Val_05</Name>
+        <Name>Step 5</Name>
         <DefaultValue>0</DefaultValue>
         <Id>70</Id>
         <DefaultKnob>4</DefaultKnob>
         <ButtonParam>20</ButtonParam>
       </Param>
       <Param>
-        <Name>Val_06</Name>
+        <Name>Step 6</Name>
         <DefaultValue>0</DefaultValue>
         <Id>70</Id>
         <DefaultKnob>5</DefaultKnob>
         <ButtonParam>21</ButtonParam>
       </Param>
       <Param>
-        <Name>Val_07</Name>
+        <Name>Step 7</Name>
         <DefaultValue>0</DefaultValue>
         <Id>70</Id>
         <DefaultKnob>6</DefaultKnob>
         <ButtonParam>22</ButtonParam>
       </Param>
       <Param>
-        <Name>Val_08</Name>
+        <Name>Step 8</Name>
         <DefaultValue>0</DefaultValue>
         <Id>70</Id>
         <DefaultKnob>7</DefaultKnob>
         <ButtonParam>23</ButtonParam>
       </Param>
       <Param>
-        <Name>Val_09</Name>
+        <Name>Step 9</Name>
         <DefaultValue>0</DefaultValue>
         <Id>70</Id>
         <DefaultKnob>8</DefaultKnob>
         <ButtonParam>24</ButtonParam>
       </Param>
       <Param>
-        <Name>Val_10</Name>
+        <Name>Step 10</Name>
         <DefaultValue>0</DefaultValue>
         <Id>70</Id>
         <DefaultKnob>9</DefaultKnob>
         <ButtonParam>25</ButtonParam>
       </Param>
       <Param>
-        <Name>Val_11</Name>
+        <Name>Step 11</Name>
         <DefaultValue>0</DefaultValue>
         <Id>70</Id>
         <DefaultKnob>10</DefaultKnob>
         <ButtonParam>26</ButtonParam>
       </Param>
       <Param>
-        <Name>Val_12</Name>
+        <Name>Step 12</Name>
         <DefaultValue>0</DefaultValue>
         <Id>70</Id>
         <DefaultKnob>11</DefaultKnob>
         <ButtonParam>27</ButtonParam>
       </Param>
       <Param>
-        <Name>Val_13</Name>
+        <Name>Step 13</Name>
         <DefaultValue>0</DefaultValue>
         <Id>70</Id>
         <DefaultKnob>12</DefaultKnob>
         <ButtonParam>28</ButtonParam>
       </Param>
       <Param>
-        <Name>Val_14</Name>
+        <Name>Step 14</Name>
         <DefaultValue>0</DefaultValue>
         <Id>70</Id>
         <DefaultKnob>13</DefaultKnob>
         <ButtonParam>29</ButtonParam>
       </Param>
       <Param>
-        <Name>Val_15</Name>
+        <Name>Step 15</Name>
         <DefaultValue>0</DefaultValue>
         <Id>70</Id>
         <DefaultKnob>14</DefaultKnob>
         <ButtonParam>30</ButtonParam>
       </Param>
       <Param>
-        <Name>Val_16</Name>
+        <Name>Step 16</Name>
         <DefaultValue>0</DefaultValue>
         <Id>70</Id>
         <DefaultKnob>15</DefaultKnob>
         <ButtonParam>31</ButtonParam>
       </Param>
       <Param>
-        <Name>Ev_01</Name>
+        <Name>Evnt 1</Name>
         <DefaultValue>0</DefaultValue>
         <Id>177</Id>
         <ButtonParam>16</ButtonParam>
       </Param>
       <Param>
-        <Name>Ev_02</Name>
+        <Name>Evnt 2</Name>
         <DefaultValue>0</DefaultValue>
         <Id>177</Id>
         <ButtonParam>17</ButtonParam>
       </Param>
       <Param>
-        <Name>Ev_03</Name>
+        <Name>Evnt 3</Name>
         <DefaultValue>0</DefaultValue>
         <Id>177</Id>
         <ButtonParam>18</ButtonParam>
       </Param>
       <Param>
-        <Name>Ev_04</Name>
+        <Name>Evnt 4</Name>
         <DefaultValue>0</DefaultValue>
         <Id>177</Id>
         <ButtonParam>19</ButtonParam>
       </Param>
       <Param>
-        <Name>Ev_05</Name>
+        <Name>Evnt 5</Name>
         <DefaultValue>0</DefaultValue>
         <Id>177</Id>
         <ButtonParam>20</ButtonParam>
       </Param>
       <Param>
-        <Name>Ev_06</Name>
+        <Name>Evnt 6</Name>
         <DefaultValue>0</DefaultValue>
         <Id>177</Id>
         <ButtonParam>21</ButtonParam>
       </Param>
       <Param>
-        <Name>Ev_07</Name>
+        <Name>Evnt 7</Name>
         <DefaultValue>0</DefaultValue>
         <Id>177</Id>
         <ButtonParam>22</ButtonParam>
       </Param>
       <Param>
-        <Name>Ev_08</Name>
+        <Name>Evnt 8</Name>
         <DefaultValue>0</DefaultValue>
         <Id>177</Id>
         <ButtonParam>23</ButtonParam>
       </Param>
       <Param>
-        <Name>Ev_09</Name>
+        <Name>Evnt 9</Name>
         <DefaultValue>0</DefaultValue>
         <Id>177</Id>
         <ButtonParam>24</ButtonParam>
       </Param>
       <Param>
-        <Name>Ev_10</Name>
+        <Name>Evnt 10</Name>
         <DefaultValue>0</DefaultValue>
         <Id>177</Id>
         <ButtonParam>25</ButtonParam>
       </Param>
       <Param>
-        <Name>Ev_11</Name>
+        <Name>Evnt 11</Name>
         <DefaultValue>0</DefaultValue>
         <Id>177</Id>
         <ButtonParam>26</ButtonParam>
       </Param>
       <Param>
-        <Name>Ev_12</Name>
+        <Name>Evnt 12</Name>
         <DefaultValue>0</DefaultValue>
         <Id>177</Id>
         <ButtonParam>27</ButtonParam>
       </Param>
       <Param>
-        <Name>Ev_13</Name>
+        <Name>Evnt 13</Name>
         <DefaultValue>0</DefaultValue>
         <Id>177</Id>
         <ButtonParam>28</ButtonParam>
       </Param>
       <Param>
-        <Name>Ev_14</Name>
+        <Name>Evnt 14</Name>
         <DefaultValue>0</DefaultValue>
         <Id>177</Id>
         <ButtonParam>29</ButtonParam>
       </Param>
       <Param>
-        <Name>Ev_15</Name>
+        <Name>Evnt 15</Name>
         <DefaultValue>0</DefaultValue>
         <Id>177</Id>
         <ButtonParam>30</ButtonParam>
       </Param>
       <Param>
-        <Name>Ev_16</Name>
+        <Name>Evnt 16</Name>
         <DefaultValue>0</DefaultValue>
         <Id>177</Id>
         <ButtonParam>31</ButtonParam>
       </Param>
       <Param>
-        <Name>TG</Name>
+        <Name>Pulse</Name>
         <DefaultValue>0</DefaultValue>
         <Id>173</Id>
         <DefaultKnob>16</DefaultKnob>
         <ButtonParam>32</ButtonParam>
       </Param>
       <Param>
-        <Name>BipUni</Name>
+        <Name>Pol</Name>
         <DefaultValue>0</DefaultValue>
         <Id>4</Id>
         <DefaultKnob>20</DefaultKnob>
@@ -8313,17 +8312,17 @@
         <ButtonParam>34</ButtonParam>
       </Param>
       <Param>
-        <Name>Clr_Or_Rnd</Name>
-        <DefaultValue>0</DefaultValue>
-        <Id>106</Id>
-        <DefaultKnob>18</DefaultKnob>
-        <ButtonParam>35</ButtonParam>
-      </Param>
-      <Param>
-        <Name>Rnd_Or_Clr</Name>
+        <Name>Random</Name>
         <DefaultValue>0</DefaultValue>
         <Id>106</Id>
         <DefaultKnob>19</DefaultKnob>
+        <ButtonParam>35</ButtonParam>
+      </Param>
+      <Param>
+        <Name>Clear</Name>
+        <DefaultValue>0</DefaultValue>
+        <Id>106</Id>
+        <DefaultKnob>18</DefaultKnob>
         <ButtonParam>36</ButtonParam>
       </Param>
     </Params>

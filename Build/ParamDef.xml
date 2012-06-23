@@ -1801,7 +1801,7 @@
     <DefaultValue>0</DefaultValue>
     <Definitions/>
     <Comments/>
-    <ButtonText>Trig;Gate;</ButtonText>
+    <ButtonText>T;G</ButtonText>
   </ParamDef>
   <ParamDef>
     <Id>174</Id>
@@ -1841,6 +1841,7 @@
     <HighValue>1</HighValue>
     <DefaultValue>0</DefaultValue>
     <Definitions/>
+    <ButtonText>;</ButtonText>
     <Comments/>
   </ParamDef>  
 </ParamDefList>
