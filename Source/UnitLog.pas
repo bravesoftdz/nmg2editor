@@ -16,12 +16,14 @@ type
     bRefresh: TButton;
     bClear: TButton;
     Button1: TButton;
+    Button2: TButton;
     procedure bSendMsgClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure bRefreshClick(Sender: TObject);
     procedure bClearClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure Button2Click(Sender: TObject);
   private
     { Private declarations }
   public
@@ -107,6 +109,41 @@ begin
   G2 := frmG2Main.SelectedG2;
   if assigned(G2) then begin
     G2.SendCmdMessage( MemStream);
+  end;
+end;
+
+procedure TfrmLog.Button2Click(Sender: TObject);
+var sr : TSearchRec;
+    i, p : integer;
+    G2 : TG2;
+    ModuleFileName : string;
+begin
+  G2 := frmG2Main.SelectedG2;
+  if not assigned(G2) then
+    exit;
+
+
+  if FindFirst('C:\Users\Bruno\Delphi\nmg2editor\Build\Modules\' + '*.*', faAnyFile, sr) = 0 then begin
+    repeat
+      if (sr.Attr and faDirectory) = 0 then begin
+
+        ModuleFileName := ExtractFileName(sr.Name);
+        p := pos('.', ModuleFileName);
+        if p > 0 then
+          ModuleFileName := copy(ModuleFileName, 1, p-1);
+
+        // Search module in ModuleDef
+        i := 0;
+        while (i < G2.FModuleDefList.Count) and ( G2.FModuleDefList.ModuleDef[i].ShortName <> ModuleFileName) do
+          inc(i);
+
+        if (i < G2.FModuleDefList.Count) then
+          Memo1.Lines.Add( ModuleFileName)
+        else
+          Memo1.Lines.Add( ModuleFileName + ' not found in ModuleDef');
+      end;
+    until (FindNext(sr) <> 0);
+    FindClose(sr);
   end;
 end;
 

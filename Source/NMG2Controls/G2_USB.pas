@@ -306,8 +306,8 @@ type
       property    OnNextInitStep : TInitStepEvent read FOnNextInitStep write FOnNextInitStep;
     public
       FLogLedDataMessages  : boolean;
-      FErrorMessage        : boolean;
-      FErrorMessageNo      : integer;
+      //FErrorMessage        : boolean;
+      //FErrorMessageNo      : integer;
       FTCPErrorMessage     : string;
 
       constructor Create( AOwner: TComponent); override;
@@ -1234,9 +1234,10 @@ begin
 
   Cmd := ResponseMessage.Command;
 
+  ErrorMessage := False;
   USBProcessResponseMessage( ResponseMessage);
 
-  if (FWaitForCmd <> 0) and ((Cmd = FWaitForCmd) or ((Cmd = $04) and (FWaitForCmd = $0c))) then begin
+  if (FWaitForCmd <> 0) and ((Cmd = FWaitForCmd) or ((Cmd = $04) and (FWaitForCmd = $0c)) or ErrorMessage) then begin
     // Get the send message from the list
     MessageList := FSendMessageQueue.LockList;
     try
@@ -1247,7 +1248,8 @@ begin
       FSendMessageQueue.UnlockList;
     end;
 
-    USBProcessSendMessage( ClientSendMessage);
+    if not ErrorMessage then
+      USBProcessSendMessage( ClientSendMessage);
 
     if assigned(FOnReceiveResponseMessage) then
       FOnReceiveResponseMessage( Self, ResponseMessage);
@@ -2007,8 +2009,8 @@ begin
 
    // Return True if message was send
    Result := False;
-   FErrorMessage := False;
-   FErrorMessageNo := 0;
+   ErrorMessage := False;
+   ErrorMessageNo := 0;
 
    add_log_line( '', LOGCMD_NUL);
    add_log_line( 'Send message, size = ' + IntToStr(SendMessage.Size) , LOGCMD_NUL);

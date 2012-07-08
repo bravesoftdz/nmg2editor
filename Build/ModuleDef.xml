@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<ModuleDefList xmlns="http://www.yourtargetnamespace.com" version="0.23">
+<ModuleDefList xmlns="http://www.yourtargetnamespace.com" version="0.24">
   <ModuleDef>
     <ModuleType>1</ModuleType>
     <IsLed>0</IsLed>
@@ -11501,5 +11501,148 @@
         <Id>153</Id>
       </Param>
     </Modes>
+  </ModuleDef>
+  <ModuleDef>
+    <ModuleType>35</ModuleType>
+    <IsLed>0</IsLed>
+    <Uprate>0</Uprate>
+    <Page>Osc</Page>
+    <PageIndex>18</PageIndex>
+    <ShortName>Driver</ShortName>
+    <LongName>Driver</LongName>
+    <Height>3</Height>
+    <Inputs>
+      <Connector>
+        <Name>In1</Name>
+        <Type>blue</Type>
+      </Connector>
+      <Connector>
+        <Name>In2</Name>
+        <Type>blue</Type>
+      </Connector>
+    </Inputs>
+    <Outputs>
+      <Connector>
+        <Name>Out1</Name>
+        <Type>blue</Type>
+      </Connector>
+    </Outputs>
+    <Params>
+      <Param>
+        <Name>Embouch</Name>
+        <DefaultValue>0</DefaultValue>
+        <Id>32</Id>
+        <DefaultKnob>0</DefaultKnob>
+      </Param>
+      <Param>
+        <Name>Stiffn</Name>
+        <DefaultValue>0</DefaultValue>
+        <Id>32</Id>
+        <DefaultKnob>1</DefaultKnob>
+      </Param>
+    </Params>
+    <Modes>
+      <Param>
+        <Name>Driver T</Name>
+        <DefaultValue>0</DefaultValue>
+        <Id>179</Id>
+      </Param>
+    </Modes>
+  </ModuleDef>
+  <ModuleDef>
+    <ModuleType>56</ModuleType>
+    <IsLed>0</IsLed>
+    <Uprate>0</Uprate>
+    <Page>Osc</Page>
+    <PageIndex>19</PageIndex>
+    <ShortName>Resonator</ShortName>
+    <LongName>Resonator</LongName>
+    <Height>5</Height>
+    <Inputs>
+      <Connector>
+        <Name>In1</Name>
+        <Type>blue</Type>
+      </Connector>
+      <Connector>
+        <Name>In2</Name>
+        <Type>yellow</Type>
+      </Connector>
+      <Connector>
+        <Name>In3</Name>
+        <Type>yellow</Type>
+      </Connector>
+    </Inputs>
+    <Outputs>
+      <Connector>
+        <Name>Out1</Name>
+        <Type>blue</Type>
+      </Connector>
+      <Connector>
+        <Name>Out2</Name>
+        <Type>blue</Type>
+      </Connector>
+    </Outputs>
+    <Params>
+      <Param>
+        <Name>Course</Name>
+        <DefaultValue>64</DefaultValue>
+        <Id>56</Id>
+        <DefaultKnob>0</DefaultKnob>
+      </Param>
+      <Param>
+        <Name>Fine</Name>
+        <DefaultValue>64</DefaultValue>
+        <Id>57</Id>
+        <DefaultKnob>1</DefaultKnob>
+      </Param>
+      <Param>
+        <Name>KBT</Name>
+        <DefaultValue>1</DefaultValue>
+        <Id>106</Id>
+        <DefaultKnob>3</DefaultKnob>
+      </Param>
+      <Param>
+        <Name>Pitch M</Name>
+        <DefaultValue>0</DefaultValue>
+        <Id>71</Id>
+        <DefaultKnob>0</DefaultKnob>
+      </Param>
+      <Param>
+        <Name>Tune Md</Name>
+        <DefaultValue>0</DefaultValue>
+        <Id>59</Id>
+        <DefaultKnob>0</DefaultKnob>
+      </Param>
+      <Param>
+        <Name>Decay</Name>
+        <DefaultValue>0</DefaultValue>
+        <Id>32</Id>
+        <DefaultKnob>0</DefaultKnob>
+      </Param>
+      <Param>
+        <Name>Damp</Name>
+        <DefaultValue>0</DefaultValue>
+        <Id>32</Id>
+        <DefaultKnob>0</DefaultKnob>
+      </Param>
+      <Param>
+        <Name>On/Off</Name>
+        <DefaultValue>1</DefaultValue>
+        <Id>106</Id>
+        <DefaultKnob>0</DefaultKnob>
+      </Param>
+      <Param>
+        <Name>Pos</Name>
+        <DefaultValue>0</DefaultValue>
+        <Id>32</Id>
+        <DefaultKnob>0</DefaultKnob>
+      </Param>
+      <Param>
+        <Name>Algorithm</Name>
+        <DefaultValue>0</DefaultValue>
+        <Id>178</Id>
+        <DefaultKnob>0</DefaultKnob>
+      </Param>
+    </Params>
   </ModuleDef>
 </ModuleDefList>

@@ -49,6 +49,7 @@ uses
   TAfterRetrievePatch = procedure(Sender: TObject; SenderID : integer; aSlot, aBank, aPatch : byte) of object;
   TParamChangeMessEvent = procedure(Sender: TObject; SenderID : integer; Slot, Variation : byte; Location : TLocationType; ModuleIndex, ParamIndex : byte; aValue : byte) of object;
   TSetModuleLabelEvent = procedure(Sender: TObject; SenderID : integer; PatchIndex : byte; Location : TLocationType;  ModuleIndex : byte) of object;
+  TSetParamLabelEvent = procedure(Sender: TObject; SenderID : integer; PatchIndex : byte; Location : TLocationType;  ModuleIndex : byte) of object;
 
   TG2MessPerformance = class;
   TG2MessSlot = class;
@@ -155,6 +156,7 @@ uses
     FOnAfterRetrievePatch     : TAfterRetrievePatch;
     FOnParamChangeMessage     : TParamChangeMessEvent;
     FOnSetModuleLabel         : TSetModuleLabelEvent;
+    FOnSetParamLabel          : TSetParamLabelEvent;
 
     FErrorMessage        : boolean;
     FErrorMessageNo      : integer;
@@ -240,6 +242,8 @@ uses
     property    ControlPedalGain : TBits8 read FControlPedalGain write SetControlPedalGain;
     property    LastResponseMessage : Byte read FLastResponseMessage write FLastResponseMessage;
   published
+    property    ErrorMessage : boolean read FErrorMessage write FErrorMessage;
+    property    ErrorMessageNo : integer read FErrorMessageNo write FErrorMessageNo;
     property    OnMidiCCReceive : TMidiCCRecieveEvent read FOnMidiCCReceive write FOnMidiCCReceive;
     property    OnSelectParamPage : TSelectParamPageEvent read FOnSelectParamPage write FOnSelectParamPage;
     property    OnPatchUpdate : TPatchUpdateEvent read FOnPatchUpdate write FOnPatchUpdate;
@@ -251,6 +255,7 @@ uses
     property    OnAfterRetrievePatch : TAfterRetrievePatch read FOnAfterRetrievePatch write FOnAfterRetrievePatch;
     property    OnParamChangeMessage : TParamChangeMessEvent read FOnParamChangeMessage write FOnParamChangeMessage;
     property    OnSetModuleLabel : TSetModuleLabelEvent read FOnSetModuleLabel write FOnSetModuleLabel;
+    property    OnSetParamLabel : TSetParamLabelEvent read FOnSetParamLabel write FOnSetParamLabel;
   end;
 
   TG2MessPerformance = class( TG2FilePerformance)
@@ -4724,7 +4729,7 @@ var b, Cmd, aModuleIndex, aModuleType, aUnknown, aParamPage,
     GlobalKnob : TGlobalKnob;
     Chunk : TPatchChunk;
     BitReader : TBitReader;
-    i : integer;
+    i, j : integer;
 begin
   BitReader := TBitReader.Create;
   try
@@ -5076,16 +5081,22 @@ begin
                 Chunk.ReadBuffer( aLength + 2);
                 ParamLabelModule.Read(Chunk);
                 for i := 0 to ParamLabelModule.Count - 1 do begin
-                  SetParameterLabel( aLocation,
-                                     ParamLabelModule.ModuleIndex,
-                                     ParamLabelModule.Items[i].ParamIndex,
-                                     0,
-                                     ParamLabelModule.Items[i].Items[0].ParamLabel); // TODO : Could be more than 1 label per parameterindex
+                  for j := 0 to ParamLabelModule.Items[i].Count - 1 do
+
+                    SetParameterLabel( aLocation,
+                                       ParamLabelModule.ModuleIndex,
+                                       ParamLabelModule.Items[i].ParamIndex,
+                                       j,
+                                       ParamLabelModule.Items[i].Items[j].ParamLabel);
                 end;
               finally
                 Chunk.Free;
                 ParamLabelModule.Free;
               end;
+
+              if assigned(G2) and assigned(Slot) then
+                if assigned((G2 as TG2Mess).OnSetModuleLabel) then
+                  (G2 as TG2Mess).OnSetParamLabel( G2, G2.ID,  Slot.SlotIndex, aLocation, aModuleIndex);
             end;
       S_SET_MODULE_LABEL :
             begin

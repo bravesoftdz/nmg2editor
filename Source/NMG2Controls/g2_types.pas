@@ -38,7 +38,7 @@ uses
   math;
 
 const
-  NMG2_VERSION = '0.23';
+  NMG2_VERSION = '0.24';
 
   NMORPHS = 8;
   NVARIATIONS = 9;

@@ -444,7 +444,8 @@ type
     procedure   Invalidate; override;
     procedure   Update; override;
     function    GetRelToParentRect : TRect;
-    function    GetScreenCoordsRect : TRect;
+    function    GetScreenCoordsRect : TRect; virtual;
+    function    GetParamLabelIndex : integer; virtual;
     procedure   SetParameter( aParam : TG2FileParameter);
     procedure   SetModule( aValue : TG2GraphModulePanel);
     procedure   SetValue( aValue : byte);
@@ -740,6 +741,7 @@ type
   private
     FButtonColumns : integer;
     FButtonRows : integer;
+    FClickedButton : integer;
   protected
     procedure   MouseDown(Button: TMouseButton; Shift: TShiftState; X: Integer; Y: Integer); override;
   public
@@ -749,6 +751,8 @@ type
     procedure   SetBounds(ALeft: Integer; ATop: Integer;  AWidth: Integer; AHeight: Integer); override;
     procedure   ParsePanelData( fs : TModuleDefStream); override;
     function    ParseProperties( fs: TModuleDefStream; aName : AnsiString): boolean; override;
+    function    GetScreenCoordsRect : TRect; override;
+    function    GetParamLabelIndex : integer; override;
   published
     property    ButtonColumns : integer read FButtonColumns write FButtonColumns;
     property    ButtonRows : integer read FButtonRows write FButtonRows;
@@ -950,21 +954,24 @@ begin
   for i := 0 to Parent.ControlCount - 1 do
     if Parent.Controls[i] is TG2GraphModulePanel then begin
       Module := Parent.Controls[i] as TG2GraphModulePanel;
-      for j := 0 to Module.ChildControlsCount - 1 do begin
-        if Module.GraphChildControls[j] is TG2GraphConnector then begin
+      if Module.Visible then begin
 
-          sr.Left := Module.ClientToScreen(Point(Module.GraphChildControls[j].Left,
-                                                 Module.GraphChildControls[j].Top)).X;
-          sr.Top := Module.ClientToScreen(Point(Module.GraphChildControls[j].Left,
-                                                 Module.GraphChildControls[j].Top)).Y;
-          sr.Right := Module.ClientToScreen(Point(Module.GraphChildControls[j].Left + Module.GraphChildControls[j].Width,
-                                                  Module.GraphChildControls[j].Top + Module.GraphChildControls[j].Height)).X;
-          sr.Bottom := Module.ClientToScreen(Point(Module.GraphChildControls[j].Left + Module.GraphChildControls[j].Width,
-                                                  Module.GraphChildControls[j].Top + Module.GraphChildControls[j].Height)).Y;
+        for j := 0 to Module.ChildControlsCount - 1 do begin
+          if Module.GraphChildControls[j] is TG2GraphConnector then begin
 
-          if PtInRect(sr,Mouse.CursorPos) then begin
-            Result := Module.GraphChildControls[j] as TG2GraphConnector;
-            break;
+            sr.Left := Module.ClientToScreen(Point(Module.GraphChildControls[j].Left,
+                                                   Module.GraphChildControls[j].Top)).X;
+            sr.Top := Module.ClientToScreen(Point(Module.GraphChildControls[j].Left,
+                                                   Module.GraphChildControls[j].Top)).Y;
+            sr.Right := Module.ClientToScreen(Point(Module.GraphChildControls[j].Left + Module.GraphChildControls[j].Width,
+                                                    Module.GraphChildControls[j].Top + Module.GraphChildControls[j].Height)).X;
+            sr.Bottom := Module.ClientToScreen(Point(Module.GraphChildControls[j].Left + Module.GraphChildControls[j].Width,
+                                                    Module.GraphChildControls[j].Top + Module.GraphChildControls[j].Height)).Y;
+
+            if PtInRect(sr,Mouse.CursorPos) then begin
+              Result := Module.GraphChildControls[j] as TG2GraphConnector;
+              break;
+            end;
           end;
         end;
       end;
@@ -1381,12 +1388,12 @@ var P : TPoint;
     i, MinX, MinY : integer;
     Module : TG2GraphModule;
 begin
-  if assigned(FCopyPatch) then begin
+  //if assigned(FCopyPatch) then begin
     if FCopyOutLinesVisible then begin
       DrawCopyPatchOutlines( FCanvas, ClientRect);
       FCopyOutLinesVisible := False;
-    end
-  end;
+    end;
+  //end;
 
   if assigned(aValue) then begin
 
@@ -3462,6 +3469,11 @@ begin
     Result := '';
 end;
 
+function TG2GraphChildControl.GetParamLabelIndex: integer;
+begin
+  Result := 0;
+end;
+
 function TG2GraphChildControl.GetValue: byte;
 begin
   if assigned( FParameter) then
@@ -3620,7 +3632,6 @@ begin
     inherited Invalidate;
   end;
 end;
-
 
 procedure TG2GraphChildControl.SetValue( aValue: byte);
 begin
@@ -5353,6 +5364,7 @@ begin
   inherited;
   FButtonRows := 1;
   FButtonColumns := 1;
+  FClickedButton := -1;
 end;
 
 destructor TG2GraphButtonRadioEdit.Destroy;
@@ -5360,17 +5372,50 @@ begin
   inherited;
 end;
 
-procedure TG2GraphButtonRadioEdit.MouseDown(Button: TMouseButton;  Shift: TShiftState; X, Y: Integer);
-var c, r : integer;
+function TG2GraphButtonRadioEdit.GetParamLabelIndex: integer;
 begin
-  if ssLeft in Shift then begin
-    if (FButtonColumns > 0) and (Width > 0) and (FButtonRows > 0) and (Height > 0) then begin
-      c := X * FButtonColumns div Width;
-      r := Y * FButtonRows div Height;
-      Value := r * FButtonColumns + c;
+  Result := FClickedButton;
+end;
+
+function TG2GraphButtonRadioEdit.GetScreenCoordsRect: TRect;
+var r, c, l, t : integer;
+begin
+  if FClickedButton <> -1 then begin
+    r := FClickedButton div FButtonColumns;
+    c := FClickedButton mod FButtonColumns;
+    FButtonWidth := Width div FButtonColumns;
+    FButtonHeight := Height div FButtonRows;
+    l := c * FButtonWidth + Left;
+    t := r * FButtonHeight + Top;
+
+    if assigned(FModule) then begin
+      Result.Left := FModule.ClientToScreen(Point(l, t)).X;
+      Result.Right := FModule.ClientToScreen(Point(l + FButtonWidth, t + FButtonHeight)).X;
+      Result.Top := FModule.ClientToScreen(Point(l, t)).Y;
+      Result.Bottom := FModule.ClientToScreen(Point(l + FButtonWidth, t + FButtonHeight)).Y;
+    end else begin
+      Result.Left := l;
+      Result.Right := l + FButtonWidth;
+      Result.Top := t;
+      Result.Bottom := t + FButtonHeight;
     end;
   end else
     inherited;
+end;
+
+procedure TG2GraphButtonRadioEdit.MouseDown(Button: TMouseButton;  Shift: TShiftState; X, Y: Integer);
+var c, r : integer;
+begin
+  if (FButtonColumns > 0) and (Width > 0) and (FButtonRows > 0) and (Height > 0) then begin
+    c := X * FButtonColumns div Width;
+    r := Y * FButtonRows div Height;
+    FClickedButton := r * FButtonColumns + c;
+    if ssLeft in Shift then begin
+      Value := FClickedButton;
+    end else
+      inherited;
+  end else
+    FClickedButton := -1;
 end;
 
 procedure TG2GraphButtonRadioEdit.PaintOn(ExtCanvas: TCanvas; ExtBoundsRect: TRect);

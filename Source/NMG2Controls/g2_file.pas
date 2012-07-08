@@ -75,6 +75,8 @@ type
   TParameterChangeEvent = procedure(Sender: TObject; SenderID : integer; Slot, Variation : byte; Location : TLocationType; ModuleIndex, ParamIndex : byte; aValue : byte) of object;
   TModuleModeChangeEvent = procedure(Sender: TObject; SenderID : integer; Slot : byte; Location : TLocationType; ModuleIndex, ParamIndex : byte; aValue : byte) of object;
   TSelectSlotEvent = procedure(Sender : TObject; SenderID : integer; Slot : integer) of object;
+  TSelectModuleEvent = procedure(Sender : TObject; SenderID : integer; Module : TG2FileModule) of object;
+  TSelectParamEvent = procedure(Sender : TObject; SenderID : integer; Param : TG2FileParameter) of object;
 
   // Header for VST patch chunk file
   TFXPHeader = record
@@ -1366,6 +1368,8 @@ type
     FOnParameterChange    : TParameterChangeEvent;
     FOnModuleModeChange   : TModuleModeChangeEvent;
     FOnSelectSlot         : TSelectSlotEvent;
+    FOnSelectModule       : TSelectModuleEvent;
+    FOnSelectParam        : TSelectParamEvent;
 
     FPerformance   : TG2FilePerformance;
 
@@ -1424,6 +1428,8 @@ type
     property    OnParameterChange : TParameterChangeEvent read FOnParameterChange write FOnParameterChange;
     property    OnModuleModeChange : TModuleModeChangeEvent read FOnModuleModeChange write FOnModuleModeChange;
     property    OnSelectSlot : TSelectSlotEvent read FOnSelectSlot write FOnSelectSlot;
+    property    OnSelectModule : TSelectModuleEvent read FOnSelectModule write FOnSelectModule;
+    property    OnSelectParam : TSelectParamEvent read FOnSelectParam write FOnSelectParam;
   end;
 
 implementation
@@ -1883,9 +1889,11 @@ begin
   FSelected := aValue;
   // The patch keeps a list of selected modules
   if assigned(FPatchPart) then
-    if aValue then
-      FPatchPart.SelectModule( self)
-    else
+    if aValue then begin
+      FPatchPart.SelectModule( self);
+      if assigned(FPatchPart.Patch) and assigned(FPatchPart.Patch.G2) and assigned(FPatchPart.Patch.G2.OnSelectModule) then
+        FPatchPart.Patch.G2.OnSelectModule( FPatchPart.Patch.G2, FPatchPart.Patch.G2.ID, self);
+    end else
       FPatchPart.DeselectModule( self);
 end;
 
@@ -6956,7 +6964,7 @@ begin
     if ParamValue < FButtonText.Count then
       Result := FButtonText[ParamValue]
     else
-      Result := 'Overflow';
+      Result := IntToStr(ParamValue);
   end;
 end;
 
@@ -6978,9 +6986,6 @@ var Module : TG2FileModule;
 begin
   if aValue then begin
     if assigned(FPatch) then begin
-      {if (FPatch.SelectedParam <> self) then
-        FPatch.SelectedParam := self;
-      Module := FPatch.ModuleList[ ord( FLocation)].FindModule( FModuleIndex);}
       case FLocation of
         ltFX, ltVA :
           begin
@@ -6992,6 +6997,9 @@ begin
       end;
       if assigned(Module) then
         Module.SelectedParam := self;
+
+      if assigned(Patch.G2) and assigned(Patch.G2.OnSelectParam) then
+        Patch.G2.OnSelectParam( Patch.G2, Patch.G2.ID, self);
     end;
   end;
 end;
@@ -7022,11 +7030,14 @@ var t : single;
     Exponent, Freq, Fact, DlyRange : single;
     iValue1, iValue2 : integer;
     TempValue : integer;
+    Param : TG2FileParameter;
 begin
   case FInfoFunctionIndex of
   0  : begin
-         Result :=Format('%.2g', [100 * GetParameterValue / 127]);
-         //Result := G2FloatToStrFixed(100 * GetParameterValue / 127, 4);
+         Result := FloatToStr( Round(1000 * GetParameterValue / 127)/10);
+       end;
+  2  : begin // Seq, Length
+         Result := IntToStr(GetParameterValue + 1);
        end;
   3  : begin // KB
          case GetParameterValue of
@@ -7038,6 +7049,12 @@ begin
          case GetParameterValue of
          0 : Result := 'Poly';
          1 : Result := 'Mono';
+         end;
+       end;
+  5  : begin // Mixer Inv
+         case GetParameterValue of
+         0 : Result := 'Normal';
+         1 : Result := 'Inverted';
          end;
        end;
   7  : begin // On/Off
@@ -7052,6 +7069,12 @@ begin
          1 : Result := 'Active';
          end;
        end;
+  9 : begin // Seq, cycles
+         case GetParameterValue of
+         0 : Result := '1-Cycle';
+         1 : Result := 'Loop';
+         end;
+      end;
   11 : begin // Note quant, Notes
          TempValue := GetParameterValue;
          if TempValue = 0 then
@@ -7059,11 +7082,20 @@ begin
          else
            Result := IntToStr(TempValue);
        end;
+  12 : begin // Mystery modules PolarFade/PolarPan...
+         Result := IntToStr(GetParameterValue);
+       end;
   13 : begin // Note detect
          Result := GetKeyName(GetParameterValue);
        end;
   16 : begin // Env Sustain
          Result := Format('%.1g', [1.0 * round(GetParameterValue/2)])
+       end;
+  18 : begin // Seq, Pol
+         case GetParameterValue of
+         0 : Result := 'Bipol';
+         1 : Result := 'Unipol';
+         end;
        end;
   22 : begin // Drumsynth, Masterfreq
          Result := G2FloatToStr(20.02 * power(2, GetParameterValue / 24), 4) + 'Hz';
@@ -7104,7 +7136,7 @@ begin
            else
              Result := '+-' + Format('%.1f', [TempValue / 2]);
        end;
-  43 : begin // Env Gate/Trigger
+  43 : begin // Env, Seq Gate/Trigger
          case GetParameterValue of
          0 : Result := 'Trig';
          1 : Result := 'Gate';
@@ -7120,7 +7152,7 @@ begin
          5 : Result := 'BipInv';
          end;
        end;
-  47 : begin // KB
+  47 : begin // General On/Off
          case GetParameterValue of
          0 : Result := 'Off';
          1 : Result := 'On';
@@ -7328,6 +7360,14 @@ begin
           else
             Result := '+-' + Format('%.1f', [TempValue / 2]);
         end;
+  134 : begin // SeqCtrl, XFade
+          case GetParameterValue of
+          0 : Result := '0%';
+          1 : Result := '25%';
+          2 : Result := '50%';
+          3 : Result := '100%';
+          end;
+        end;
   136 : begin // Env Shape
           case GetParameterValue of
           0 : Result := 'LogExp';
@@ -7443,10 +7483,56 @@ begin
   220 : begin // Pitch track
           Result := IntToStr(GetParameterValue); // TODO
         end;
+  500 : begin // SeqCtrl (Not found in original moduledef)
+          if assigned(Module) then begin
+            TempValue := GetParameterValue;
+            Param := MOdule.Parameter[ 33];
+            if assigned(Param) then begin // Polarity
+              case Param.GetParameterValue of
+              0 : Result := IntToStr( TempValue - 64);
+              1 : if TempValue = 127 then
+                    Result := '64.0'
+                  else
+                    Result := FloatToStr( Round(TempValue / 2 * 10)/10);
+              end;
+            end;
+          end;
+        end
+
   else
     Result := IntToStr(GetParameterValue);
   end;
 end;
+
+// TODO Parameter unit conversion:
+// ===============================
+// Note : Glide
+// Note : PitchTrack
+// Osc : Operator
+// Osc : DXRouter
+// Random : RndTrig
+// Random : RndPattern
+// Filter : FltNord, FltClassic, FltMulti, FltStatic: Resonance
+// Filter : FltPhase
+// Filter : FltComb
+// Filter : FltVoice
+// Filter : EqPeak
+// Filter : EqBand
+// Filter : Eq3Band
+// FX : Phaser
+// FX : Flanger
+// FX : Digitizer
+// FX : FreqShift
+// FX : PitchShift
+// FX : Scratch
+// FX : Reverb
+// FX : Compression
+// Level...
+// Mixer...
+// Switch...
+// Logic...
+// Midi...
+
 
 //function TG2FileParameter.TextFunction( aTextFunction : integer; LineNo, TotalLines : integer; aParams : array of integer): string;
 function TG2FileParameter.TextFunction( aTextFunction : integer; LineNo, TotalLines : integer): string;
@@ -7740,6 +7826,19 @@ begin
                  Result := G2BPM( aValue) + ' BPM';
            end;
          end;
+  133  : begin // SeqVal
+           if assigned(Module) and (Length(FDependencies)=2) then begin
+             iValue1 := GetDependendParamValue(1);
+             case iValue1 of
+             0 : begin // Bipol
+                   Result := IntToStr(aValue - 64);
+                 end;
+             1 : begin // Unipol
+                   Result := IntToStr(aValue);
+                 end;
+             end;
+           end;
+         end;
   140  : begin // Dly time
            if assigned(Module) and (Length(FDependencies)=3) then begin
              iValue1 := GetDependendParamValue(1);
@@ -7794,7 +7893,13 @@ begin
          end;
   1002 : begin
            Result := IntToStr(FPatch.Slot.SlotIndex + 1) + ':' + string(FModuleName);
-         end
+         end;
+  1003 : begin
+           case LineNo of
+           0 : Result := string(FParamName);
+           1 : Result := IntToStr(GetParameterValue);
+           end;
+         end;
   else begin
       Result := IntToStr(aValue);
     end;

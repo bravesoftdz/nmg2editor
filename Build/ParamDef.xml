@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<ParamDefList xmlns="http://www.yourtargetnamespace.com" version="0.23">
+<ParamDefList xmlns="http://www.yourtargetnamespace.com" version="0.24">
   <ParamDef>
     <Id>0</Id>
     <ParamType>2</ParamType>
@@ -1844,4 +1844,43 @@
     <ButtonText>;</ButtonText>
     <Comments/>
   </ParamDef>  
+  <ParamDef>
+    <Id>178</Id>
+    <ParamType>2</ParamType>
+    <RangeType>reson_alg</RangeType>
+    <LowValue>0</LowValue>
+    <HighValue>4</HighValue>
+    <DefaultValue>0</DefaultValue>
+    <ButtonText>String1;String2;Tube1;Tube2;Tube3</ButtonText>
+    <Definitions/>
+    <Comments/>
+  </ParamDef>
+  <ParamDef>
+    <Id>179</Id>
+    <ParamType>1</ParamType>
+    <RangeType>Driver_range</RangeType>
+    <LowValue>0</LowValue>
+    <HighValue>3</HighValue>
+    <DefaultValue>0</DefaultValue>
+    <Definitions/>
+  </ParamDef>
+  <ParamDef>
+    <Id>180</Id>
+    <ParamType>1</ParamType>
+    <RangeType>PulsOsc_wave</RangeType>
+    <LowValue>0</LowValue>
+    <HighValue>6</HighValue>
+    <DefaultValue>0</DefaultValue>
+    <Definitions/>
+  </ParamDef>
+  <ParamDef>
+    <Id>181</Id>
+    <ParamType>2</ParamType>
+    <RangeType>ShelveEq_type</RangeType>
+    <LowValue>0</LowValue>
+    <HighValue>1</HighValue>
+    <DefaultValue>0</DefaultValue>
+    <ButtonText>Hi;Lo</ButtonText>
+    <Definitions/>
+  </ParamDef>
 </ParamDefList>

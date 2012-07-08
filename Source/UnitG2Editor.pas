@@ -138,6 +138,36 @@ unit UnitG2Editor;
 // Patch mutator
 // Patch adjuster
 
+// Mystery Modules
+//
+// ModuleType ShortName
+// ========== =========
+//           AR-Env
+//           AudioIn
+//           Blue2Red
+//           BusIn
+//           ClkDivFix
+//        35 Driver    -> Works!
+//           EnvDX
+//           LfoD
+//           Mixer6-1A
+//           Mixer6-1B
+//           OutBusA
+//           OutBusB
+//           PeakFollow
+//       101 PolarFade -> Doesn't seem to work
+//       120 PolarPan  -> Doesn't seem to work
+//        10 PulseOsc  -> Doesn't seem to work
+//           Red2Blue
+//        56 Resonator -> Works!
+//       207 RndChaos  -> Doesn't seem to work
+//           RndDistr
+//           RndState
+//           RndStep
+//           SeqA
+//       104 ShelvEQ
+//        14 SyncOsc   -> Doesn't seem to work
+
 // http://www.delphicorner.f9.co.uk/articles/op1.htm
 
 {$I delphi_version.inc}
@@ -393,29 +423,18 @@ type
     procedure FormShow(Sender: TObject);
     procedure aInitPatchExecute(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
-    procedure G2VariationChange(Sender: TObject; SenderID: Integer; Slot, Variation: Integer);
-    procedure G2USBActiveChange(Sender: TObject; Active: Boolean);
-    procedure G2PatchUpdate(Sender: TObject; SenderID: Integer; PatchIndex: Integer);
     procedure StartupTimerTimer(Sender: TObject);
     procedure aParameterPagesExecute(Sender: TObject);
     procedure aDownloadPatchExecute(Sender: TObject);
-    procedure G2CreateModule(Sender: TObject; SenderID: Integer; Module: TG2FileModule);
     procedure sbFXMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure sbVAMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-    procedure G2DeassignKnob(Sender: TObject; SenderID: Integer; Slot : byte; KnobIndex: Integer);
-    procedure G2AssignKnob(Sender: TObject; SenderID: Integer; Slot : byte; KnobIndex: Integer);
     procedure VariaionCopytoClick(Sender: TObject);
     procedure Properties1Click(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
-    procedure G2AddClient(Sender: TObject; ClientIndex: Integer);
-    procedure G2DeleteClient(Sender: TObject; ClientIndex: Integer);
-    procedure G2MidiCCReceive(Sender: TObject; SenderID: Integer; MidiCC: Byte);
     procedure AssignMidiCC( Sender: TObject);
     procedure DeAssignMidiCC( Sender: TObject);
     procedure AssignMorph( Sender: TObject);
     procedure aSynthSettingsExecute(Sender: TObject);
-    procedure G2PerfSettingsUpdate(Sender: TObject; SenderID: Integer; PerfMode: Boolean);
-    procedure G2SynthSettingsUpdate(Sender: TObject; SenderID: Integer);
     procedure miEditParamNameClick(Sender: TObject);
     procedure miModuleRenameClick(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
@@ -429,13 +448,10 @@ type
     procedure aPasteExecute(Sender: TObject);
     procedure aDeleteExecute(Sender: TObject);
     procedure aSelectAllExecute(Sender: TObject);
-    procedure G2AfterG2Init(Sender: TObject);
     procedure aPatchManagerExecute(Sender: TObject);
     procedure aPerformanceSettingsExecute(Sender: TObject);
     procedure aSettingsExecute(Sender: TObject);
     procedure aEditToolsExecute(Sender: TObject);
-    procedure G2AfterRetrievePatch(Sender: TObject; SenderID: Integer; aSlot,
-      aBank, aPatch: Byte);
     procedure aLoadPatchExecute(Sender: TObject);
     procedure aSavePatchExecute(Sender: TObject);
     procedure aSavePatchAsFXPExecute(Sender: TObject);
@@ -446,10 +462,6 @@ type
     procedure aSavePerformanceAsFXBExecute(Sender: TObject);
     procedure aExitExecute(Sender: TObject);
     procedure cbOnlineClick(Sender: TObject);
-    procedure G2BeforeSendMessage(Sender: TObject; SenderID: Integer;
-      SendMessage: TG2SendMessage);
-    procedure G2ReceiveResponseMessage(Sender: TObject;
-      ResponseMessage: TMemoryStream);
     procedure ResponseTimerTimer(Sender: TObject);
     procedure aSendControllerSnapshotExecute(Sender: TObject);
     procedure aMidiDumpExecute(Sender: TObject);
@@ -462,9 +474,6 @@ type
     procedure aGetActivePatchSysexExecute(Sender: TObject);
     procedure aGetActivePerfSysexExecute(Sender: TObject);
     procedure aAnalyzePatchExecute(Sender: TObject);
-    procedure G2DeassignGlobalKnob(Sender: TObject; SenderID,
-      KnobIndex: Integer);
-    procedure G2AssignGlobalKnob(Sender: TObject; SenderID, KnobIndex: Integer);
     procedure rbSynthChange(Sender: TObject);
     procedure aShowSelectSlotExecute(Sender: TObject);
     procedure aShowSelectLocationExecute(Sender: TObject);
@@ -475,17 +484,39 @@ type
     procedure aShowAddModuleExecute(Sender: TObject);
     procedure aShowAddCableExecute(Sender: TObject);
     procedure aShowSelectCableExecute(Sender: TObject);
-    procedure G2DeleteModule(Sender : TObject; SenderID : integer; Location: TLocationType; ModuleIndex : integer);
-    procedure G2AddModule(Sender: TObject; SenderID : integer; Module : TG2FileModule);
-    procedure G2SetModuleLabel(Sender: TObject; SenderID : integer; PatchIndex : byte; Location : TLocationType;  ModuleIndex : byte);
-    procedure G2CopyVariation( Sender: TObject; SenderID : integer; SlotIndex, FromVariation, ToVariation : integer);
-    procedure G2AddCable(Sender: TObject; SenderID : integer; Module : TG2FileCable);
-    procedure G2DeleteCable(Sender : TObject; SenderID : integer; Location: TLocationType; FromModuleIndex, FromConnectorIndex, ToModuleIndex, ToConnectorIndex : integer);
     procedure aEditModulePropertiesExecute(Sender: TObject);
     procedure aEditParamPropertiesExecute(Sender: TObject);
     procedure aPatchNotesExecute(Sender: TObject);
     procedure aShowCopyVariationExecute(Sender: TObject);
     procedure aSaveLogFileExecute(Sender: TObject);
+
+    procedure G2VariationChange(Sender: TObject; SenderID: Integer; Slot, Variation: Integer);
+    procedure G2USBActiveChange(Sender: TObject; Active: Boolean);
+    procedure G2PatchUpdate(Sender: TObject; SenderID: Integer; PatchIndex: Integer);
+    procedure G2CreateModule(Sender: TObject; SenderID: Integer; Module: TG2FileModule);
+    procedure G2DeassignKnob(Sender: TObject; SenderID: Integer; Slot : byte; KnobIndex: Integer);
+    procedure G2AssignKnob(Sender: TObject; SenderID: Integer; Slot : byte; KnobIndex: Integer);
+    procedure G2AddClient(Sender: TObject; ClientIndex: Integer);
+    procedure G2DeleteClient(Sender: TObject; ClientIndex: Integer);
+    procedure G2MidiCCReceive(Sender: TObject; SenderID: Integer; MidiCC: Byte);
+    procedure G2PerfSettingsUpdate(Sender: TObject; SenderID: Integer; PerfMode: Boolean);
+    procedure G2SynthSettingsUpdate(Sender: TObject; SenderID: Integer);
+    procedure G2AfterG2Init(Sender: TObject);
+    procedure G2AfterRetrievePatch(Sender: TObject; SenderID: Integer; aSlot, aBank, aPatch: Byte);
+    procedure G2BeforeSendMessage(Sender: TObject; SenderID: Integer; SendMessage: TG2SendMessage);
+    procedure G2ReceiveResponseMessage(Sender: TObject; ResponseMessage: TMemoryStream);
+    procedure G2DeassignGlobalKnob(Sender: TObject; SenderID, KnobIndex: Integer);
+    procedure G2AssignGlobalKnob(Sender: TObject; SenderID, KnobIndex: Integer);
+    procedure G2DeleteModule(Sender : TObject; SenderID : integer; Location: TLocationType; ModuleIndex : integer);
+    procedure G2AddModule(Sender: TObject; SenderID : integer; Module : TG2FileModule);
+    procedure G2SetModuleLabel(Sender: TObject; SenderID : integer; PatchIndex : byte; Location : TLocationType;  ModuleIndex : byte);
+    procedure G2SetParamLabel(Sender: TObject; SenderID : integer; PatchIndex : byte; Location : TLocationType;  ModuleIndex : byte);
+    procedure G2CopyVariation( Sender: TObject; SenderID : integer; SlotIndex, FromVariation, ToVariation : integer);
+    procedure G2AddCable(Sender: TObject; SenderID : integer; Module : TG2FileCable);
+    procedure G2DeleteCable(Sender : TObject; SenderID : integer; Location: TLocationType; FromModuleIndex, FromConnectorIndex, ToModuleIndex, ToConnectorIndex : integer);
+    procedure G2SelectModule(Sender : TObject; SenderID : integer; Module : TG2FileModule);
+    procedure G2SelectParam(Sender : TObject; SenderID : integer; Param : TG2FileParameter);
+
   private
     { Private declarations }
     FCtrlMidiEnabled : boolean;
@@ -548,6 +579,7 @@ type
     procedure UpdateSelectCable;
     procedure UpdateSelectMenu;
     procedure UpdateAddMenu;
+    procedure UpdateEditMenu;
     procedure UpdateParamMenu( aParam : TG2FileParameter);
     procedure UpdateVariationMenu;
     procedure CurrentlySelected;
@@ -713,6 +745,7 @@ begin
   FG2btEditAllVars.BorderColor := clBlack;
   FG2btEditAllVars.Color := clBtnFace;
   FG2btEditAllVars.HightlightColor := G_HighlightColor;
+  FG2btEditAllVars.ButtonTextType := bttCheck;
   FG2btEditAllVars.ButtonText.Add('Edit all');
   FG2btEditAllVars.ButtonText.Add('Edit all');
   FG2btEditAllVars.OnClick := ChangeAlleVariationsClick;
@@ -741,6 +774,7 @@ begin
   FG2btMute.ParentColor := False;
   FG2btMute.BorderColor := clBlack;
   FG2btMute.Color := clBtnFace;
+  FG2btMute.ButtonTextType := bttCheck;
   FG2btMute.HightlightColor := G_HighlightColor;
   FG2btMute.ButtonText.Add('Mute');
   FG2btMute.ButtonText.Add('On');
@@ -995,6 +1029,7 @@ begin
   rbSynth.ButtonText.Clear;
   for i := 0 to FG2List.Count - 1 do
     rbSynth.ButtonText.Add('G2 Synth ' + IntToStr(i+ 1));
+  FG2Index := -1;
   SelectG2(0);
 
   Caption := 'NMG2 Editor ' + NMG2_VERSION;
@@ -1085,6 +1120,9 @@ begin
   G2.OnAddCable := G2AddCable;
   G2.OnDeleteCable := G2DeleteCable;
   G2.OnSetModuleLabel := G2SetModuleLabel;
+  G2.OnSetParamLabel := G2SetParamLabel;
+  G2.OnSelectModule := G2SelectModule;
+  G2.OnSelectParam := G2SelectParam;
 
   FG2List.Add(G2);
 
@@ -1112,10 +1150,12 @@ begin
   if (G2Index >= FG2List.Count) or (G2Index < 0) then
     raise Exception.Create('G2Index (' + IntToStr(G2Index) + ') out of bounds');
 
+  if G2Index = FG2Index then
+    exit;
+
   FG2Index := G2Index;
   (FG2List[FG2Index] as TG2).ScrollboxVA := sbVA;
   (FG2List[FG2Index] as TG2).ScrollboxFX := sbFX;
-
 
   with FEditorSettingsList[FG2Index] as TEditorSettings do begin
     G_SlotStripColor := FSlotStripColor;
@@ -2376,10 +2416,10 @@ begin
   if not assigned(G2) then
     exit;
 
- for i := 0 to G2.SelectedPatchPart.ModuleList.Count - 1 do
-   G2.SelectedPatchPart.ModuleList[i].Selected := True;
+  for i := 0 to G2.SelectedPatchPart.ModuleList.Count - 1 do
+    G2.SelectedPatchPart.ModuleList[i].Selected := True;
 
- UpdateMainFormActions;
+  UpdateMainFormActions;
 end;
 
 procedure TfrmG2Main.aEditModulePropertiesExecute(Sender: TObject);
@@ -2417,7 +2457,6 @@ begin
     UpdateParamMenu( Param);
     GetCursorPos(P);
 
-    //miEditParamName.Enabled := sender is TG2GraphButtonText;
     miEditParamName.Enabled := Param.CanChangeLabel;
 
     puParamMenu.Popup( P.X, P.Y);
@@ -2923,6 +2962,11 @@ begin
       end;
     end;
   end;
+end;
+
+procedure TfrmG2Main.UpdateEditMenu;
+begin
+//
 end;
 
 procedure TfrmG2Main.UpdateSelectParameter;
@@ -3499,22 +3543,27 @@ procedure TfrmG2Main.miEditParamNameClick(Sender: TObject);
 var Parameter : TG2FileParameter;
     Rect : TRect;
     G2 : TG2;
+    ParamLabelIndex : integer;
 begin
   G2 := SelectedG2;
   if not assigned(G2) then
     exit;
 
-  Rect := G2.SelectedPatch.SelectedControl.GetScreenCoordsRect;
+  ParamLabelIndex := G2.SelectedPatch.SelectedControl.GetParamLabelIndex;
+  if ParamLabelIndex <> -1 then begin
+    Rect := G2.SelectedPatch.SelectedControl.GetScreenCoordsRect;
 
-  frmEditLabel.Left := Rect.Left;
-  frmEditLabel.Top := Rect.Top;
-  if frmEditLabel.ShowModal = mrOk then begin
-    Parameter := G2.SelectedPatch.SelectedControl.Parameter;
-    G2.SelectedPatch.MessSetModuleParamLabels( Parameter.Location,
-                                               Parameter.ModuleIndex,
-                                               Parameter.ParamIndex,
-                                               0, // Todo for switch
-                                               AnsiString(frmEditLabel.eLabel.Text));
+
+    frmEditLabel.Left := Rect.Left;
+    frmEditLabel.Top := Rect.Top;
+    if frmEditLabel.ShowModal = mrOk then begin
+      Parameter := G2.SelectedPatch.SelectedControl.Parameter;
+      G2.SelectedPatch.MessSetModuleParamLabels( Parameter.Location,
+                                                 Parameter.ModuleIndex,
+                                                 Parameter.ParamIndex,
+                                                 ParamLabelIndex,
+                                                 AnsiString(frmEditLabel.eLabel.Text));
+    end;
   end;
 end;
 
@@ -3946,10 +3995,17 @@ begin
 end;
 
 procedure TfrmG2Main.G2ReceiveResponseMessage(Sender: TObject; ResponseMessage: TMemoryStream);
+var G2 : TG2;
 begin
   Statusbar1.SimpleText := '';
   ResponseTimer.Enabled := False;
   Screen.Cursor := crDefault;
+
+  G2 := SelectedG2;
+  if assigned(G2) then begin
+    if G2.ErrorMessage then
+       MessageDlg('G2 returned error message ' + IntToStr(G2.ErrorMessageNo), mtError, [mbOK], 0);
+  end;
 end;
 
 procedure TfrmG2Main.ResponseTimerTimer(Sender: TObject);
@@ -3996,6 +4052,22 @@ begin
 end;
 
 procedure TfrmG2Main.G2SetModuleLabel(Sender: TObject; SenderID: integer;
+  PatchIndex: byte; Location: TLocationType; ModuleIndex: byte);
+var G2 : TG2;
+begin
+  G2 := SelectedG2;
+  if not assigned(G2) or (G2 <> Sender) then
+    exit;
+
+  if G2.SelectedSlotIndex = PatchIndex then begin
+    case Location of
+      ltFX: sbFX.Invalidate;
+      ltVA: sbVA.Invalidate;
+    end;
+  end;
+end;
+
+procedure TfrmG2Main.G2SetParamLabel(Sender: TObject; SenderID: integer;
   PatchIndex: byte; Location: TLocationType; ModuleIndex: byte);
 var G2 : TG2;
 begin
@@ -4180,6 +4252,17 @@ procedure TfrmG2Main.G2DeassignKnob(Sender: TObject; SenderID: Integer; Slot : b
 begin
   frmParameterPages.UpdateControls;
 end;
+
+procedure TfrmG2Main.G2SelectModule(Sender : TObject; SenderID : integer; Module : TG2FileModule);
+begin
+  UpdateMainFormActions;
+end;
+
+procedure TfrmG2Main.G2SelectParam(Sender : TObject; SenderID : integer; Param : TG2FileParameter);
+begin
+  UpdateMainFormActions;
+end;
+
 
 initialization
   Initialized := False;
