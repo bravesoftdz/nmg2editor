@@ -27,9 +27,9 @@ type
     FClientType  : TClientType;
     procedure SetClientType( aValue: TClientType);
   public
-
     constructor Create( AOwner: TComponent); override;
     destructor  Destroy; override;
+    function    CreatePerformance : TG2FilePerformance; override;
     function    GetSelectedPatch : TG2GraphPatch; virtual;
     procedure   SetScrollboxVA( aValue : TScrollbox);
     procedure   SetScrollboxFX( aValue : TScrollbox);
@@ -37,6 +37,20 @@ type
     //property    ScrollboxVA : TScrollBox read FScrollboxVA write SetScrollboxVA;
     //property    scrollboxFX : TScrollBox read FScrollboxFX write SetScrollboxFX;
     property    ClientType : TClientType read FClientType write SetClientType;
+  end;
+
+  TG2GraphSlot = class( TG2FileSlot)
+  public
+    constructor Create( AOwner: TComponent); override;
+    destructor  Destroy; override;
+    function    CreatePatch : TG2FilePatch; override;
+  end;
+
+  TG2GraphPerformance = class( TG2FilePerformance)
+  public
+    constructor Create( AOwner: TComponent); override;
+    destructor  Destroy; override;
+    function    CreateSlot : TG2FileSlot; override;
   end;
 
   TG2GraphPatch = class( TG2FilePatch)
@@ -403,6 +417,11 @@ begin
   inherited;
   FClientType := ctEditor;
 
+end;
+
+function TG2Graph.CreatePerformance: TG2FilePerformance;
+begin
+  Result := TG2GraphPerformance.Create(self);
 end;
 
 destructor TG2Graph.Destroy;
@@ -1866,7 +1885,7 @@ end;
 function TG2GraphControlFMX.GetParamLabel: string;
 begin
   if assigned( FParameter) then
-    Result := FParameter.ParamLabel
+    Result := FParameter.ParamLabel[0]
   else
     Result := '';
 end;
@@ -1977,7 +1996,7 @@ end;
 procedure TG2GraphControlFMX.SetParamLabel(aValue: string);
 begin
   if assigned( FParameter) then
-    FParameter.ParamLabel := aValue
+    FParameter.ParamLabel[0] := aValue
   else begin
   end;
 end;
@@ -2612,13 +2631,14 @@ begin
 //  FG2.ScrollboxVA := sbVA;
 //  FG2.scrollboxFX := sbFX;
   FG2.LoadModuleDefs('');
-  FPatch := TG2GraphPatch.Create(self);
-  FPatch.FG2 := FG2;
+  FPatch := FG2.Performance.Slot[0].Patch as TG2GraphPatch;
+  //FPatch := TG2GraphPatch.Create(self);
+  //FPatch.FG2 := FG2;
 end;
 
 procedure TForm1.FormDestroy(Sender: TObject);
 begin
-  FPatch.Free;
+  //FPatch.Free;
   FG2.Free;
 end;
 
@@ -2667,6 +2687,44 @@ procedure TForm1.SmallScrollBar1Change(Sender: TObject);
 begin
   LayoutVa.Scale.X := SmallScrollbar1.Value;
   LayoutVa.Scale.Y := SmallScrollbar1.Value;
+end;
+
+{ TG2GraphSlot }
+
+constructor TG2GraphSlot.Create(AOwner: TComponent);
+begin
+  inherited;
+
+end;
+
+function TG2GraphSlot.CreatePatch: TG2FilePatch;
+begin
+  Result := TG2GraphPatch.Create( self);
+end;
+
+destructor TG2GraphSlot.Destroy;
+begin
+
+  inherited;
+end;
+
+{ TG2GraphPerformance }
+
+constructor TG2GraphPerformance.Create(AOwner: TComponent);
+begin
+  inherited;
+
+end;
+
+function TG2GraphPerformance.CreateSlot: TG2FileSlot;
+begin
+  Result := TG2GraphSlot.Create( self);
+end;
+
+destructor TG2GraphPerformance.Destroy;
+begin
+
+  inherited;
 end;
 
 end.
