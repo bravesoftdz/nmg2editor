@@ -144,9 +144,9 @@ unit UnitG2Editor;
 // ========== =========
 //           AR-Env
 //           AudioIn
-//           Blue2Red
+//           Blue2Red  -> Testmodule
 //           BusIn
-//           ClkDivFix
+//        77 ClkDivFix -> Doesn't seem to work
 //        35 Driver    -> Works!
 //           EnvDX
 //           LfoD
@@ -158,14 +158,14 @@ unit UnitG2Editor;
 //       101 PolarFade -> Doesn't seem to work
 //       120 PolarPan  -> Doesn't seem to work
 //        10 PulseOsc  -> Doesn't seem to work
-//           Red2Blue
+//           Red2Blue  -> Testmodule
 //        56 Resonator -> Works!
 //       207 RndChaos  -> Doesn't seem to work
 //           RndDistr
 //           RndState
 //           RndStep
 //           SeqA
-//       104 ShelvEQ
+//       104 ShelvEQ   -> Doesn't seem to work
 //        14 SyncOsc   -> Doesn't seem to work
 
 // http://www.delphicorner.f9.co.uk/articles/op1.htm

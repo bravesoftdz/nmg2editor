@@ -73,6 +73,17 @@ This error may occur when the tcp-ip port in the application settings is already
 Updates
 =======
 
+v0.24 update 8-7-2012
+=====================
+
+- Added selection buttons on switches
+- Fixed error in filter modules, shows filtertype didn't correspond with actual filtertype
+- Added unit conversions of many parameters
+- Added uni/polar direction buttons on envelopes/lfo's
+- Fixed editing parameter labels on switches and mixer knobs
+- Fixed a number of bugs
+- Added two modules "Resonator" and "Driver" that where hidden in the editor
+
 v0.23 update 22-5-2012
 ======================
 

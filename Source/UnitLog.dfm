@@ -127,14 +127,5 @@ object frmLog: TfrmLog
       Action = frmG2Main.aSaveLogFile
       TabOrder = 2
     end
-    object Button2: TButton
-      Left = 472
-      Top = 8
-      Width = 75
-      Height = 25
-      Caption = 'Button2'
-      TabOrder = 3
-      OnClick = Button2Click
-    end
   end
 end
