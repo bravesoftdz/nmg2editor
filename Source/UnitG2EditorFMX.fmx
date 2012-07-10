@@ -52,13 +52,6 @@ object Form1: TForm1
     SmallChange = 1.000000000000000000
     OnChange = SmallScrollBar1Change
   end
-  object LayoutVA: TLayout
-    Align = alClient
-    Position.Point = '(0,73)'
-    Width = 746.000000000000000000
-    Height = 394.000000000000000000
-    CanClip = False
-  end
   object LayoutFX: TLayout
     Align = alBottom
     Position.Point = '(0,472)'
@@ -72,12 +65,14 @@ object Form1: TForm1
     Position.Point = '(0,467)'
     Width = 746.000000000000000000
     Height = 5.000000000000000000
-    TabOrder = 5
+    OnClick = Splitter1Click
+    StyleLookup = 'Splitter1Style1'
+    TabOrder = 4
     MinSize = 20.000000000000000000
   end
   object StyleBook1: TStyleBook
     Resource.Strings = (
-      'object TLayout'
+      'object _1: TLayout'
       '  Width = 50.000000000000000000'
       '  Height = 50.000000000000000000'
       '  object TRectangle'
@@ -86,7 +81,6 @@ object Form1: TForm1
       '    Width = 50.000000000000000000'
       '    Height = 50.000000000000000000'
       '    HitTest = False'
-      '    DesignVisible = False'
       '    Fill.Color = claWhite'
       '    Stroke.Color = xFF8E8E8E'
       '  end'
@@ -95,7 +89,6 @@ object Form1: TForm1
       '    Position.Point = '#39'(245,336)'#39
       '    Width = 334.000000000000000000'
       '    Height = 131.000000000000000000'
-      '    DesignVisible = False'
       '    object TLayout'
       '      StyleName = '#39'background'#39
       '      Align = alContents'
@@ -183,7 +176,6 @@ object Form1: TForm1
       '    Position.Point = '#39'(324,375)'#39
       '    Width = 176.000000000000000000'
       '    Height = 53.000000000000000000'
-      '    DesignVisible = False'
       '    object TRectangle'
       '      StyleName = '#39'background'#39
       '      Align = alContents'
@@ -203,8 +195,6 @@ object Form1: TForm1
       '      Height = 17.000000000000000000'
       '      StyleLookup = '#39'scrollbarleftbutton'#39
       '      TabOrder = 1'
-      '      StaysPressed = False'
-      '      IsPressed = False'
       '      CanFocus = False'
       '    end'
       '    object TTrack'
@@ -229,8 +219,6 @@ object Form1: TForm1
       '      Height = 17.000000000000000000'
       '      StyleLookup = '#39'scrollbarrightbutton'#39
       '      TabOrder = 3'
-      '      StaysPressed = False'
-      '      IsPressed = False'
       '      CanFocus = False'
       '    end'
       '    object TTrack'
@@ -254,8 +242,6 @@ object Form1: TForm1
       '      Height = 18.000000000000000000'
       '      StyleLookup = '#39'scrollbartopbutton'#39
       '      TabOrder = 5'
-      '      StaysPressed = False'
-      '      IsPressed = False'
       '      CanFocus = False'
       '    end'
       '    object TButton'
@@ -267,8 +253,6 @@ object Form1: TForm1
       '      Height = 18.000000000000000000'
       '      StyleLookup = '#39'scrollbarbottombutton'#39
       '      TabOrder = 6'
-      '      StaysPressed = False'
-      '      IsPressed = False'
       '      CanFocus = False'
       '    end'
       '  end'
@@ -277,7 +261,6 @@ object Form1: TForm1
       '    Position.Point = '#39'(324,375)'#39
       '    Width = 176.000000000000000000'
       '    Height = 53.000000000000000000'
-      '    DesignVisible = False'
       '    object TTrack'
       '      StyleName = '#39'htrack'#39
       '      Align = alClient'
@@ -308,7 +291,6 @@ object Form1: TForm1
       '    Position.Point = '#39'(401,390)'#39
       '    Width = 23.000000000000000000'
       '    Height = 23.000000000000000000'
-      '    DesignVisible = False'
       '    object TImage'
       '      Align = alCenter'
       '      Position.Point = '#39'(5,5)'#39
@@ -324,13 +306,42 @@ object Form1: TForm1
         '        26000000017352474200AECE1CE90000000467414D410000B18F0BFC' +
         '61050000'
       
-        '        00097048597300000EC300000EC301C76FA864000000264944415428' +
-        '536360A0'
+        '        00206348524D00007A26000080840000FA00000080E8000075300000' +
+        'EA600000'
       
-        '        36707373FB4F5D33612652CF6474132937199789E49B4CC844B24C06' +
-        '00561E1B'
-      '        40313D52790000000049454E44AE426082}'
+        '        3A98000017709CBA513C000000264944415428536360A036707373FB' +
+        '4F5D3361'
+      
+        '        2652CF6474132937199789E49B4CC844B24C0600561E1B40313D5279' +
+        '00000000'
+      '        49454E44AE426082}'
       '      WrapMode = iwOriginal'
+      '    end'
+      '  end'
+      '  object TLayout'
+      '    StyleName = '#39'Splitter1Style1'#39
+      '    Position.Point = '#39'(387,376)'#39
+      '    Width = 50.000000000000000000'
+      '    Height = 50.000000000000000000'
+      '    DesignVisible = False'
+      '    object TEllipse'
+      '      StyleName = '#39'background'#39
+      '      Align = alFit'
+      '      Locked = True'
+      '      Width = 50.000000000000000000'
+      '      Height = 50.000000000000000000'
+      '      HitTest = False'
+      '      Fill.Kind = bkGradient'
+      '      Fill.Gradient.Points = <'
+      '        item'
+      '          Color = xFF414141'
+      '        end'
+      '        item'
+      '          Color = xFFECECEC'
+      '          Offset = 1.000000000000000000'
+      '        end>'
+      '      Fill.Gradient.StopPosition.Point = '#39'(1,1)'#39
+      '      Stroke.Color = xFFA0A0A0'
       '    end'
       '  end'
       'end')
@@ -340,5 +351,16 @@ object Form1: TForm1
   object OpenDialog1: TOpenDialog
     Left = 40
     Top = 112
+  end
+  object Layout1: TLayout
+    Align = alClient
+    Position.Point = '(0,73)'
+    Width = 746.000000000000000000
+    Height = 394.000000000000000000
+    object LayoutVA: TLayout
+      Align = alClient
+      Width = 746.000000000000000000
+      Height = 394.000000000000000000
+    end
   end
 end

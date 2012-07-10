@@ -68,7 +68,7 @@ type
     procedure   SetSelectedControl( aValue : TG2GraphControlFMX);
     procedure   SetSelectedMorphIndex( aValue : integer);
   public
-    FG2 : TG2Graph;
+    //FG2 : TG2Graph;
     constructor Create( AOwner: TComponent); override;
     destructor  Destroy; override;
     procedure   Init; override;
@@ -123,16 +123,12 @@ type
     function    GetOnConnectorClick: TConnectorClickEvent;
     procedure   SetOnConnectorClick( aValue : TConnectorClickEvent);
   public
-    //constructor Create( AOwner: TComponent); override;
-    constructor Create( aPatchPart : TG2FilePatchPart); virtual;
-    //constructor CopyCreate( AOwner : TComponent; aModule : TG2GraphModule);
+    constructor Create( aPatchPart : TG2FilePatchPart); override;
     constructor CopyCreate( aPatchPart : TG2FilePatchPart; aModule : TG2GraphModule);
     destructor  Destroy; override;
-    //function    CreateCopy( AOwner : TComponent) : TG2FileModule; override;
-    function    CreateCopy( aPatchPart : TG2FilePatchPart) : TG2FileModule; virtual;
+    function    CreateCopy( aPatchPart : TG2FilePatchPart) : TG2FileModule; override;
     function    CreateParameter: TG2FileParameter; override;
     procedure   ParsePanelData;
-    //procedure   Invalidate;
     function    ClientToScreen( p : TPoint):  TPoint;
     procedure   SetCol( aValue : TBits7); override;
     procedure   SetRow( aValue : TBits7); override;
@@ -391,10 +387,12 @@ type
     LayoutVA: TLayout;
     LayoutFX: TLayout;
     Splitter1: TSplitter;
+    Layout1: TLayout;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure MenuItem2Click(Sender: TObject);
     procedure SmallScrollBar1Change(Sender: TObject);
+    procedure Splitter1Click(Sender: TObject);
   private
     { Private declarations }
   public
@@ -494,32 +492,31 @@ end;
 
 function TG2GraphPatch.CreateModule( aLocation : TLocationType; aModuleIndex : byte; aModuleType : byte): TG2FileModule;
 var i : integer;
-    Module : TG2GraphModule;
+    MOdule : TG2GraphModule;
 begin
   // Create a module in a patch file
 
   Result := nil;
+  Module := TG2GraphModule.Create( PatchPart[ ord(aLocation)]);
+  Module.ModuleIndex := aModuleIndex;
+  Module.TypeID := aModuleType;
 
-  Result := TG2GraphModule.Create( PatchPart[ ord(aLocation)]);
-  Result.ModuleIndex := aModuleIndex;
-  Result.TypeID := aModuleType;
-
-  if assigned( FG2) and assigned(FG2.FModuleDefList) and assigned(FG2.FParamDefList) then begin
+  if assigned( G2) and assigned(G2.FModuleDefList) and assigned(G2.FParamDefList) then begin
     i := 0;
-    while (i < FG2.FModuleDefList.Count) and ( FG2.FModuleDefList.ModuleDef[i].ModuleType <> aModuleType) do
+    while (i < G2.FModuleDefList.Count) and ( G2.FModuleDefList.ModuleDef[i].ModuleType <> aModuleType) do
       inc(i);
 
-    if (i < FG2.FModuleDefList.Count) then begin
+    if (i < G2.FModuleDefList.Count) then begin
 
-      Module.InitModule( aLocation, FG2.FModuleDefList.ModuleDef[i], FG2.FParamDefList);
+      Module.InitModule( aLocation, G2.FModuleDefList.ModuleDef[i], G2.FParamDefList);
 
-      if (FG2.ClientType <> ctVST) then begin
+      if (G2.ClientType <> ctVST) then begin
         if aLocation = ltVA then begin
-          Module.Parent := FG2.FLayoutVA;//FG2.FForm; //.ScrollboxVA;
+          Module.Parent := (G2 as TG2Graph).FLayoutVA;//FG2.FForm; //.ScrollboxVA;
           Module.ParsePanelData;
         end else
           if aLocation = ltFX then begin
-            Module.Parent := FG2.FLayoutFX;//.ScrollboxFX;
+            Module.Parent := (G2 as TG2Graph).FLayoutFX;//.ScrollboxFX;
             Module.ParsePanelData;
           end;
       end else
@@ -531,7 +528,6 @@ begin
 
   Module.Visible := Visible;
   Module.Location := aLocation;
-  //Module.Invalidate;
 
 //  if assigned(FG2USB) and assigned((FG2USB as TG2).FOnCreateModule) then
 //    (FG2USB as TG2).FOnCreateModule(self, Module);
@@ -572,7 +568,7 @@ begin
   else
     FromConnKind := ckInput;
 
-  if assigned( FG2) and ( FG2.ClientType <> ctVST) then begin
+  if assigned( G2) and ( G2.ClientType <> ctVST) then begin
 
     // Link connectors to cable
     if FromConnKind = ckInput then
@@ -588,10 +584,10 @@ begin
 
     if aLocation = ltFX then
       //Cable.Parent := FG2.ScrollboxFX
-      Cable.Parent := FG2.FLayoutFX
+      Cable.Parent := (G2 as TG2Graph).FLayoutFX
     else
       //Cable.Parent := FG2.ScrollboxVA;
-      Cable.Parent := FG2.FLayoutVA;
+      Cable.Parent := (G2 as TG2Graph).FLayoutVA;
 
     // Cable needs scrollbar coords
     ConnectorFrom := Cable.FromConnector.GraphControl as TG2GraphConnector;
@@ -1191,7 +1187,10 @@ end;
 
 procedure TG2GraphModulePanelFMX.SetSelected(aValue: boolean);
 begin
-  FData.Selected := aValue;
+  FOldX := Left;
+  FOldY := Top;
+
+  FData.FOutlineRect := BoundsRect;
 end;
 
 procedure TG2GraphModulePanelFMX.SetCol(aValue: TBits7);
@@ -2687,6 +2686,11 @@ procedure TForm1.SmallScrollBar1Change(Sender: TObject);
 begin
   LayoutVa.Scale.X := SmallScrollbar1.Value;
   LayoutVa.Scale.Y := SmallScrollbar1.Value;
+end;
+
+procedure TForm1.Splitter1Click(Sender: TObject);
+begin
+
 end;
 
 { TG2GraphSlot }
