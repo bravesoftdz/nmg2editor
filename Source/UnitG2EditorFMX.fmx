@@ -17,7 +17,7 @@ object Form1: TForm1
     TabOrder = 0
     object MenuItem1: TMenuItem
       Position.Point = '(2,2)'
-      Width = 43.500000000000000000
+      Width = 43.843750000000000000
       Height = 35.000000000000000000
       TabOrder = 0
       ShortCut = 0
@@ -57,6 +57,7 @@ object Form1: TForm1
     Position.Point = '(0,472)'
     Width = 746.000000000000000000
     Height = 200.000000000000000000
+    ClipChildren = True
     CanClip = False
   end
   object Splitter1: TSplitter
@@ -352,15 +353,11 @@ object Form1: TForm1
     Left = 40
     Top = 112
   end
-  object Layout1: TLayout
+  object LayoutVA: TScrollBox
     Align = alClient
     Position.Point = '(0,73)'
     Width = 746.000000000000000000
     Height = 394.000000000000000000
-    object LayoutVA: TLayout
-      Align = alClient
-      Width = 746.000000000000000000
-      Height = 394.000000000000000000
-    end
+    TabOrder = 10
   end
 end

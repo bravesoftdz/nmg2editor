@@ -5,7 +5,7 @@ interface
 uses
   System.SysUtils, System.Types, System.UITypes, System.Classes, System.Variants,
   FMX.Types, FMX.Controls, FMX.Forms, FMX.Dialogs, Math,
-  FMX.Layouts, FMX.Objects, FMX.Menus, g2_types, g2_file;
+  FMX.Layouts, FMX.Objects, FMX.Menus, g2_types, g2_file, FMX.ExtCtrls;
 
 type
   TModuleClickEvent = procedure(Sender : TObject; Button: TMouseButton; Shift: TShiftState; X,  Y: Integer; Module : TG2FileModule) of Object;
@@ -22,7 +22,7 @@ type
     //FForm : TForm;
     //FScrollboxVA : TScrollBox;
     //FScrollboxFX : TScrollBox;
-    FLayoutVA : TLayout;
+    FLayoutVA : TScrollbox;
     FLayoutFX : TLayout;
     FClientType  : TClientType;
     procedure SetClientType( aValue: TClientType);
@@ -384,10 +384,9 @@ type
     OpenDialog1: TOpenDialog;
     Panel1: TPanel;
     SmallScrollBar1: TSmallScrollBar;
-    LayoutVA: TLayout;
     LayoutFX: TLayout;
     Splitter1: TSplitter;
-    Layout1: TLayout;
+    LayoutVA: TScrollBox;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure MenuItem2Click(Sender: TObject);
@@ -1121,6 +1120,7 @@ begin
   inherited Create( AOWner);
 
   Opacity := 1;
+  CanClip := True;
 
   FChildControls := TList.Create;
 
@@ -2686,6 +2686,8 @@ procedure TForm1.SmallScrollBar1Change(Sender: TObject);
 begin
   LayoutVa.Scale.X := SmallScrollbar1.Value;
   LayoutVa.Scale.Y := SmallScrollbar1.Value;
+//  LayoutVA.Width := LayoutVA.Width * SmallScrollbar1.Value;
+//  LayoutVA.Height := LayoutVA.Height * SmallScrollbar1.Value;
 end;
 
 procedure TForm1.Splitter1Click(Sender: TObject);
