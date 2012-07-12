@@ -3291,7 +3291,7 @@ var i, j, k : integer;
 
 
 begin
-  for i := 0 to 15 do begin
+  for i := 0 to 16 do begin
 
     aMenuItem := TMenuItem.Create( puAddModule);
     aMenuItem.Caption := MODULECATEGORIES[i];

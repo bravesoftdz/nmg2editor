@@ -6,7 +6,7 @@
     <MIDI_settings MidiEnabled="False" MidiInDevice="UM-ONE" MidiOutDevice=""/>
   </G2_Synth_1>
   <CTRL_MIDI_settings CtrlMidiEnabled="False" CtrlMidiInDevice="UM-ONE"/>
-  <MainForm PosX="280" PosY="161" SizeX="1196" SizeY="854" Visible="True"/>
+  <MainForm PosX="86" PosY="128" SizeX="1196" SizeY="854" Visible="True"/>
   <PatchManagerSettings BaseFolder="C:\Users\Bruno\Documents\Nord Modular Patches\G2 Patches\" SelectedTab="3" ExternalSortCol="0" InternalSortCol="1"/>
   <PatchManagerForm PosX="1091" PosY="81" SizeX="488" SizeY="812" Visible="False"/>
   <SettingsForm PosX="483" PosY="568" SizeX="504" SizeY="287" Visible="False"/>
