@@ -22,8 +22,8 @@ type
     //FForm : TForm;
     //FScrollboxVA : TScrollBox;
     //FScrollboxFX : TScrollBox;
-    FLayoutVA : TScrollbox;
-    FLayoutFX : TLayout;
+    FLayoutVA : TPanel;
+    FLayoutFX : TPanel;
     FClientType  : TClientType;
     procedure SetClientType( aValue: TClientType);
   public
@@ -384,9 +384,13 @@ type
     OpenDialog1: TOpenDialog;
     Panel1: TPanel;
     SmallScrollBar1: TSmallScrollBar;
-    LayoutFX: TLayout;
+    LayoutZoomFX: TLayout;
     Splitter1: TSplitter;
-    LayoutVA: TScrollBox;
+    ScrollboxVA: TScrollBox;
+    LayoutVA: TPanel;
+    LayoutZoomVA: TLayout;
+    ScrollBoxFX: TScrollBox;
+    LayoutFX: TPanel;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure MenuItem2Click(Sender: TObject);
@@ -398,6 +402,7 @@ type
     { Public declarations }
     FG2 : TG2Graph;
     FPatch : TG2GraphPatch;
+    procedure InitPatchLocations;
   end;
 
 var
@@ -2675,6 +2680,7 @@ begin
       FPatch.LoadFromFile(FileStream, nil);
       FPatch.Visible := True;
 
+      InitPatchLocations;
     finally
       FileStream.Free;
     end;
@@ -2682,12 +2688,61 @@ begin
 end;
 
 
+procedure TForm1.InitPatchLocations;
+var i, max_col, max_row : integer;
+begin
+  max_col := 0;
+  max_row := 0;
+  for i := 0 to FPatch.ModuleCount[ord(ltVA)] - 1 do begin
+    if FPatch.ModuleList[ord(ltVA)][i].Row > max_row then
+      max_row := FPatch.ModuleList[ord(ltVA)][i].Row;
+
+    if FPatch.ModuleList[ord(ltVA)][i].Col > max_col then
+      max_col := FPatch.ModuleList[ord(ltVA)][i].Col;
+  end;
+
+  LayoutZoomVA.Position.X := 0;
+  LayoutZoomVA.Position.Y := 0;
+  LayoutVA.Position.X := 0;
+  LayoutVA.Position.Y := 0;
+  LayoutVA.Width := (max_col + 2) * UNITS_COL;
+  LayoutVA.Height := (max_row + 6) * UNITS_ROW;
+  LayoutZoomVA.Width := LayoutVa.Width * SmallScrollbar1.Value;
+  LayoutZoomVA.Height := LayoutVa.Height * SmallScrollbar1.Value;
+
+  max_col := 0;
+  max_row := 0;
+  for i := 0 to FPatch.ModuleCount[ord(ltFX)] - 1 do begin
+    if FPatch.ModuleList[ord(ltFX)][i].Row > max_row then
+      max_row := FPatch.ModuleList[ord(ltFX)][i].Row;
+
+    if FPatch.ModuleList[ord(ltFX)][i].Col > max_col then
+      max_col := FPatch.ModuleList[ord(ltFX)][i].Col;
+  end;
+
+  LayoutZoomFX.Position.X := 0;
+  LayoutZoomFX.Position.Y := 0;
+  LayoutFX.Position.X := 0;
+  LayoutFX.Position.Y := 0;
+  LayoutFX.Width := (max_col + 2) * UNITS_COL;
+  LayoutFX.Height := (max_row + 6) * UNITS_ROW;
+  LayoutZoomFX.Width := LayoutFX.Width * SmallScrollbar1.Value;
+  LayoutZoomFX.Height := LayoutFX.Height * SmallScrollbar1.Value;
+
+end;
+
 procedure TForm1.SmallScrollBar1Change(Sender: TObject);
 begin
   LayoutVa.Scale.X := SmallScrollbar1.Value;
   LayoutVa.Scale.Y := SmallScrollbar1.Value;
-//  LayoutVA.Width := LayoutVA.Width * SmallScrollbar1.Value;
-//  LayoutVA.Height := LayoutVA.Height * SmallScrollbar1.Value;
+  LayoutZoomVA.Width := LayoutVa.Width * SmallScrollbar1.Value;
+  LayoutZoomVA.Height := LayoutVa.Height * SmallScrollbar1.Value;
+
+  LayoutFX.Scale.X := SmallScrollbar1.Value;
+  LayoutFX.Scale.Y := SmallScrollbar1.Value;
+  LayoutZoomFX.Width := LayoutVa.Width * SmallScrollbar1.Value;
+  LayoutZoomFX.Height := LayoutVa.Height * SmallScrollbar1.Value;
+
 end;
 
 procedure TForm1.Splitter1Click(Sender: TObject);

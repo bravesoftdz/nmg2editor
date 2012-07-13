@@ -13,7 +13,7 @@ begin
   GlobalUseHWEffects := False;
   GlobalUseDirect2D := False;
   GlobalUseDirect2DSoftware := False;
-  GlobalDisableFocusEffect := False;
+  GlobalDisableFocusEffect := True;
 
   Application.CreateForm(TForm1, Form1);
   Application.Run;

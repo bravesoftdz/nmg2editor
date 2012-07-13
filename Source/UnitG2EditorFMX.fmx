@@ -17,7 +17,7 @@ object Form1: TForm1
     TabOrder = 0
     object MenuItem1: TMenuItem
       Position.Point = '(2,2)'
-      Width = 43.843750000000000000
+      Width = 43.500000000000000000
       Height = 35.000000000000000000
       TabOrder = 0
       ShortCut = 0
@@ -52,23 +52,15 @@ object Form1: TForm1
     SmallChange = 1.000000000000000000
     OnChange = SmallScrollBar1Change
   end
-  object LayoutFX: TLayout
-    Align = alBottom
-    Position.Point = '(0,472)'
-    Width = 746.000000000000000000
-    Height = 200.000000000000000000
-    ClipChildren = True
-    CanClip = False
-  end
   object Splitter1: TSplitter
     Align = alBottom
     Cursor = crVSplit
-    Position.Point = '(0,467)'
+    Position.Point = '(0,506)'
     Width = 746.000000000000000000
     Height = 5.000000000000000000
     OnClick = Splitter1Click
     StyleLookup = 'Splitter1Style1'
-    TabOrder = 4
+    TabOrder = 3
     MinSize = 20.000000000000000000
   end
   object StyleBook1: TStyleBook
@@ -353,11 +345,40 @@ object Form1: TForm1
     Left = 40
     Top = 112
   end
-  object LayoutVA: TScrollBox
+  object ScrollboxVA: TScrollBox
     Align = alClient
     Position.Point = '(0,73)'
     Width = 746.000000000000000000
-    Height = 394.000000000000000000
+    Height = 433.000000000000000000
+    TabOrder = 4
+    object LayoutZoomVA: TLayout
+      Position.Point = '(8,8)'
+      Width = 721.000000000000000000
+      Height = 377.000000000000000000
+      object LayoutVA: TPanel
+        Position.Point = '(8,8)'
+        Width = 705.000000000000000000
+        Height = 361.000000000000000000
+        TabOrder = 0
+      end
+    end
+  end
+  object ScrollBoxFX: TScrollBox
+    Align = alBottom
+    Position.Point = '(0,511)'
+    Width = 746.000000000000000000
+    Height = 161.000000000000000000
     TabOrder = 10
+    object LayoutZoomFX: TLayout
+      Position.Point = '(8,8)'
+      Width = 721.000000000000000000
+      Height = 145.000000000000000000
+      object LayoutFX: TPanel
+        Position.Point = '(16,8)'
+        Width = 697.000000000000000000
+        Height = 129.000000000000000000
+        TabOrder = 0
+      end
+    end
   end
 end
