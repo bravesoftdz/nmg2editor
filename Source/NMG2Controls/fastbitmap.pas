@@ -49,7 +49,8 @@ uses
 {$IFDEF FPC}
   GraphType,
 {$ELSE}
-  Types,
+//  VCL.Types,
+  Windows,
 {$ENDIF}
   Classes, SysUtils, math, Graphics;
 

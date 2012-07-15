@@ -1,4 +1,4 @@
-package NMG2_controls_D2011;
+package G2VCLPackage;
 
 {$R *.res}
 {$IFDEF IMPLICITBUILDING This IFDEF should not be used by users}
@@ -12,36 +12,34 @@ package NMG2_controls_D2011;
 {$LOCALSYMBOLS ON}
 {$LONGSTRINGS ON}
 {$OPENSTRINGS ON}
-{$OPTIMIZATION ON}
+{$OPTIMIZATION OFF}
 {$OVERFLOWCHECKS OFF}
 {$RANGECHECKS OFF}
 {$REFERENCEINFO ON}
 {$SAFEDIVIDE OFF}
-{$STACKFRAMES OFF}
+{$STACKFRAMES ON}
 {$TYPEDADDRESS OFF}
 {$VARSTRINGCHECKS ON}
 {$WRITEABLECONST OFF}
 {$MINENUMSIZE 1}
 {$IMAGEBASE $400000}
+{$DEFINE DEBUG}
 {$ENDIF IMPLICITBUILDING}
 {$IMPLICITBUILD ON}
 
 requires
   rtl,
   vcl,
-  xmlrtl,
   IndyCore,
   IndySystem,
-  MidiComponents2010;
+  MidiComponents2010,
+  NMG2_controls_D2011;
 
 contains
-  G2_Types in '..\..\Source\NMG2Controls\G2_Types.pas',
-  G2_USB in '..\..\Source\NMG2Controls\G2_USB.pas',
-  G2_file in '..\..\Source\NMG2Controls\G2_file.pas',
-  g2_mess in '..\..\Source\NMG2Controls\g2_mess.pas',
-  g2_midi in '..\..\Source\NMG2Controls\g2_midi.pas',
-  LibUSBWin in '..\..\Source\NMG2Controls\LibUSBWin.pas',
-  g2_database in '..\..\Source\NMG2Controls\g2_database.pas';
+  fastbitmap in 'NMG2Controls\fastbitmap.pas',
+  g2_classes in 'NMG2Controls\g2_classes.pas',
+  g2_graph in 'NMG2Controls\g2_graph.pas',
+  graph_util_vcl in 'NMG2Controls\graph_util_vcl.pas',
+  JawsCtrls in 'NMG2Controls\JawsCtrls.pas';
 
 end.
-

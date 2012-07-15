@@ -1406,6 +1406,7 @@ type
     procedure   save_log;
     procedure   AssignLog( Lines : TStrings);
     procedure   ClearLog;
+    function    G2MessageDlg( tekst : string; code : integer): integer; virtual; // For sending messages to UI
 
     property    BankList : TBankList read FBankList write FBankList;
     property    Performance : TG2FilePerformance read FPerformance write SetPerformance;
@@ -9273,7 +9274,6 @@ begin
           Result := IntToStr(Param1);
         end;
       end;
-
   end;
 end;
 
@@ -9318,6 +9318,11 @@ begin
         Result := Patch.PatchPart[ ord(Patch.SelectedLocation)];
     end;
   end;
+end;
+
+function TG2File.G2MessageDlg( tekst : string; code : integer): integer;
+begin
+  // Abstract
 end;
 
 procedure TG2File.add_log_line( tekst: string; log_cmd : integer);

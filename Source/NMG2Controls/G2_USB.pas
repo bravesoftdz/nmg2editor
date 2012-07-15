@@ -61,7 +61,7 @@ uses
   //LibUSBWin,
   LibUSBWinDyn,
 {$ENDIF}
-  Messages, Forms, Classes, Dialogs, SysUtils, Controls, StdCtrls, ExtCtrls,
+  Messages, Classes, SysUtils, //Forms, Dialogs, Controls, StdCtrls, ExtCtrls,
   g2_types, g2_file, g2_mess,
   IdCustomTCPServer, idTCPConnection, IdYarn, IdThread, idSync, IdTCPServer,
   idTCPClient, IdContext;
@@ -317,6 +317,8 @@ type
 
       function    GetPerformance : TG2USBPerformance;
       function    GetSlot( aSlot : byte) : TG2USBSlot;
+
+      procedure   G2ProcessWindowsMessages; virtual; // Override on windows platform
 
       // Initialization USB interface
       procedure   Init;
@@ -594,6 +596,11 @@ begin
 {$ENDIF}
 end;
 
+procedure TG2USB.G2ProcessWindowsMessages; // Override on windows platform
+begin
+  // For windows : Application.ProcessMessages;
+end;
+
 function TG2USB.GetPerformance: TG2USBPerformance;
 begin
   Result := Performance as TG2USBPErformance;
@@ -732,8 +739,9 @@ begin
     if usb_claim_interface(g2udev, 0) < 0 then
       raise Exception.Create('Unable to claim the interface.');
 
-  except on E:Exception do begin
-      MessageDlg( E.Message, mtError, [mbOK], 0);
+    except on E:Exception do begin
+      //MessageDlg( E.Message, mtError, [mbOK], 0);
+      G2MessageDlg( E.Message, 1);
     end;
   end;
 end;
@@ -1933,7 +1941,8 @@ begin
         timer_start := GetTickCount;
         repeat
           sleep(100);
-          Application.ProcessMessages;
+          G2ProcessWindowsMessages;
+          //Application.ProcessMessages;
         until (LastResponseMessage = R_OK) or (GetTickCount - timer_start > 3000);
       end;
       FInitialized := False;

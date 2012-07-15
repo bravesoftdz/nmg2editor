@@ -17,7 +17,7 @@ object Form1: TForm1
     TabOrder = 0
     object MenuItem1: TMenuItem
       Position.Point = '(2,2)'
-      Width = 43.500000000000000000
+      Width = 43.843750000000000000
       Height = 35.000000000000000000
       TabOrder = 0
       ShortCut = 0
@@ -46,7 +46,7 @@ object Form1: TForm1
     Height = 8.000000000000000000
     TabOrder = 2
     Min = 1.000000000000000000
-    Max = 7.000000000000000000
+    Max = 4.000000000000000000
     Orientation = orHorizontal
     Value = 1.000000000000000000
     SmallChange = 1.000000000000000000
@@ -58,7 +58,6 @@ object Form1: TForm1
     Position.Point = '(0,506)'
     Width = 746.000000000000000000
     Height = 5.000000000000000000
-    OnClick = Splitter1Click
     StyleLookup = 'Splitter1Style1'
     TabOrder = 3
     MinSize = 20.000000000000000000
@@ -355,10 +354,10 @@ object Form1: TForm1
       Position.Point = '(8,8)'
       Width = 721.000000000000000000
       Height = 377.000000000000000000
-      object LayoutVA: TPanel
+      object LayoutVA: TG2FMXPatchArea
         Position.Point = '(8,8)'
-        Width = 705.000000000000000000
-        Height = 361.000000000000000000
+        Width = 697.000000000000000000
+        Height = 353.000000000000000000
         TabOrder = 0
       end
     end
@@ -368,15 +367,15 @@ object Form1: TForm1
     Position.Point = '(0,511)'
     Width = 746.000000000000000000
     Height = 161.000000000000000000
-    TabOrder = 10
+    TabOrder = 5
     object LayoutZoomFX: TLayout
       Position.Point = '(8,8)'
       Width = 721.000000000000000000
       Height = 145.000000000000000000
-      object LayoutFX: TPanel
-        Position.Point = '(16,8)'
-        Width = 697.000000000000000000
-        Height = 129.000000000000000000
+      object LayoutFX: TG2FMXPatchArea
+        Position.Point = '(8,16)'
+        Width = 705.000000000000000000
+        Height = 113.000000000000000000
         TabOrder = 0
       end
     end

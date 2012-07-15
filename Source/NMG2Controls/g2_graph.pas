@@ -51,7 +51,7 @@ uses
   Contnrs,
 {$ENDIF}
   Forms, Messages, Classes, SysUtils, StdCtrls, ExtCtrls, Controls,
-  Graphics, Menus, Dialogs, math, g2_database,
+  Graphics, Menus, VCL.Dialogs, math, g2_database,
   g2_file, g2_types, graph_util_vcl, g2_usb, g2_midi, fastbitmap;
 
 type
@@ -111,6 +111,8 @@ type
     procedure   SetModuleParent( aValue: TG2GraphScrollbox);
     procedure   SetScrollboxVA( aValue : TG2GraphScrollbox);
     procedure   SetScrollboxFX( aValue : TG2GraphScrollbox);
+    procedure   G2ProcessWindowsMessages; override;
+    function    G2MessageDlg( tekst : string; code : integer): integer; override;
   published
     property    ScrollboxVA : TG2GraphScrollBox read FScrollboxVA write SetScrollboxVA;
     property    scrollboxFX : TG2GraphScrollBox read FScrollboxFX write SetScrollboxFX;
@@ -346,7 +348,7 @@ type
     FStartY : integer;
 
     FChildControls : TList;
-    //FSelectedControlIndex : integer;
+    FWasAlreadySelected : boolean;
 
     FOnModuleClick : TModuleClickEvent;
     FOnParameterClick : TParameterClickEvent;
@@ -1863,6 +1865,20 @@ begin
     //raise Exception.Create('Performance not assigned to G2.')};
 end;
 
+function TG2Graph.G2MessageDlg(tekst: string; code: integer): integer;
+begin
+  case code of
+  0 :;
+  1 : MessageDlg( tekst, mtError, [mbOK], 0);
+  end;
+end;
+
+procedure TG2Graph.G2ProcessWindowsMessages;
+begin
+  Application.ProcessMessages;
+end;
+
+
 // ==== TG2GraphParameter ======================================================
 
 constructor TG2GraphParameter.Create( aPatch : TG2FilePatch; aLocation : TLocationType; aModuleIndex : integer; aModule : TG2FileModule);
@@ -2723,6 +2739,8 @@ begin
 
   Width := UNITS_COL;
   Height := UNITS_ROW;
+
+  FWasAlreadySelected := False;
 end;
 
 destructor TG2GraphModulePanel.Destroy;
@@ -2821,25 +2839,17 @@ begin
     Patch.SelectedControl.MouseDown( Button, Shift, X - Patch.SelectedControl.Left, Y - Patch.SelectedControl.Top);
   end else begin
 
-    {case Location of
-      ltVA : Patch.UnselectModules(ltFX);
-      ltFX : Patch.UnselectModules(ltVA);
-    end;}
-
     if not FData.Selected then begin
       if not(ssCtrl in Shift) then
         Patch.UnSelectModules( Location);
       FData.Selected := True;
-    end;
+      FWasAlreadySelected := False;
+    end else
+      FWasAlreadySelected := True;
 
     if Location <> Patch.SelectedLocation then
       Patch.SelectedLocation := Location;
 
-    {if ssLeft in Shift then begin
-      FStartX := X;
-      FStartY := Y;
-      Patch.SelectModules;
-    end;}
     FStartX := X;
     FStartY := Y;
     FOldX := Left;
@@ -2862,7 +2872,8 @@ begin
     if assigned(Patch.SelectedControl) then begin
       Patch.SelectedControl.MouseMove( Shift, X - Patch.SelectedControl.Left, Y - Patch.SelectedControl.Top);
     end else begin
-      Patch.MoveOutlines( Data.Location, X - FStartX, Y - FStartY);
+      if FWasAlreadySelected then
+        Patch.MoveOutlines( Data.Location, X - FStartX, Y - FStartY);
     end;
   end;
 
@@ -2887,8 +2898,9 @@ begin
 
   end else begin
 
-    if (FStartX <> X) or (FStartY <> Y) then
-      Patch.MessMoveModules( Data.Location);
+    if FWasAlreadySelected then
+      if (FStartX <> X) or (FStartY <> Y) then
+        Patch.MessMoveModules( Data.Location);
 
     if assigned( FOnModuleClick) then
       FOnModuleClick( self, Button, Shift, X, Y, FData);
@@ -2896,14 +2908,6 @@ begin
   end;
   inherited;
 end;
-
-{procedure TG2GraphModulePanel.SelectModule;
-begin
-  FOldX := Left;
-  FOldY := Top;
-
-  FData.FOutlineRect := BoundsRect;
-end;}
 
 procedure TG2GraphModulePanel.MoveOutline( dX, dY : integer);
 begin
@@ -3977,11 +3981,12 @@ begin
 
   Rect := SubRect( GetRelToParentRect, ExtBoundsRect);
 
-  ExtCanvas.Pen.Color := clBlack;
   if FLevel = 0 then begin
+    ExtCanvas.Pen.Color := clBlack;
     ExtCanvas.Brush.Color := clGreen;
     ExtCanvas.Rectangle(Rect);
   end else begin
+    ExtCanvas.Pen.Color := clGreen;
     ExtCanvas.Brush.Color := clLime;
     ExtCanvas.Rectangle(Rect);
   end;
