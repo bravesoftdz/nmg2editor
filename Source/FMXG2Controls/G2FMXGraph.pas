@@ -110,6 +110,7 @@ type
   public
     constructor Create( AOwner: TComponent); override;
     destructor  Destroy; override;
+    procedure   CablesToFront;
   end;
 
   TG2GraphModule = class( TG2FileModule)
@@ -885,6 +886,23 @@ begin
   end;
 end;
 
+procedure TG2FMXPatchArea.CablesToFront;
+var i : integer;
+    CableList : TList;
+begin
+  CableList := TList.Create;
+  try
+    for i := 0 to ChildrenCount-1 do
+      if Children[i] is TG2FMXCable then
+        CableList.Add(Children[i]);
+
+    for i := 0 to CableList.Count-1 do
+      TG2FMXCable(CableList[i]).BringToFront;
+  finally
+    CableList.Free;
+  end;
+end;
+
 // ==== G2GraphModule ==========================================================
 
 constructor TG2GraphModule.Create( aPatchPart : TG2FilePatchPart);
@@ -1181,6 +1199,7 @@ procedure TG2FMXModule.MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y:
 var P : TPoint;
     i : integer;
     Patch : TG2GraphPatch;
+    PatchArea : TG2FMXPatchArea;
 begin
   {if assigned( FDropDownList) then begin
     FDropDownList.Free;
@@ -1209,6 +1228,11 @@ begin
       FStartX := X;
       FStartY := Y;
       //Patch.SelectModules;
+
+      BringToFront;
+      PatchArea := Parent as TG2FMXPatchArea;
+      if assigned(PatchArea) then
+        PatchArea.CablesToFront;
     end;
 
   inherited;
