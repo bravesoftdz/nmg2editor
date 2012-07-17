@@ -82,7 +82,6 @@
 			<DCC_IncludePath>Delphi\xml;$(DCC_IncludePath)</DCC_IncludePath>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
-			<DCC_BplOutput>..\..\Source\NMG2Controls\Win32</DCC_BplOutput>
 			<DCC_DcuOutput>..\..\Dcu</DCC_DcuOutput>
 			<DCC_UnitSearchPath>..\..\Source\NMG2Controls;..\..\Source\XML;..\..\..\midiio-dev-v7\h4ndy-midiio-dev-67754a8fdfa5;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
 			<VerInfo_Locale>1033</VerInfo_Locale>

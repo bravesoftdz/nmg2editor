@@ -77,6 +77,7 @@ type
   TSelectSlotEvent = procedure(Sender : TObject; SenderID : integer; Slot : integer) of object;
   TSelectModuleEvent = procedure(Sender : TObject; SenderID : integer; Module : TG2FileModule) of object;
   TSelectParamEvent = procedure(Sender : TObject; SenderID : integer; Param : TG2FileParameter) of object;
+  TLogLineEvent = procedure(Sender : TObject; const LogLine : string; LogCmd : integer) of object;
 
   // Header for VST patch chunk file
   TFXPHeader = record
@@ -1370,6 +1371,7 @@ type
     FOnSelectSlot         : TSelectSlotEvent;
     FOnSelectModule       : TSelectModuleEvent;
     FOnSelectParam        : TSelectParamEvent;
+    FOnLogLine            : TLogLineEvent;
 
     FPerformance   : TG2FilePerformance;
 
@@ -1410,13 +1412,13 @@ type
 
     property    BankList : TBankList read FBankList write FBankList;
     property    Performance : TG2FilePerformance read FPerformance write SetPerformance;
+    property    LogLines : TStringList read FLogLines;
+    property    LastError : string read FLastError write FLastError;
+    property    SelectedPatchPart : TG2FilePatchPart read GetSelectedPatchPart;
   published
     property    ID : integer read GetID;
     property    ClientType : TClientType read FClientType write FClientType;
-    property    LogLines : TStringList read FLogLines;
     property    LogLevel : integer read FLogLevel write SetLogLevel;
-    property    LastError : string read FLastError write FLastError;
-    property    SelectedPatchPart : TG2FilePatchPart read GetSelectedPatchPart;
     property    OnCreateModule : TCreateModuleEvent read FOnCreateModule write FOnCreateModule;
     property    OnAddModule : TAddModuleEvent read FOnAddModule write FOnAddModule;
     property    OnDeleteModule : TDeleteModuleEvent read FOnDeleteModule write FOnDeleteModule;
@@ -1431,6 +1433,7 @@ type
     property    OnSelectSlot : TSelectSlotEvent read FOnSelectSlot write FOnSelectSlot;
     property    OnSelectModule : TSelectModuleEvent read FOnSelectModule write FOnSelectModule;
     property    OnSelectParam : TSelectParamEvent read FOnSelectParam write FOnSelectParam;
+    property    OnLogLine : TLogLineEvent read FOnLogLine write FOnLogLine;
   end;
 
 implementation
@@ -9327,7 +9330,16 @@ end;
 
 procedure TG2File.add_log_line( tekst: string; log_cmd : integer);
 begin
-  if (FLogLevel = 0) or (not assigned(FLogLines)) then
+  if (FLogLevel = 0) then
+    exit;
+
+  if assigned(FOnLogLine) then begin
+    // Use event if assigned in stead of internal log
+    FOnLogLine(self, tekst, log_cmd);
+    exit;
+  end;
+
+  if (not assigned(FLogLines)) then
     exit;
 
   EnterCriticalSection(FLogLock);
@@ -9359,7 +9371,7 @@ type buf_type = packed array[0..65536 - 1] of byte;
 var p, i, c : integer;
     char_line, line : string;
 begin
-  if (FLogLevel = 0) or (not assigned(FLogLines)) then
+  if (FLogLevel = 0) or ((not assigned(FLogLines)) and (not assigned(FOnLogLine))) then
     exit;
 
   EnterCriticalSection(FLogLock);
@@ -9380,7 +9392,10 @@ begin
         inc(c);
         inc(i);
       end else begin
-        FLogLines.Add(IntToHex(p, 6) + ' - ' + line + ' ' + char_line);
+        if assigned(FOnLogLine) then
+          FOnLogLine( self, IntToHex(p, 6) + ' - ' + line + ' ' + char_line, LOGCMD_NUL)
+        else
+          FLogLines.Add(IntToHex(p, 6) + ' - ' + line + ' ' + char_line);
         p := i;
         c := 0;
         line := '';
@@ -9388,7 +9403,10 @@ begin
       end;
     end;
     if c <> 0 then
-      FLogLines.Add(IntToHex(p, 6) + ' - ' + line + stringofchar(' ', 16*3 - Length(line) + 1) + char_line);
+     if assigned(FOnLogLine) then
+       FOnLogLine( self, IntToHex(p, 6) + ' - ' + line + stringofchar(' ', 16*3 - Length(line) + 1) + char_line, LOGCMD_NUL)
+     else
+       FLogLines.Add(IntToHex(p, 6) + ' - ' + line + stringofchar(' ', 16*3 - Length(line) + 1) + char_line);
   finally
     LeaveCriticalSection(FLogLock);
   end;

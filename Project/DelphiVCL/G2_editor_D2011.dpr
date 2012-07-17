@@ -3,9 +3,9 @@ program G2_editor_D2011;
 uses
   Forms,
   g2_file in '..\..\Source\NMG2Controls\g2_file.pas',
-  g2_classes in '..\..\Source\NMG2Controls\g2_classes.pas',
+  g2_classes in '..\..\Source\VCLG2Controls\g2_classes.pas',
   g2_types in '..\..\Source\NMG2Controls\g2_types.pas',
-  g2_graph in '..\..\Source\NMG2Controls\g2_graph.pas',
+  g2_graph in '..\..\Source\VCLG2Controls\g2_graph.pas',
   g2_usb in '..\..\Source\NMG2Controls\g2_usb.pas',
   g2_database in '..\..\Source\NMG2Controls\g2_database.pas',
   UnitG2Editor in '..\..\Source\UnitG2Editor.pas' {frmG2Main},

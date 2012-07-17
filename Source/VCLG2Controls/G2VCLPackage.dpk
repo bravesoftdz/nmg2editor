@@ -36,10 +36,10 @@ requires
   NMG2_controls_D2011;
 
 contains
-  fastbitmap in 'NMG2Controls\fastbitmap.pas',
-  g2_classes in 'NMG2Controls\g2_classes.pas',
-  g2_graph in 'NMG2Controls\g2_graph.pas',
-  graph_util_vcl in 'NMG2Controls\graph_util_vcl.pas',
-  JawsCtrls in 'NMG2Controls\JawsCtrls.pas';
+  fastbitmap in 'fastbitmap.pas',
+  g2_classes in 'g2_classes.pas',
+  g2_graph in 'g2_graph.pas',
+  graph_util_vcl in 'graph_util_vcl.pas',
+  JawsCtrls in 'JawsCtrls.pas';
 
 end.

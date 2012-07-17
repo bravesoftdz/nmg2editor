@@ -302,6 +302,45 @@ type
     procedure   DeassignControl( aControl : TG2FMXControl);
   end;
 
+  TG2FMXKnob = class( TG2FMXControl)
+  private
+    FOrientation      : TOrientationType;
+    FCenterButtonSize,
+    FSliderSize       : integer;
+    FSliderSelected   : boolean;
+    FKnobRect,
+    FCenterButtonRect,
+    FIncBtnRect,
+    FDecBtnRect       : TRectF;
+    FKnobRad          : integer;
+    FType             : TKnobType;
+    FStartX,
+    FStartY           : single;
+    FHighlightColor   : TColor;
+    FFill,
+    FFillMorph        : TBrush;
+    procedure   SetOrientation( aValue : TOrientationType);
+  protected
+    procedure   MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Single); override;
+    procedure   MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: Single); override;
+    procedure   MouseMove(Shift: TShiftState; X, Y: Single); override;
+    procedure   SetKnobType( aValue : TKnobType);
+    procedure   SetHighLightColor( aValue : TColor);
+  public
+    constructor Create( AOwner: TComponent); override;
+    destructor  Destroy; override;
+    procedure   Paint; override;
+    function    GetSliderRect: TRectF;
+    function    GetMorphRect: TRectF;
+    procedure   SetBounds(ALeft: single; ATop: single;  AWidth: single; AHeight: single); override;
+    function    ParseProperties( fs: TModuleDefStream; aName : String): boolean; override;
+ published
+    property    KnobType : TKnobType read FType write SetKnobType;
+    property    Orientation : TOrientationType read FOrientation write SetOrientation;
+    property    HightlightColor : TColor read FHighlightColor write SetHighlightColor;
+  end;
+
+
   TG2FMXConnector = class(TG2FMXControl)
   private
     { Private declarations }
@@ -386,6 +425,12 @@ procedure Register;
 implementation
 uses
   Math;
+
+
+{function PointInRect( X, Y : single; Rect : TRect): boolean;
+begin
+  Result := PtInRect( Rect, PointF(X, Y))
+end;}
 
 { ==== TG2Graph ================================================================}
 
@@ -661,7 +706,7 @@ end;
 function TG2GraphPatch.MessMoveModules( aLocation : TLocationType): boolean;
 var i : integer;
 begin
-//  Result := inherited MessMoveModules( aLocation);
+  Result := inherited MessMoveModules( aLocation);
   for i := 0 to PatchPart[ ord(aLocation)].SelectedModuleList.Count - 1 do
     (PatchPart[ ord(aLocation)].SelectedModuleList[i] as TG2GraphModule).FPanel.MoveModule;
 end;
@@ -1183,16 +1228,16 @@ end;
 
 procedure TG2FMXModule.SetCol(aValue: TBits7);
 begin
-  if aValue <> FData.Col then begin
+  //if aValue <> FData.Col then begin
     Position.X := aValue * UNITS_COL - ScrollBarX;
-  end;
+  //end;
 end;
 
 procedure TG2FMXModule.SetRow(aValue: TBits7);
 begin
-  if aValue <> FData.Row then begin
+  //if aValue <> FData.Row then begin
     Position.Y := aValue * UNITS_ROW - ScrollbarY;
-  end;
+  //end;
 end;
 
 procedure TG2FMXModule.MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Single);
@@ -1262,12 +1307,20 @@ end;
 procedure TG2FMXModule.MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: Single);
 var NewCol, NewRow : byte;
     PatchArea : TG2FMXPatchArea;
+    Patch : TG2GraphPatch;
 begin
   if assigned(Parent) then
     PatchArea := Parent as TG2FMXPatchArea;
 
+  Patch := GetPatch;
+
   if assigned(PatchArea) and assigned(PatchArea.FNewCable) then
-    PatchArea.MouseUp(Button, Shift, Position.X + X, Position.Y + Y);
+    PatchArea.MouseUp(Button, Shift, Position.X + X, Position.Y + Y)
+  else
+    if FWasAlreadySelected then
+     // if (FStartX <> X) or (FStartY <> Y) then
+        Patch.MessMoveModules( Data.Location);
+
 
   if assigned( FOnModuleClick) then
     FOnModuleClick( self, Button, Shift, trunc(X), trunc(Y), FData);
@@ -1500,10 +1553,10 @@ begin
     Result := 'ButtonText';
 
   if aG2GraphChildControl is TG2GraphButtonFlat then
-    Result := 'ButtonFlat';
+    Result := 'ButtonFlat';}
 
-  if aG2GraphChildControl is  TG2GraphKnob then
-    Result := 'Knob';}
+  if aG2GraphChildControl is  TG2FMXKnob then
+    Result := 'Knob';
 
 end;
 
@@ -1595,8 +1648,7 @@ begin
   end;
 
   if (aControlType = 'Knob') or (aControlType = '') then begin
-    //Result := TG2GraphKnob.Create(self);
-    Result := TG2FMXControl.Create(self);
+    Result := TG2FMXKnob.Create(self);
     Result.Module := self;
   end;
 
@@ -2167,6 +2219,483 @@ procedure TG2FMXConnector.SetData(aConnectorData: TG2FileConnector);
 begin
   FData := aConnectorData;
   FData.GraphControl := self;
+end;
+
+// ==== TG2FMXKnob =============================================================
+
+constructor TG2FMXKnob.Create(AOwner: TComponent);
+begin
+  inherited;
+
+  FMouseInput := True;
+
+  //Color := clWhite;
+
+  FOrientation := otVertical;
+
+  Width := 22;
+  Height := Width;
+  FCenterButtonSize := 5;
+  FSliderSize := 10;
+
+  FHighLightColor := G_HighLightColor;
+
+  FFill := TBrush.Create(TBrushKind.bkGradient, $FFFFFFFF);
+  FFill.Gradient.Color := $FFFFFFFF;
+  FFill.Gradient.Color1 := $FF080808;
+  //FFillOuter.Gradient.Style := FMX.Types.TGradientStyle.gsRadial;
+  FFillMorph := TBrush.Create(TBrushKind.bkSolid, $FFCCCCCC);
+
+
+  FValue := 0;
+  FLowValue := 0;
+  FHighValue := 127;
+end;
+
+destructor TG2FMXKnob.Destroy;
+begin
+  FFillMorph.Free;
+  FFill.Free;
+  inherited;
+end;
+
+procedure TG2FMXKnob.MouseDown(Button: TMouseButton; Shift: TShiftState; X,  Y: Single);
+begin
+  FSliderSelected := False;
+  if ( ssLeft in Shift) then begin
+
+    FStartX := X;
+    FStartY := Y;
+    FStartValue := Value;
+
+    if (FType in [ktSlider, ktSeqSlider]) then begin
+      if (PointInRect( PointF(X, Y), GetSliderRect)) then
+        FSLiderSelected := True;
+    end else
+      if (FType in [ktReset, ktResetMedium]) and PointInRect( PointF(X, Y), FCenterButtonRect) then begin
+        Value := (HighValue - LowValue + 1) div 2;
+      end else
+        if PointInRect( PointF(X, Y), FIncBtnRect) then begin
+          if Value < HighValue then
+            Value := Value + 1;
+        end else
+          if PointInRect( PointF(X, Y), FDecBtnRect) then begin
+            if Value > LowValue then
+              Value := Value - 1;
+          end;
+  end;
+  inherited;
+end;
+
+procedure TG2FMXKnob.MouseMove(Shift: TShiftState; X, Y: Single);
+var FdX, FdY : single;
+begin
+  if (ssLeft in Shift) then begin
+
+    FdX := X - FStartX;
+    FdY := Y - FStartY;
+
+    if ( FType in [ktBig, ktMedium, ktSmall, ktExtraSmall, ktReset, ktResetMedium]) then begin
+      if ssCtrl in Shift then
+        SetMorphValue( CheckValueBounds( FStartValue + trunc((FHighValue - FLowValue) * FdX / 100)) - Value)
+      else
+        Value := CheckValueBounds( FStartValue + trunc((FHighValue - FLowValue) * FdX / 100));
+    end else
+      if ( FType in [ktSlider, ktSeqSlider]) and FSliderSelected then begin
+        if ssCtrl in Shift then begin
+          if (FOrientation = otVertical) then begin
+            if (Height - FSliderSize > 0) then
+              SetMorphValue( CheckValueBounds( FStartValue + trunc((FHighValue - FLowValue) * -FdY / (Height - FSliderSize))) - Value);
+          end else
+            if (Width - FSliderSize > 0) then
+              SetMorphValue( CheckValueBounds( FStartValue + trunc((FHighValue - FLowValue) * FdX / (Width - FSliderSize))) - Value);
+        end else begin
+          if (FOrientation = otVertical) then begin
+            if (Height - FSliderSize > 0) then
+              Value := CheckValueBounds( FStartValue + trunc((FHighValue - FLowValue) * -FdY / (Height - FSliderSize)));
+          end else
+            if (Width - FSliderSize > 0) then
+              Value := CheckValueBounds( FStartValue + trunc((FHighValue - FLowValue) * FdX / (Width - FSliderSize)));
+        end;
+      end;
+    //Invalidate;
+  end;
+  inherited;
+end;
+
+procedure TG2FMXKnob.MouseUp(Button: TMouseButton; Shift: TShiftState; X,  Y: Single);
+begin
+  FSliderSelected := False;
+  inherited;
+end;
+
+{procedure TG2FMXKnob.PaintOn( ExtCanvas : TCanvas; ExtBoundsRect : TRect);
+var mx, my, r : integer;
+    rad, mrad, X, Y : single;
+    p1, p2, p3 : TPoint;
+    Rect, IconRect, MorphRect : TRect;
+    MorphParameter : TMorphParameter;
+    FastBitmap : TFastbitmap;
+    BitMap : TBitmap;
+begin
+  inherited;
+
+  Rect := SubRect( GetRelToParentRect, ExtBoundsRect);
+
+  Bitmap := TBitmap.Create;
+  Fastbitmap := TFastbitmap.Create;
+  try
+    Bitmap.Pixelformat := pf24bit;
+    Bitmap.Width := Rect.Right - Rect.Left;
+    Bitmap.Height := Rect.Bottom - Rect.Top;
+    Bitmap.canvas.CopyRect(ClientRect, ExtCanvas, Rect);
+    if FType in [ktBig, ktMedium, ktSmall, ktExtraSmall, ktReset, ktResetMedium] then begin
+
+      r := (FKnobRect.Right - FKnobRect.Left) div 2;
+      mx := FKnobRect.Left + (FKnobRect.Right - FKnobRect.Left) div 2;
+      my := FKnobRect.Top + (FKnobRect.Bottom - FKnobRect.Top) div 2;
+
+      if (HighValue - LowValue) <> 0 then
+        rad := 2*PI * ( 0.8 * Value / (HighValue - LowValue) + 0.1)
+      else
+        rad := 0.1;
+
+      X := sin(rad)*(r);
+      Y := cos(rad)*(r);
+
+      p1.x := trunc( mx);
+      p1.y := trunc( my);
+      p2.x := trunc( mx - X);
+      p2.y := trunc( my + Y);
+
+      // Draw Morph range
+      if HasMorph then begin
+        MorphParameter := GetMorph;
+        if assigned(MorphParameter) then begin
+
+          Bitmap.Canvas.Brush.Style := bsSolid;
+          Bitmap.Canvas.Brush.Color := Color;
+          Bitmap.Canvas.Pen.Color := Color;
+          Bitmap.Canvas.Ellipse( FKnobRect.Left, FKnobRect.Top, FKnobRect.Right, FKnobRect.Bottom);
+
+          if (HighValue - LowValue) <> 0 then
+            mrad := 2*PI * ( 0.8 * MorphValue / (HighValue - LowValue) + 0.1)
+          else
+            mrad := 0.1;
+
+          p3.x := trunc(mx - sin(mrad)*(r));
+          p3.y := trunc(my + cos(mrad)*(r));
+
+          if ( p3.x <> p2.x) or ( p3.y <> p2.y) then begin
+
+            Bitmap.Canvas.Brush.Color := CL_KNOB_MORPH_SELECTED;
+            Bitmap.Canvas.Pen.Color := CL_KNOB_MORPH_SELECTED;
+
+            if MorphParameter.Range < 128 then
+              Bitmap.Canvas.Pie(FKnobRect.Left, FKnobRect.Top, FKnobRect.Right, FKnobRect.Bottom,
+                                p3.x, p3.y,
+                                p2.x, p2.y)
+            else
+              Bitmap.Canvas.Pie(FKnobRect.Left, FKnobRect.Top, FKnobRect.Right, FKnobRect.Bottom,
+                                p2.x, p2.y,
+                                p3.x, p3.y);
+
+          end;
+          Fastbitmap.CopyFromBitmap(Bitmap);
+        end else begin // Non selected morph
+            Fastbitmap.CopyFromBitmap(Bitmap);
+            Fastbitmap.DrawAntialisedDisk(mx, my, r, 3, CL_KNOB_MORPH, bsSolid);
+        end;
+      end else begin // No morph
+        Fastbitmap.CopyFromBitmap(Bitmap);
+        Fastbitmap.DrawAntialisedDisk(mx, my, r, 3, Color, bsSolid);
+      end;
+
+      Fastbitmap.DrawAntialisedLine(p1.x, p1.y, p2.x, p2.y, clBlack);
+      Fastbitmap.DrawAntialisedDisk(mx, my, r, 2, clBlack, bsClear);
+      Fastbitmap.CopyToBitmap(Bitmap);
+
+      //DrawWuLine( BitMap, p1, p2, clBlack);
+      //DrawDisk( Bitmap, mx, my, r, 2, clBlack, bsClear);
+
+      if FType in [ktReset, ktResetMedium] then begin
+
+        Bitmap.Canvas.Pen.Color := clBtnShadow;
+        if Value = (HighValue - LowValue + 1) div 2 then
+          Bitmap.Canvas.Brush.Color := FHighLightColor
+        else
+          Bitmap.Canvas.Brush.Color := clGray;
+
+        with IconRect do begin
+          Left := 0;
+          Right := 8;
+          Top := 0;
+          Bottom := 4;
+        end;
+        DrawIcon( Bitmap.Canvas, FCenterButtonRect, IconRect, itDown);
+      end;
+
+      if Selected then begin
+        Bitmap.Canvas.Pen.Color := clWhite;
+        Bitmap.Canvas.Brush.Color := CL_BTN_FACE;
+        Bitmap.Canvas.FillRect(FIncBtnRect);
+        DrawRect( Bitmap.Canvas, FIncBtnRect);
+        Bitmap.Canvas.FillRect(FDecBtnRect);
+        DrawRect( Bitmap.Canvas, FDecBtnRect);
+
+        with IconRect do begin
+          Left := 0;
+          Right := 4;
+          Top := 0;
+          Bottom := 2;
+        end;
+        Bitmap.Canvas.Brush.Color := clBlack;
+        DrawIcon( Bitmap.Canvas, FIncBtnRect, IconRect, itUp);
+        DrawIcon( Bitmap.Canvas, FDecBtnRect, IconRect, itDown);
+      end;
+    end else
+      if ( FType = ktSlider) or (FType = ktSeqSlider) then begin
+        if Selected then
+          Bitmap.Canvas.Pen.Color := CL_SELECTED_PARAM
+        else
+          Bitmap.Canvas.Pen.Color := CL_DISPLAY_BACKGRND;
+
+        if HasMorph then begin
+          MorphParameter := GetMorph;
+          if assigned(MorphParameter) then begin
+             MorphRect := GetMorphRect;
+            Bitmap.Canvas.Brush.Color := CL_BTN_FACE;
+            Bitmap.Canvas.Rectangle( ClientRect);
+            Bitmap.Canvas.Brush.Color := CL_KNOB_MORPH_SELECTED;
+            Bitmap.Canvas.Rectangle( MorphRect);
+          end else begin
+            Bitmap.Canvas.Brush.Color := CL_KNOB_MORPH;
+            Bitmap.Canvas.Rectangle( ClientRect);
+          end;
+        end else begin
+          Bitmap.Canvas.Brush.Color := CL_BTN_FACE;
+          Bitmap.Canvas.Rectangle( ClientRect);
+        end;
+
+        Bitmap.Canvas.Brush.Color := CL_DISPLAY_BACKGRND;
+        Bitmap.Canvas.FillRect( GetSliderRect);
+      end;
+    ExtCanvas.Draw( Rect.Left, Rect.Top, Bitmap);
+  finally
+    Bitmap.Free;
+    Fastbitmap.Free;
+  end;
+end;}
+
+procedure TG2FMXKnob.Paint;
+var R : TRectF;
+begin
+  Canvas.Fill.Assign(FFill);
+  Canvas.FillEllipse(FKnobRect, Opacity);
+
+  R.Left := FKnobRect.Left + 2;
+  R.Top := FKnobRect.Top + 2;
+  R.Right := FKnobRect.Right - 2;
+  R.Bottom := FKnobRect.Bottom - 2;
+
+  Canvas.Fill.Assign(FFillMorph);
+  Canvas.FillEllipse(R, Opacity);
+end;
+
+function TG2FMXKnob.ParseProperties( fs: TModuleDefStream; aName : String): boolean;
+var aValue : AnsiString;
+begin
+  Result := True;
+
+  if not inherited ParseProperties( fs, aName) then begin
+
+    if aName = 'CodeRef' then begin
+      aValue := fs.ReadUntil( [#13]);
+      FParameter := FModule.FData.Parameter[ StrToInt(string(aValue))] as TG2GraphParameter;
+      (FParameter as TG2GraphParameter).AssignControl(self);
+    end else
+
+    if aName = 'InfoFunc' then begin
+      aValue := fs.ReadUntil( [#13]);
+      //
+    end else
+
+    if aName = 'Type' then begin
+      aValue := fs.ReadUntil( [#13]);
+      if aValue = '"Reset"' then begin
+        KnobType := ktReset;
+        Width := 22;
+        Height := 28;
+      end;
+      if aValue = '"Reset/medium"' then begin
+        KnobType := ktResetMedium;
+        Width := 21;
+        Height := 31;
+      end;
+      if aValue = '"Small"' then begin
+        KnobType := ktSmall;
+        Width := 22;
+        Height := 23;
+      end;
+      if aValue = '"Medium"' then begin
+        KnobType := ktMedium;
+        Width := 22;
+        Height := 25;
+      end;
+      if aValue = '"Big"' then begin
+        KnobType := ktBig;
+        Width := 23;
+        Height := 27;
+      end;
+      if aValue = '"Slider"' then begin
+        KnobType := ktSlider;
+        Width := 11;
+        Height := 64;
+      end;
+      if aValue = '"SeqSlider"' then begin
+        KnobType := ktSeqSlider;
+        Width := 11;
+        Height := 64;
+      end;
+
+    end else
+      Result := False
+  end;
+end;
+
+function TG2FMXKnob.GetSliderRect: TRectF;
+var SliderPos : integer;
+begin
+  if FOrientation = otVertical then begin
+    if (HighValue - LowValue) <> 0 then
+      SliderPos := trunc((Height - FSliderSize) * Value / (HighValue - LowValue))
+    else
+      SliderPos := 0;
+
+    Result.Top := Height - SliderPos - FSliderSize;
+    Result.Bottom := Result.Top + FSliderSize;
+    Result.Left := 0;
+    Result.Right := Width;
+  end else begin
+    if (HighValue - LowValue) <> 0 then
+      SliderPos := trunc((Width - FSliderSize) * Value / (HighValue - LowValue))
+    else
+      SliderPos := 0;
+
+    Result.Top := 0;
+    Result.Bottom := Height;
+    Result.Left := SliderPos;
+    Result.Right := Result.Left + FSLiderSize;
+  end;
+end;
+
+function TG2FMXKnob.GetMorphRect: TRectF;
+var ValuePos, MorphPos : integer;
+begin
+  ValuePos := 0;
+  MorphPos := 0;
+  if FOrientation = otVertical then begin
+    if (HighValue - LowValue) <> 0 then begin
+      ValuePos := trunc( Height * Value / (HighValue - LowValue));
+      MorphPos := trunc( Height * MorphValue / (HighValue - LowValue));
+    end;
+    if MorphPos > ValuePos then begin
+      Result.Top := Height - ValuePos;
+      Result.Bottom := Height - MorphPos;
+    end else begin
+      Result.Top := Height - MorphPos;
+      Result.Bottom := Height - ValuePos;
+    end;
+    Result.Left := 0;
+    Result.Right := Width;
+  end else begin
+    if (HighValue - LowValue) <> 0 then begin
+      ValuePos := trunc(Width * Value / (HighValue - LowValue));
+      MorphPos := trunc(Width * MorphValue / (HighValue - LowValue));
+    end;
+
+    Result.Top := 0;
+    Result.Bottom := Height;
+    if MorphPos > ValuePos then begin
+      Result.Left := ValuePos;
+      Result.Right := MorphPos;
+    end else begin
+      Result.Left := MorphPos;
+      Result.Right := ValuePos;
+    end;
+  end;
+end;
+
+procedure TG2FMXKnob.SetBounds(ALeft, ATop, AWidth, AHeight: single);
+begin
+  //Position.X := ALeft;
+  //Position.Y := ATop;
+
+  FKnobRect.Left := AWidth / 2 - FKnobRad;
+  FKnobRect.Right := AWidth / 2 + FKnobRad;
+  case FType of
+    ktBig, ktMedium, ktSmall, ktExtraSmall:
+      begin
+        FKnobRect.Top := 0;
+      end;
+    ktReset:
+      begin
+        FKnobRect.Top := FCenterButtonSize;
+      end;
+    ktResetMedium:
+      begin
+        FKnobRect.Top := FCenterButtonSize + 1;
+      end;
+    ktSlider: ;
+    ktSeqSlider: ;
+  end;
+  FKnobRect.Bottom := FKnobRect.Top + FKnobRad * 2;
+
+  FCenterButtonRect.Left := (AWidth - FCenterButtonSize*2) / 2;
+  FCenterButtonRect.Top := 0;
+  FCenterButtonRect.Right := (AWidth + FCenterButtonSize*2) / 2;
+  FCenterButtonRect.Bottom := FCenterButtonSize;
+
+  FIncBtnRect.Left := AWidth / 2;
+  FIncBtnRect.Top := AHeight - 9;
+  FIncBtnRect.Right := AWidth / 2 + 11;
+  FIncBtnRect.Bottom := AHeight;
+
+  FDecBtnRect.Left := AWidth / 2 - 10;
+  FDecBtnRect.Top := AHeight - 9;
+  FDecBtnRect.Right := AWidth / 2 + 1;
+  FDecBtnRect.Bottom := AHeight;
+
+  inherited;
+end;
+
+procedure TG2FMXKnob.SetKnobType( aValue: TKnobType);
+begin
+  FType := aValue;
+  case FType of
+    ktBig         : FKnobRad := 11;
+    ktMedium      : FKnobRad := 10;
+    ktSmall       : FKnobRad := 9;
+    ktExtraSmall  : FKnobRad := 8;
+    ktReset       : FKnobRad := 9;
+    ktResetMedium : FKnobRad := 10;
+    ktSlider      :;
+    ktSeqSlider   :;
+  end;
+  SetBounds(Position.X, Position.Y, Width, Height);
+  //Invalidate;
+end;
+
+procedure TG2FMXKnob.SetOrientation( aValue: TOrientationType);
+begin
+  FOrientation := aValue;
+  //Invalidate;
+end;
+
+procedure TG2FMXKnob.SetHighLightColor( aValue: TColor);
+begin
+  FHighlightColor := aValue;
+  //Invalidate;
 end;
 
 

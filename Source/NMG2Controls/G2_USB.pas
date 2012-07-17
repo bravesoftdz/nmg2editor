@@ -685,6 +685,7 @@ end;
 {$ELSE}
 procedure TG2USB.Init;
 var dev: pusb_device;
+    version : pusb_version;
 begin
   // Initialization of the USB interface windows
   try
@@ -720,6 +721,8 @@ begin
     if g2dev = nil then
       raise Exception.Create('No g2 device found');}
 
+    add_log_line('USB Get endpoints', LOGCMD_NUL);
+
     // get 3 endpoints
     g2conf := g2dev^.config[0];
     g2intf := g2conf.iinterface[0];
@@ -729,17 +732,26 @@ begin
     g2bin := g2eps[1].bEndpointAddress;
     g2bout := g2eps[2].bEndpointAddress;
 
+    add_log_line('g2iin = ' + IntToStr(g2iin) + ', g2bin = ' + IntToStr(g2bin) + ', g2bout = ' + IntToStr(g2bout), LOGCMD_NUL);
+
+    add_log_line('Opening USB Device', LOGCMD_NUL);
     g2udev := usb_open(g2dev);
     if not Assigned(g2udev) then
       raise Exception.Create('Unable to open device.');
 
+    version := usb_get_version;
+    add_log_line('LibUSB-win32 driver version : ' + IntToStr(version^.drivermajor) + '.' + IntToStr(version.driverminor) + '.' + IntToStr(version.drivermicro) + '.' + IntToStr(version.drivernano), LOGCMD_NUL);
+
+    add_log_line('Set USB Configuration', LOGCMD_NUL);
     if usb_set_configuration(g2udev, g2conf.bConfigurationValue) < 0 then
       raise Exception.Create('Unable to set configuration.');
 
+    add_log_line('Claim USB Interface', LOGCMD_NUL);
     if usb_claim_interface(g2udev, 0) < 0 then
       raise Exception.Create('Unable to claim the interface.');
 
     except on E:Exception do begin
+      add_log_line( E.Message, LOGCMD_ERR);
       //MessageDlg( E.Message, mtError, [mbOK], 0);
       G2MessageDlg( E.Message, 1);
     end;
@@ -773,7 +785,10 @@ begin
   // Disconnect from the USB interface windows
 
   if Assigned(g2udev) then begin
+    add_log_line('Release USB Interface', LOGCMD_NUL);
     usb_release_interface(g2udev, 0);
+
+    add_log_line('Closing USB Device', LOGCMD_NUL);
     usb_close(g2udev);
     g2udev := nil;
   end;
@@ -1839,9 +1854,11 @@ var iin_buf : TByteBuffer;
     timer_start : integer;
 begin
   if Value then begin
+    add_log_line( 'Initializing connection.', LOGCMD_NUL);
 
     // Only a server can have an USB connection
     if FIsServer then begin
+      add_log_line( 'Started as server.', LOGCMD_NUL);
 
       add_log_line( 'g2udev handle = ' + IntToHex(integer(g2udev), 4), LOGCMD_NUL);
       if assigned(g2udev) then
@@ -1853,6 +1870,7 @@ begin
         FIdTCPClient := nil;
       end;
 
+      add_log_line( 'Starting server tcp-ip thread.', LOGCMD_NUL);
       // Create server object
       FIdTCPServer := TIdTCPServer.Create( Self);
       FIdTCPServer.OnExecute := IdTCPServerExecute;
@@ -1888,6 +1906,7 @@ begin
       end;
     end else begin
       // Client connects
+      add_log_line( 'Started as client.', LOGCMD_NUL);
 
       if assigned( FIdTCPServer) then begin
         FIdTCPServer.Active := False;
@@ -1904,6 +1923,8 @@ begin
       FIdTCPClient.Host := FHost;
       FTCPErrorMessage := '';
       try
+        add_log_line( 'Connect to server, ip = ' + FHost + ', port = ' + IntToStr(FPort), LOGCMD_NUL);
+
         FIdTCPClient.Connect; // attempt connection
 
 
@@ -1931,11 +1952,14 @@ begin
       end;
     end;
   end else begin
+    add_log_line( 'Closing connection.', LOGCMD_NUL);
 
     // Disconnect
     if assigned(g2udev) then begin
       if FInitialized then begin
         // Try to stop the led messages stream
+        add_log_line( 'Stop G2 message stream.', LOGCMD_NUL);
+
         LastResponseMessage := 00;
         SendStartStopCommunicationMessage( 1);
         timer_start := GetTickCount;
@@ -1949,6 +1973,7 @@ begin
     end;
 
     if (not FIsServer) and assigned(FIdTCPCLient) and FIdTCPCLient.Connected then begin
+      add_log_line( 'Disconnect client.', LOGCMD_NUL);
       FIdTCPCLient.Disconnect;  // disconnect client
       FIdClientReadThread.WaitFor;
     end;
@@ -1958,6 +1983,7 @@ begin
     // Terminate the USB message thread
     try
       if assigned( FSendMessagethread) then begin
+        add_log_line( 'Stop send message thread.', LOGCMD_NUL);
         FSendMessageThread.Terminate;
         WaitForSingleObject( FSendMessageThreadHandle, 3000);
         FSendMessageThread := nil;
@@ -1968,6 +1994,7 @@ begin
 
     try
       if assigned( FReceiveMessageThread) then begin
+        add_log_line( 'Stop receive message thread.', LOGCMD_NUL);
         FReceiveMessageThread.Terminate;
       end;
     except on E:Exception do
@@ -1976,6 +2003,7 @@ begin
 
     if assigned(g2udev) then begin
       // Read remaining messages until timeout
+      add_log_line( 'Empty recieve message buffer.', LOGCMD_NUL);
       timer_start := GetTickCount;
       SetLength(iin_buf, 16);
       bytes_read := iread( g2iin, iin_buf[0], 16, 1000);
@@ -1995,6 +2023,7 @@ begin
     end;
 
     if assigned(FIdTCPServer) then begin
+      add_log_line( 'Stop server thread.', LOGCMD_NUL);
       FIdTCPServer.Active := False;
       FIdTCPServer.Free;
       FIdTCPServer := nil;

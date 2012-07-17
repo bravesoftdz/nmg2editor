@@ -66,8 +66,7 @@
 			<DCC_RemoteDebug>true</DCC_RemoteDebug>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Cfg_1_Win32)'!=''">
-			<DCC_UnitSearchPath>..\Source\NMG2Controls;..\Source\XML;..\..\midiio-dev-v7\h4ndy-midiio-dev-67754a8fdfa5;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
-			<DCC_BplOutput>..\Source\VCLG2Controls\Win32\</DCC_BplOutput>
+			<DCC_UnitSearchPath>..\NMG2Controls;..\XML;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
 			<VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
 			<VerInfo_Locale>1033</VerInfo_Locale>
 			<DCC_RemoteDebug>false</DCC_RemoteDebug>
@@ -88,11 +87,11 @@
 			<DCCReference Include="IndySystem.dcp"/>
 			<DCCReference Include="MidiComponents2010.dcp"/>
 			<DCCReference Include="NMG2_controls_D2011.dcp"/>
-			<DCCReference Include="NMG2Controls\fastbitmap.pas"/>
-			<DCCReference Include="NMG2Controls\g2_classes.pas"/>
-			<DCCReference Include="NMG2Controls\g2_graph.pas"/>
-			<DCCReference Include="NMG2Controls\graph_util_vcl.pas"/>
-			<DCCReference Include="NMG2Controls\JawsCtrls.pas"/>
+			<DCCReference Include="fastbitmap.pas"/>
+			<DCCReference Include="g2_classes.pas"/>
+			<DCCReference Include="g2_graph.pas"/>
+			<DCCReference Include="graph_util_vcl.pas"/>
+			<DCCReference Include="JawsCtrls.pas"/>
 			<BuildConfiguration Include="Release">
 				<Key>Cfg_2</Key>
 				<CfgParent>Base</CfgParent>
@@ -138,9 +137,6 @@
 						<VersionInfoKeys Name="Comments"/>
 					</VersionInfoKeys>
 					<Excluded_Packages>
-						<Excluded_Packages Name="C:\Users\Public\Documents\RAD Studio\9.0\Bpl\G2FMXPackage.bpl">(untitled)</Excluded_Packages>
-						<Excluded_Packages Name="C:\Users\Public\Documents\RAD Studio\9.0\Bpl\NMG2_controls_D2011.bpl">(untitled)</Excluded_Packages>
-						<Excluded_Packages Name="C:\Users\Public\Documents\RAD Studio\9.0\Bpl\NMG2ControlsFMX.bpl">(untitled)</Excluded_Packages>
 						<Excluded_Packages Name="$(BDSBIN)\dcloffice2k160.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
 						<Excluded_Packages Name="$(BDSBIN)\dclofficexp160.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
 					</Excluded_Packages>
