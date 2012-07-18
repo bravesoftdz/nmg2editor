@@ -3,7 +3,7 @@
   <G2_Synth_1>
     <Editor_settings LogEnabled="True" OnlyTextMenus="False" CableThickness="4" HighlightColor="16776960" SlotStripColor="4341694" SlotStripInverseColor="5447424" SlotStripDisabledColor="13684944"/>
     <TCP_settings IP="127.0.0.1" Port="2501" IsServer="True" TimerBroadcastLedMessages="0"/>
-    <MIDI_settings MidiEnabled="False" MidiInDevice="UM-ONE" MidiOutDevice=""/>
+    <MIDI_settings MidiEnabled="False" MidiInDevice="Hercules DJ Console Rmx MIDI" MidiOutDevice=""/>
   </G2_Synth_1>
   <CTRL_MIDI_settings CtrlMidiEnabled="False" CtrlMidiInDevice="UM-ONE"/>
   <MainForm PosX="164" PosY="51" SizeX="1196" SizeY="854" Visible="True"/>

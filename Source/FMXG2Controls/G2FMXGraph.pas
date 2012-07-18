@@ -2488,18 +2488,49 @@ begin
 end;}
 
 procedure TG2FMXKnob.Paint;
-var R : TRectF;
+var R2 : TRectF;
+    mx, my, r,
+    rad, mrad, X, Y : single;
+    p1, p2 : TPointF;
 begin
-  Canvas.Fill.Assign(FFill);
-  Canvas.FillEllipse(FKnobRect, Opacity);
+  if FType in [ktBig, ktMedium, ktSmall, ktExtraSmall, ktReset, ktResetMedium] then begin
+    Canvas.Fill.Assign(FFill);
+    Canvas.FillEllipse(FKnobRect, Opacity);
 
-  R.Left := FKnobRect.Left + 2;
-  R.Top := FKnobRect.Top + 2;
-  R.Right := FKnobRect.Right - 2;
-  R.Bottom := FKnobRect.Bottom - 2;
+    R2.Left := FKnobRect.Left + 2;
+    R2.Top := FKnobRect.Top + 2;
+    R2.Right := FKnobRect.Right - 2;
+    R2.Bottom := FKnobRect.Bottom - 2;
 
-  Canvas.Fill.Assign(FFillMorph);
-  Canvas.FillEllipse(R, Opacity);
+   // Canvas.Fill.Assign(FFillMorph);
+   // Canvas.FillEllipse(R2, Opacity);
+
+    r := (FKnobRect.Right - FKnobRect.Left) / 2;
+    mx := FKnobRect.Left + (FKnobRect.Right - FKnobRect.Left) / 2;
+    my := FKnobRect.Top + (FKnobRect.Bottom - FKnobRect.Top) / 2;
+
+    if (HighValue - LowValue) <> 0 then
+      rad := 2*PI * ( 0.8 * Value / (HighValue - LowValue) + 0.1)
+    else
+      rad := 0.1;
+
+    X := sin(rad)*(r);
+    Y := cos(rad)*(r);
+
+    p1.x := mx;
+    p1.y := my;
+    p2.x := mx - X;
+    p2.y := my + Y;
+
+    p1.x := FKnobRect.Left;
+    p1.y := FKnobRect.top;
+    p2.x := FKnobRect.right;
+    p2.y := FKnobRect.bottom;
+
+
+    Canvas.Stroke.Color := claBlack;
+    Canvas.DrawLine(p1, p2, 1);
+  end;
 end;
 
 function TG2FMXKnob.ParseProperties( fs: TModuleDefStream; aName : String): boolean;
