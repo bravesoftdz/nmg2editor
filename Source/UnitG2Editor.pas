@@ -160,7 +160,7 @@ unit UnitG2Editor;
 //        10 PulseOsc  -> Doesn't seem to work
 //           Red2Blue  -> Testmodule
 //        56 Resonator -> Works!
-//       207 RndChaos  -> Doesn't seem to work
+//       207 RndChaos  -> Doesn't seem to work, but shows up with id 6,95,136,138
 //           RndDistr
 //           RndState
 //           RndStep
@@ -493,6 +493,7 @@ type
     procedure G2VariationChange(Sender: TObject; SenderID: Integer; Slot, Variation: Integer);
     procedure G2USBActiveChange(Sender: TObject; Active: Boolean);
     procedure G2PatchUpdate(Sender: TObject; SenderID: Integer; PatchIndex: Integer);
+    procedure G2PatchNameChange(Sender: TObject; SenderID: Integer; PatchIndex: Integer; PatchName : AnsiString);
     procedure G2CreateModule(Sender: TObject; SenderID: Integer; Module: TG2FileModule);
     procedure G2DeassignKnob(Sender: TObject; SenderID: Integer; Slot : byte; KnobIndex: Integer);
     procedure G2AssignKnob(Sender: TObject; SenderID: Integer; Slot : byte; KnobIndex: Integer);
@@ -1108,6 +1109,7 @@ begin
   G2.OnDeleteClient := G2DeleteClient;
   G2.OnMidiCCReceive := G2MidiCCReceive;
   G2.OnPatchUpdate := G2PatchUpdate;
+  G2.OnPatchNameChange := G2PatchNameChange;
   G2.OnPerfSettingsUpdate := G2PerfSettingsUpdate;
   G2.OnReceiveResponseMessage := G2ReceiveResponseMessage;
   G2.OnSelectSlot := G2SelectSlot;
@@ -4028,6 +4030,11 @@ begin
       SelectSlot( ((Sender as TG2GraphLabel).Parent as TSlotPanel).SlotIndex);
 
   UpdateControls;
+end;
+
+procedure TfrmG2Main.G2PatchNameChange(Sender: TObject; SenderID, PatchIndex: Integer; PatchName: AnsiString);
+begin
+  FSlotPanel[ PatchIndex].FePatchName.Text := PatchName;
 end;
 
 procedure TfrmG2Main.G2PatchUpdate(Sender: TObject; SenderID: Integer; PatchIndex: Integer);

@@ -76,7 +76,7 @@
 			<Debugger_HostApplication>C:\Program Files (x86)\Ableton\Live 8.2.6\Program\Live 8.2.6.exe</Debugger_HostApplication>
 			<DCC_Define>G2_VST;$(DCC_Define)</DCC_Define>
 			<VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
-			<DCC_UnitSearchPath>..\..\Source\VST\CommonVST;..\..\Source\NMG2Controls;..\..\Source\XML;..\..\..\midiio-dev-v7\h4ndy-midiio-dev-67754a8fdfa5;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+			<DCC_UnitSearchPath>..\..\Source\VST\CommonVST;..\..\Source\NMG2Controls;..\..\Source\VCLG2Controls;..\..\Source\XML;..\..\..\midiio-dev-v7\h4ndy-midiio-dev-67754a8fdfa5;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
 			<VerInfo_Locale>1033</VerInfo_Locale>
 			<Manifest_File>None</Manifest_File>
 		</PropertyGroup>

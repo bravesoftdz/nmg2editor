@@ -41,6 +41,7 @@ uses
   TMidiCCRecieveEvent = procedure(Sender : TObject; SenderID : integer; MidiCC : byte) of Object;
   TSelectParamPageEvent = procedure( Sender: TObject; SenderID : integer; ParamPage : integer) of object;
   TPatchUpdateEvent = procedure(Sender: TObject; SenderID : integer; PatchIndex : integer) of object;
+  TPatchNameChangeEvent = procedure(Sender: TObject; SenderID : integer; PatchIndex : integer; PatchName : AnsiString) of object;
   TVariationChangeEvent = procedure(Sender: TObject; SenderID : integer; Slot, Variation : integer) of object;
   TCopyVariationEvent = procedure(Sender: TObject; SenderID : integer; Slot, FromVariation, ToVariation : integer) of object;
   TSynthSettingsUpdateEvent = procedure( Sender : TObject; SenderID : integer) of Object;
@@ -148,6 +149,7 @@ uses
     FOnMidiCCReceive          : TMidiCCRecieveEvent;
     FOnSelectParamPage        : TSelectParamPageEvent;
     FOnPatchUpdate            : TPatchUpdateEvent;
+    FOnPatchNameChange        : TPatchNameChangeEvent;
     FOnVariationChange        : TVariationChangeEvent;
     FOnCopyVariation          : TCopyVariationEvent;
     FOnSynthSettingsUpdate    : TSynthSettingsUpdateEvent;
@@ -247,6 +249,7 @@ uses
     property    OnMidiCCReceive : TMidiCCRecieveEvent read FOnMidiCCReceive write FOnMidiCCReceive;
     property    OnSelectParamPage : TSelectParamPageEvent read FOnSelectParamPage write FOnSelectParamPage;
     property    OnPatchUpdate : TPatchUpdateEvent read FOnPatchUpdate write FOnPatchUpdate;
+    property    OnPatchNameChange : TPatchNameChangeEvent read FOnPatchNameChange write FOnPatchNameChange;
     property    OnVariationChange : TVariationChangeEvent read FOnVariationChange write FOnVariationChange;
     property    OnCopyVariation : TCopyVariationEvent read FOnCopyVariation write FOnCopyVariation;
     property    OnStartStopCommunication : TStartStopCommunicationEvent read FOnStartStopCommunication write FOnStartStopCommunication;
@@ -2533,6 +2536,10 @@ begin
                       begin
                         MemStream.Position := MemStream.Size; // Todo
                         Result := True;
+
+                        if assigned(G2) then
+                          if assigned((G2 as TG2Mess).FOnPatchNameChange) then
+                            (G2 as TG2Mess).FOnPatchNameChange(G2, SenderID, SlotIndex, PatchName);
                       end;
                 Q_RESOURCES_USED :
                       begin
@@ -4071,12 +4078,20 @@ begin
       if (Cable.FromConnector.NewRate <> Cable.ToConnector.NewRate)
          and (Cable.ToConnector.BandWidth = btDynamic) then begin
         // Write cable change message
-        AddSetCableColorMessage( FUndoMessage, Cable, Cable.CableColor);
-        AddSetCableColorMessage( aStream, Cable, Connector.NewConnectorColor);
+        if Connector.NewConnectorColor in [COLOR_RED, COLOR_BLUE, COLOR_YELLOW, COLOR_ORANGE] then begin
+          AddSetCableColorMessage( FUndoMessage, Cable, Cable.CableColor);
+          AddSetCableColorMessage( aStream, Cable, Connector.NewConnectorColor);
+        end;
 
         if Cable.ToConnector.Module <> aToModule then
           CheckUprateChange( aStream, aUprateValue, Cable.ToConnector, Cable.ToConnector.Module);
-      end;
+      end else
+        if (Cable.CableColor <> Connector.NewConnectorColor) and
+           (Connector.NewConnectorColor in [COLOR_RED, COLOR_BLUE, COLOR_YELLOW, COLOR_ORANGE]) then begin
+          // Write cable change message
+          AddSetCableColorMessage( FUndoMessage, Cable, Cable.CableColor);
+          AddSetCableColorMessage( aStream, Cable, Connector.NewConnectorColor);
+        end;
 
       inc(j);
     end;

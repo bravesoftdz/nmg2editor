@@ -160,7 +160,6 @@ type
     procedure   SetBitmap( aValue: TBitmap);
     procedure   SetBackgroundColor( aValue : TColor);
     procedure   SetRackColor( aValue : TColor);
-    //procedure   SetLocation( aValue : TLocationType);
     procedure   SetCopyPatch( aValue : TG2FilePatchPart);
   protected
     procedure   PaintBackGround( ExtCanvas: TCanvas; ExtBoundsRect: TRect);
@@ -200,8 +199,8 @@ type
   public
     constructor Create( aPatch : TG2FilePatch; aLocation : TLocationType; aModuleIndex : integer; aModule : TG2FileModule);
     destructor  Destroy; override;
-    procedure   AssignControl( aControl : TGraphicControl); //override;
-    procedure   DeassignControl( aControl : TGraphicControl); //override;
+    procedure   AssignControl( aControl : TGraphicControl);
+    procedure   DeassignControl( aControl : TGraphicControl);
     procedure   InvalidateControl; override;
   end;
 
@@ -448,7 +447,7 @@ type
     function    GetRelToParentRect : TRect;
     function    GetScreenCoordsRect : TRect; virtual;
     function    GetParamLabelIndex : integer; virtual;
-    procedure   SetParameter( aParam : TG2FileParameter);
+    procedure   SetParameter( aParam : TG2FileParameter); virtual;
     procedure   SetModule( aValue : TG2GraphModulePanel);
     procedure   SetValue( aValue : byte);
     function    GetValue : byte;
@@ -540,19 +539,17 @@ type
   TG2GraphDisplay = class( TG2GraphChildControl)
   private
     // TStrings gives problems in VST?
-    //FLines : TStrings;
     FLine1,
     FLine2,
     FLine3,
     FLine4 : AnsiString;
     FLineCount : integer;
     FTextFunction : integer;
-    //FDependencies : array of integer;
     FMasterRef : integer;
+    FDisplayType : integer;
   protected
     function    GetLine( LineNo : integer): AnsiString;
     procedure   SetLine( LineNo : integer; aValue : AnsiString);
-    //procedure   SetLines( aValue : TStrings);
     procedure   SetLineCount( aValue : integer);
     procedure   SetTextFunction( aValue : integer);
   public
@@ -560,12 +557,12 @@ type
     destructor  Destroy; override;
     procedure   PaintOn( ExtCanvas : TCanvas; ExtBoundsRect : TRect); override;
     function    ParseProperties( fs: TModuleDefStream; aName : AnsiString): boolean; override;
-
+    procedure   SetParameter( aParam : TG2FileParameter); override;
     property    Line[ index : integer] : AnsiString read GetLine write SetLine;
   published
-    //property    Lines : TStrings read FLines write SetLines;
     property    LineCount : integer read FLineCount write SetLineCount;
     property    TextFunction : integer read FTextFunction write SetTextFunction;
+    property    DisplayType : integer read FDisplayType write FDisplayType;
     property    Font;
     property    Color;
   end;
@@ -646,16 +643,12 @@ type
     FImageCount     : integer;
     FCaption        : string;
     FIcon           : TIconType;
-    //FAutoHide       : boolean;
-    //FHide           : boolean;
     FPressed        : boolean;
     FOnClick        : TClickEvent;
   protected
     procedure   MouseDown( Button: TMouseButton; Shift: TShiftState; X: Integer; Y: Integer); override;
     procedure   MouseUp( Button: TMouseButton; Shift: TShiftState; X: Integer; Y: Integer); override;
     procedure   SetCaption( aValue : string);
-    //procedure   SetAutoHide( aValue : boolean);
-    //procedure   SetHide( aValue : boolean);
     procedure   SetIcon( aValue : TIconType);
     procedure   SetButtonText( aValue : TStrings);
     procedure   SetHighLightColor( aValue : TColor);
@@ -671,8 +664,6 @@ type
 
     property    Module : TG2GraphModulePanel read FModule;
     property    Icon : TIconType read FIcon write SetIcon;
-    //property    AutoHide : boolean read FAutoHide write SetAutoHide;
-    //property    Hide : boolean read FHide Write SetHide;
   published
     property    Caption : string read FCaption write SetCaption;
     property    OnClick : TClickEvent read FOnClick write FOnClick;
@@ -895,7 +886,6 @@ type
   // http://lab.andre-michelle.com/cable-interface
   protected
     FParent          : TWinControl;
-    //FPatch           : TG2GraphPatch;
     FModule          : TG2GraphModulePanel;
     FNode            : array[ 0.. NCABLE_ELEMENTS] of TCableElement;
     Fx1, Fy1,
@@ -906,7 +896,7 @@ type
     FTop : integer;
     FWidth : integer;
     FHeight : integer;
-    FInvalidate : boolean;
+    //FInvalidate : boolean;
   public
     constructor Create( AOwner: TComponent); override;
     destructor  Destroy; override;
@@ -914,7 +904,7 @@ type
     procedure   PaintElements;
     procedure   ConnectorMoved; override;
     function    CableResize( ax1, ay1, ax2, ay2 : integer): single;
-    procedure   Invalidate;
+    procedure   Invalidate; override;
     function    GetLeft : integer;
     function    GetTop : integer;
     procedure   SetLeft( aValue : integer);
@@ -1452,12 +1442,6 @@ begin
     end;
 end;
 
-{procedure TG2GraphScrollBox.SetLocation( aValue: TLocationType);
-begin
-  FLocation := aValue;
-  Invalidate;
-end;}
-
 procedure TG2GraphScrollBox.SetRackColor( aValue: TColor);
 begin
   FRackColor := aValue;
@@ -1877,7 +1861,6 @@ procedure TG2Graph.G2ProcessWindowsMessages;
 begin
   Application.ProcessMessages;
 end;
-
 
 // ==== TG2GraphParameter ======================================================
 
@@ -4255,7 +4238,6 @@ end;
 constructor TG2GraphDisplay.Create(AOwner: TComponent);
 begin
   inherited;
-  //FLines := TStringList.Create;
 
   FMouseInput := False;
 
@@ -4264,7 +4246,6 @@ begin
   Font.Style := [fsBold];
   Font.Color := clWhite;
 
-  //FLines.Add(Name);
   FLine1 := '';
   FLine2 := '';
   FLine3 := '';
@@ -4275,16 +4256,14 @@ begin
 
   Width := 38;
   Height := 13;
-  FTextFunction := 0;
-  FMasterRef := -1;
 
-  //SetLength(FDependencies, 0);
+  FDisplayType := 0;
+  //FTextFunction := 0;
+  FMasterRef := -1;
 end;
 
 destructor TG2GraphDisplay.Destroy;
 begin
-  //FLines.Free;
-  //Finalize(FDependencies);
   inherited;
 end;
 
@@ -4301,18 +4280,10 @@ begin
     else
       Result := '';
     end;
-    {if LineNo < FLines.Count then
-      Result := FLines[ LineNo]
-    else
-      Result := '';}
 end;
 
 procedure TG2GraphDisplay.SetLine(LineNo: integer; aValue: AnsiString);
 begin
-  {while LineNo > (FLines.Count - 1) do begin
-    FLines.Add('');
-  end;
-  FLines[ LineNo] := aValue;}
   case LineNo of
   0 : FLine1 := aValue;
   1 : FLine2 := aValue;
@@ -4330,11 +4301,13 @@ begin
     raise Exception.Create('Linecount must be between 1 and 4.');
 end;
 
-{procedure TG2GraphDisplay.SetLines( aValue: TStrings);
+procedure TG2GraphDisplay.SetParameter(aParam: TG2FileParameter);
 begin
-  FLines.Assign( aValue);
-  Invalidate;
-end;}
+  inherited;
+
+  if assigned(aParam) then
+    FTextFunction := aParam.TextFunctionIndex;
+end;
 
 procedure TG2GraphDisplay.SetTextFunction( aValue: integer);
 begin
@@ -4350,10 +4323,6 @@ var Rect, LineRect : TRect;
 begin
   Rect := SubRect( GetRelToParentRect, ExtBoundsRect);
 
-  {if FLines.Count > 0 then
-    LineHeight := (ClientRect.Bottom - ClientRect.Top) div FLines.Count
-  else
-    LineHeight := (ClientRect.Bottom - ClientRect.Top);}
   if FLineCount > 0 then
     LineHeight := (ClientRect.Bottom - ClientRect.Top) div FLineCount
   else
@@ -4374,13 +4343,24 @@ begin
     LineRect.Top := 0;
     LineRect.Bottom := LineRect.Top + LineHeight + 1;
 
-    //for i := 0 to FLines.Count - 1 do begin
     for i := 0 to FLineCount - 1 do begin
       Bitmap.Canvas.FillRect( LineRect);
-      if assigned(FParameter) then
-        //TextCenter( Bitmap.Canvas, LineRect, FParameter.TextFunction(FTextFunction, i, FLineCount, FDependencies))
-        TextCenter( Bitmap.Canvas, LineRect, FParameter.TextFunction(FTextFunction, i, FLineCount))
-      else
+      if assigned(FParameter) then begin
+        case FDisplayType of
+        0 : TextCenter( Bitmap.Canvas, LineRect, FParameter.TextFunction);
+        1 : case i of
+            0 : TextCenter( Bitmap.Canvas, LineRect, FParameter.ParamName);
+            1 : TextCenter( Bitmap.Canvas, LineRect, FParameter.TextFunction);
+            end;
+        2 : case i of
+            0 : TextCenter( Bitmap.Canvas, LineRect, FParameter.ParamName);
+            1 : TextCenter( Bitmap.Canvas, LineRect, IntToStr(FParameter.GetParameterValue));
+            end;
+        3 : TextCenter( Bitmap.Canvas, LineRect, FParameter.ParamName);
+        4 : TextCenter( Bitmap.Canvas, LineRect, IntToStr(FParameter.Patch.Slot.SlotIndex + 1) + ':' + string(FParameter.ModuleName));
+        5 : TextCenter( Bitmap.Canvas, LineRect, FParameter.ModuleName);
+        end;
+      end else
         TextCenter( Bitmap.Canvas, LineRect, Line[i]);
       LineRect.Top := LineRect.Top + LineHeight;
       LineRect.Bottom := LineRect.Bottom + LineHeight + 1;
@@ -4431,26 +4411,18 @@ begin
               if (i<sl.Count) then begin
                 // Assign master parameter first
                 if (Lowercase(sl[ i][1]) = 's') then begin // One of the static params
-                  //val( copy(sl[i], 2, Length(sl[FMasterRef]) - 1), value, c);
-                  //if c = 0 then begin
-                  //  FParameter := FModule.FData.Mode[ value] as TG2GraphParameter;
-                  //  (FModule.FData.Mode[ value] as TG2GraphParameter).AssignControl(self);
-                  //end;
                   FParameter := FModule.FData.Mode[ FMasterRef] as TG2GraphParameter;
-                  (FModule.FData.Mode[ FMasterRef] as TG2GraphParameter).AssignControl(self);
+                  FParameter.TextFunctionIndex := FTextFunction;
+                  (FParameter as TG2GraphParameter).AssignControl(self);
                 end else begin
-                  //val(sl[i], value, c);
-                  //if c = 0 then begin
-                   // FParameter := FModule.FData.Parameter[ value] as TG2GraphParameter;
-                   // (FModule.FData.Parameter[ value] as TG2GraphParameter).AssignControl(self);
-                  //end;
-                   FParameter := FModule.FData.Parameter[ FMasterRef] as TG2GraphParameter;
-                   (FModule.FData.Parameter[ FMasterRef] as TG2GraphParameter).AssignControl(self);
+                  FParameter := FModule.FData.Parameter[ FMasterRef] as TG2GraphParameter;
+                  FParameter.TextFunctionIndex := FTextFunction;
+                  (FParameter as TG2GraphParameter).AssignControl(self);
                 end;
               end else begin
-                //raise Exception.Create('Master ref not found in dependency list.');
                  FParameter := FModule.FData.Parameter[ FMasterRef] as TG2GraphParameter;
-                 (FModule.FData.Parameter[ FMasterRef] as TG2GraphParameter).AssignControl(self);
+                  FParameter.TextFunctionIndex := FTextFunction;
+                  (FParameter as TG2GraphParameter).AssignControl(self);
               end;
 
               if assigned(FParameter) then begin
@@ -4459,30 +4431,21 @@ begin
                   if (length(sl[i])>0) and (Lowercase(sl[i][1]) = 's') then begin
                     val(copy(sl[i], 2, Length(sl[i]) - 1), value, c);
                     if c = 0 then begin
-                      FParameter.AddDependency(ptMode, value);
+                      FParameter.AddTextDependency(ptMode, value);
                       (FModule.FData.Mode[ value] as TG2GraphParameter).AssignControl(self);
                     end;
                   end else begin
                     val(sl[i], value, c);
                     if c = 0 then begin
-                      FParameter.AddDependency(ptParam, value);
+                      FParameter.AddTextDependency(ptParam, value);
                       (FModule.FData.Parameter[ value] as TG2GraphParameter).AssignControl(self);
                     end;
                   end;
                 end;
               end;
-            //end;
           end else
             raise Exception.Create('Master param not assigned yet...');
 
-        {SetLength(FDependencies, sl.Count);
-        for i := 0 to sl.Count - 1 do begin
-          val(sl[i], value, c);
-          if c = 0 then begin
-            (FModule.FData.Parameter[ value] as TG2GraphParameter).AssignControl(self);
-            FDependencies[i] := value;
-          end;
-        end;}
       finally
         sl.Free;
       end;
@@ -6032,34 +5995,35 @@ begin
 end;
 
 procedure TG2GraphKnob.MouseMove(Shift: TShiftState; X, Y: Integer);
-var FdX, FdY : integer;
+var FdX, FdY, ValueRange : integer;
 begin
   if (ssLeft in Shift) then begin
 
     FdX := X - FStartX;
     FdY := Y - FStartY;
+    ValueRange := HighValue - LowValue;
 
     if ( FType in [ktBig, ktMedium, ktSmall, ktExtraSmall, ktReset, ktResetMedium]) then begin
       if ssCtrl in Shift then
-        SetMorphValue( CheckValueBounds( FStartValue + trunc((FHighValue - FLowValue) * FdX / 100)) - Value)
+        SetMorphValue( CheckValueBounds( FStartValue + trunc(ValueRange * FdX / 60)) - Value)
       else
-        Value := CheckValueBounds( FStartValue + trunc((FHighValue - FLowValue) * FdX / 100));
+        Value := CheckValueBounds( FStartValue + trunc(ValueRange * FdX / 60));
     end else
       if ( FType in [ktSlider, ktSeqSlider]) and FSliderSelected then begin
         if ssCtrl in Shift then begin
           if (FOrientation = otVertical) then begin
             if (Height - FSliderSize > 0) then
-              SetMorphValue( CheckValueBounds( FStartValue + trunc((FHighValue - FLowValue) * -FdY / (Height - FSliderSize))) - Value);
+              SetMorphValue( CheckValueBounds( FStartValue + trunc(ValueRange * -FdY / (Height - FSliderSize))) - Value);
           end else
             if (Width - FSliderSize > 0) then
-              SetMorphValue( CheckValueBounds( FStartValue + trunc((FHighValue - FLowValue) * FdX / (Width - FSliderSize))) - Value);
+              SetMorphValue( CheckValueBounds( FStartValue + trunc(ValueRange * FdX / (Width - FSliderSize))) - Value);
         end else begin
           if (FOrientation = otVertical) then begin
             if (Height - FSliderSize > 0) then
-              Value := CheckValueBounds( FStartValue + trunc((FHighValue - FLowValue) * -FdY / (Height - FSliderSize)));
+              Value := CheckValueBounds( FStartValue + trunc(ValueRange * -FdY / (Height - FSliderSize)));
           end else
             if (Width - FSliderSize > 0) then
-              Value := CheckValueBounds( FStartValue + trunc((FHighValue - FLowValue) * FdX / (Width - FSliderSize)));
+              Value := CheckValueBounds( FStartValue + trunc(ValueRange * FdX / (Width - FSliderSize)));
         end;
       end;
     Invalidate;
@@ -7020,7 +6984,7 @@ end;
 
 procedure TG2GraphCable.Invalidate;
 begin
-  FInvalidate := True;
+  ConnectorMoved;
 end;
 
 function TG2GraphCable.CableResize( ax1, ay1, ax2, ay2 : integer): single;

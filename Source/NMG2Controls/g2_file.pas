@@ -302,12 +302,15 @@ type
 
     FFromConnector,
     FToConnector   : TG2FileConnector;
+  protected
+    procedure   SetCableColor( Value : byte);
   public
     constructor Create( AOwner: TComponent); virtual;
     constructor CopyCreate( AOwner: TComponent; aCable : TG2FileCable);
     destructor  Destroy; override;
     procedure   Init;
     procedure   ConnectorMoved; virtual;
+    procedure   Invalidate; virtual;
     procedure   Read( aChunk : TPatchChunk);
     procedure   Write( aChunk : TPatchChunk);
 
@@ -318,7 +321,7 @@ type
     property    ConnectorTo : TBits6 read FConnectorTo write FConnectorTo;
     property    FromConnector : TG2FileConnector read FFromConnector write FFromConnector;
     property    ToConnector : TG2FileConnector read FToConnector write FToConnector;
-    property    CableColor : Byte read FCableColor write FCableColor;
+    property    CableColor : Byte read FCableColor write SetCableColor;
   end;
 
   TCableList = class( TObjectList)
@@ -1129,11 +1132,13 @@ type
     FModuleName        : AnsiString;
     FDefaultParamLabel : AnsiString;
     FCanChangeLabel    : boolean;
-    FDefaultKnob       : integer; // When a module is assigned to a parameter page
+    FDefaultKnob       : integer; // The knob nr, when a module is assigned to a parameter page
     FButtonParamIndex  : integer; // The parameter that is assigned to the button below the knob on the param page
     FButtonText        : TStrings;
     FInfoFunctionIndex : integer;
-    FDependencies      : array of TParamRef;
+    FTextFunctionIndex : integer;
+    FTextDependencies  : array of TParamRef;
+    FGraphDependencies : array of TParamRef;
   protected
     procedure   SetSelected( aValue : boolean); virtual;
     function    GetSelected : boolean;
@@ -1167,13 +1172,14 @@ type
     function    GetSelectedMorphValue : byte;
     function    GetMorphValue( aMorphIndex, aVariation : integer) : byte;
     procedure   SetSelectedMorphValue( Value: byte);
-    procedure   AddDependency( aParamType : TParamType; aParamIndex : byte);
-    function    GetDependendParamValue( aIndex : integer) : byte;
+    procedure   AddTextDependency( aParamType : TParamType; aParamIndex : byte);
+    function    GetTextDependendParamValue( aIndex : integer) : byte;
+    procedure   AddGraphDependency( aParamType : TParamType; aParamIndex : byte);
+    function    GetGraphDependendParamValue( aIndex : integer) : byte;
+    function    DelayDispValue( aType : integer; aRange : integer; aValue : integer): string;
+    function    G2BPM( aValue : integer): string;
     function    InfoFunction: string;
-    //function    TextFunction( aTextFunction: integer; LineNo, TotalLines : integer; aParams : array of integer): string;
-    function    TextFunction( aTextFunction: integer; LineNo, TotalLines : integer): string;
-    //FMX procedure   AssignControl( aControl : TGraphicControl); virtual; abstract;
-    //FMX procedure   DeassignControl( aControl : TGraphicControl); virtual; abstract;
+    function    TextFunction{( aTextFunction: integer; LineNo, TotalLines : integer)}: string;
     procedure   InvalidateControl; virtual;
 
     property    ParamType : TParamType read FParamType write FParamType;
@@ -1193,6 +1199,7 @@ type
     property    GlobalKnob : TGlobalKnob read FGlobalKnob write FGlobalKnob;
     property    Controller : TController read FController write FController;
     property    InfoFunctionIndex : integer read FInfoFunctionIndex write FInfoFunctionIndex;
+    property    TextFunctionIndex : integer read FTextFunctionIndex write FTextFunctionIndex;
     property    ButtonParamIndex : integer read FButtonParamIndex write FButtonParamIndex;
     property    DefaultKnob : integer read FDefaultKnob write FDefaultKnob;
     property    ButtonText[ index : integer]: string read GetButtonText write SetButtonText;
@@ -2221,6 +2228,19 @@ begin
  FLinkType      := aChunk.ReadBits( 1);
  FModuleTo      := aChunk.ReadBits( 8);
  FConnectorTo   := aChunk.ReadBits( 6);
+end;
+
+procedure TG2FileCable.Invalidate;
+begin
+  // abstract
+end;
+
+procedure TG2FileCable.SetCableColor(Value: byte);
+begin
+  if FCableColor <> Value then begin
+    FCableColor := Value;
+    Invalidate;
+  end;
 end;
 
 procedure TG2FileCable.Write( aChunk : TPatchChunk);
@@ -6644,12 +6664,15 @@ begin
   FButtonText.Delimiter := ';';
   FButtonText.StrictDelimiter := True;
   FInfoFunctionIndex := 0;
-  SetLength( FDependencies, 0);
+  FTextFunctionIndex := 0;
+  SetLength( FTextDependencies, 0);
+  SetLength( FGraphDependencies, 0);
 end;
 
 destructor TG2FileParameter.Destroy;
 begin
-  Finalize( FDependencies);
+  Finalize( FGraphDependencies);
+  Finalize( FTextDependencies);
   FButtonText.Free;
   inherited;
 end;
@@ -6947,20 +6970,6 @@ end;
 function TG2FileParameter.GetSelectedButtonText: string;
 var ParamValue : byte;
 begin
-  {if FButtonText.Count > 0 then begin
-    if FButtonText.Count = 1 then begin
-      Result := string(ParamLabel);
-      if Result = '' then
-        Result := FButtonText[0];
-    end else begin
-      ParamValue := GetParameterValue;
-      if ParamValue < FButtonText.Count then
-        Result := FButtonText[ParamValue]
-      else
-        Result := 'Overflow';
-    end;
-  end else
-    Result := '';}
   if CanChangeLabel then
     Result := string(ParamLabel[0])
   else begin
@@ -6968,7 +6977,8 @@ begin
     if ParamValue < FButtonText.Count then
       Result := FButtonText[ParamValue]
     else
-      Result := IntToStr(ParamValue);
+      //Result := IntToStr(ParamValue);
+      Result := InfoFunction;
   end;
 end;
 
@@ -7008,29 +7018,277 @@ begin
   end;
 end;
 
-procedure TG2FileParameter.AddDependency( aParamType : TParamType; aParamIndex : byte);
+procedure TG2FileParameter.AddTextDependency( aParamType : TParamType; aParamIndex : byte);
 var i : integer;
 begin
-  i := Length(FDependencies);
-  SetLength( FDependencies, i + 1);
-  FDependencies[i].ParamType := aParamType;
-  FDependencies[i].ParamIndex := aParamIndex;
+  i := Length(FTextDependencies);
+  SetLength( FTextDependencies, i + 1);
+  FTextDependencies[i].ParamType := aParamType;
+  FTextDependencies[i].ParamIndex := aParamIndex;
 end;
 
-function TG2FileParameter.GetDependendParamValue( aIndex : integer) : byte;
+function TG2FileParameter.GetTextDependendParamValue( aIndex : integer) : byte;
 begin
-  if aIndex < Length(FDependencies) then begin
-    if FDependencies[aIndex].ParamType = ptParam then
-      Result := Module.Parameter[FDependencies[aIndex].ParamIndex].GetParameterValue
+  if aIndex < Length(FTextDependencies) then begin
+    if FTextDependencies[aIndex].ParamType = ptParam then
+      Result := Module.Parameter[FTextDependencies[aIndex].ParamIndex].GetParameterValue
     else
-      Result := Module.Mode[FDependencies[aIndex].ParamIndex].GetParameterValue;
+      Result := Module.Mode[FTextDependencies[aIndex].ParamIndex].GetParameterValue;
   end else
     Result := 0;
 end;
 
+procedure TG2FileParameter.AddGraphDependency( aParamType : TParamType; aParamIndex : byte);
+var i : integer;
+begin
+  i := Length(FGraphDependencies);
+  SetLength( FGraphDependencies, i + 1);
+  FGraphDependencies[i].ParamType := aParamType;
+  FGraphDependencies[i].ParamIndex := aParamIndex;
+end;
+
+function TG2FileParameter.GetGraphDependendParamValue( aIndex : integer) : byte;
+begin
+  if aIndex < Length(FGraphDependencies) then begin
+    if FGraphDependencies[aIndex].ParamType = ptParam then
+      Result := Module.Parameter[FGraphDependencies[aIndex].ParamIndex].GetParameterValue
+    else
+      Result := Module.Mode[FGraphDependencies[aIndex].ParamIndex].GetParameterValue;
+  end else
+    Result := 0;
+end;
+
+function TG2FileParameter.DelayDispValue( aType : integer; aRange : integer; aValue : integer): string;
+var DlyRange, DlyMin, DlyMax : single;
+begin
+  case aType of
+  0 : begin // ranges 5m,25m,100m,500m,1sm,2s,2.7s
+         case aRange of
+         0 : begin
+               DlyMin := 0.05;
+               DlyMax := 5.3;
+               if aValue = 0 then
+                 Result := '0,01m'
+               else
+                 Result := G2FloatToStr(DlyMin + (DlyMax - DlyMin) * (aValue - 1) /126, 4) + 'm';
+             end;
+         1 : begin
+               DlyMin := 0.21;
+               DlyMax := 25.1;
+               if aValue = 0 then
+                 Result := '0,01m'
+               else
+                 Result := G2FloatToStr(DlyMin + (DlyMax - DlyMin) * (aValue - 1) /126, 4) + 'm';
+             end;
+         2 : begin
+               DlyMin := 0.8;
+               DlyMax := 100;
+               if aValue = 0 then
+                 Result := '0,01m'
+               else
+                 Result := G2FloatToStr(DlyMin + (DlyMax - DlyMin) * (aValue - 1) /126, 4) + 'm';
+             end;
+         3 : begin
+               DlyMin := 3.95;
+               DlyMax := 500;
+               if aValue = 0 then
+                 Result := '0,01m'
+               else
+                 Result := G2FloatToStr(DlyMin + (DlyMax - DlyMin) * (aValue - 1) /126, 4) + 'm';
+             end;
+         4 : begin
+               DlyMin := 7.89;
+               DlyMax := 1000;
+               if aValue = 0 then
+                 Result := '0,01m'
+               else
+                 if aValue = 127 then
+                   Result := '1,000s'
+                 else
+                   Result := G2FloatToStr(DlyMin + (DlyMax - DlyMin) * (aValue - 1) /126, 4) + 'm';
+             end;
+         5 : begin
+               DlyMin := 15.8;
+               DlyMax := 2000;
+               if aValue = 0 then
+                 Result := '0,01m'
+               else
+                 if aValue >= 64 then
+                   Result := G2FloatToStr((DlyMin + (DlyMax - DlyMin) * (aValue - 1) /126)/1000, 5) + 's'
+                 else
+                   Result := G2FloatToStr(DlyMin + (DlyMax - DlyMin) * (aValue - 1) /126, 4) + 'm';
+             end;
+         6 : begin
+               DlyMin := 21.3;
+               DlyMax := 2700;
+               if aValue = 0 then
+                 Result := '0,01m'
+               else
+                 if aValue >= 48 then
+                   Result := G2FloatToStr((DlyMin + (DlyMax - DlyMin) * (aValue - 1) /126)/1000, 5) + 's'
+                 else
+                   Result := G2FloatToStr(DlyMin + (DlyMax - DlyMin) * (aValue - 1) /126, 5) + 'm';
+             end;
+         end;
+      end;
+  1 : begin // ranges 5m,25m,100m,500m,1sm,2s,2.7s for DelayEight
+         case aRange of
+         0 : begin
+               DlyMin := 0;
+               DlyMax := 0.66;
+             end;
+         1 : begin
+               DlyMin := 0;
+               DlyMax := 3.14;
+             end;
+         2 : begin
+               DlyMin := 0;
+               DlyMax := 12.6;
+             end;
+         3 : begin
+               DlyMin := 0;
+               DlyMax := 62.5;
+             end;
+         4 : begin
+               DlyMin := 0;
+               DlyMax := 125;
+             end;
+         5 : begin
+               DlyMin := 0;
+               DlyMax := 250;
+             end;
+         6 : begin
+               DlyMin := 0;
+               DlyMax := 338;
+             end;
+         end;
+         Result := G2FloatToStr(DlyMin + (DlyMax - DlyMin) * aValue /127, 4) + 'm';
+      end;
+  2 : begin // ranges 500m,1s,2s,2.7s
+         case aRange of
+         0 : begin
+               DlyRange := 500;
+               if aValue = 0 then
+                 Result := '0,01m'
+               else
+                 Result := G2FloatToStr(DlyRange * aValue /127,4) + 'm';
+             end;
+         1 : begin
+               DlyRange := 1000;
+               if aValue = 0 then
+                 Result := '0,01m'
+               else
+                 if aValue = 127 then
+                   Result := '1,00s'
+                 else
+                   Result := G2FloatToStr(DlyRange * aValue /127,4) + 'm';
+             end;
+         2 : begin
+               DlyRange := 2000;
+               if aValue = 0 then
+                 Result := '0,01m'
+               else
+                 if aValue >= 64 then
+                   Result := G2FloatToStr(DlyRange * aValue /127000,5) + 's'
+                 else
+                   Result := G2FloatToStr(DlyRange * aValue /127,4) + 'm';
+             end;
+         3 : begin
+               DlyRange := 2700;
+               if aValue = 0 then
+                 Result := '0,01m'
+               else
+                 if aValue >= 48 then
+                   Result := G2FloatToStr(DlyRange * aValue /127000,5) + 's'
+                 else
+                   Result := G2FloatToStr(DlyRange * aValue /127,4) + 'm';
+             end;
+         end;
+      end;
+  3 : begin // ranges 500m,1s,1.351s
+         case aRange of
+         0 : begin
+               DlyRange := 500;
+               if aValue = 0 then
+                 Result := '0,01m'
+               else
+                 Result := G2FloatToStr(DlyRange * aValue /127,4) + 'm';
+             end;
+         1 : begin
+               DlyRange := 1000;
+               if aValue = 0 then
+                 Result := '0,01m'
+               else
+                 if aValue = 127 then
+                   Result := '1,00s'
+                 else
+                   Result := G2FloatToStr(DlyRange * aValue /127,4) + 'm';
+             end;
+         2 : begin
+               DlyRange := 1351;
+               if aValue = 0 then
+                 Result := '0,01m'
+               else
+                 if aValue >= 95 then
+                   Result := G2FloatToStr(DlyRange * aValue /127000,5) + 's'
+                 else
+                   Result := G2FloatToStr(DlyRange * aValue /127,4) + 'm';
+             end;
+         end;
+      end;
+  4 : begin // Clock synced
+        case aValue of
+            0..3 : Result := '1/64T';
+            4..7 : Result := '1/64';
+           8..11 : Result := '1/32T';
+          12..15 : Result := '1/64D';
+          16..19 : Result := '1/32';
+          20..23 : Result := '1/16T';
+          24..27 : Result := '1/32D';
+          28..31 : Result := '1/16';
+          32..35 : Result := '1/16';
+          36..39 : Result := '1/8T';
+          40..43 : Result := '1/8T';
+          44..47 : Result := '1/16D';
+          48..51 : Result := '1/16D';
+          52..55 : Result := '1/8';
+          56..59 : Result := '1/8';
+          60..63 : Result := '1/4T';
+          64..67 : Result := '1/4T';
+          68..71 : Result := '1/8D';
+          72..75 : Result := '1/8D';
+          76..79 : Result := '1/4';
+          80..83 : Result := '1/4';
+          84..87 : Result := '1/2T';
+          88..91 : Result := '1/2T';
+          92..95 : Result := '1/4D';
+          96..99 : Result := '1/4D';
+        100..103 : Result := '1/2';
+        104..107 : Result := '1/2';
+        108..111 : Result := '1/1T';
+        112..115 : Result := '1/2D';
+        116..119 : Result := '1/1';
+        120..123 : Result := '1/1D';
+        124..127 : Result := '2/1';
+        end;
+      end;
+  end;
+end;
+
+function TG2FileParameter.G2BPM( aValue : integer): string;
+begin
+   if aValue <= 32 then
+     Result := IntToStr(24 + 2*aValue)
+   else
+     if aValue <= 96 then
+       Result := IntToStr(88 + aValue - 32)
+     else
+       Result := IntToStr(152 + (aValue - 96)*2);
+end;
+
 function TG2FileParameter.InfoFunction: string;
 var t : single;
-    FreqCourse, FreqFine, FreqMode : Byte;
+    FreqCourse, FreqFine, FreqMode, LevelShiftValue : Byte;
     Exponent, Freq, Fact, DlyRange : single;
     iValue1, iValue2 : integer;
     TempValue : integer;
@@ -7093,7 +7351,31 @@ begin
          Result := GetKeyName(GetParameterValue);
        end;
   16 : begin // Env Sustain
-         Result := Format('%.1g', [1.0 * round(GetParameterValue/2)])
+         if (Length(FTextDependencies)>1) then
+           LevelShiftValue := GetTextDependendParamValue(1)
+         else
+           LevelShiftValue := 0;
+
+         case LevelShiftValue of
+         0 : begin // Pos
+               Result := Format('%.1g', [1.0 * round(GetParameterValue/2)])
+             end;
+         1 : begin // PosInv
+               Result := Format('%.1g', [1.0 * round(GetParameterValue/2)])
+             end;
+         2 : begin // Neg
+               Result := Format('%.1g', [1.0 * round(GetParameterValue/2)])
+             end;
+         3 : begin // NegInv
+               Result := Format('%.1g', [1.0 * round(GetParameterValue/2)])
+             end;
+         4 : begin // Bip
+               Result := Format('%.1g', [1.0 * round(GetParameterValue) - 64])
+             end;
+         5 : begin // BipInv
+               Result := Format('%.1g', [1.0 * round(GetParameterValue) - 64])
+             end;
+         end;
        end;
   18 : begin // Seq, Pol
          case GetParameterValue of
@@ -7198,10 +7480,10 @@ begin
            FreqCourse := aValue;
            FreqFine := Module.Parameter[aParams[1]].GetParameterValue;
            FreqMode := Module.Parameter[aParams[2]].GetParameterValue;}
-         if assigned(Module) and (Length(FDependencies)=3) then begin
+         if assigned(Module) and (Length(FTextDependencies)=3) then begin
            FreqCourse := GetParameterValue;
-           FreqFine := GetDependendParamValue(1);
-           FreqMode := GetDependendParamValue(2);
+           FreqFine := GetTextDependendParamValue(1);
+           FreqMode := GetTextDependendParamValue(2);
            case FreqMode of
            0 : begin // Semi
                  iValue1 := FreqCourse - 64;
@@ -7538,252 +7820,23 @@ end;
 // Midi...
 
 
-//function TG2FileParameter.TextFunction( aTextFunction : integer; LineNo, TotalLines : integer; aParams : array of integer): string;
-function TG2FileParameter.TextFunction( aTextFunction : integer; LineNo, TotalLines : integer): string;
+function TG2FileParameter.TextFunction{( aTextFunction : integer; LineNo, TotalLines : integer)}: string;
 var aValue : byte;
     FreqCourse, FreqFine, FreqMode : Byte;
-    Exponent, Freq, Fact, DlyRange, DlyMin, DlyMax : single;
+    Exponent, Freq, Fact : single;
     iValue1, iValue2 : integer;
-
-    function DelayDispValue( aType : integer; aRange : integer; aValue : integer): string;
-    begin
-      case aType of
-      0 : begin // ranges 5m,25m,100m,500m,1sm,2s,2.7s
-             case aRange of
-             0 : begin
-                   DlyMin := 0.05;
-                   DlyMax := 5.3;
-                   if aValue = 0 then
-                     Result := '0,01m'
-                   else
-                     Result := G2FloatToStr(DlyMin + (DlyMax - DlyMin) * (aValue - 1) /126, 4) + 'm';
-                 end;
-             1 : begin
-                   DlyMin := 0.21;
-                   DlyMax := 25.1;
-                   if aValue = 0 then
-                     Result := '0,01m'
-                   else
-                     Result := G2FloatToStr(DlyMin + (DlyMax - DlyMin) * (aValue - 1) /126, 4) + 'm';
-                 end;
-             2 : begin
-                   DlyMin := 0.8;
-                   DlyMax := 100;
-                   if aValue = 0 then
-                     Result := '0,01m'
-                   else
-                     Result := G2FloatToStr(DlyMin + (DlyMax - DlyMin) * (aValue - 1) /126, 4) + 'm';
-                 end;
-             3 : begin
-                   DlyMin := 3.95;
-                   DlyMax := 500;
-                   if aValue = 0 then
-                     Result := '0,01m'
-                   else
-                     Result := G2FloatToStr(DlyMin + (DlyMax - DlyMin) * (aValue - 1) /126, 4) + 'm';
-                 end;
-             4 : begin
-                   DlyMin := 7.89;
-                   DlyMax := 1000;
-                   if aValue = 0 then
-                     Result := '0,01m'
-                   else
-                     if aValue = 127 then
-                       Result := '1,000s'
-                     else
-                       Result := G2FloatToStr(DlyMin + (DlyMax - DlyMin) * (aValue - 1) /126, 4) + 'm';
-                 end;
-             5 : begin
-                   DlyMin := 15.8;
-                   DlyMax := 2000;
-                   if aValue = 0 then
-                     Result := '0,01m'
-                   else
-                     if aValue >= 64 then
-                       Result := G2FloatToStr((DlyMin + (DlyMax - DlyMin) * (aValue - 1) /126)/1000, 5) + 's'
-                     else
-                       Result := G2FloatToStr(DlyMin + (DlyMax - DlyMin) * (aValue - 1) /126, 4) + 'm';
-                 end;
-             6 : begin
-                   DlyMin := 21.3;
-                   DlyMax := 2700;
-                   if aValue = 0 then
-                     Result := '0,01m'
-                   else
-                     if aValue >= 48 then
-                       Result := G2FloatToStr((DlyMin + (DlyMax - DlyMin) * (aValue - 1) /126)/1000, 5) + 's'
-                     else
-                       Result := G2FloatToStr(DlyMin + (DlyMax - DlyMin) * (aValue - 1) /126, 5) + 'm';
-                 end;
-             end;
-          end;
-      1 : begin // ranges 5m,25m,100m,500m,1sm,2s,2.7s for DelayEight
-             case aRange of
-             0 : begin
-                   DlyMin := 0;
-                   DlyMax := 0.66;
-                 end;
-             1 : begin
-                   DlyMin := 0;
-                   DlyMax := 3.14;
-                 end;
-             2 : begin
-                   DlyMin := 0;
-                   DlyMax := 12.6;
-                 end;
-             3 : begin
-                   DlyMin := 0;
-                   DlyMax := 62.5;
-                 end;
-             4 : begin
-                   DlyMin := 0;
-                   DlyMax := 125;
-                 end;
-             5 : begin
-                   DlyMin := 0;
-                   DlyMax := 250;
-                 end;
-             6 : begin
-                   DlyMin := 0;
-                   DlyMax := 338;
-                 end;
-             end;
-             Result := G2FloatToStr(DlyMin + (DlyMax - DlyMin) * aValue /127, 4) + 'm';
-          end;
-      2 : begin // ranges 500m,1s,2s,2.7s
-             case aRange of
-             0 : begin
-                   DlyRange := 500;
-                   if aValue = 0 then
-                     Result := '0,01m'
-                   else
-                     Result := G2FloatToStr(DlyRange * aValue /127,4) + 'm';
-                 end;
-             1 : begin
-                   DlyRange := 1000;
-                   if aValue = 0 then
-                     Result := '0,01m'
-                   else
-                     if aValue = 127 then
-                       Result := '1,00s'
-                     else
-                       Result := G2FloatToStr(DlyRange * aValue /127,4) + 'm';
-                 end;
-             2 : begin
-                   DlyRange := 2000;
-                   if aValue = 0 then
-                     Result := '0,01m'
-                   else
-                     if aValue >= 64 then
-                       Result := G2FloatToStr(DlyRange * aValue /127000,5) + 's'
-                     else
-                       Result := G2FloatToStr(DlyRange * aValue /127,4) + 'm';
-                 end;
-             3 : begin
-                   DlyRange := 2700;
-                   if aValue = 0 then
-                     Result := '0,01m'
-                   else
-                     if aValue >= 48 then
-                       Result := G2FloatToStr(DlyRange * aValue /127000,5) + 's'
-                     else
-                       Result := G2FloatToStr(DlyRange * aValue /127,4) + 'm';
-                 end;
-             end;
-          end;
-      3 : begin // ranges 500m,1s,1.351s
-             case aRange of
-             0 : begin
-                   DlyRange := 500;
-                   if aValue = 0 then
-                     Result := '0,01m'
-                   else
-                     Result := G2FloatToStr(DlyRange * aValue /127,4) + 'm';
-                 end;
-             1 : begin
-                   DlyRange := 1000;
-                   if aValue = 0 then
-                     Result := '0,01m'
-                   else
-                     if aValue = 127 then
-                       Result := '1,00s'
-                     else
-                       Result := G2FloatToStr(DlyRange * aValue /127,4) + 'm';
-                 end;
-             2 : begin
-                   DlyRange := 1351;
-                   if aValue = 0 then
-                     Result := '0,01m'
-                   else
-                     if aValue >= 95 then
-                       Result := G2FloatToStr(DlyRange * aValue /127000,5) + 's'
-                     else
-                       Result := G2FloatToStr(DlyRange * aValue /127,4) + 'm';
-                 end;
-             end;
-          end;
-      4 : begin // Clock synced
-            case aValue of
-                0..3 : Result := '1/64T';
-                4..7 : Result := '1/64';
-               8..11 : Result := '1/32T';
-              12..15 : Result := '1/64D';
-              16..19 : Result := '1/32';
-              20..23 : Result := '1/16T';
-              24..27 : Result := '1/32D';
-              28..31 : Result := '1/16';
-              32..35 : Result := '1/16';
-              36..39 : Result := '1/8T';
-              40..43 : Result := '1/8T';
-              44..47 : Result := '1/16D';
-              48..51 : Result := '1/16D';
-              52..55 : Result := '1/8';
-              56..59 : Result := '1/8';
-              60..63 : Result := '1/4T';
-              64..67 : Result := '1/4T';
-              68..71 : Result := '1/8D';
-              72..75 : Result := '1/8D';
-              76..79 : Result := '1/4';
-              80..83 : Result := '1/4';
-              84..87 : Result := '1/2T';
-              88..91 : Result := '1/2T';
-              92..95 : Result := '1/4D';
-              96..99 : Result := '1/4D';
-            100..103 : Result := '1/2';
-            104..107 : Result := '1/2';
-            108..111 : Result := '1/1T';
-            112..115 : Result := '1/2D';
-            116..119 : Result := '1/1';
-            120..123 : Result := '1/1D';
-            124..127 : Result := '2/1';
-            end;
-          end;
-      end;
-    end;
-
-    function G2BPM( aValue : integer): string;
-    begin
-       if aValue <= 32 then
-         Result := IntToStr(24 + 2*aValue)
-       else
-         if aValue <= 96 then
-           Result := IntToStr(88 + aValue - 32)
-         else
-           Result := IntToStr(152 + (aValue - 96)*2);
-    end;
-
 begin
-  if (aTextFunction <> 0) and assigned(Module) and (Length(FDependencies)>0) then
-    aValue := GetDependendParamValue( 0)
+  if ({aTextFunction}FTextFunctionIndex <> 0) and assigned(Module) and (Length(FTextDependencies)>0) then
+    aValue := GetTextDependendParamValue( 0)
   else
     aValue := GetParameterValue;
 
-  case aTextFunction of
+  case {aTextFunction}FTextFunctionIndex of
   // Zero: displays that are dependend on one parameter only
   0, 13 : begin // Filter freq Nord
            Result := InfoFunction;
          end;
-  2    : begin //DlyClock
+  2    : begin // DlyClock
            Result := IntToStr(aValue + 1);
          end;
   27   : begin // OscShpB, shape Mod
@@ -7793,8 +7846,8 @@ begin
            Result := InfoFunction;
          end;
   103  : begin // LFO Freq
-           if assigned(Module) and (Length(FDependencies)=2) then begin
-             iValue1 := GetDependendParamValue(1);
+           if assigned(Module) and (Length(FTextDependencies)=2) then begin
+             iValue1 := GetTextDependendParamValue(1);
              case iValue1 of
              0 : Result := G2FloatToStr( 699 / (aValue+1), 4) + 's';
              1 : if aValue < 32 then
@@ -7817,10 +7870,10 @@ begin
            20 : Result := 'Slot D';
            end;
          end;
-  110  : begin //ClkGen
-           if assigned(Module) and (Length(FDependencies)=3) then begin
-             iValue1 := GetDependendParamValue(1);
-             iValue2 := GetDependendParamValue(2);
+  110  : begin // ClkGen
+           if assigned(Module) and (Length(FTextDependencies)=3) then begin
+             iValue1 := GetTextDependendParamValue(1);
+             iValue2 := GetTextDependendParamValue(2);
              if iValue1 = 0 then
                Result := '--'
              else
@@ -7831,8 +7884,8 @@ begin
            end;
          end;
   133  : begin // SeqVal
-           if assigned(Module) and (Length(FDependencies)=2) then begin
-             iValue1 := GetDependendParamValue(1);
+           if assigned(Module) and (Length(FTextDependencies)=2) then begin
+             iValue1 := GetTextDependendParamValue(1);
              case iValue1 of
              0 : begin // Bipol
                    Result := IntToStr(aValue - 64);
@@ -7843,10 +7896,13 @@ begin
              end;
            end;
          end;
+  137 : begin // Env Sustain
+          Result := InfoFunction;
+        end;
   140  : begin // Dly time
-           if assigned(Module) and (Length(FDependencies)=3) then begin
-             iValue1 := GetDependendParamValue(1);
-             iValue2 := GetDependendParamValue(2);
+           if assigned(Module) and (Length(FTextDependencies)=3) then begin
+             iValue1 := GetTextDependendParamValue(1);
+             iValue2 := GetTextDependendParamValue(2);
              if iValue1 = 0 then
                Result := DelayDispValue(0, iValue2, aValue)
              else
@@ -7854,15 +7910,15 @@ begin
            end;
          end;
   141  : begin // Dly time
-           if assigned(Module) and (Length(FDependencies)=2) then begin
-             iValue1 := GetDependendParamValue(1);
+           if assigned(Module) and (Length(FTextDependencies)=2) then begin
+             iValue1 := GetTextDependendParamValue(1);
              Result := DelayDispValue(0, iValue1, aValue);
            end;
          end;
   143  : begin // Dly time
-           if assigned(Module) and (Length(FDependencies)=3) then begin
-             iValue1 := GetDependendParamValue(1);
-             iValue2 := GetDependendParamValue(2);
+           if assigned(Module) and (Length(FTextDependencies)=3) then begin
+             iValue1 := GetTextDependendParamValue(1);
+             iValue2 := GetTextDependendParamValue(2);
              if iValue1 = 0 then
                Result := DelayDispValue(2, iValue2, aValue)
              else
@@ -7870,25 +7926,26 @@ begin
            end;
          end;
   145  : begin // Dly8 time
-           if assigned(Module) and (Length(FDependencies)=2) then begin
-             iValue1 := GetDependendParamValue(1);
+           if assigned(Module) and (Length(FTextDependencies)=2) then begin
+             iValue1 := GetTextDependendParamValue(1);
              Result := DelayDispValue(1, iValue1, aValue);
            end;
          end;
   146  : begin // Dly time
-           if assigned(Module) and (Length(FDependencies)=3) then begin
-             iValue1 := GetDependendParamValue(1);
-             iValue2 := GetDependendParamValue(2);
+           if assigned(Module) and (Length(FTextDependencies)=3) then begin
+             iValue1 := GetTextDependendParamValue(1);
+             iValue2 := GetTextDependendParamValue(2);
              if iValue1 = 0 then
                Result := DelayDispValue(3, iValue2, aValue)
              else
                Result := DelayDispValue(4, iValue2, aValue);
            end;
          end;
-  217  : begin // Glide time: TODO
+  217  : begin // Glide time, don't know:  TODO
            //
          end;
-  1000 : Result := string(FModuleName);
+  // For VST:
+{  1000 : Result := string(FModuleName);
   1001 : begin
            case LineNo of
            0 : Result := string(FParamName);
@@ -7903,7 +7960,7 @@ begin
            0 : Result := string(FParamName);
            1 : Result := IntToStr(GetParameterValue);
            end;
-         end;
+         end;}
   else begin
       Result := IntToStr(aValue);
     end;

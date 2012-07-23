@@ -921,7 +921,7 @@
         <ButtonParam>6</ButtonParam>
       </Param>
       <Param>
-        <Name>NR</Name>
+        <Name>Reset</Name>
         <DefaultValue>0</DefaultValue>
         <Id>33</Id>
         <ButtonParam>7</ButtonParam>
@@ -2355,7 +2355,7 @@
         <DefaultKnob>1</DefaultKnob>
       </Param>
       <Param>
-        <Name>NR</Name>
+        <Name>Reset</Name>
         <DefaultValue>0</DefaultValue>
         <Id>33</Id>
         <ButtonParam>3</ButtonParam>
@@ -2827,7 +2827,6 @@
         <DefaultValue>127</DefaultValue>
         <Id>32</Id>
         <DefaultKnob>1</DefaultKnob>
-        <ButtonParam>8</ButtonParam>
       </Param>
       <Param>
         <Name>Level2</Name>
@@ -2852,6 +2851,7 @@
         <DefaultValue>0</DefaultValue>
         <Id>35</Id>
         <DefaultKnob>0</DefaultKnob>
+        <ButtonParam>8</ButtonParam>
       </Param>
       <Param>
         <Name>Time2</Name>
@@ -2872,13 +2872,13 @@
         <DefaultKnob>6</DefaultKnob>
       </Param>
       <Param>
-        <Name>NR</Name>
+        <Name>Reset</Name>
         <DefaultValue>0</DefaultValue>
         <Id>33</Id>
         <ButtonParam>8</ButtonParam>
       </Param>
       <Param>
-        <Name>SustainMode</Name>
+        <Name>SusPlac</Name>
         <DefaultValue>2</DefaultValue>
         <Id>166</Id>
         <DefaultKnob>8</DefaultKnob>
@@ -2891,7 +2891,7 @@
         <ButtonParam>10</ButtonParam>
       </Param>
       <Param>
-        <Name>KB</Name>
+        <Name>KBG</Name>
         <DefaultValue>1</DefaultValue>
         <Id>106</Id>
         <DefaultKnob>9</DefaultKnob>
@@ -4166,7 +4166,7 @@
         <ButtonParam>2</ButtonParam>
       </Param>
       <Param>
-        <Name>NR</Name>
+        <Name>Reset</Name>
         <DefaultValue>0</DefaultValue>
         <Id>33</Id>
         <ButtonParam>2</ButtonParam>
@@ -5737,7 +5737,7 @@
         <ButtonParam>9</ButtonParam>
       </Param>
       <Param>
-        <Name>NR</Name>
+        <Name>Reset</Name>
         <DefaultValue>0</DefaultValue>
         <Id>33</Id>
         <ButtonParam>10</ButtonParam>
@@ -11690,14 +11690,14 @@
     </Outputs>
   </ModuleDef>
   <ModuleDef>
-    <ModuleType>10</ModuleType>
+    <ModuleType>207</ModuleType>
     <IsLed>0</IsLed>
     <Uprate>0</Uprate>
     <Page>Test</Page>
     <PageIndex>3</PageIndex>
     <ShortName>RndChaos</ShortName>
     <LongName>Rnd Chaos</LongName>
-    <Height>4</Height>
+    <Height>3</Height>
     <Inputs>
       <Connector>
         <Name>In1</Name>
@@ -11709,7 +11709,7 @@
       </Connector>
       <Connector>
         <Name>In3</Name>
-        <Type>yellow_orange</Type>
+        <Type>blue</Type>
       </Connector>
     </Inputs>
     <Outputs>

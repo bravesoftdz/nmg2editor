@@ -3,7 +3,7 @@ object frmParameterPages: TfrmParameterPages
   Top = 0
   BorderStyle = bsToolWindow
   Caption = 'Parameter pages'
-  ClientHeight = 140
+  ClientHeight = 131
   ClientWidth = 623
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -34,6 +34,7 @@ object frmParameterPages: TfrmParameterPages
     Value = 0
     LowValue = 0
     HighValue = 127
+    OnMouseDown = skPMouseDown
     ParentColor = False
     ParentFont = False
     KnobType = ktMedium
@@ -55,6 +56,7 @@ object frmParameterPages: TfrmParameterPages
     Value = 0
     LowValue = 0
     HighValue = 127
+    OnMouseDown = skPMouseDown
     ParentColor = False
     ParentFont = False
     KnobType = ktMedium
@@ -76,6 +78,7 @@ object frmParameterPages: TfrmParameterPages
     Value = 0
     LowValue = 0
     HighValue = 127
+    OnMouseDown = skPMouseDown
     ParentColor = False
     ParentFont = False
     KnobType = ktMedium
@@ -97,6 +100,7 @@ object frmParameterPages: TfrmParameterPages
     Value = 0
     LowValue = 0
     HighValue = 127
+    OnMouseDown = skPMouseDown
     ParentColor = False
     ParentFont = False
     KnobType = ktMedium
@@ -118,6 +122,7 @@ object frmParameterPages: TfrmParameterPages
     Value = 0
     LowValue = 0
     HighValue = 127
+    OnMouseDown = skPMouseDown
     ParentColor = False
     ParentFont = False
     KnobType = ktMedium
@@ -139,6 +144,7 @@ object frmParameterPages: TfrmParameterPages
     Value = 0
     LowValue = 0
     HighValue = 127
+    OnMouseDown = skPMouseDown
     ParentColor = False
     ParentFont = False
     KnobType = ktMedium
@@ -160,6 +166,7 @@ object frmParameterPages: TfrmParameterPages
     Value = 0
     LowValue = 0
     HighValue = 127
+    OnMouseDown = skPMouseDown
     ParentColor = False
     ParentFont = False
     KnobType = ktMedium
@@ -181,6 +188,7 @@ object frmParameterPages: TfrmParameterPages
     Value = 0
     LowValue = 0
     HighValue = 127
+    OnMouseDown = skPMouseDown
     ParentColor = False
     ParentFont = False
     KnobType = ktMedium
@@ -205,6 +213,7 @@ object frmParameterPages: TfrmParameterPages
     ParentFont = False
     LineCount = 2
     TextFunction = 1001
+    DisplayType = 0
   end
   object Disp2A: TG2GraphDisplay
     Left = 72
@@ -224,6 +233,7 @@ object frmParameterPages: TfrmParameterPages
     ParentFont = False
     LineCount = 2
     TextFunction = 1001
+    DisplayType = 0
   end
   object Disp3A: TG2GraphDisplay
     Left = 136
@@ -243,6 +253,7 @@ object frmParameterPages: TfrmParameterPages
     ParentFont = False
     LineCount = 2
     TextFunction = 1001
+    DisplayType = 0
   end
   object Disp4A: TG2GraphDisplay
     Left = 199
@@ -262,6 +273,7 @@ object frmParameterPages: TfrmParameterPages
     ParentFont = False
     LineCount = 2
     TextFunction = 1001
+    DisplayType = 0
   end
   object Disp5A: TG2GraphDisplay
     Left = 262
@@ -281,6 +293,7 @@ object frmParameterPages: TfrmParameterPages
     ParentFont = False
     LineCount = 2
     TextFunction = 1001
+    DisplayType = 0
   end
   object Disp6A: TG2GraphDisplay
     Left = 325
@@ -300,6 +313,7 @@ object frmParameterPages: TfrmParameterPages
     ParentFont = False
     LineCount = 2
     TextFunction = 1001
+    DisplayType = 0
   end
   object Disp7A: TG2GraphDisplay
     Left = 388
@@ -319,6 +333,7 @@ object frmParameterPages: TfrmParameterPages
     ParentFont = False
     LineCount = 2
     TextFunction = 1001
+    DisplayType = 0
   end
   object Disp8A: TG2GraphDisplay
     Left = 451
@@ -338,6 +353,7 @@ object frmParameterPages: TfrmParameterPages
     ParentFont = False
     LineCount = 2
     TextFunction = 1001
+    DisplayType = 0
   end
   object Disp1B: TG2GraphDisplay
     Left = 8
@@ -357,6 +373,7 @@ object frmParameterPages: TfrmParameterPages
     ParentFont = False
     LineCount = 1
     TextFunction = 1000
+    DisplayType = 0
   end
   object disp2B: TG2GraphDisplay
     Left = 72
@@ -376,6 +393,7 @@ object frmParameterPages: TfrmParameterPages
     ParentFont = False
     LineCount = 1
     TextFunction = 1000
+    DisplayType = 0
   end
   object Disp3B: TG2GraphDisplay
     Left = 136
@@ -395,6 +413,7 @@ object frmParameterPages: TfrmParameterPages
     ParentFont = False
     LineCount = 1
     TextFunction = 1000
+    DisplayType = 0
   end
   object Disp4B: TG2GraphDisplay
     Left = 199
@@ -414,6 +433,7 @@ object frmParameterPages: TfrmParameterPages
     ParentFont = False
     LineCount = 1
     TextFunction = 1000
+    DisplayType = 0
   end
   object Disp5B: TG2GraphDisplay
     Left = 262
@@ -433,6 +453,7 @@ object frmParameterPages: TfrmParameterPages
     ParentFont = False
     LineCount = 1
     TextFunction = 1000
+    DisplayType = 0
   end
   object Disp6B: TG2GraphDisplay
     Left = 325
@@ -452,6 +473,7 @@ object frmParameterPages: TfrmParameterPages
     ParentFont = False
     LineCount = 1
     TextFunction = 1000
+    DisplayType = 0
   end
   object Disp7B: TG2GraphDisplay
     Left = 388
@@ -471,6 +493,7 @@ object frmParameterPages: TfrmParameterPages
     ParentFont = False
     LineCount = 1
     TextFunction = 1000
+    DisplayType = 0
   end
   object Disp8B: TG2GraphDisplay
     Left = 451
@@ -490,6 +513,7 @@ object frmParameterPages: TfrmParameterPages
     ParentFont = False
     LineCount = 1
     TextFunction = 1000
+    DisplayType = 0
   end
   object bfP1: TG2GraphButtonFlat
     Left = 8
@@ -505,6 +529,7 @@ object frmParameterPages: TfrmParameterPages
     Value = 0
     LowValue = 0
     HighValue = 255
+    OnMouseDown = bfP1MouseDown
     ParentColor = False
     ParentFont = False
     HightlightColor = clAqua
@@ -692,6 +717,7 @@ object frmParameterPages: TfrmParameterPages
     ParentFont = False
     LineCount = 1
     TextFunction = 1001
+    DisplayType = 0
   end
   object Disp2C: TG2GraphDisplay
     Left = 72
@@ -711,6 +737,7 @@ object frmParameterPages: TfrmParameterPages
     ParentFont = False
     LineCount = 1
     TextFunction = 1001
+    DisplayType = 0
   end
   object Disp3C: TG2GraphDisplay
     Left = 136
@@ -730,6 +757,7 @@ object frmParameterPages: TfrmParameterPages
     ParentFont = False
     LineCount = 1
     TextFunction = 1001
+    DisplayType = 0
   end
   object Disp4C: TG2GraphDisplay
     Left = 199
@@ -749,6 +777,7 @@ object frmParameterPages: TfrmParameterPages
     ParentFont = False
     LineCount = 1
     TextFunction = 1001
+    DisplayType = 0
   end
   object Disp5C: TG2GraphDisplay
     Left = 262
@@ -768,6 +797,7 @@ object frmParameterPages: TfrmParameterPages
     ParentFont = False
     LineCount = 1
     TextFunction = 1001
+    DisplayType = 0
   end
   object Disp6C: TG2GraphDisplay
     Left = 325
@@ -787,6 +817,7 @@ object frmParameterPages: TfrmParameterPages
     ParentFont = False
     LineCount = 1
     TextFunction = 1001
+    DisplayType = 0
   end
   object Disp7C: TG2GraphDisplay
     Left = 388
@@ -806,6 +837,7 @@ object frmParameterPages: TfrmParameterPages
     ParentFont = False
     LineCount = 1
     TextFunction = 1001
+    DisplayType = 0
   end
   object Disp8C: TG2GraphDisplay
     Left = 451
@@ -825,24 +857,23 @@ object frmParameterPages: TfrmParameterPages
     ParentFont = False
     LineCount = 1
     TextFunction = 1001
+    DisplayType = 0
   end
   object Panel1: TPanel
     Left = 531
     Top = 0
     Width = 92
-    Height = 140
+    Height = 131
     Align = alRight
     BevelOuter = bvNone
     Color = clAppWorkSpace
     ParentBackground = False
     TabOrder = 0
-    ExplicitLeft = 521
-    ExplicitHeight = 130
     object obParam: TG2GraphButtonRadio
       Left = 13
-      Top = 23
+      Top = 22
       Width = 70
-      Height = 76
+      Height = 81
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -9
@@ -869,7 +900,7 @@ object frmParameterPages: TfrmParameterPages
     end
     object obPage: TG2GraphButtonRadio
       Left = 13
-      Top = 103
+      Top = 106
       Width = 70
       Height = 16
       Font.Charset = DEFAULT_CHARSET

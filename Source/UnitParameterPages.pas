@@ -69,6 +69,10 @@ type
     procedure FormDestroy(Sender: TObject);
     procedure btGlobalPagesChange(Sender: TObject);
     procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure skPMouseDown(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
+    procedure bfP1MouseDown(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
   private
     { Private declarations }
     FExtBitmap       : TBitmap;
@@ -269,6 +273,28 @@ begin
   UpdateControls;
 end;
 
+procedure TfrmParameterPages.skPMouseDown(Sender: TObject;
+  Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+var Knob : TG2GraphKnob;
+begin
+  if Sender is TG2GraphKnob then begin
+    Knob := Sender as TG2GraphKnob;
+    if assigned(Knob.Parameter) then
+      Knob.Parameter.Selected := True;
+  end;
+end;
+
+procedure TfrmParameterPages.bfP1MouseDown(Sender: TObject;
+  Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+var Btn : TG2GraphButtonFlat;
+begin
+  if Sender is TG2GraphButtonFlat then begin
+    Btn :=  Sender as TG2GraphButtonFlat;
+    if assigned(Btn.Parameter) then
+      Btn.Parameter.Selected := True;
+  end;
+end;
+
 procedure TfrmParameterPages.btGlobalPagesChange(Sender: TObject);
 begin
   UpdateControls;
@@ -292,8 +318,11 @@ begin
       Patch := G2.SelectedPatch as TG2Patch;
       for i := 0 to 7 do begin
         Knob := Patch.GetKnob( GetKnobIndexOffset + i);
-        FDispModuleArray[i].TextFunction := 1000;
-        FDispButtonArray[i].TextFunction := 1001;
+        //FDispModuleArray[i].TextFunction := 1000;
+        //FDispButtonArray[i].TextFunction := 1001;
+        FDispKnobArray[i].DisplayType := 1;
+        FDispModuleArray[i].DisplayType := 5;
+        FDispButtonArray[i].DisplayType := 3;
         if assigned(Knob) and (Knob.IsAssigned = 1) then begin
           FKnobArray[i].SetParameter( Knob.Parameter as TG2GraphParameter);
           FDispKnobArray[i].SetParameter( Knob.Parameter as TG2GraphParameter);
@@ -319,8 +348,11 @@ begin
       Perf := G2.Performance;
       for i := 0 to 7 do begin
         Knob := Perf.GetGlobalKnob( GetKnobIndexOffset + i);
-        FDispModuleArray[i].TextFunction := 1002;
-        FDispButtonArray[i].TextFunction := 1001;
+        //FDispModuleArray[i].TextFunction := 1002;
+        //FDispButtonArray[i].TextFunction := 1001;
+        FDispKnobArray[i].DisplayType := 1;
+        FDispModuleArray[i].DisplayType := 4;
+        FDispButtonArray[i].DisplayType := 3;
         if assigned(Knob) and (Knob.IsAssigned = 1) then begin
           FKnobArray[i].SetParameter( Knob.Parameter as TG2GraphParameter);
           FDispKnobArray[i].SetParameter( Knob.Parameter as TG2GraphParameter);

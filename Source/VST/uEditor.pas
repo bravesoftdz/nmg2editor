@@ -235,9 +235,12 @@ begin
           FKnobArray[i].Value := Knob.KnobValue;
           FKnobArray[i].LowValue := Param.LowValue;
           FKnobArray[i].HighValue := Param.HighValue;
-          FDispKnobArray[i].Line[0] := Param.TextFunction(1003, 0, 2);
-          FDispKnobArray[i].Line[1] := Param.TextFunction(1003, 1, 2);
-          FDispModuleArray[i].Line[0] := Param.TextFunction(1002, 0, 1);
+          //FDispKnobArray[i].Line[0] := Param.TextFunction(1003, 0, 2);
+          //FDispKnobArray[i].Line[1] := Param.TextFunction(1003, 1, 2);
+          //FDispModuleArray[i].Line[0] := Param.TextFunction(1002, 0, 1);
+          FDispKnobArray[i].Line[0] := Param.ParamName;
+          FDispKnobArray[i].Line[1] := IntToStr(Param.GetParameterValue);
+          FDispModuleArray[i].Line[0] := Param.ModuleName;
           FDispButtonArray[i].Line[0] := '';
           FButtonArray[i].ButtonText.Clear;
           if assigned(Param.ButtonParam) then begin
@@ -247,7 +250,8 @@ begin
             FButtonArray[i].Value := ButtonParam.GetParameterValue;
             FButtonArray[i].LowValue := ButtonParam.LowValue;
             FButtonArray[i].HighValue := ButtonParam.HighValue;
-            FDispButtonArray[i].Line[0] := ButtonParam.TextFunction(1003, 0, 1);
+            //FDispButtonArray[i].Line[0] := ButtonParam.TextFunction(1003, 0, 1);
+            FDispButtonArray[i].Line[0] := ButtonParam.ParamName;
           end else begin
             FButtonArray[i].ButtonText.Clear;
             FButtonArray[i].Value := 0;
