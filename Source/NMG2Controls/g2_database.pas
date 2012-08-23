@@ -188,6 +188,17 @@ type
     property SelectedTab : integer read Get_SelectedTab write Set_SelectedTab;
   end;
 
+  TXMLDirectorySettingsType = class(TDOMElement)
+  protected
+    function Get_G2oolsFolder: AnsiString;
+    procedure Set_G2oolsFolder( aValue : AnsiString);
+    function Get_ModuleHelpFile: AnsiString;
+    procedure Set_ModuleHelpFile( aValue : AnsiString);
+  public
+    property G2oolsFolder: AnsiString read Get_G2oolsFolder write Set_G2oolsFolder;
+    property ModuleHelpFile : AnsiString read Get_ModuleHelpFile write Set_ModuleHelpFile;
+  end;
+
   TXMLMidiSettingsType = class(TDOMElement)
   protected
     function Get_MidiEnabled: boolean;
@@ -227,6 +238,8 @@ type
     procedure Set_SlotStripDisabledColor( aValue : integer);
     function Get_HighlightColor: integer;
     procedure Set_HighlightColor( aValue : integer);
+    function Get_LedColor: integer;
+    procedure Set_LedColor( aValue : integer);
     function Get_OnlyTextMenus: boolean;
     procedure Set_OnlyTextMenus( aValue : boolean);
   public
@@ -236,6 +249,7 @@ type
     property SlotStripInverseColor : integer read Get_SlotStripInverseColor write Set_SlotStripInverseColor;
     property SlotStripDisabledColor : integer read Get_SlotStripDisabledColor write Set_SlotStripDisabledColor;
     property HighlightColor : integer read Get_HighlightColor write Set_HighlightColor;
+    property LedColor : integer read Get_LedColor write Set_LedColor;
     property OnlyTextMenus : boolean read Get_OnlyTextMenus write Set_OnlyTextMenus;
   end;
 
@@ -681,6 +695,28 @@ begin
   SetAttribute('Visible', BoolToStr(aValue));
 end;
 
+{ TXMLDirectorySettingsType }
+
+function TXMLDirectorySettingsType.Get_G2oolsFolder: AnsiString;
+begin
+  Result := GetAttribute('G2oolsFolder');
+end;
+
+procedure TXMLDirectorySettingsType.Set_G2oolsFolder( aValue : AnsiString);
+begin
+  SetAttribute('G2oolsFolder', aValue);
+end;
+
+function TXMLDirectorySettingsType.Get_ModuleHelpFile: AnsiString;
+begin
+  Result := GetAttribute('ModuleHelpFile');
+end;
+
+procedure TXMLDirectorySettingsType.Set_ModuleHelpFile( aValue : AnsiString);
+begin
+  SetAttribute('ModuleHelpFile', aValue);
+end;
+
 { TXMLPatchManagerSettingsType }
 
 function TXMLPatchManagerSettingsType.Get_BaseFolder: AnsiString;
@@ -862,6 +898,20 @@ procedure TXMLEditorSettingsType.Set_HighlightColor( aValue : integer);
 begin
   SetAttribute('HighlightColor', IntToStr(aValue));
 end;
+
+function TXMLEditorSettingsType.Get_LedColor: integer;
+begin
+  if GetAttribute('LedColor') = '' then
+    Result := XCL_LED
+  else
+    Result := GetInt(GetAttribute('LedColor'));
+end;
+
+procedure TXMLEditorSettingsType.Set_LedColor( aValue : integer);
+begin
+  SetAttribute('LedColor', IntToStr(aValue));
+end;
+
 
 function TXMLEditorSettingsType.Get_OnlyTextMenus: boolean;
 begin

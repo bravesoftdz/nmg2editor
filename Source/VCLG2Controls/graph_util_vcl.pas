@@ -73,6 +73,7 @@ function  PointInRect( X, Y : integer; Rect : TRect): boolean;
 function  RectOverlap( Rect1, Rect2 : TRect): boolean;
 function  AddRect( Rect, RefRect : TRect): TRect;
 function  SubRect( Rect, RefRect : TRect): TRect;
+function  MakeRect( aLeft, aTop, aWidth, aHeight: integer): TRect;
 
 function  Darker(c : TColor; f : byte): TColor;
 function  Lighter(c : TColor; f : byte): TColor;
@@ -139,6 +140,14 @@ begin
   Result.Top    := Rect.Top    - RefRect.Top;
   Result.Right  := Rect.Right  - RefRect.Left;
   Result.Bottom := Rect.Bottom - RefRect.Top;
+end;
+
+function MakeRect( aLeft, aTop, aWidth, aHeight: integer): TRect;
+begin
+  Result.Left := aLeft;
+  Result.Top := aTop;
+  Result.Right := aLeft + aWidth;
+  Result.Bottom := aTop + aHeight;
 end;
 
 // ==== Some graphic utility functions =========================================

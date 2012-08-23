@@ -1,21 +1,25 @@
 
 
-*************************************************************************************
-* Important - Important - Important - Important - Important - Important - Important *
-*                                                                                   *
-*  If you want to use USB functionality you have to install the generic             *
-*  USB driver Libusb-win32 as A >>FILTER<< driver on the original clavia usb driver.* 
-*  You should use the Filter wizard for this.                                       *
-*                                                                                   *
-*                                                                                   *
-*  Instructions on how to download and install the driver you can find here:        *
-*       http://sourceforge.net/p/nmg2editor/wiki/Installing%20LibUSB/               *
-*                                                                                   *
-*                                                                                   *
-* If you install the libusb-win32 as a device driver (inf-wizard) in stead of a     *
-* filter driver (Filter- wizard), the original clavia editor will not work anymore! *
-*                                                                                   *
-*************************************************************************************
+*****************************************************************
+* Important - Important - Important - Important - Important     *
+*                                                               *
+*                                                               *
+* If you want to use USB functionality you have to install the  *
+* generic USB driver Libusb-win32 as A >>FILTER<< driver on the *
+* original clavia usb driver.                                   * 
+*                                                               *
+*  You should use the Filter wizard for this.                   *
+*                                                               *
+* Instructions on how to download and install the driver you    *
+* can find here:                                                *
+*                                                               *
+* http://sourceforge.net/p/nmg2editor/wiki/Installing%20LibUSB/ *
+*                                                               *
+* If you install the libusb-win32 as a device driver            *
+* (inf-wizard) in stead of a filter driver (filter-wizard),     *
+* the original clavia editor will not work anymore!             *
+*                                                               *
+*****************************************************************
 
 
 Installation:

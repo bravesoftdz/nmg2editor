@@ -334,12 +334,12 @@ begin
   lvExternalPatch.Items.Clear;
   lvExternalPerf.Items.Clear;
 
-  if Length(frmSettings.eRootFolder.Text)> 2 then begin
-    if frmSettings.eRootFolder.Text[Length(frmSettings.eRootFolder.Text)] <> '\'  then
-      frmSettings.eRootFolder.Text := frmSettings.eRootFolder.Text + '\';
+  if Length(frmSettings.ePatchRootFolder.Text)> 2 then begin
+    if frmSettings.ePatchRootFolder.Text[Length(frmSettings.ePatchRootFolder.Text)] <> '\'  then
+      frmSettings.ePatchRootFolder.Text := frmSettings.ePatchRootFolder.Text + '\';
 
     FSearchThread := TSearchThread.Create(True);
-    FSearchThread.FPath := frmSettings.eRootFolder.Text;
+    FSearchThread.FPath := frmSettings.ePatchRootFolder.Text;
     FSearchThread.OnTerminate := OnSearchThreadTerminate;
     FSearchThread.FreeOnTerminate := True;
 {$IFDEF G2_VER200_up}

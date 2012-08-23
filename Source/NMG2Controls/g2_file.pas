@@ -279,6 +279,7 @@ type
     function    FindModule( aModuleIndex : integer) : TG2FileModule;
     function    GetMaxModuleIndex : integer;
     function    GetNoOffModuleType( aModuleType : byte) : integer;
+    function    GetNoOffExtendedModules : integer;
     function    GetSelectedCount: integer;
     procedure   DeleteModule( aModuleIndex : byte);
     function    GetModuleAbove( aModuleIndex : byte) : TG2FileModule;
@@ -951,6 +952,7 @@ type
 
     function    GetMaxModuleIndex( aLocation : TLocationType) : integer;
     function    GetNoOffModuleType( aLocation : TLocationType; aModuleType : byte) : integer;
+    function    GetNoOffExtendedModules : integer; // Number of modules that are not compatible with original editor
     function    GetActiveVariation : byte;
 
     function    GetModuleName( aLocation : TLocationType; aModuleIndex : byte): AnsiString;
@@ -1176,6 +1178,7 @@ type
     function    GetTextDependendParamValue( aIndex : integer) : byte;
     procedure   AddGraphDependency( aParamType : TParamType; aParamIndex : byte);
     function    GetGraphDependendParamValue( aIndex : integer) : byte;
+    function    FreqDispValue( aMode : integer; aFreqCourse : integer; aFreqFine : integer): string;
     function    DelayDispValue( aType : integer; aRange : integer; aValue : integer): string;
     function    G2BPM( aValue : integer): string;
     function    InfoFunction: string;
@@ -1322,6 +1325,8 @@ type
     function    LoadFromFile( aStream : TStream; aLogLines : TStrings): Boolean;
     function    LoadFromFXB( aStream : TStream): Boolean;
     class function LoadFileStream( AOwner: TComponent; aStream : TStream; aChunk : TPatchChunk): TG2FileDataStream; override;
+
+    function    GetNoOffExtendedModules : integer; // Number of modules that are not compatible with original editor
 
     procedure   DeleteModuleFromPerf( aSlotIndex : Byte; aLocation : TLocationType; aModule: TG2FileModule);
     function    AssignGlobalKnobInPerf( aKnobIndex : integer; aSlotIndex : byte; aLocation : TLocationType; aModuleIndex, aParamIndex : byte): TGlobalKnob;
@@ -2172,6 +2177,15 @@ begin
   Result := 0;
   for i := 0 to Count - 1 do
     if Items[i].TypeID > aModuleType then
+      Result := Result + 1;
+end;
+
+function TModuleList.GetNoOffExtendedModules : integer;
+var i : integer;
+begin
+  Result := 0;
+  for i := 0 to Count - 1 do
+    if Items[i].TypeID in  EXTENDED_MODULE_IDS then
       Result := Result + 1;
 end;
 
@@ -5871,6 +5885,12 @@ begin
   Result := FPatchPart[ord(aLocation)].GetNoOffModuleType( aModuleType);
 end;
 
+function TG2FilePatch.GetNoOffExtendedModules : integer;
+begin
+  Result := FPatchPart[ ord(ltVA)].FModuleList.GetNoOffExtendedModules
+          + FPatchPart[ ord(ltFX)].FModuleList.GetNoOffExtendedModules;
+end;
+
 function TG2FilePatch.GetKnob( KnobIndex: integer): TKnob;
 begin
   if (KnobIndex >= 0) and (KnobIndex < FKnobList.Count) then begin
@@ -7058,6 +7078,65 @@ begin
     Result := 0;
 end;
 
+function TG2FileParameter.FreqDispValue( aMode : integer; aFreqCourse : integer; aFreqFine : integer): string;
+var iValue1, iValue2 : integer;
+    Exponent, Freq, Fact : single;
+begin
+  case aMode of
+  0 : begin // Semi
+       iValue1 := aFreqCourse - 64;
+       Result := '';
+       if iValue1 < 0 then
+         Result := Result + IntToStr(iValue1)
+       else
+         Result := Result + '+' + IntToStr(iValue1);
+       Result := Result + '  ';
+       iValue2 := (aFreqFine-64)*100 div 128;
+       if iValue2 < 0 then
+         Result := Result + IntToStr(iValue2)
+       else
+         Result := Result + '+' + IntToStr(iValue2);
+     end;
+  1 : begin // Freq
+       // http://www.phy.mtu.edu/~suits/NoteFreqCalcs.html
+       Exponent := ((aFreqCourse - 69) + (aFreqFine - 64) / 128) / 12;
+       Freq := 440.0 * power(2, Exponent);
+       if Freq >= 1000 then
+         //Result := Format('%.5g', [Freq / 1000]) + 'kHz'
+         Result :=  G2FloatToStrFixed( Freq / 1000, 5) + 'kHz'
+       else
+         //Result := Format('%.5g', [Freq]) + 'Hz';
+         Result := G2FloatToStrFixed( Freq, 5) + 'Hz';
+     end;
+  2 : begin // Fac
+       Exponent := ((aFreqCourse - 64) + (aFreqFine - 64) / 128) / 12;
+       Fact := power(2, Exponent);
+       Result :=  'x' + G2FloatToStrFixed( Fact, 6)
+     end;
+  3 : begin // Part
+       if aFreqCourse <= 32 then begin
+         Exponent := -(((32 - aFreqCourse ) * 4) + 77 - (aFreqFine - 64) / 128) / 12;
+         Freq := 440.0 * power(2, Exponent);
+         Result := G2FloatToStrFixed( Freq, 5) + 'Hz';
+       end else begin
+         if (aFreqCourse > 32) and (aFreqCourse <=64) then begin
+           iValue1 := 64 - aFreqCourse + 1;
+           Result := '1:' + IntToStr(iValue1);
+         end else begin
+           iValue1 := aFreqCourse - 64 + 1;
+           Result := IntToStr(iValue1) + ':1';
+         end;
+         Result := Result + '  ';
+         iValue2 := (aFreqFine-64)*100 div 128;
+         if iValue2 < 0 then
+           Result := Result + IntToStr(iValue2)
+         else
+           Result := Result + '+' + IntToStr(iValue2);
+       end;
+     end;
+  end;
+end;
+
 function TG2FileParameter.DelayDispValue( aType : integer; aRange : integer; aValue : integer): string;
 var DlyRange, DlyMin, DlyMax : single;
 begin
@@ -7476,15 +7555,12 @@ begin
            Result := '+' + IntToStr(TempValue);
        end;
   61 : begin // Osc freq
-         {if assigned(Module) and (Length(aParams)=3) then begin
-           FreqCourse := aValue;
-           FreqFine := Module.Parameter[aParams[1]].GetParameterValue;
-           FreqMode := Module.Parameter[aParams[2]].GetParameterValue;}
          if assigned(Module) and (Length(FTextDependencies)=3) then begin
            FreqCourse := GetParameterValue;
            FreqFine := GetTextDependendParamValue(1);
            FreqMode := GetTextDependendParamValue(2);
-           case FreqMode of
+           Result := FreqDispValue( FreqMode, FreqCourse, FreqFine);
+           {case FreqMode of
            0 : begin // Semi
                  iValue1 := FreqCourse - 64;
                  Result := '';
@@ -7536,7 +7612,7 @@ begin
                      Result := Result + '+' + IntToStr(iValue2);
                  end;
                end;
-           end;
+           end;}
          end;
        end;
   63 : begin // Osc Freq mode
@@ -7754,6 +7830,12 @@ begin
           1 : Result := 'Evenly';
           end;
         end;
+  200  : begin // Operator freq mode
+          case GetParameterValue of
+          0 : Result := 'Ratio';
+          1 : Result := 'Fixed';
+          end;
+         end;
   203 : begin // Random Step
           case GetParameterValue of
           0 : Result := '0%';
@@ -7786,7 +7868,8 @@ begin
         end
 
   else
-    Result := IntToStr(GetParameterValue);
+    //Result := IntToStr(GetParameterValue);
+    Result := '??? ' + IntToStr(FInfoFunctionIndex) + ' ???';
   end;
 end;
 
@@ -7856,7 +7939,7 @@ begin
                    Result := G2FloatToStr(0.0159 * power(2, aValue / 12), 4) + 'Hz';
              2 : Result := G2FloatToStr(0.2555 * power(2, aValue / 12), 4) + 'Hz';
              3 : Result := G2BPM( aValue);
-             4 :;
+             4 :; // Clock TODO
              end;
            end;
          end;
@@ -7941,11 +8024,27 @@ begin
                Result := DelayDispValue(4, iValue2, aValue);
            end;
          end;
+  197  : begin
+         end;
+  198  : begin // Operator freq
+           if assigned(Module) and (Length(FTextDependencies)=3) then begin
+             iValue1 := GetTextDependendParamValue(1);
+             iValue2 := GetTextDependendParamValue(2);
+             case iValue2 of
+             0 : begin // Ratio  x0.50...x16.00..x31.00
+                  Result := FreqDispValue( 3, aValue, iValue1);
+                 end;
+             1 : begin // Fixed 1Hz,10Hz,100Hz,1000Hz etc
+                  Result := FreqDispValue( 1, trunc(power(10, (aValue mod 4))), iValue1);
+                 end;
+             end;
+           end;
+         end;
   217  : begin // Glide time, don't know:  TODO
-           //
+           Result := IntToStr(aValue);
          end;
   // For VST:
-{  1000 : Result := string(FModuleName);
+{ 1000 : Result := string(FModuleName);
   1001 : begin
            case LineNo of
            0 : Result := string(FParamName);
@@ -7962,7 +8061,8 @@ begin
            end;
          end;}
   else begin
-      Result := IntToStr(aValue);
+      //Result := IntToStr(aValue);
+      RESULT := '*** ' + IntToStr(FTextFunctionIndex) + ' ***';
     end;
   end;
 end;
@@ -8698,6 +8798,15 @@ begin
     MemStream.Free;
   end;
 end;
+
+function TG2FilePerformance.GetNoOffExtendedModules : integer;
+var i : integer;
+begin
+  Result := 0;
+  for i := 0 to NSLOTS - 1 do
+    Result := Result + GetSlot( i).GetPatch.GetNoOffExtendedModules;
+end;
+
 
 procedure TG2FilePerformance.DeleteModuleFromPerf( aSlotIndex : Byte; aLocation : TLocationType; aModule: TG2FileModule);
 var aModuleIndex : Byte;

@@ -81,16 +81,43 @@ unit UnitG2Editor;
 // Some of the module display functions
 // Added a "Control midi" port, but this hasn't yet any functionality.
 
-// TODO List v2.3
+// v2.3
 // ==============
 
-// Auto adjust module positions on module insert (no overlapping modules)
+// Fixed a bug in the loading of partch banks from the G2
+// Added "Save log file" button on the View log form
+// Menu-driven patching (for use with Jaws)
+// Select parameter messaging between G2 and editor
+// Patch notes dialog window
+// Changes to the moduledef.xml (parameter mappings to parameter pages knobs, still some modules todo)// Auto adjust module positions on module insert (no overlapping modules)
 // Numbering modules when adding modules, check change module names
-// Menu-driven patching
 // Close dialogs with ESC
 // Variation init function:
    // Copy from var 1 to init 00 0A 01 28 00 44 00 08 0F 5C
    // Init on var 2           00 0A 01 28 00 44 08 01 17 DC
+
+// v2.4
+// ===============
+
+// Added selection buttons on switches
+// Fixed error in filter modules, shows filtertype didn't correspond with actual filtertype
+// Added unit conversions of many parameters
+// Added uni/polar direction buttons on envelopes/lfo's
+// Fixed editing parameter labels on switches and mixer knobs
+// Fixed a number of bugs
+// Added two modules "Resonator" and "Driver" that where hidden in the editor
+
+// v2.5
+// ===============
+
+// Detection of modules incomaptible with original clavia edtor, will be saved with extensions prf2x en pch2x
+// Bug placing modules when adding modules in scrolled scrollbox
+// Delay parameter where not shown in units in param pages.
+// Added some other missing unit conversions.
+// Added help to application settings
+// Added menu option to run g2ools from editor
+// Added option to change led colors
+// Added option to control editor ui elements with midi (ctrl midi input) ableton style
 
 
 // Still todo:
@@ -188,7 +215,7 @@ uses
   Dialogs, StdCtrls, ExtCtrls,  ActnList, ImgList, Contnrs,
   g2_types, g2_database, g2_file, g2_mess, g2_usb, g2_graph, g2_midi, g2_classes,
   graph_util_vcl, LibUSBWinDyn, Menus, Buttons, DOM, XMLRead, XMLWrite,
-  MMSystem, MidiType, MidiIn, MidiOut, ComCtrls;
+  {MMSystem, MidiType, MidiIn, MidiOut,} ComCtrls;
 
 type
   TEditorSettings = class
@@ -197,6 +224,7 @@ type
     FSlotStripInverseColor : TColor;
     FSlotStripDisabledColor : TColor;
     FHighlightColor : TColor;
+    FLedColor : TColor;
   end;
 
   TSlotPanel = class(TG2GraphPanel)
@@ -416,6 +444,13 @@ type
     aShowCopyVariation: TAction;
     Copyvariation1: TMenuItem;
     aSaveLogFile: TAction;
+    aG2oolsDX2G2: TAction;
+    aG2oolsNM1toG2: TAction;
+    ools1: TMenuItem;
+    G2oolsNM1toG21: TMenuItem;
+    G2oolsDXtoG21: TMenuItem;
+    N18: TMenuItem;
+    miModuleHelp: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure cbModeClick(Sender: TObject);
     procedure aPatchSettingsExecute(Sender: TObject);
@@ -517,13 +552,16 @@ type
     procedure G2DeleteCable(Sender : TObject; SenderID : integer; Location: TLocationType; FromModuleIndex, FromConnectorIndex, ToModuleIndex, ToConnectorIndex : integer);
     procedure G2SelectModule(Sender : TObject; SenderID : integer; Module : TG2FileModule);
     procedure G2SelectParam(Sender : TObject; SenderID : integer; Param : TG2FileParameter);
+    procedure aG2oolsDX2G2Execute(Sender: TObject);
+    procedure aG2oolsNM1toG2Execute(Sender: TObject);
+    procedure miModuleHelpClick(Sender: TObject);
 
   private
     { Private declarations }
-    FCtrlMidiEnabled : boolean;
-    FCtrlMidiInput : TMidiInput;
+    //FCtrlMidiEnabled : boolean;
+    //FCtrlMidiInput : TMidiInput;
     procedure DialogKey(var Msg: TWMKey); message CM_DIALOGKEY;
-    procedure SetCtrlMidiEnabled( aValue : boolean);
+    //procedure SetCtrlMidiEnabled( aValue : boolean);
   public
     { Public declarations }
     FDisableControls      : boolean;
@@ -556,7 +594,7 @@ type
     //function  GetPatchWindowHeight: integer;
 
     procedure LoadImageMap( aBitmap : TBitmap;aCols, aRows: integer; aImageList : TImageList);
-    procedure SetEditorSettings( aSlotStripColor, aSlotStripInverseColor, aSlotStripDisabledColor, aHighLightColor : TColor;
+    procedure SetEditorSettings( aSlotStripColor, aSlotStripInverseColor, aSlotStripDisabledColor, aHighLightColor, aLedColor : TColor;
                                  aCableThickness : integer);
     procedure ShakeCables;
     procedure UpdateColorSchema;
@@ -617,7 +655,7 @@ type
     procedure SaveIniXML;
     procedure LoadIniXML;
 
-    procedure DoCtrlMidiInput(Sender: TObject);
+    //procedure DoCtrlMidiInput(Sender: TObject);
 
     procedure PatchCtrlMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure ModuleClick( Sender : TObject; Button: TMouseButton; Shift: TShiftState; X,  Y: Integer; Module : TG2FileModule);
@@ -625,8 +663,8 @@ type
     procedure ConnectorClick( Sender : TObject; Button: TMouseButton; Shift: TShiftState; X,  Y: Integer; Connector : TG2FileConnector);
     procedure PanelClick(Sender: TObject);
 
-    property CtrlMidiEnabled : boolean read FCtrlMidiEnabled write SetCtrlMidiEnabled;
-    property CtrlMidiInput : TMidiInput read FCtrlMidiInput;
+    //property CtrlMidiEnabled : boolean read FCtrlMidiEnabled write SetCtrlMidiEnabled;
+    //property CtrlMidiInput : TMidiInput read FCtrlMidiInput;
     property OnlyTextMenus : boolean read FOnlyTextMenus write SetOnlyTextMenus;
   end;
 
@@ -638,9 +676,11 @@ var
 
 implementation
 
-uses UnitLog, UnitPatchSettings, UnitParameterPages, UnitSeqGrid,
+uses ShellApi, Vcl.HtmlHelpViewer,
+  UnitLog, UnitPatchSettings, UnitParameterPages, UnitSeqGrid,
   UnitSynthSettings, UnitPerfSettings, UnitEditLabel, UnitSettings,
-  UnitEditorTools, UnitPatchManager, UnitModuleDef, UnitPatchNotes;
+  UnitEditorTools, UnitPatchManager, UnitModuleDef, UnitPatchNotes,
+  UnitMidiMapping;
 
 {$IFNDEF FPC}
   {$R *.dfm}
@@ -1049,8 +1089,8 @@ begin
     ModuleMap.Free;
   end;
 
-  FCtrlMidiInput := TMidiInput.Create(self);
-  FCtrlMidiInput.OnMidiInput := DoCtrlMidiInput;
+  //FCtrlMidiInput := TMidiInput.Create(self);
+  //FCtrlMidiInput.OnMidiInput := DoCtrlMidiInput;
 
   LoadIniXML;
 
@@ -1134,6 +1174,7 @@ begin
   EditorSettings.FSlotStripInverseColor := G_SlotStripInverseColor;
   EditorSettings.FSlotStripDisabledColor := G_SlotStripDisabledColor;
   EditorSettings.FHighlightColor := G_HighLightColor;
+  EditorSettings.FLedColor := G_LedColor;
 
   FEditorSettingsList.Add( EditorSettings);
 end;
@@ -1150,7 +1191,7 @@ procedure TfrmG2Main.SelectG2(G2Index: integer);
 var i : integer;
 begin
   if (G2Index >= FG2List.Count) or (G2Index < 0) then
-    raise Exception.Create('G2Index (' + IntToStr(G2Index) + ') out of bounds');
+    raise Exception.Create( 'G2Index (' + IntToStr(G2Index) + ') out of bounds');
 
   if G2Index = FG2Index then
     exit;
@@ -1164,6 +1205,7 @@ begin
     G_SlotStripInverseColor := FSlotStripInverseColor;
     G_SlotStripDisabledColor := FSlotStripDisabledColor;
     G_HighLightColor := FHighLightColor;
+    G_LedColor := FLedColor;
     G_CableThickness := FCableThickness;
   end;
 
@@ -1223,10 +1265,10 @@ begin
     G2.LoadModuleDefs('');
 
     if G2.FModuleDefList.FileVersion <> NMG2_VERSION then
-      ShowMessage('Warning, ModuleDef.xml version differs from application.');
+      ShowMessage( 'Warning, ModuleDef.xml version differs from application.');
 
     if G2.FParamDefList.FileVersion <> NMG2_VERSION then
-      ShowMessage('Warning, ParamDef.xml version differs from application.');
+      ShowMessage( 'Warning, ParamDef.xml version differs from application.');
 
     G2.USBActive := True;
   end;
@@ -1270,7 +1312,7 @@ end;
 
 procedure TfrmG2Main.FormDestroy(Sender: TObject);
 begin
-  FCtrlMidiInput.Free;
+  //FCtrlMidiInput.Free;
 
   if assigned(FCopyPatch) then
     FCopyPatch.Free;
@@ -1358,12 +1400,14 @@ begin
               with FEditorSettingsList[i] as TEditorSettings do begin
                 FCableThickness := EditorSettingsNode.CableThickness;
                 FHighLightColor := EditorSettingsNode.HighlightColor;
+                FLedColor := EditorSettingsNode.LedColor;
                 FSlotStripColor := EditorSettingsNode.SlotStripColor;
                 FSlotStripInverseColor := EditorSettingsNode.SlotStripInverseColor;
                 FSlotStripDisabledColor := EditorSettingsNode.SlotStripDisabledColor;
                 if i = 0 then begin
                   G_CableThickness := FCableThickness;
                   G_HighlightColor := FHighLightColor;
+                  G_LedColor := FLedColor;
                   G_SlotStripColor := FSlotStripColor;
                   G_SlotStripInverseColor := FSlotStripInverseColor;
                   G_SlotStripDisabledColor := FSlotStripDisabledColor;
@@ -1399,6 +1443,7 @@ var Doc : TXMLDocument;
     EditorSettingsNode : TXMLEditorSettingsType;
     CtrlMidiSettingsNode : TXMLCtrlMidiSettingsType;
     PatchManagerSettingsNode : TXMLPatchManagerSettingsType;
+    DirSettingsNode : TXMLDirectorySettingsType;
     FormSettingsNode : TXMLFormSettingsType;
     G2 : TG2;
     i : integer;
@@ -1437,6 +1482,7 @@ begin
         EditorSettingsNode.SlotStripInverseColor := FSlotStripInverseColor;
         EditorSettingsNode.SlotStripDisabledColor := FSlotStripDisabledColor;
         EditorSettingsNode.HighlightColor := FHighLightColor;
+        EditorSettingsNode.LedColor := FLedColor;
       end;
 
       TCPSettingsNode := TXMLTCPSettingsType( SynthNode.FindNode('TCP_settings'));
@@ -1464,8 +1510,8 @@ begin
       CtrlMidiSettingsNode := TXMLCtrlMidiSettingsType( Doc.CreateElement('CTRL_MIDI_settings'));
       RootNode.AppendChild( CtrlMidiSettingsNode);
     end;
-    CtrlMidiSettingsNode.CtrlMidiEnabled := CtrlMidiEnabled;
-    CtrlMidiSettingsNode.CtrlMidiInDevice := CtrlMidiInput.ProductName;
+    CtrlMidiSettingsNode.CtrlMidiEnabled := frmMidiMapping.CtrlMidiEnabled;
+    CtrlMidiSettingsNode.CtrlMidiInDevice := frmMidiMapping.CtrlMidiInput.ProductName;
 
     FormSettingsNode := TXMLFormSettingsType( RootNode.FindNode('MainForm'));
     if not assigned( FormSettingsNode) then begin
@@ -1478,12 +1524,20 @@ begin
     FormSettingsNode.SizeY := Height;
     FormSettingsNode.Visible := True;
 
+    DirSettingsNode := TXMLDirectorySettingsType(RootNode.FindNode('DirectorySettings'));
+    if not assigned(DirSettingsNode) then begin
+      DirSettingsNode := TXMLDirectorySettingsType(Doc.CreateElement('DirectorySettings'));
+      RootNode.AppendChild(DirSettingsNode);
+    end;
+    DirSettingsNode.G2oolsFolder := AnsiString(frmSettings.eG2oolsFolder.Text);
+    DirSettingsNode.ModuleHelpFile := AnsiString(frmSettings.eModuleHelpFile.Text);
+
     PatchManagerSettingsNode := TXMLPatchManagerSettingsType(RootNode.FindNode('PatchManagerSettings'));
     if not assigned(PatchManagerSettingsNode) then begin
       PatchManagerSettingsNode := TXMLPatchManagerSettingsType(Doc.CreateElement('PatchManagerSettings'));
       RootNode.AppendChild(PatchManagerSettingsNode);
     end;
-    PatchManagerSettingsNode.BaseFolder := AnsiString(frmSettings.eRootFolder.Text);
+    PatchManagerSettingsNode.BaseFolder := AnsiString(frmSettings.ePatchRootFolder.Text);
     PatchManagerSettingsNode.SelectedTab := frmPatchManager.TabControl1.TabIndex;
     PatchManagerSettingsNode.ExternalSortCol := frmPatchManager.FExternalSortCol;
     PatchManagerSettingsNode.InternalSortCol := frmPatchManager.FInternalSortCol;
@@ -1493,6 +1547,7 @@ begin
       FormSettingsNode := TXMLFormSettingsTYpe(Doc.CreateElement('PatchManagerForm'));
       RootNode.AppendChild(FormSettingsNode);
     end;
+
     FormSettingsNode.PosX := frmPatchManager.Left;
     FormSettingsNode.PosY := frmPatchManager.Top;
     FormSettingsNode.SizeX := frmPatchManager.Width;
@@ -1564,6 +1619,7 @@ procedure TfrmG2Main.SetEditorSettings( aSlotStripColor,
                                         aSlotStripInverseColor,
                                         aSlotStripDisabledColor,
                                         aHighLightColor : TColor;
+                                        aLedColor : TColor;
                                         aCableThickness : integer);
 var i : integer;
     G2 : TG2;
@@ -1578,6 +1634,7 @@ begin
       FSlotStripInverseColor := aSlotStripInverseColor;
       FSlotStripDisabledColor := aSlotStripDisabledColor;
       FHighLightColor := aHighLightColor;
+      FLedColor := aLedColor;
       FCableThickness := aCableThickness;
     end;
 
@@ -1622,7 +1679,7 @@ begin
     frmPatchSettings.UpdateColorSchema;
 end;
 
-procedure TfrmG2Main.SetCtrlMidiEnabled( aValue : boolean);
+{procedure TfrmG2Main.SetCtrlMidiEnabled( aValue : boolean);
 begin
   if aValue then begin
     if FCtrlMidiInput.State = misClosed then
@@ -1661,7 +1718,7 @@ var G2 : TG2;
 begin
   while (FCtrlMidiInput.MessageCount > 0) do begin
 
-    { Get the event as an object }
+    // Get the event as an object
     thisEvent := FCtrlMidiInput.GetMidiEvent;
     try
       if thisEvent.Sysex = nil then begin
@@ -1694,7 +1751,7 @@ begin
       thisEvent.Free;
     end;
   end;
-end;
+end;}
 
 procedure TfrmG2Main.UpdateMainFormActions;
 var G2 : TG2;
@@ -1810,6 +1867,17 @@ begin
     end else begin
       aPaste.Enabled := False;
     end;
+
+    if FileExists(CompletePath(frmSettings.eG2oolsFolder.Text) + 'nm2g2.exe') then
+      aG2oolsNM1toG2.Enabled := True
+    else
+      aG2oolsNM1toG2.Enabled := False;
+
+    if FileExists(CompletePath(frmSettings.eG2oolsFolder.Text) + 'dx2g2.exe') then
+      aG2oolsDX2G2.Enabled := True
+    else
+      aG2oolsDX2G2.Enabled := False;
+
 
     if G2.SelectedPatch.UndoCount > 0 then
       aUndo.Enabled := True
@@ -1998,7 +2066,7 @@ begin
 
   if Button = mbRight then begin
     GetCursorPos( P);
-    FAddPoint := sbFX.ScreenToClient(P);
+    FAddPoint := sbFX.GetPatchCoord( sbFX.ScreenToClient(P));
 
     puAddModule.Popup(P.X, P.Y);
   end;
@@ -2024,7 +2092,7 @@ begin
 
   if Button = mbRight then begin
     GetCursorPos( P);
-    FAddPoint := sbVA.ScreenToClient(P);
+    FAddPoint := sbVA.GetPatchCoord( sbVA.ScreenToClient(P));
 
     puAddModule.Popup(P.X, P.Y);
   end;
@@ -2086,7 +2154,7 @@ begin
   if not assigned(G2) then
     exit;
 
-  OpenDialog1.Filter := 'patch files (*.pch2)|*.pch2|sysex files (*.syx)|*.syx|bin files (*.bin)|*.bin';
+  OpenDialog1.Filter := 'patch files (*.pch2)|*.pch2|extended patch files (*.pch2x)|*.pch2x|sysex files (*.syx)|*.syx|bin files (*.bin)|*.bin';
   if OpenDialog1.Execute then begin
     G2.LoadFileStream( OpenDialog1.FileName);
   end;
@@ -2099,7 +2167,8 @@ begin
   if not assigned(G2) then
     exit;
 
-  OpenDialog1.Filter := 'performance files (*.prf2)|*.prf2|sysex files (*.syx)|*.syx|bin files (*.bin)|*.bin';
+  OpenDialog1.Filter := 'performance files (*.prf2)|*.prf2|extended performance files (*.prf2x)|*.prf2x|sysex files (*.syx)|*.syx|bin files (*.bin)|*.bin';
+
   if OpenDialog1.Execute then begin
     G2.LoadFileStream( OpenDialog1.FileName);
   end;
@@ -2181,8 +2250,15 @@ begin
   if not assigned(G2) then
     exit;
 
-  SaveDialog1.Filter := 'patch files (*.pch2)|*.pch2';
-  SaveDialog1.DefaultExt := 'pch2';
+  if G2.SelectedPatch.GetNoOffExtendedModules > 0 then begin
+    SaveDialog1.Filter := 'extended patch files (*.pch2x)|*.pch2x';
+    SaveDialog1.DefaultExt := 'pch2x';
+  end else begin
+    SaveDialog1.Filter := 'patch files (*.pch2)|*.pch2';
+    SaveDialog1.DefaultExt := 'pch2';
+  end;
+  SaveDialog1.FileName := G2.SelectedPatch.PatchName + '.' + SaveDialog1.DefaultExt;
+
   if SaveDialog1.Execute then begin
 {$IFDEF FPC}
     if FileExistsUTF8(SaveDialog1.FileName) { *Converted from FileExists*  } then begin
@@ -2271,8 +2347,15 @@ begin
   if not assigned(G2) then
     exit;
 
-  SaveDialog1.Filter := 'performance files (*.prf2)|*.prf2';
-  SaveDialog1.DefaultExt := 'prf2';
+  if G2.Performance.GetNoOffExtendedModules > 0 then begin
+    SaveDialog1.Filter := 'extended performance files (*.prf2x)|*.prf2x';
+    SaveDialog1.DefaultExt := 'prf2x';
+  end else begin
+    SaveDialog1.Filter := 'performance files (*.prf2)|*.prf2';
+    SaveDialog1.DefaultExt := 'prf2';
+  end;
+  SaveDialog1.FileName := G2.Performance.PerformanceName + '.' + SaveDialog1.DefaultExt;
+
   if SaveDialog1.Execute then begin
 {$IFDEF FPC}
     if FileExistsUTF8(SaveDialog1.FileName) { *Converted from FileExists*  } then begin
@@ -2302,6 +2385,22 @@ end;
 procedure TfrmG2Main.aExitExecute(Sender: TObject);
 begin
   Application.Terminate;
+end;
+
+procedure TfrmG2Main.aG2oolsDX2G2Execute(Sender: TObject);
+begin
+  OpenDialog1.Filter := 'sysex files (*.syx)|*.syx';
+  if OpenDialog1.Execute then begin
+    ShellExecute( self.Handle, 'Open', 'Cmd', PChar('/K C:\Users\Bruno\Downloads\g2ools_15_190\g2ools-1.5\dx2g2.exe -d "' + OpenDialog1.FileName + '"'), PChar('C:\Users\Bruno\Downloads\g2ools_15_190\g2ools-1.5\'), SW_SHOWNORMAL);
+  end;
+end;
+
+procedure TfrmG2Main.aG2oolsNM1toG2Execute(Sender: TObject);
+begin
+  OpenDialog1.Filter := 'patch files (*.pch)|*.pch';
+  if OpenDialog1.Execute then begin
+    ShellExecute( self.Handle, 'Open', 'Cmd', PChar('/K C:\Users\Bruno\Downloads\g2ools_15_190\g2ools-1.5\nm2g2.exe -d "' + OpenDialog1.FileName + '"'), PChar('C:\Users\Bruno\Downloads\g2ools_15_190\g2ools-1.5\'), SW_SHOWNORMAL);
+  end;
 end;
 
 procedure TfrmG2Main.aGetActivePatchSysexExecute(Sender: TObject);
@@ -3155,11 +3254,11 @@ begin
 
   GetCursorPos( P);
   if G2.SelectedPatch.SelectedLocation = ltVA then begin
-    FAddPoint := sbVA.ScreenToClient(P);
+    FAddPoint := sbVA.GetPatchCoord( sbVA.ScreenToClient(P));
     puAddModule.Popup(P.X, P.Y);
   end else
     if G2.SelectedPatch.SelectedLocation = ltFX then begin
-      FAddPoint := sbFX.ScreenToClient(P);
+      FAddPoint := sbFX.GetPatchCoord( sbFX.ScreenToClient(P));
       puAddModule.Popup(P.X, P.Y);
     end;
 end;
@@ -3291,7 +3390,6 @@ var i, j, k : integer;
         Result := 0;
     end;
 
-
 begin
   for i := 0 to 16 do begin
 
@@ -3415,10 +3513,31 @@ procedure TfrmG2Main.ModuleClick(Sender: TObject; Button: TMouseButton; Shift: T
 var P : TPoint;
 begin
   UpdateMainFormActions;
+
+  if FileExists(frmSettings.eModuleHelpFile.Text) then
+    miModuleHelp.Enabled := True
+  else
+    miModuleHelp.Enabled := False;
+
   if Button = mbRight then begin
     GetCursorPos(P);
     puModuleMenu.Popup( P.X, P.Y);
     puModuleMenu.Tag := integer(Module);
+  end;
+end;
+
+procedure TfrmG2Main.miModuleHelpClick(Sender: TObject);
+var Module : TG2GraphModule;
+    G2 : TG2;
+begin
+  G2 := SelectedG2;
+  if not assigned(G2) then
+    exit;
+
+  Module := TG2GraphModule(puModuleMenu.Tag);
+  if FileExists(frmSettings.eModuleHelpFile.Text) then begin
+    Application.HelpFile := frmSettings.eModuleHelpFile.Text;
+    Application.HelpJump( 'nmg2_ref_-_' + Module.ModuleFileName);
   end;
 end;
 

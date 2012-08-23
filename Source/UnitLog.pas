@@ -16,6 +16,7 @@ type
     bRefresh: TButton;
     bClear: TButton;
     Button1: TButton;
+    OpenDialog1: TOpenDialog;
     procedure bSendMsgClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure bRefreshClick(Sender: TObject);
@@ -55,6 +56,7 @@ begin
     G2.AssignLog( Memo1.Lines);
   end;
 end;
+
 
 procedure TfrmLog.bRefreshClick(Sender: TObject);
 var G2 : TG2;
@@ -120,7 +122,6 @@ begin
   G2 := frmG2Main.SelectedG2;
   if not assigned(G2) then
     exit;
-
 
   if FindFirst('C:\Users\Bruno\Delphi\nmg2editor\Build\Modules\' + '*.*', faAnyFile, sr) = 0 then begin
     repeat

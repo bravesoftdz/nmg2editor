@@ -13,7 +13,7 @@ uses
 {$ENDIF}
   Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, G2_Graph, StdCtrls, G2_Types, G2_File, G2_classes, ExtCtrls,
-  graph_util_vcl, g2_database, DOM, XMLRead, XMLWrite;
+  graph_util_vcl, g2_database, DOM, XMLRead, XMLWrite, g2_midi;
 
 type
   TfrmParameterPages = class(TForm)
@@ -73,6 +73,8 @@ type
       Shift: TShiftState; X, Y: Integer);
     procedure bfP1MouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
+    procedure obParamMouseDown(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
   private
     { Private declarations }
     FExtBitmap       : TBitmap;
@@ -99,7 +101,7 @@ var
 
 implementation
 uses
-  UnitG2Editor;
+  UnitG2Editor, UnitMidiMapping;
 
 {$IFNDEF FPC}
   {$R *.dfm}
@@ -255,6 +257,11 @@ end;
 
 procedure TfrmParameterPages.FormShow(Sender: TObject);
 begin
+{  frmMidiMapping.AddMidiEditorAssignment( obParam, 0, 20, 0, 4);
+  frmMidiMapping.AddMidiEditorAssignment( skP2, 0, 25, 0, 4);
+  frmMidiMapping.AddMidiEditorAssignment( bfP6, 0, 30, 0, 4);
+  frmMidiMapping.AddMidiEditorAssignment( btGlobalPages, 0, 35, 0, 4);}
+
   UpdateControls;
 end;
 
@@ -273,14 +280,32 @@ begin
   UpdateControls;
 end;
 
+procedure TfrmParameterPages.obParamMouseDown(Sender: TObject;
+  Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+var P : TPoint;
+begin
+  if ssRight in Shift then begin
+    P := obParam.ClientToScreen( Point(0, obParam.Height));
+    frmMidiMapping.PopupMenu( obParam, obParam.Value, P.X, P.Y);
+    obParam.Invalidate;
+  end;
+end;
+
 procedure TfrmParameterPages.skPMouseDown(Sender: TObject;
   Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 var Knob : TG2GraphKnob;
+    P : TPoint;
 begin
   if Sender is TG2GraphKnob then begin
     Knob := Sender as TG2GraphKnob;
     if assigned(Knob.Parameter) then
       Knob.Parameter.Selected := True;
+
+    if ssRight in Shift then begin
+      P := Knob.ClientToScreen( Point(0, 0));
+      frmMidiMapping.PopupMenu( Knob, 0, P.X, P.Y);
+      Knob.Invalidate;
+    end;
   end;
 end;
 

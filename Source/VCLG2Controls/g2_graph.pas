@@ -178,6 +178,7 @@ type
     procedure   DrawCopyPatchOutlines( ExtCanvas : TCanvas; ExtBoundsRect: TRect);
     procedure   DrawLine( X1, Y1, X2, Y2 : integer);
     procedure   SetPositionsInCopyPatch;
+    function    GetPatchCoord( ClientPoint : TPoint): TPoint;
 
     property    G2 : TG2Graph read FG2Graph write FG2Graph;
     property    CopyPatch : TG2FilePatchPart read FCopyPatch write SetCopyPatch;
@@ -416,7 +417,7 @@ type
     property    Color : TColor read GetColor;
   end;
 
-  TG2GraphChildControl = class( TGraphicControl)
+  TG2GraphChildControl = class( TMidiAwareControl)
   // This represents a child graphic control of a module
   protected
     FSelected       : boolean;
@@ -451,6 +452,7 @@ type
     procedure   SetModule( aValue : TG2GraphModulePanel);
     procedure   SetValue( aValue : byte);
     function    GetValue : byte;
+    procedure   SetValueByMidi( aValue : byte); override;
     procedure   SetParamLabel( aIndex : integer; aValue : AnsiString);
     function    GetParamLabel( aIndex : integer) : AnsiString;
     procedure   InitValue( aValue: integer);
@@ -592,6 +594,9 @@ type
     FCodeRef     : integer;
     FInfoFunc    : integer;
     FLevel       : byte;
+    FLedColor    : TColor;
+  protected
+    procedure   SetLedColor( Value : TColor);
   public
     constructor Create( AOwner: TComponent); override;
     destructor  Destroy; override;
@@ -599,6 +604,8 @@ type
     procedure   ParsePanelData( fs : TModuleDefStream); override;
     function    ParseProperties( fs: TModuleDefStream; aName : AnsiString): boolean; override;
     procedure   SetLevel( aValue : byte); override;
+  published
+    property    LedColor : TColor read FLedColor write SetLedColor;
   end;
 
   TG2GraphLedGroup = class( TG2GraphLed)
@@ -968,6 +975,20 @@ begin
         end;
       end;
     end;
+end;
+
+procedure DrawMidiAwareBox( aCanvas : TCanvas; aRect : TRect; aMidiEditorAssignment : TMidiEditorAssignment);
+begin
+  if aMidiEditorAssignment.FNote > 0 then begin
+    aCanvas.Brush.Color := clAqua;
+    aCanvas.FillRect( aRect);
+    TextCenter( aCanvas, aRect, 'N' + IntToStr(aMidiEditorAssignment.FNote));
+  end;
+  if aMidiEditorAssignment.FCC > 0 then begin
+    aCanvas.Brush.Color := clAqua;
+    aCanvas.FillRect( aRect);
+    TextCenter( aCanvas, aRect, 'C' + IntToStr(aMidiEditorAssignment.FCC));
+  end;
 end;
 
 // ==== TG2ImageList ===========================================================
@@ -1440,6 +1461,12 @@ begin
       Module.NewRow := (VertScrollbar.Position + FStartY + trunc(Module.FOutlineRect.Top)) div UNITS_ROW;
       Module.NewCol := (HorzScrollbar.Position + FStartX + trunc(Module.FOutlineRect.Left)) div UNITS_COL;
     end;
+end;
+
+function TG2GraphScrollBox.GetPatchCoord( ClientPoint : TPoint): TPoint;
+begin
+  Result.X := ClientPoint.X + HorzScrollbar.Position;
+  Result.Y := ClientPoint.Y + VertScrollbar.Position;
 end;
 
 procedure TG2GraphScrollBox.SetRackColor( aValue: TColor);
@@ -2437,6 +2464,9 @@ begin
           if Module.FPanel.GraphChildControls[c] is TG2GraphKnob then begin
             (Module.FPanel.GraphChildControls[c] as TG2GraphKnob).HightlightColor := G_HighLightColor;
             Module.FPanel.GraphChildControls[c].Invalidate;
+          end;
+          if Module.FPanel.GraphChildControls[c] is TG2GraphLedGreen then begin
+            (Module.FPanel.GraphChildControls[c] as TG2GraphLedGreen).LedColor := G_LedColor;
           end;
         end;
       end;
@@ -3527,6 +3557,7 @@ begin
 end;
 
 procedure TG2GraphChildControl.PaintOn(ExtCanvas: TCanvas; ExtBoundsRect: TRect);
+var Rect : TRect;
 begin
   // Abstract
 end;
@@ -3631,6 +3662,12 @@ begin
     if assigned( FOnChange) then
       FOnChange( self);
   end;
+end;
+
+procedure TG2GraphChildControl.SetValueByMidi(aValue: byte);
+begin
+  inherited;
+  Value := aValue;
 end;
 
 procedure TG2GraphChildControl.SetLowValue( aValue: byte);
@@ -3950,6 +3987,8 @@ begin
   Width := 11;
   Height := 6;
   FLevel := 0;
+
+  FLedColor := G_LedColor;
 end;
 
 destructor TG2GraphLedGreen.Destroy;
@@ -3966,11 +4005,15 @@ begin
 
   if FLevel = 0 then begin
     ExtCanvas.Pen.Color := clBlack;
-    ExtCanvas.Brush.Color := clGreen;
+    //ExtCanvas.Brush.Color := clGreen;
+    ExtCanvas.Brush.Color := Darker(FLedColor, 100);
     ExtCanvas.Rectangle(Rect);
   end else begin
-    ExtCanvas.Pen.Color := clGreen;
-    ExtCanvas.Brush.Color := clLime;
+    ExtCanvas.Pen.Color := Darker(FLedColor, 100);
+    ExtCanvas.Brush.Color := FLedColor;
+    //ExtCanvas.Pen.Color := clGreen;
+    //ExtCanvas.Brush.Color := clLime;
+
     ExtCanvas.Rectangle(Rect);
   end;
 end;
@@ -4066,6 +4109,13 @@ begin
     Update;
   end;
 end;
+
+procedure TG2GraphLedGreen.SetLedColor( Value : TColor);
+begin
+  FLedColor := Value;
+  Update;
+end;
+
 
 // ==== TG2GraphLedGroup =======================================================
 
@@ -4591,6 +4641,10 @@ begin
     DrawBevel( ExtCanvas, Rect, bvNone)
   else
     DrawBevel( ExtCanvas, Rect, bvRaised);
+
+  if FMidiEditorAssignment <> nil then begin
+    DrawMidiAwareBox( ExtCanvas, MakeRect( Rect.Left, Rect.Top, 16, 8), FMidiEditorAssignment);
+  end;
 end;
 
 {procedure TG2GraphButton.SetAutoHide( aValue: boolean);
@@ -4820,6 +4874,11 @@ begin
       else
         DrawBevel( ExtCanvas, Rect, bvNone);
     end;
+
+    if FMidiEditorAssignment <> nil then begin
+      DrawMidiAwareBox( ExtCanvas, MakeRect( Rect.Left, Rect.Top, 16, 8), FMidiEditorAssignment);
+    end;
+
   finally
     ExtCanvas.Brush.Color := OldBrushColor;
   end;
@@ -4941,6 +5000,10 @@ begin
     ExtCanvas.Pen.Color := CL_BTN_BORDER;
 
   DrawRect( ExtCanvas, Rect);
+
+  if FMidiEditorAssignment <> nil then begin
+    DrawMidiAwareBox( ExtCanvas, MakeRect( Rect.Left, Rect.Top, 16, 8), FMidiEditorAssignment);
+  end;
 end;
 
 procedure TG2GraphButtonFlat.ParsePanelData( fs: TModuleDefStream);
@@ -5096,6 +5159,10 @@ begin
     ExtCanvas.Pen.Color := CL_BTN_BORDER;
 
   DrawRect( ExtCanvas, Rect);
+
+  if FMidiEditorAssignment <> nil then begin
+    DrawMidiAwareBox( ExtCanvas, MakeRect( Rect.Left, Rect.Top, 16, 8), FMidiEditorAssignment);
+  end;
 end;
 
 
@@ -5217,6 +5284,10 @@ begin
           DrawRect( Bitmap.Canvas, Rect);
         end;
 
+        if (FMidiEditorAssignment <> nil) and (FMidiEditorAssignment.FValue = i) then begin
+          DrawMidiAwareBox( Bitmap.Canvas, MakeRect( Rect.Left, Rect.Top, 16, 8), FMidiEditorAssignment);
+        end;
+
         if FOrientation = otHorizontal then begin
           Rect.Left := Rect.Left + FButtonWidth - 1;
           Rect.Right := Rect.Right + FButtonWidth - 1;
@@ -5229,6 +5300,7 @@ begin
             Rect.Bottom := Rect.Bottom + FButtonHeight - 1;
           end;
         end;
+
       end;
     end else
       Bitmap.Canvas.Rectangle( ClientRect);
@@ -5454,6 +5526,11 @@ begin
 
         inc(i);
       end;
+
+      if (FMidiEditorAssignment <> nil) and (FMidiEditorAssignment.FValue = i) then begin
+        DrawMidiAwareBox( Bitmap.Canvas, MakeRect( Rect.Left, Rect.Top, 16, 8), FMidiEditorAssignment);
+      end;
+
       Rect.Top := Rect.Top + FButtonHeight - 1;
       Rect.Bottom := Rect.Bottom + FButtonHeight;
     end;
@@ -5607,6 +5684,10 @@ begin
     else
       DrawBevel( ExtCanvas, Rect2, bvNone);
 
+    if (FMidiEditorAssignment <> nil) and (FMidiEditorAssignment.FValue = i) then begin
+      DrawMidiAwareBox( ExtCanvas, MakeRect( Rect2.Left, Rect2.Top, 16, 8), FMidiEditorAssignment);
+    end;
+
     if FOrientation = otHorizontal then begin
       Rect2.Left := Rect2.Left + FButtonWidth;
       Rect2.Right := Rect2.Right + FButtonWidth;
@@ -5614,6 +5695,7 @@ begin
       Rect2.Top := Rect2.Top + FButtonHeight;
       Rect2.Bottom := Rect2.Bottom + FButtonHeight;
     end;
+
   end;
 end;
 
@@ -6188,7 +6270,13 @@ begin
         Bitmap.Canvas.Brush.Color := CL_DISPLAY_BACKGRND;
         Bitmap.Canvas.FillRect( GetSliderRect);
       end;
+
+    if (FMidiEditorAssignment <> nil) then begin
+      DrawMidiAwareBox( Bitmap.Canvas, MakeRect( FKnobRect.Left, FKnobRect.Top, 16, 8), FMidiEditorAssignment);
+    end;
+
     ExtCanvas.Draw( Rect.Left, Rect.Top, Bitmap);
+
   finally
     Bitmap.Free;
     Fastbitmap.Free;

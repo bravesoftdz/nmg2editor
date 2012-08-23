@@ -1034,6 +1034,24 @@ object frmG2Main: TfrmG2Main
         Action = aEditTools
       end
     end
+    object Settings2: TMenuItem
+      Caption = 'Se&ttings'
+      object Performancesettings2: TMenuItem
+        Action = aPerformanceSettings
+      end
+      object Settings3: TMenuItem
+        Action = aSettings
+      end
+      object Synthsettings2: TMenuItem
+        Action = aSynthSettings
+      end
+      object N7: TMenuItem
+        Caption = '-'
+      end
+      object Viewlog1: TMenuItem
+        Action = aViewLog
+      end
+    end
     object Comm1: TMenuItem
       Caption = 'Midi'
       object Mididump1: TMenuItem
@@ -1067,22 +1085,13 @@ object frmG2Main: TfrmG2Main
         Action = aSendPerfSysex
       end
     end
-    object Settings2: TMenuItem
-      Caption = 'Se&ttings'
-      object Performancesettings2: TMenuItem
-        Action = aPerformanceSettings
+    object ools1: TMenuItem
+      Caption = 'Tools'
+      object G2oolsNM1toG21: TMenuItem
+        Action = aG2oolsNM1toG2
       end
-      object Settings3: TMenuItem
-        Action = aSettings
-      end
-      object Synthsettings2: TMenuItem
-        Action = aSynthSettings
-      end
-      object N7: TMenuItem
-        Caption = '-'
-      end
-      object Viewlog1: TMenuItem
-        Action = aViewLog
+      object G2oolsDXtoG21: TMenuItem
+        Action = aG2oolsDX2G2
       end
     end
   end
@@ -1157,6 +1166,9 @@ object frmG2Main: TfrmG2Main
     object Paste1: TMenuItem
       Action = aPaste
     end
+    object Delete1: TMenuItem
+      Action = aDelete
+    end
     object N4: TMenuItem
       Caption = '-'
     end
@@ -1178,15 +1190,19 @@ object frmG2Main: TfrmG2Main
       Caption = 'Properties'
       OnClick = Properties1Click
     end
-    object Def1: TMenuItem
-      Caption = 'Edit module def.'
-      OnClick = Def1Click
-    end
     object N10: TMenuItem
       Caption = '-'
     end
-    object Delete1: TMenuItem
-      Action = aDelete
+    object Def1: TMenuItem
+      Caption = 'Edit module def. (dev)'
+      OnClick = Def1Click
+    end
+    object N18: TMenuItem
+      Caption = '-'
+    end
+    object miModuleHelp: TMenuItem
+      Caption = 'Module help'
+      OnClick = miModuleHelpClick
     end
   end
   object puVariationMenu: TPopupMenu
@@ -1531,6 +1547,16 @@ object frmG2Main: TfrmG2Main
       Category = 'Settings'
       Caption = 'Save log file'
       OnExecute = aSaveLogFileExecute
+    end
+    object aG2oolsDX2G2: TAction
+      Category = 'Tools'
+      Caption = 'G2ools - DX to G2'
+      OnExecute = aG2oolsDX2G2Execute
+    end
+    object aG2oolsNM1toG2: TAction
+      Category = 'Tools'
+      Caption = 'G2ools - NM1 to G2'
+      OnExecute = aG2oolsNM1toG2Execute
     end
   end
   object ResponseTimer: TTimer

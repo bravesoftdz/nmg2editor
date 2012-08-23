@@ -2,8 +2,8 @@ object frmLog: TfrmLog
   Left = 0
   Top = 0
   Caption = 'Log'
-  ClientHeight = 404
-  ClientWidth = 710
+  ClientHeight = 502
+  ClientWidth = 722
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -20,8 +20,8 @@ object frmLog: TfrmLog
   object Memo1: TMemo
     Left = 0
     Top = 35
-    Width = 710
-    Height = 309
+    Width = 722
+    Height = 407
     Align = alClient
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
@@ -59,18 +59,18 @@ object frmLog: TfrmLog
   end
   object Panel1: TPanel
     Left = 0
-    Top = 344
-    Width = 710
+    Top = 442
+    Width = 722
     Height = 60
     Align = alBottom
     TabOrder = 1
     DesignSize = (
-      710
+      722
       60)
     object eCommand: TEdit
       Left = 16
       Top = 15
-      Width = 575
+      Width = 587
       Height = 21
       Hint = 'Here you can type a message (hex seperated with space)'
       Anchors = [akLeft, akTop, akRight]
@@ -79,7 +79,7 @@ object frmLog: TfrmLog
       TabOrder = 0
     end
     object bSendMsg: TButton
-      Left = 608
+      Left = 620
       Top = 13
       Width = 75
       Height = 25
@@ -97,7 +97,7 @@ object frmLog: TfrmLog
   object Panel2: TPanel
     Left = 0
     Top = 0
-    Width = 710
+    Width = 722
     Height = 35
     Align = alTop
     TabOrder = 2
@@ -127,5 +127,9 @@ object frmLog: TfrmLog
       Action = frmG2Main.aSaveLogFile
       TabOrder = 2
     end
+  end
+  object OpenDialog1: TOpenDialog
+    Left = 384
+    Top = 48
   end
 end

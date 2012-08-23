@@ -56,7 +56,8 @@ const
   LOCATION_VA = 1;
   LOCATION_PATCH_SETTINGS = 2;
 
-  XCL_CONTROL_HIGHLIGHT   = $00FFFF00;
+  XCL_CONTROL_HIGHLIGHT  = $00FFFF00;
+  XCL_LED                = $0000FF00;
   CL_SELECTED_PATCH      = $00B6B6B6;
   CL_SELECTED_PARAM      = $00FFFFFF;
   CL_KNOB_MORPH          = $00F4948C;
@@ -64,8 +65,8 @@ const
   CL_DISPLAY_BACKGRND    = $00555555;
   CL_BTN_FACE            = $00D0D0D0;
   CL_BTN_BORDER          = $00404040;
-  XCL_CLAVIA_RED          = $005A5692;//$006550DC;//$001620D1;
-  XCL_CLAVIA_BLUE         = $00531F00;
+  XCL_CLAVIA_RED         = $005A5692;//$006550DC;//$001620D1;
+  XCL_CLAVIA_BLUE        = $00531F00;
 
   // Module dimensions
   UNITS_COL = 255;
@@ -334,6 +335,11 @@ const
   // Unknown: '12.0s','12.3s','12.7s','13.1s','13.7s','14.9s','16.4s','18.3s',
   // '19.3s','20.5s','21.5s','22.5s','23.5s'
 
+  EXTENDED_MODULE_IDS = [  2,   6,  10,  11,  14,  35,  39,  56,  65,  70,  77,
+                          80,  95,  99, 107, 110, 111, 122, 133, 135, 136, 137,
+                         138, 151, 153, 155, 168, 191, 201, 203, 207, 209, 210,
+                         211, 212, 213, 214, 215, 216, 217, 218, 219];
+
   KeyNames : array[0..11] of string = ('C','C#','D','D#','E','F','F#','G','G#','A','A#','B');
 
   MaxPixelCount = 32768;
@@ -438,12 +444,13 @@ function  IntToByte( i : integer): byte;
 function  ByteToInt( b : byte): integer;
 function  max( v1, v2 : integer): integer;
 function  min( v1, v2 : integer): integer;
+function  CompletePath( path : string): string;
 function  ConvertFwSlahsToBwSlash( filename : string): string;
 function  ConvertBwSlahsToFwSlash( filename : string): string;
 function  ConvertToObjectName( aValue : string): string;
 function  GetKeyName( aKeyNumber : integer): string;
 function  G2FloatToStr( aValue : single; aLen : integer): string;
-function G2FloatToStrFixed( aValue : single; aLen : integer): string;
+function  G2FloatToStrFixed( aValue : single; aLen : integer): string;
 
 
 {$IFNDEF G2_VST}
@@ -486,12 +493,24 @@ var
                                           $00FFFFFF);
 
   G_HighlightColor : integer;
+  G_LedColor : integer;
   G_SlotStripColor : integer;
   G_SlotStripInverseColor : integer;
   G_SlotStripDisabledColor : integer;
   G_CableThickness : integer;
 
 implementation
+
+function CompletePath( path : string): string;
+begin
+  if length(path) > 0 then begin
+    if path[ Length(path)] = '\' then
+      Result := path
+    else
+      Result := path + '\';
+  end else
+    Result := '';
+end;
 
 function G2FloatToStr( aValue : single; aLen : integer): string;
 var intpart : single;

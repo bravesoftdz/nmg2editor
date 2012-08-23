@@ -1,22 +1,23 @@
 <?xml version="1.0"?>
 <G2_Editor_settings>
   <G2_Synth_1>
-    <Editor_settings LogEnabled="True" OnlyTextMenus="False" CableThickness="4" HighlightColor="10354631" SlotStripColor="4341694" SlotStripInverseColor="5447424" SlotStripDisabledColor="13684944"/>
+    <Editor_settings LedColor="65280" LogEnabled="True" OnlyTextMenus="False" CableThickness="3" HighlightColor="8454016" SlotStripColor="4341694" SlotStripInverseColor="5447424" SlotStripDisabledColor="13684944"/>
     <TCP_settings IP="127.0.0.1" Port="2501" IsServer="True" TimerBroadcastLedMessages="0"/>
     <MIDI_settings MidiEnabled="False" MidiInDevice="UM-ONE" MidiOutDevice=""/>
   </G2_Synth_1>
-  <CTRL_MIDI_settings CtrlMidiEnabled="False" CtrlMidiInDevice="UM-ONE"/>
-  <MainForm PosX="6" PosY="10" SizeX="1132" SizeY="892" Visible="True"/>
-  <PatchManagerSettings BaseFolder="C:\Users\Bruno\Documents\Nord Modular Patches\G2 Patches\" SelectedTab="3" ExternalSortCol="0" InternalSortCol="1"/>
+  <CTRL_MIDI_settings CtrlMidiEnabled="True" CtrlMidiInDevice="Hercules DJ Console Rmx MIDI"/>
+  <MainForm PosX="84" PosY="28" SizeX="1436" SizeY="928" Visible="True"/>
+  <PatchManagerSettings BaseFolder="" SelectedTab="1" ExternalSortCol="0" InternalSortCol="1"/>
   <PatchManagerForm PosX="1091" PosY="81" SizeX="488" SizeY="812" Visible="False"/>
-  <SettingsForm PosX="479" PosY="437" SizeX="504" SizeY="287" Visible="False"/>
-  <ParameterPagesForm PosX="573" PosY="778" SizeX="629" SizeY="173" Visible="True"/>
+  <SettingsForm PosX="418" PosY="292" SizeX="504" SizeY="394" Visible="False"/>
+  <ParameterPagesForm PosX="785" PosY="323" SizeX="629" SizeY="173" Visible="True"/>
   <PatchSettingsForm PosX="755" PosY="574" SizeX="608" SizeY="185" Visible="False"/>
-  <EditorToolsForm PosX="1003" PosY="581" SizeX="151" SizeY="261" Visible="False"/>
+  <EditorToolsForm PosX="188" PosY="535" SizeX="151" SizeY="261" Visible="False"/>
   <G2_Synth_2>
     <Editor_settings LogEnabled="False" CableThickness="4" HighlightColor="16776960" SlotStripColor="16744576" SlotStripInverseColor="5447424" SlotStripDisabledColor="13684944"/>
     <TCP_settings IP="127.0.0.1" Port="2502" IsServer="True" TimerBroadcastLedMessages="0"/>
     <MIDI_settings MidiEnabled="False" MidiInDevice="UM-ONE" MidiOutDevice=""/>
   </G2_Synth_2>
   <PatchNotesForm PosX="22" PosY="29" SizeX="359" SizeY="421" Visible="False"/>
+  <DirectorySettings G2oolsFolder="" ModuleHelpFile=""/>
 </G2_Editor_settings>

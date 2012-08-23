@@ -25,6 +25,7 @@ object frmParameterPages: TfrmParameterPages
     Top = 64
     Width = 22
     Height = 22
+    CtrlMidiEnabled = True
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -9
@@ -47,6 +48,7 @@ object frmParameterPages: TfrmParameterPages
     Top = 64
     Width = 22
     Height = 22
+    CtrlMidiEnabled = True
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -9
@@ -69,6 +71,7 @@ object frmParameterPages: TfrmParameterPages
     Top = 64
     Width = 22
     Height = 22
+    CtrlMidiEnabled = True
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -9
@@ -91,6 +94,7 @@ object frmParameterPages: TfrmParameterPages
     Top = 64
     Width = 22
     Height = 22
+    CtrlMidiEnabled = True
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -9
@@ -113,6 +117,7 @@ object frmParameterPages: TfrmParameterPages
     Top = 64
     Width = 22
     Height = 22
+    CtrlMidiEnabled = True
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -9
@@ -135,6 +140,7 @@ object frmParameterPages: TfrmParameterPages
     Top = 64
     Width = 22
     Height = 22
+    CtrlMidiEnabled = True
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -9
@@ -157,6 +163,7 @@ object frmParameterPages: TfrmParameterPages
     Top = 64
     Width = 22
     Height = 22
+    CtrlMidiEnabled = True
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -9
@@ -179,6 +186,7 @@ object frmParameterPages: TfrmParameterPages
     Top = 64
     Width = 22
     Height = 22
+    CtrlMidiEnabled = True
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -9
@@ -200,6 +208,7 @@ object frmParameterPages: TfrmParameterPages
     Top = 31
     Width = 60
     Height = 27
+    CtrlMidiEnabled = False
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWhite
     Font.Height = -11
@@ -220,6 +229,7 @@ object frmParameterPages: TfrmParameterPages
     Top = 31
     Width = 60
     Height = 27
+    CtrlMidiEnabled = False
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWhite
     Font.Height = -11
@@ -240,6 +250,7 @@ object frmParameterPages: TfrmParameterPages
     Top = 31
     Width = 60
     Height = 27
+    CtrlMidiEnabled = False
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWhite
     Font.Height = -11
@@ -260,6 +271,7 @@ object frmParameterPages: TfrmParameterPages
     Top = 31
     Width = 60
     Height = 27
+    CtrlMidiEnabled = False
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWhite
     Font.Height = -11
@@ -280,6 +292,7 @@ object frmParameterPages: TfrmParameterPages
     Top = 31
     Width = 60
     Height = 27
+    CtrlMidiEnabled = False
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWhite
     Font.Height = -11
@@ -300,6 +313,7 @@ object frmParameterPages: TfrmParameterPages
     Top = 31
     Width = 60
     Height = 27
+    CtrlMidiEnabled = False
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWhite
     Font.Height = -11
@@ -320,6 +334,7 @@ object frmParameterPages: TfrmParameterPages
     Top = 31
     Width = 60
     Height = 27
+    CtrlMidiEnabled = False
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWhite
     Font.Height = -11
@@ -340,6 +355,7 @@ object frmParameterPages: TfrmParameterPages
     Top = 31
     Width = 60
     Height = 27
+    CtrlMidiEnabled = False
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWhite
     Font.Height = -11
@@ -360,6 +376,7 @@ object frmParameterPages: TfrmParameterPages
     Top = 8
     Width = 60
     Height = 17
+    CtrlMidiEnabled = False
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -11
@@ -380,6 +397,7 @@ object frmParameterPages: TfrmParameterPages
     Top = 8
     Width = 60
     Height = 17
+    CtrlMidiEnabled = False
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -11
@@ -400,6 +418,7 @@ object frmParameterPages: TfrmParameterPages
     Top = 8
     Width = 60
     Height = 17
+    CtrlMidiEnabled = False
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -11
@@ -420,6 +439,7 @@ object frmParameterPages: TfrmParameterPages
     Top = 8
     Width = 60
     Height = 17
+    CtrlMidiEnabled = False
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -11
@@ -440,6 +460,7 @@ object frmParameterPages: TfrmParameterPages
     Top = 8
     Width = 60
     Height = 17
+    CtrlMidiEnabled = False
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -11
@@ -460,6 +481,7 @@ object frmParameterPages: TfrmParameterPages
     Top = 8
     Width = 60
     Height = 17
+    CtrlMidiEnabled = False
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -11
@@ -480,6 +502,7 @@ object frmParameterPages: TfrmParameterPages
     Top = 8
     Width = 60
     Height = 17
+    CtrlMidiEnabled = False
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -11
@@ -500,6 +523,7 @@ object frmParameterPages: TfrmParameterPages
     Top = 8
     Width = 60
     Height = 17
+    CtrlMidiEnabled = False
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -11
@@ -520,6 +544,7 @@ object frmParameterPages: TfrmParameterPages
     Top = 106
     Width = 60
     Height = 16
+    CtrlMidiEnabled = True
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -11
@@ -544,6 +569,7 @@ object frmParameterPages: TfrmParameterPages
     Top = 106
     Width = 60
     Height = 16
+    CtrlMidiEnabled = True
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -11
@@ -567,6 +593,7 @@ object frmParameterPages: TfrmParameterPages
     Top = 106
     Width = 60
     Height = 16
+    CtrlMidiEnabled = True
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -11
@@ -590,6 +617,7 @@ object frmParameterPages: TfrmParameterPages
     Top = 106
     Width = 60
     Height = 16
+    CtrlMidiEnabled = True
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -11
@@ -613,6 +641,7 @@ object frmParameterPages: TfrmParameterPages
     Top = 106
     Width = 60
     Height = 16
+    CtrlMidiEnabled = True
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -11
@@ -636,6 +665,7 @@ object frmParameterPages: TfrmParameterPages
     Top = 106
     Width = 60
     Height = 16
+    CtrlMidiEnabled = True
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -11
@@ -659,6 +689,7 @@ object frmParameterPages: TfrmParameterPages
     Top = 106
     Width = 60
     Height = 16
+    CtrlMidiEnabled = True
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -11
@@ -682,6 +713,7 @@ object frmParameterPages: TfrmParameterPages
     Top = 106
     Width = 60
     Height = 16
+    CtrlMidiEnabled = True
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -11
@@ -704,6 +736,7 @@ object frmParameterPages: TfrmParameterPages
     Top = 88
     Width = 60
     Height = 17
+    CtrlMidiEnabled = False
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -11
@@ -724,6 +757,7 @@ object frmParameterPages: TfrmParameterPages
     Top = 88
     Width = 60
     Height = 17
+    CtrlMidiEnabled = False
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -11
@@ -744,6 +778,7 @@ object frmParameterPages: TfrmParameterPages
     Top = 88
     Width = 60
     Height = 17
+    CtrlMidiEnabled = False
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -11
@@ -764,6 +799,7 @@ object frmParameterPages: TfrmParameterPages
     Top = 88
     Width = 60
     Height = 17
+    CtrlMidiEnabled = False
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -11
@@ -784,6 +820,7 @@ object frmParameterPages: TfrmParameterPages
     Top = 88
     Width = 60
     Height = 17
+    CtrlMidiEnabled = False
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -11
@@ -804,6 +841,7 @@ object frmParameterPages: TfrmParameterPages
     Top = 88
     Width = 60
     Height = 17
+    CtrlMidiEnabled = False
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -11
@@ -824,6 +862,7 @@ object frmParameterPages: TfrmParameterPages
     Top = 88
     Width = 60
     Height = 17
+    CtrlMidiEnabled = False
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -11
@@ -844,6 +883,7 @@ object frmParameterPages: TfrmParameterPages
     Top = 88
     Width = 60
     Height = 17
+    CtrlMidiEnabled = False
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -11
@@ -874,6 +914,7 @@ object frmParameterPages: TfrmParameterPages
       Top = 22
       Width = 70
       Height = 81
+      CtrlMidiEnabled = True
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -9
@@ -883,6 +924,7 @@ object frmParameterPages: TfrmParameterPages
       Value = 0
       LowValue = 0
       HighValue = 4
+      OnMouseDown = obParamMouseDown
       ParentColor = False
       ParentFont = False
       OnClick = obParamClick
@@ -903,6 +945,7 @@ object frmParameterPages: TfrmParameterPages
       Top = 106
       Width = 70
       Height = 16
+      CtrlMidiEnabled = True
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -9
@@ -930,6 +973,7 @@ object frmParameterPages: TfrmParameterPages
       Top = 4
       Width = 70
       Height = 16
+      CtrlMidiEnabled = True
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -9

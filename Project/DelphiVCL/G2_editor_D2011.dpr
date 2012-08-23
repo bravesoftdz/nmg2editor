@@ -23,7 +23,8 @@ uses
   UnitPatchManager in '..\..\Source\UnitPatchManager.pas' {frmPatchManager},
   g2_mess in '..\..\Source\NMG2Controls\g2_mess.pas',
   UnitModuleDef in '..\..\Source\UnitModuleDef.pas' {frmModuleDef},
-  UnitPatchNotes in '..\..\Source\UnitPatchNotes.pas' {frmPatchNotes};
+  UnitPatchNotes in '..\..\Source\UnitPatchNotes.pas' {frmPatchNotes},
+  UnitMidiMapping in '..\..\Source\UnitMidiMapping.pas' {frmMidiMapping};
 
 {$R *.res}
 
@@ -41,6 +42,7 @@ begin
   Application.CreateForm(TfrmSynthSettings, frmSynthSettings);
   Application.CreateForm(TfrmPerfSettings, frmPerfSettings);
   Application.CreateForm(TfrmEditLabel, frmEditLabel);
+  Application.CreateForm(TfrmMidiMapping, frmMidiMapping);
   Application.CreateForm(TfrmSettings, frmSettings);
   Application.CreateForm(TfrmEditorTools, frmEditorTools);
   Application.CreateForm(TfrmPatchManager, frmPatchManager);

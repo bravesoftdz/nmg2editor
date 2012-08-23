@@ -36,6 +36,29 @@ uses
   g2_types, g2_database, g2_file, g2_classes, OSCUtils, ComCtrls, DOM, XMLRead, XMLWrite,
   MidiDeviceComboBox, FileCtrl, JawsCtrls;
 
+const
+   EXPLENATIONS : array[0..19] of string =
+      ('Is Server : If checked, the G2 VST or other OS G2 editors can connect to this editor using the TCP-IP settings. Only the server editor can have a direct USB connection to the G2 synth, so in a normal setup this one should be checked.',
+       'Port : The port number for the server editor.',
+       'Host : TCP-IP address of the PC the server editor is running on.',
+       'Timer broadcast led messages : The timer interval the server is sending led update messages to the clients (set higher to prevent network overload).',
+       'Midi enabled : Check to enable the midi ports of the editor to send and receive sysex messages. Please note : controller midi for the G2 synth is controlled in the Synth settings dialog!',
+       'Sysex midi in : The midi port to receive sysex messages into the editor.',
+       'Sysex midi out : The midi port to send sysex messages.',
+       'Ctrl midi enabled : Check to enable receiving controller midi for the editor. Please note : controller midi for the G2 synth is controlled in the Synth settings dialog!',
+       'Ctrl midi in : The midi port to recieve controller midi messages for the editor.',
+       'Log enabled : Check to enable the log. Please note: this will slowdown the loading of patches somewhat.',
+       'Cable thickness : Enter a number to control the cable thickness in the patch windows.',
+       'Slot strip color : Select a color for the slot strips.',
+       'Slot strip inverse color : Select a color for the slot strip when selected.',
+       'Slot strip disabled color : Select a color for the slot strip when disabled.',
+       'Highlight color : Select a color for the module controls that are highlighted.',
+       'Led color : Select a color for the leds.',
+       'Only text menus : For use with JAWS (screenreading software for visualy disabled users) this should be checked, otherwise JAWS will not read out the menu options',
+       'Patch root folder : Set the root folder of your g2 patch library on disk for use in the patch manager.',
+       'Module help file : Set to "Nord Modular G2 Editor v1.62.chm".',
+       'G2ools folder : Set to the folder containing the g2ools executables.');
+
 type
   TfrmSettings = class(TForm)
     Memo1: TMemo;
@@ -46,7 +69,7 @@ type
     TabSheet1: TTabSheet;
     TabSheet2: TTabSheet;
     TabSheet3: TTabSheet;
-    bSelectRootFolder: TButton;
+    bSelectPtachRootFolder: TButton;
     TabSheet4: TTabSheet;
     cbIsServer: TCheckBox;
     cbMidiEnabled: TCheckBox;
@@ -76,12 +99,24 @@ type
     eHost: DEdit;
     eTimerBroadcastLedMessages: DEdit;
     eCableThickness: DEdit;
-    eRootFolder: DEdit;
+    ePatchRootFolder: DEdit;
     eOSCServerIP: DEdit;
     eOSCHostPort: DEdit;
     cbMidiInDevices: DCombobox;
     cbMidiOutDevices: DCombobox;
     cbCtrlMidiInDevices: DCombobox;
+    Panel2: TPanel;
+    lExplenation: TLabel;
+    cbLedColor: TColorBox;
+    StaticText15: TStaticText;
+    StaticText16: TStaticText;
+    StaticText17: TStaticText;
+    eModuleHelpFile: TEdit;
+    eG2oolsFolder: TEdit;
+    bSelectModuleHelpFile: TButton;
+    bSelectG2oolsFolder: TButton;
+    OpenDialog1: TOpenDialog;
+    bMidiMapping: TButton;
     procedure Button2Click(Sender: TObject);
     procedure IdUDPServer1Status(ASender: TObject; const AStatus: TIdStatus;
       const AStatusText: string);
@@ -90,7 +125,7 @@ type
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure cbIsServerClick(Sender: TObject);
     procedure cbMidiEnabledClick(Sender: TObject);
-    procedure bSelectRootFolderClick(Sender: TObject);
+    procedure bSelectPtachRootFolderClick(Sender: TObject);
     procedure cbMidiInDevicesSelect(Sender: TObject);
     procedure cbMidiOutDevicesSelect(Sender: TObject);
     procedure cbCtrlMidiInDevicesSelect(Sender: TObject);
@@ -102,6 +137,30 @@ type
     procedure cbHighLightColorChange(Sender: TObject);
     procedure cbOnlyTextMenusClick(Sender: TObject);
     procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure cbIsServerEnter(Sender: TObject);
+    procedure ePortEnter(Sender: TObject);
+    procedure eHostEnter(Sender: TObject);
+    procedure eTimerBroadcastLedMessagesEnter(Sender: TObject);
+    procedure cbMidiEnabledEnter(Sender: TObject);
+    procedure cbMidiInDevicesEnter(Sender: TObject);
+    procedure cbMidiOutDevicesEnter(Sender: TObject);
+    procedure cbCtrlMidiEnabledEnter(Sender: TObject);
+    procedure cbCtrlMidiInDevicesEnter(Sender: TObject);
+    procedure cbLogEnabledEnter(Sender: TObject);
+    procedure eCableThicknessEnter(Sender: TObject);
+    procedure cbSlotStripColorEnter(Sender: TObject);
+    procedure cbSlotStripInverseColorEnter(Sender: TObject);
+    procedure cbSlotStripDisabledColorEnter(Sender: TObject);
+    procedure cbHighLightColorEnter(Sender: TObject);
+    procedure cbLedColorEnter(Sender: TObject);
+    procedure cbOnlyTextMenusEnter(Sender: TObject);
+    procedure ePatchRootFolderEnter(Sender: TObject);
+    procedure eModuleHelpFileEnter(Sender: TObject);
+    procedure eG2oolsFolderEnter(Sender: TObject);
+    procedure bSelectModuleHelpFileClick(Sender: TObject);
+    procedure bSelectG2oolsFolderClick(Sender: TObject);
+    procedure cbLedColorChange(Sender: TObject);
+    procedure bMidiMappingClick(Sender: TObject);
   private
     { Private declarations }
     FDisableControls : boolean;
@@ -119,7 +178,7 @@ implementation
 
 {$R *.dfm}
 
-uses UnitG2Editor;
+uses UnitG2Editor, UnitMidiMapping;
 
 procedure TfrmSettings.FormCreate(Sender: TObject);
 var G2 : TG2;
@@ -162,6 +221,7 @@ var Doc : TXMLDocument;
     RootNode, SynthNode : TDOMNode;
     mi, mo : integer;
     PatchManagerSettingsNode : TXMLPatchManagerSettingsType;
+    DirSettingsNode : TXMLDirectorySettingsType;
     MidiSettingsNode : TXMLMidiSettingsType;
     CtrlMidiSettingsNode : TXMLCtrlMidiSettingsType;
     FormSettingsNode : TXMLFormSettingsType;
@@ -241,32 +301,38 @@ begin
           try
             try
               cbCtrlMidiInDevices.ItemIndex := mi;
-              frmG2Main.CtrlMidiInput.ChangeDevice( cbCtrlMidiInDevices.ItemIndex, False);
-              frmG2Main.CtrlMidiEnabled := CtrlMidiSettingsNode.CtrlMidiEnabled;
+              frmMidiMapping.CtrlMidiInput.ChangeDevice( cbCtrlMidiInDevices.ItemIndex, False);
+              frmMidiMapping.CtrlMidiEnabled := CtrlMidiSettingsNode.CtrlMidiEnabled;
             except on E:Exception do begin
                 ShowMessage( E.Message);
-                frmG2Main.CtrlMidiEnabled := False;
+                frmMidiMapping.CtrlMidiEnabled := False;
               end;
             end;
 
           finally
-            cbCtrlMidiEnabled.Checked := frmG2Main.CtrlMidiEnabled;
+            cbCtrlMidiEnabled.Checked := frmMidiMapping.CtrlMidiEnabled;
           end;
         end else
-          frmG2Main.CtrlMidiEnabled := False;
+          frmMidiMapping.CtrlMidiEnabled := False;
+      end;
+
+      DirSettingsNode := TXMLDirectorySettingsType(RootNode.FindNode('DirectorySettings'));
+      if assigned(DirSettingsNode) then begin
+        eG2oolsFolder.Text := String(DirSettingsNode.G2oolsFolder);
+        eModuleHelpFile.Text := String(DirSettingsNode.ModuleHelpFile);
       end;
 
       PatchManagerSettingsNode := TXMLPatchManagerSettingsType(RootNode.FindNode('PatchManagerSettings'));
       if assigned(PatchManagerSettingsNode) then begin
-        eRootFolder.Text := String(PatchManagerSettingsNode.BaseFolder);
+        ePatchRootFolder.Text := String(PatchManagerSettingsNode.BaseFolder);
       end;
 
       FormSettingsNode := TXMLFormSettingsType(RootNode.FindNode('SettingsForm'));
       if assigned(FormSettingsNode) then begin
         Left := FormSettingsNode.PosX;
         Top := FormSettingsNode.PosY;
-        Width := FormSettingsNode.SizeX;
-        Height := FormSettingsNode.SizeY;
+        {Width := FormSettingsNode.SizeX;
+        Height := FormSettingsNode.SizeY;}
         Visible := FormSettingsNode.Visible;
       end;
 
@@ -292,6 +358,16 @@ begin
   end;
 end;
 
+procedure TfrmSettings.cbMidiEnabledEnter(Sender: TObject);
+begin
+  lExplenation.Caption := EXPLENATIONS[4];
+end;
+
+procedure TfrmSettings.cbMidiInDevicesEnter(Sender: TObject);
+begin
+  lExplenation.Caption := EXPLENATIONS[5];
+end;
+
 procedure TfrmSettings.cbMidiInDevicesSelect(Sender: TObject);
 var G2 : TG2;
 begin
@@ -305,6 +381,11 @@ begin
     else
       cbMidiInDevices.Text := '';
   end;
+end;
+
+procedure TfrmSettings.cbMidiOutDevicesEnter(Sender: TObject);
+begin
+  lExplenation.Caption := EXPLENATIONS[6];
 end;
 
 procedure TfrmSettings.cbMidiOutDevicesSelect(Sender: TObject);
@@ -328,10 +409,20 @@ begin
     exit;
 
   try
-    frmG2Main.CtrlMidiEnabled := cbCtrlMidiEnabled.Checked;
+    frmMidiMapping.CtrlMidiEnabled := cbCtrlMidiEnabled.Checked;
   finally
     UpdateControls;
   end;
+end;
+
+procedure TfrmSettings.cbCtrlMidiEnabledEnter(Sender: TObject);
+begin
+  lExplenation.Caption := EXPLENATIONS[7];
+end;
+
+procedure TfrmSettings.cbCtrlMidiInDevicesEnter(Sender: TObject);
+begin
+  lExplenation.Caption := EXPLENATIONS[8];
 end;
 
 procedure TfrmSettings.cbCtrlMidiInDevicesSelect(Sender: TObject);
@@ -341,7 +432,7 @@ begin
     exit;
 
   if cbCtrlMidiInDevices.ItemIndex > -1  then
-    frmG2Main.CtrlMidiInput.ChangeDevice( cbCtrlMidiInDevices.ItemIndex, cbCtrlMidiEnabled.Checked)
+    frmMidiMapping.CtrlMidiInput.ChangeDevice( cbCtrlMidiInDevices.ItemIndex, cbCtrlMidiEnabled.Checked)
   else
     cbCtrlMidiInDevices.Text := '';
 end;
@@ -353,7 +444,12 @@ begin
 
   G_SlotStripColor := cbSlotStripColor.Selected;
 
-  frmG2Main.SetEditorSettings( G_SlotStripColor, G_SlotStripInverseColor, G_SlotStripDisabledColor, G_HighLightColor, G_CableThickness);
+  frmG2Main.SetEditorSettings( G_SlotStripColor, G_SlotStripInverseColor, G_SlotStripDisabledColor, G_HighLightColor, G_LedColor, G_CableThickness);
+end;
+
+procedure TfrmSettings.cbSlotStripColorEnter(Sender: TObject);
+begin
+  lExplenation.Caption := EXPLENATIONS[11];
 end;
 
 procedure TfrmSettings.cbSlotStripDisabledColorChange(Sender: TObject);
@@ -363,7 +459,12 @@ begin
 
   G_SlotStripDisabledColor := cbSlotStripDisabledColor.Selected;
 
-  frmG2Main.SetEditorSettings( G_SlotStripColor, G_SlotStripInverseColor, G_SlotStripDisabledColor, G_HighLightColor, G_CableThickness);
+  frmG2Main.SetEditorSettings( G_SlotStripColor, G_SlotStripInverseColor, G_SlotStripDisabledColor, G_HighLightColor, G_LedColor, G_CableThickness);
+end;
+
+procedure TfrmSettings.cbSlotStripDisabledColorEnter(Sender: TObject);
+begin
+  lExplenation.Caption := EXPLENATIONS[13];
 end;
 
 procedure TfrmSettings.cbSlotStripInverseColorChange(Sender: TObject);
@@ -373,7 +474,62 @@ begin
 
   G_SlotStripInverseColor := cbSlotStripInverseColor.Selected;
 
-  frmG2Main.SetEditorSettings( G_SlotStripColor, G_SlotStripInverseColor, G_SlotStripDisabledColor, G_HighLightColor, G_CableThickness);
+  frmG2Main.SetEditorSettings( G_SlotStripColor, G_SlotStripInverseColor, G_SlotStripDisabledColor, G_HighLightColor, G_LedColor, G_CableThickness);
+end;
+
+procedure TfrmSettings.cbSlotStripInverseColorEnter(Sender: TObject);
+begin
+  lExplenation.Caption := EXPLENATIONS[12];
+end;
+
+procedure TfrmSettings.cbLedColorChange(Sender: TObject);
+begin
+  if FDisableControls then
+    exit;
+
+  G_LedColor := cbLedColor.Selected;
+
+  frmG2Main.SetEditorSettings( G_SlotStripColor, G_SlotStripInverseColor, G_SlotStripDisabledColor, G_HighLightColor, G_LedColor, G_CableThickness);
+end;
+
+procedure TfrmSettings.cbLedColorEnter(Sender: TObject);
+begin
+  lExplenation.Caption := EXPLENATIONS[15];
+end;
+
+procedure TfrmSettings.eCableThicknessEnter(Sender: TObject);
+begin
+  lExplenation.Caption := EXPLENATIONS[10];
+end;
+
+procedure TfrmSettings.eG2oolsFolderEnter(Sender: TObject);
+begin
+  lExplenation.Caption := EXPLENATIONS[19];
+end;
+
+procedure TfrmSettings.eHostEnter(Sender: TObject);
+begin
+  lExplenation.Caption := EXPLENATIONS[2];
+end;
+
+procedure TfrmSettings.eModuleHelpFileEnter(Sender: TObject);
+begin
+  lExplenation.Caption := EXPLENATIONS[18];
+end;
+
+procedure TfrmSettings.ePatchRootFolderEnter(Sender: TObject);
+begin
+  lExplenation.Caption := EXPLENATIONS[17];
+end;
+
+procedure TfrmSettings.ePortEnter(Sender: TObject);
+begin
+  lExplenation.Caption := EXPLENATIONS[1];
+end;
+
+procedure TfrmSettings.eTimerBroadcastLedMessagesEnter(Sender: TObject);
+begin
+  lExplenation.Caption := EXPLENATIONS[3];
 end;
 
 procedure TfrmSettings.cbHighLightColorChange(Sender: TObject);
@@ -383,7 +539,12 @@ begin
 
   G_HighLightColor := cbHighLightColor.Selected;
 
-  frmG2Main.SetEditorSettings( G_SlotStripColor, G_SlotStripInverseColor, G_SlotStripDisabledColor, G_HighLightColor, G_CableThickness);
+  frmG2Main.SetEditorSettings( G_SlotStripColor, G_SlotStripInverseColor, G_SlotStripDisabledColor, G_HighLightColor, G_LedColor, G_CableThickness);
+end;
+
+procedure TfrmSettings.cbHighLightColorEnter(Sender: TObject);
+begin
+  lExplenation.Caption := EXPLENATIONS[14];
 end;
 
 procedure TfrmSettings.cbIsServerClick(Sender: TObject);
@@ -402,6 +563,11 @@ begin
   end;
 end;
 
+procedure TfrmSettings.cbIsServerEnter(Sender: TObject);
+begin
+  lExplenation.Caption := EXPLENATIONS[0];
+end;
+
 procedure TfrmSettings.cbLogEnabledClick(Sender: TObject);
 var G2 : TG2;
 begin
@@ -418,6 +584,11 @@ begin
     G2.LogLevel := 0;
 end;
 
+procedure TfrmSettings.cbLogEnabledEnter(Sender: TObject);
+begin
+  lExplenation.Caption := EXPLENATIONS[9];
+end;
+
 procedure TfrmSettings.cbOnlyTextMenusClick(Sender: TObject);
 var G2 : TG2;
 begin
@@ -428,6 +599,11 @@ begin
     frmG2Main.OnlyTextMenus := True
   else
     frmG2Main.OnlyTextMenus := False;
+end;
+
+procedure TfrmSettings.cbOnlyTextMenusEnter(Sender: TObject);
+begin
+  lExplenation.Caption := EXPLENATIONS[16];
 end;
 
 procedure TfrmSettings.FormClose(Sender: TObject; var Action: TCloseAction);
@@ -446,7 +622,7 @@ begin
     if c = 0 then begin
       if G_CableThickness <> i then begin
         G_CableThickness := i;
-        frmG2Main.SetEditorSettings( G_SlotStripColor, G_SlotStripInverseColor, G_SlotStripDisabledColor, G_HighLightColor, G_CableThickness);
+        frmG2Main.SetEditorSettings( G_SlotStripColor, G_SlotStripInverseColor, G_SlotStripDisabledColor, G_HighLightColor, G_LedColor, G_CableThickness);
         frmG2Main.ShakeCables;
       end;
     end;
@@ -474,20 +650,26 @@ begin
 
     cbMidiInDevices.Text := G2.MidiInput.ProductName;
     cbMidiOutDevices.Text := G2.MidiOutput.ProductName;
-    cbCtrlMidiInDevices.Text := frmG2Main.CtrlMidiInput.ProductName;
+    cbCtrlMidiInDevices.Text := frmMidiMapping.CtrlMidiInput.ProductName;
     cbLogEnabled.Checked := G2.LogLevel = 1;
     eCableThickness.Text := IntToStr(G_CableThickness);
     cbSlotStripColor.Selected := G_SlotStripColor;
     cbSlotStripInverseColor.Selected := G_SlotStripInverseColor;
     cbSlotStripDisabledColor.Selected := G_SlotStripDisabledColor;
     cbHighLightColor.Selected := G_HighLightColor;
+    cbLedColor.Selected := G_LedColor;
     cbOnlyTextMenus.Checked := frmG2Main.OnlyTextMenus;
   finally
     FDisableControls := False;
   end;
 end;
 
-procedure TfrmSettings.bSelectRootFolderClick(Sender: TObject);
+procedure TfrmSettings.bMidiMappingClick(Sender: TObject);
+begin
+  frmMidiMapping.Show;
+end;
+
+procedure TfrmSettings.bSelectG2oolsFolderClick(Sender: TObject);
 var FDir : string;
 begin
   if Win32MajorVersion >= 6 then
@@ -499,14 +681,47 @@ begin
         DefaultFolder := FDir;
         FileName := FDir;
         if Execute then
-          eRootFolder.Text := FileName;
+          eG2oolsFolder.Text := FileName;
       finally
         Free;
       end
   else
     if SelectDirectory('Select Directory', ExtractFileDrive(FDir), FDir,
                [sdNewUI, sdNewFolder]) then
-      eRootFolder.Text := FDir;
+      eG2oolsFolder.Text := FDir;
+  frmG2Main.UpdateControls;
+end;
+
+procedure TfrmSettings.bSelectModuleHelpFileClick(Sender: TObject);
+var FDir : string;
+begin
+  OpenDialog1.Filter := 'compiled help files (*.chm)|*.chm';
+  if OpenDialog1.Execute then
+      eModuleHelpFile.Text := OpenDialog1.FileName;;
+  frmG2Main.UpdateControls;
+end;
+
+procedure TfrmSettings.bSelectPtachRootFolderClick(Sender: TObject);
+var FDir : string;
+begin
+  if Win32MajorVersion >= 6 then
+    with TFileOpenDialog.Create(nil) do
+      try
+        Title := 'Select Directory';
+        Options := [fdoPickFolders, fdoPathMustExist, fdoForceFileSystem]; // YMMV
+        OkButtonLabel := 'Select';
+        DefaultFolder := FDir;
+        FileName := FDir;
+        if Execute then
+          ePatchRootFolder.Text := FileName;
+      finally
+        Free;
+      end
+  else
+    if SelectDirectory('Select Directory', ExtractFileDrive(FDir), FDir,
+               [sdNewUI, sdNewFolder]) then
+      ePatchRootFolder.Text := FDir;
+  frmG2Main.UpdateControls;
 end;
 
 // OSC interface, someting for later...

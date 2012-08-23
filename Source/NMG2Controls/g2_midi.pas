@@ -28,14 +28,21 @@ unit g2_midi;
 //
 //  This unit needs the Delphi MIDI I/O components, download at https://bitbucket.org/h4ndy/midiio-dev/overview
 //
+//  Most of it disabled for the VST
+//
 //  ////////////////////////////////////////////////////////////////////////////
 
 
 interface
 uses
-  Classes, SysUtils,
+  Classes, SysUtils, Controls,
 {$IFNDEF G2_VST}
   MMSystem, MidiType, MidiIn, MidiOut,
+{$IFDEF VER230}
+  System.Contnrs,
+{$ELSE}
+  Contnrs,
+{$ENDIF}
 {$ENDIF}
   g2_types, g2_file, g2_usb;
 
@@ -43,6 +50,44 @@ const
   CHANNEL_MASK = $f;
 
 type
+  TMidiAwareControl = class;
+
+  // Midi assignmet to editor UI control
+  TMidiEditorAssignment = class
+    FChannel  : byte;
+    FNote     : byte;
+    FCC       : byte;
+    FValue    : byte;
+    FControl  : TMidiAwareControl; // Pointer to UI controls see g2_graph
+  end;
+
+  TMidiAwareControl = class( TGraphicControl)
+  protected
+    FCtrlMidiEnabled : boolean;
+    FMidiEditorAssignment : TMidiEditorAssignment;
+  public
+    constructor Create( AOwner: TComponent); override;
+    destructor  Destroy; override;
+    procedure   SetValueByMidi( aValue : byte); virtual;
+
+    property MidiEditorAssignment : TMidiEditorAssignment read FMidiEditorAssignment write FMidiEditorAssignment;
+  published
+    property CtrlMidiEnabled : boolean read FCtrlMidiEnabled write FCtrlMidiEnabled;
+  end;
+
+  TMidiEditorAssignmentList = class(TObjectList)
+  protected
+    function    GetMidiEditorAssignment( aIndex : integer) : TMidiEditorAssignment;
+    procedure   SetMidiEditorAssignment( aIndex : integer; const aValue : TMidiEditorAssignment);
+  public
+    constructor Create( AOwnsObjects: Boolean);
+    destructor  Destroy; override;
+    function    Find( aControl : TMidiAwareControl): TMidiEditorAssignment;
+
+    property    Items[ aIndex : integer]: TMidiEditorAssignment read GetMidiEditorAssignment write SetMidiEditorAssignment; default;
+  end;
+
+  // Midi functionality for G2 class
   TG2Midi = class( TG2USB)
     private
       FMidiEnabled : boolean;
@@ -51,6 +96,7 @@ type
       FMidiInput     : TMidiInput;
       FMidiOutput    : TMidiOutput;
       FLastMidiEvent : TMyMidiEvent;
+
     protected
       procedure   SetMidiEnabled( aValue : boolean);
     public
@@ -93,6 +139,7 @@ begin
   FMidiOutput := TMidiOutput.Create(self);
   FSysExStream := TMemoryStream.Create;
 
+
   FMidiInput.OnMidiInput := DoMidiInput;
 {$ENDIF}
 end;
@@ -102,13 +149,13 @@ begin
 {$IFNDEF G2_VST}
   CloseMidi;
 
+
   FSYsExStream.Free;
   FMidiOutput.Free;
   FMidiInput.Free;
 {$ENDIF}
   inherited;
 end;
-
 
 {$IFNDEF G2_VST}
 function MidiToString(MidiEvent: TMyMidiEvent): string;
@@ -404,13 +451,12 @@ begin
 end;
 
 procedure TG2Midi.ProcessMidiMessage;
-var
-	thisEvent : TMyMidiEvent;
-  midistring : string;
-  C : Byte;
-  block, total, i : integer;
-  G2FileDataStream : TG2FileDataStream;
-  Lines : TStrings;
+var	thisEvent : TMyMidiEvent;
+    midistring : string;
+    C : Byte;
+    block, total, i : integer;
+    G2FileDataStream : TG2FileDataStream;
+    Lines : TStrings;
 begin
   while (FMidiInput.MessageCount > 0) do begin
 
@@ -551,6 +597,61 @@ begin
     Close;
   end;
 end;
+
+{ TMidiEditorAssignmentList }
+
+constructor TMidiEditorAssignmentList.Create(AOwnsObjects: Boolean);
+begin
+  inherited;
+end;
+
+destructor TMidiEditorAssignmentList.Destroy;
+begin
+  inherited;
+end;
+
+function TMidiEditorAssignmentList.Find( aControl: TMidiAwareControl): TMidiEditorAssignment;
+var i : integer;
+begin
+  i := 0;
+  while (i<Count) and (Items[i].FControl <> aControl) do
+    inc(i);
+
+  if (i<Count) then
+    Result := Items[i]
+  else
+    Result := nil;
+end;
+
+function TMidiEditorAssignmentList.GetMidiEditorAssignment( aIndex: integer): TMidiEditorAssignment;
+begin
+  Result := inherited items[aIndex] as  TMidiEditorAssignment;
+end;
+
+procedure TMidiEditorAssignmentList.SetMidiEditorAssignment(aIndex: integer; const aValue: TMidiEditorAssignment);
+begin
+  inherited items[aIndex] := aValue;
+end;
+
 {$ENDIF}
+
+{ TMidiAwareControl }
+
+constructor TMidiAwareControl.Create(AOwner: TComponent);
+begin
+  inherited;
+
+end;
+
+destructor TMidiAwareControl.Destroy;
+begin
+
+  inherited;
+end;
+
+procedure TMidiAwareControl.SetValueByMidi(aValue: byte);
+begin
+  // abstract
+end;
 
 end.
