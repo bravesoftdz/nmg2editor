@@ -1,23 +1,69 @@
 <?xml version="1.0"?>
 <G2_Editor_settings>
   <G2_Synth_1>
-    <Editor_settings LedColor="65280" LogEnabled="True" OnlyTextMenus="False" CableThickness="3" HighlightColor="8454016" SlotStripColor="4341694" SlotStripInverseColor="5447424" SlotStripDisabledColor="13684944"/>
+    <Editor_settings LedColor="65280" LogEnabled="True" OnlyTextMenus="False" CableThickness="2" HighlightColor="16776960" SlotStripColor="4341694" SlotStripInverseColor="5447424" SlotStripDisabledColor="13684944"/>
     <TCP_settings IP="127.0.0.1" Port="2501" IsServer="True" TimerBroadcastLedMessages="0"/>
-    <MIDI_settings MidiEnabled="False" MidiInDevice="UM-ONE" MidiOutDevice=""/>
+    <MIDI_settings MidiInDevice="2- MIDISPORT 4x4 In C" MidiOutDevice="2- MIDISPORT 4x4 Out C"/>
   </G2_Synth_1>
-  <CTRL_MIDI_settings CtrlMidiEnabled="True" CtrlMidiInDevice="Hercules DJ Console Rmx MIDI"/>
-  <MainForm PosX="84" PosY="28" SizeX="1436" SizeY="928" Visible="True"/>
-  <PatchManagerSettings BaseFolder="" SelectedTab="1" ExternalSortCol="0" InternalSortCol="1"/>
-  <PatchManagerForm PosX="1091" PosY="81" SizeX="488" SizeY="812" Visible="False"/>
-  <SettingsForm PosX="418" PosY="292" SizeX="504" SizeY="394" Visible="False"/>
-  <ParameterPagesForm PosX="785" PosY="323" SizeX="629" SizeY="173" Visible="True"/>
-  <PatchSettingsForm PosX="755" PosY="574" SizeX="608" SizeY="185" Visible="False"/>
-  <EditorToolsForm PosX="188" PosY="535" SizeX="151" SizeY="261" Visible="False"/>
-  <G2_Synth_2>
-    <Editor_settings LogEnabled="False" CableThickness="4" HighlightColor="16776960" SlotStripColor="16744576" SlotStripInverseColor="5447424" SlotStripDisabledColor="13684944"/>
-    <TCP_settings IP="127.0.0.1" Port="2502" IsServer="True" TimerBroadcastLedMessages="0"/>
-    <MIDI_settings MidiEnabled="False" MidiInDevice="UM-ONE" MidiOutDevice=""/>
-  </G2_Synth_2>
-  <PatchNotesForm PosX="22" PosY="29" SizeX="359" SizeY="421" Visible="False"/>
+  <CTRL_MIDI_in_device_list>
+    <CtrlMidiDevice CtrlMidiDevice="BCR2000" CtrlMidiEnabled="True"/>
+  </CTRL_MIDI_in_device_list>
+  <CTRL_MIDI_out_device_list>
+    <CtrlMidiDevice CtrlMidiDevice="BCR2000" CtrlMidiEnabled="True"/>
+  </CTRL_MIDI_out_device_list>
+  <CTRL_MIDI_ASSIGNMENT_LIST>
+    <CTRL_MIDI_ASSIGNMENT CC="42" Note="0" Channel="0" MaxValue="127" MinValue="0" ControlPath="/frmParameterPages/skP3" ControlIndex="0"/>
+    <CTRL_MIDI_ASSIGNMENT CC="43" Note="0" Channel="0" MaxValue="127" MinValue="0" ControlPath="/frmParameterPages/skP4" ControlIndex="0"/>
+    <CTRL_MIDI_ASSIGNMENT CC="44" Note="0" Channel="0" MaxValue="127" MinValue="0" ControlPath="/frmParameterPages/skP5" ControlIndex="0"/>
+    <CTRL_MIDI_ASSIGNMENT CC="45" Note="0" Channel="0" MaxValue="127" MinValue="0" ControlPath="/frmParameterPages/skP6" ControlIndex="0"/>
+    <CTRL_MIDI_ASSIGNMENT CC="46" Note="0" Channel="0" MaxValue="127" MinValue="0" ControlPath="/frmParameterPages/skP7" ControlIndex="0"/>
+    <CTRL_MIDI_ASSIGNMENT CC="47" Note="0" Channel="0" MaxValue="127" MinValue="0" ControlPath="/frmParameterPages/skP8" ControlIndex="0"/>
+    <CTRL_MIDI_ASSIGNMENT CC="40" Note="0" Channel="0" MaxValue="127" MinValue="0" ControlPath="/frmParameterPages/skP1" ControlIndex="0"/>
+    <CTRL_MIDI_ASSIGNMENT CC="41" Note="0" Channel="0" MaxValue="127" MinValue="0" ControlPath="/frmParameterPages/skP2" ControlIndex="0"/>
+    <CTRL_MIDI_ASSIGNMENT CC="49" Note="0" Channel="0" MaxValue="127" MinValue="0" ControlPath="/frmParameterPages/bfP2" ControlIndex="0"/>
+    <CTRL_MIDI_ASSIGNMENT CC="50" Note="0" Channel="0" MaxValue="127" MinValue="0" ControlPath="/frmParameterPages/bfP3" ControlIndex="0"/>
+    <CTRL_MIDI_ASSIGNMENT CC="51" Note="0" Channel="0" MaxValue="127" MinValue="0" ControlPath="/frmParameterPages/bfP4" ControlIndex="0"/>
+    <CTRL_MIDI_ASSIGNMENT CC="52" Note="0" Channel="0" MaxValue="127" MinValue="0" ControlPath="/frmParameterPages/bfP5" ControlIndex="0"/>
+    <CTRL_MIDI_ASSIGNMENT CC="53" Note="0" Channel="0" MaxValue="127" MinValue="0" ControlPath="/frmParameterPages/bfP6" ControlIndex="0"/>
+    <CTRL_MIDI_ASSIGNMENT CC="54" Note="0" Channel="0" MaxValue="127" MinValue="0" ControlPath="/frmParameterPages/bfP7" ControlIndex="0"/>
+    <CTRL_MIDI_ASSIGNMENT CC="55" Note="0" Channel="0" MaxValue="127" MinValue="0" ControlPath="/frmParameterPages/bfP8" ControlIndex="0"/>
+    <CTRL_MIDI_ASSIGNMENT CC="48" Note="0" Channel="0" MaxValue="127" MinValue="0" ControlPath="/frmParameterPages/bfP1" ControlIndex="0"/>
+    <CTRL_MIDI_ASSIGNMENT CC="56" Note="0" Channel="0" MaxValue="127" MinValue="0" ControlPath="/frmParameterPages/pBottom/rbVariation" ControlIndex="0"/>
+    <CTRL_MIDI_ASSIGNMENT CC="57" Note="0" Channel="0" MaxValue="127" MinValue="0" ControlPath="/frmParameterPages/pBottom/rbVariation" ControlIndex="1"/>
+    <CTRL_MIDI_ASSIGNMENT CC="58" Note="0" Channel="0" MaxValue="127" MinValue="0" ControlPath="/frmParameterPages/pBottom/rbVariation" ControlIndex="2"/>
+    <CTRL_MIDI_ASSIGNMENT CC="59" Note="0" Channel="0" MaxValue="127" MinValue="0" ControlPath="/frmParameterPages/pBottom/rbVariation" ControlIndex="3"/>
+    <CTRL_MIDI_ASSIGNMENT CC="60" Note="0" Channel="0" MaxValue="127" MinValue="0" ControlPath="/frmParameterPages/pBottom/rbVariation" ControlIndex="4"/>
+    <CTRL_MIDI_ASSIGNMENT CC="61" Note="0" Channel="0" MaxValue="127" MinValue="0" ControlPath="/frmParameterPages/pBottom/rbVariation" ControlIndex="5"/>
+    <CTRL_MIDI_ASSIGNMENT CC="62" Note="0" Channel="0" MaxValue="127" MinValue="0" ControlPath="/frmParameterPages/pBottom/rbVariation" ControlIndex="6"/>
+    <CTRL_MIDI_ASSIGNMENT CC="63" Note="0" Channel="0" MaxValue="127" MinValue="0" ControlPath="/frmParameterPages/pBottom/rbVariation" ControlIndex="7"/>
+    <CTRL_MIDI_ASSIGNMENT CC="105" Note="0" Channel="0" MaxValue="127" MinValue="0" ControlPath="/frmParameterPages/pBottom/rbMode" ControlIndex="0"/>
+    <CTRL_MIDI_ASSIGNMENT CC="106" Note="0" Channel="0" MaxValue="127" MinValue="0" ControlPath="/frmParameterPages/pBottom/rbMode" ControlIndex="1"/>
+    <CTRL_MIDI_ASSIGNMENT CC="107" Note="0" Channel="0" MaxValue="127" MinValue="0" ControlPath="/frmParameterPages/pBottom/rbMode" ControlIndex="2"/>
+    <CTRL_MIDI_ASSIGNMENT CC="108" Note="0" Channel="0" MaxValue="127" MinValue="0" ControlPath="/frmParameterPages/pBottom/rbMode" ControlIndex="3"/>
+    <CTRL_MIDI_ASSIGNMENT CC="32" Note="0" Channel="0" MaxValue="127" MinValue="0" ControlPath="/frmParameterPages/pRight/rbParamPage" ControlIndex="0"/>
+    <CTRL_MIDI_ASSIGNMENT CC="33" Note="0" Channel="0" MaxValue="127" MinValue="0" ControlPath="/frmParameterPages/pRight/rbParamPage" ControlIndex="1"/>
+    <CTRL_MIDI_ASSIGNMENT CC="34" Note="0" Channel="0" MaxValue="127" MinValue="0" ControlPath="/frmParameterPages/pRight/rbParamPage" ControlIndex="2"/>
+    <CTRL_MIDI_ASSIGNMENT CC="36" Note="0" Channel="0" MaxValue="127" MinValue="0" ControlPath="/frmParameterPages/pRight/rbParamPage" ControlIndex="4"/>
+    <CTRL_MIDI_ASSIGNMENT CC="35" Note="0" Channel="0" MaxValue="127" MinValue="0" ControlPath="/frmParameterPages/pRight/rbParamPage" ControlIndex="3"/>
+    <CTRL_MIDI_ASSIGNMENT CC="101" Note="0" Channel="0" MaxValue="127" MinValue="0" ControlPath="/frmParameterPages/pBottom/rbSlot" ControlIndex="0"/>
+    <CTRL_MIDI_ASSIGNMENT CC="102" Note="0" Channel="0" MaxValue="127" MinValue="0" ControlPath="/frmParameterPages/pBottom/rbSlot" ControlIndex="1"/>
+    <CTRL_MIDI_ASSIGNMENT CC="103" Note="0" Channel="0" MaxValue="127" MinValue="0" ControlPath="/frmParameterPages/pBottom/rbSlot" ControlIndex="2"/>
+    <CTRL_MIDI_ASSIGNMENT CC="104" Note="0" Channel="0" MaxValue="127" MinValue="0" ControlPath="/frmParameterPages/pBottom/rbSlot" ControlIndex="3"/>
+    <CTRL_MIDI_ASSIGNMENT CC="64" Note="0" Channel="0" MaxValue="127" MinValue="0" ControlPath="/frmPatchManager/Panel1/pSlot/btEnable" ControlIndex="0"/>
+    <CTRL_MIDI_ASSIGNMENT CC="65" Note="0" Channel="0" MaxValue="127" MinValue="0" ControlPath="/frmPatchManager/Panel1/pSlot/btKeyboard" ControlIndex="0"/>
+    <CTRL_MIDI_ASSIGNMENT CC="66" Note="0" Channel="0" MaxValue="127" MinValue="0" ControlPath="/frmPatchManager/Panel1/pSlot/btHold" ControlIndex="0"/>
+    <CTRL_MIDI_ASSIGNMENT CC="37" Note="0" Channel="0" MaxValue="127" MinValue="0" ControlPath="/frmParameterPages/pBottom/rbParamColumn" ControlIndex="0"/>
+    <CTRL_MIDI_ASSIGNMENT CC="38" Note="0" Channel="0" MaxValue="127" MinValue="0" ControlPath="/frmParameterPages/pBottom/rbParamColumn" ControlIndex="1"/>
+    <CTRL_MIDI_ASSIGNMENT CC="39" Note="0" Channel="0" MaxValue="127" MinValue="0" ControlPath="/frmParameterPages/pBottom/rbParamColumn" ControlIndex="2"/>
+  </CTRL_MIDI_ASSIGNMENT_LIST>
+  <MainForm PosX="6" PosY="0" SizeX="1679" SizeY="1010" Visible="True"/>
   <DirectorySettings G2oolsFolder="" ModuleHelpFile=""/>
+  <PatchManagerSettings BaseFolder="" SelectedTab="3" ExternalSortCol="0" InternalSortCol="1"/>
+  <PatchBrowserForm PosX="200" PosY="200" SizeX="546" SizeY="438" Visible="False"/>
+  <PatchManagerForm PosX="1091" PosY="292" SizeX="585" SizeY="659" Visible="True"/>
+  <SettingsForm PosX="279" PosY="178" SizeX="528" SizeY="466" Visible="False"/>
+  <ParameterPagesForm PosX="1096" PosY="107" SizeX="575" SizeY="180" Visible="True"/>
+  <PatchSettingsForm PosX="392" PosY="575" SizeX="608" SizeY="185" Visible="False"/>
+  <EditorToolsForm PosX="188" PosY="535" SizeX="151" SizeY="261" Visible="False"/>
+  <PatchNotesForm PosX="22" PosY="29" SizeX="359" SizeY="421" Visible="False"/>
 </G2_Editor_settings>

@@ -40,6 +40,7 @@ contains
   g2_classes in 'g2_classes.pas',
   g2_graph in 'g2_graph.pas',
   graph_util_vcl in 'graph_util_vcl.pas',
-  JawsCtrls in 'JawsCtrls.pas';
+  JawsCtrls in 'JawsCtrls.pas',
+  Keyboard in 'Keyboard.pas';
 
 end.

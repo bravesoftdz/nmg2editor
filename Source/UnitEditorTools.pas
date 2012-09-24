@@ -5,7 +5,7 @@ interface
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics,
   Controls, Forms, Dialogs, ExtCtrls, g2_types, StdCtrls,
-  ImgList, g2_database, g2_graph, g2_classes, DOM, XMLRead, XMLWrite;
+  ImgList, g2_database, g2_graph, g2_classes, DOM, XMLRead, XMLWrite, g2_midi;
 
 type
   TfrmEditorTools = class(TForm)

@@ -27,14 +27,16 @@ object frmG2Main: TfrmG2Main
     Width = 1067
     Height = 21
     Align = alTop
+    BevelOuter = bvLowered
     Color = clGradientActiveCaption
     ParentBackground = False
     TabOrder = 0
     object rbSynth: TG2GraphButtonRadio
-      Left = 283
-      Top = 3
-      Width = 120
+      Left = 332
+      Top = 2
+      Width = 102
       Height = 17
+      MidiAware = False
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -9
@@ -55,16 +57,26 @@ object frmG2Main: TfrmG2Main
       Orientation = otHorizontal
       ButtonCount = 1
     end
-    object cbMode: TCheckBox
-      Left = 188
-      Top = 2
-      Width = 72
-      Height = 17
-      Caption = 'Perf mode'
-      Checked = True
-      State = cbChecked
-      TabOrder = 3
-      OnClick = cbModeClick
+    object gdMasterClock: TG2GraphDisplay
+      Left = 268
+      Top = 3
+      Width = 41
+      Height = 15
+      MidiAware = False
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWhite
+      Font.Height = -11
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      Color = 5592405
+      Value = 0
+      LowValue = 0
+      HighValue = 0
+      ParentColor = False
+      ParentFont = False
+      LineCount = 1
+      TextFunction = 0
+      DisplayType = 0
     end
     object cbOnline: TCheckBox
       Left = 15
@@ -76,7 +88,7 @@ object frmG2Main: TfrmG2Main
       OnClick = cbOnlineClick
     end
     object StaticText1: TStaticText
-      Left = 72
+      Left = 77
       Top = 4
       Width = 93
       Height = 17
@@ -86,7 +98,7 @@ object frmG2Main: TfrmG2Main
       TabStop = True
     end
     object lbClientsConnected: TStaticText
-      Left = 168
+      Left = 173
       Top = 4
       Width = 11
       Height = 17
@@ -99,6 +111,14 @@ object frmG2Main: TfrmG2Main
       ParentFont = False
       TabOrder = 2
       TabStop = True
+    end
+    object StaticText2: TStaticText
+      Left = 202
+      Top = 4
+      Width = 63
+      Height = 17
+      Caption = 'Master clock'
+      TabOrder = 3
     end
   end
   object StatusBar1: TStatusBar
@@ -914,6 +934,12 @@ object frmG2Main: TfrmG2Main
       object SavePatchAsfxp1: TMenuItem
         Action = aSavePatchAsFXP
       end
+      object N23: TMenuItem
+        Caption = '-'
+      end
+      object Initperformance1: TMenuItem
+        Action = aInitPerf
+      end
       object N5: TMenuItem
         Caption = '-'
       end
@@ -1021,14 +1047,23 @@ object frmG2Main: TfrmG2Main
       object Patchsettings1: TMenuItem
         Action = aPatchSettings
       end
+      object Patchnotes1: TMenuItem
+        Action = aPatchNotes
+      end
+      object N20: TMenuItem
+        Caption = '-'
+      end
       object Parameterpages1: TMenuItem
         Action = aParameterPages
+      end
+      object N21: TMenuItem
+        Caption = '-'
       end
       object Patchmanager1: TMenuItem
         Action = aPatchManager
       end
-      object Patchnotes1: TMenuItem
-        Action = aPatchNotes
+      object N22: TMenuItem
+        Caption = '-'
       end
       object Editortools1: TMenuItem
         Action = aEditTools
@@ -1039,11 +1074,14 @@ object frmG2Main: TfrmG2Main
       object Performancesettings2: TMenuItem
         Action = aPerformanceSettings
       end
-      object Settings3: TMenuItem
-        Action = aSettings
-      end
       object Synthsettings2: TMenuItem
         Action = aSynthSettings
+      end
+      object N19: TMenuItem
+        Caption = '-'
+      end
+      object Settings3: TMenuItem
+        Action = aSettings
       end
       object N7: TMenuItem
         Caption = '-'
@@ -1557,6 +1595,26 @@ object frmG2Main: TfrmG2Main
       Category = 'Tools'
       Caption = 'G2ools - NM1 to G2'
       OnExecute = aG2oolsNM1toG2Execute
+    end
+    object aPatchBrowser: TAction
+      Category = 'View'
+      Caption = 'Patch browser'
+      OnExecute = aPatchBrowserExecute
+    end
+    object aInitPerf: TAction
+      Category = 'File'
+      Caption = 'Init performance'
+      OnExecute = aInitPerfExecute
+    end
+    object aPatchRename: TAction
+      Category = 'File'
+      Caption = 'Rename patch'
+      OnExecute = aPatchRenameExecute
+    end
+    object aPerfRename: TAction
+      Category = 'File'
+      Caption = 'Rename performance'
+      OnExecute = aPerfRenameExecute
     end
   end
   object ResponseTimer: TTimer

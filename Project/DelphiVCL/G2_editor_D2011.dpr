@@ -20,11 +20,13 @@ uses
   OSCUtils in '..\..\Source\OSC\OSCUtils.pas',
   UnitEditorTools in '..\..\Source\UnitEditorTools.pas' {frmEditorTools},
   g2_midi in '..\..\Source\NMG2Controls\g2_midi.pas',
-  UnitPatchManager in '..\..\Source\UnitPatchManager.pas' {frmPatchManager},
+  UnitPatchBrowser in '..\..\Source\UnitPatchBrowser.pas' {frmPatchBrowser},
   g2_mess in '..\..\Source\NMG2Controls\g2_mess.pas',
   UnitModuleDef in '..\..\Source\UnitModuleDef.pas' {frmModuleDef},
   UnitPatchNotes in '..\..\Source\UnitPatchNotes.pas' {frmPatchNotes},
-  UnitMidiMapping in '..\..\Source\UnitMidiMapping.pas' {frmMidiMapping};
+  UnitMidiMapping in '..\..\Source\UnitMidiMapping.pas' {frmMidiMapping},
+  UnitTestModule in '..\..\Source\UnitTestModule.pas' {frmTestModule},
+  UnitPatchManager in '..\..\Source\UnitPatchManager.pas' {frmPatchManager};
 
 {$R *.res}
 
@@ -42,11 +44,13 @@ begin
   Application.CreateForm(TfrmSynthSettings, frmSynthSettings);
   Application.CreateForm(TfrmPerfSettings, frmPerfSettings);
   Application.CreateForm(TfrmEditLabel, frmEditLabel);
+  Application.CreateForm(TfrmEditorTools, frmEditorTools);
+  Application.CreateForm(TfrmPatchBrowser, frmPatchBrowser);
+  Application.CreateForm(TfrmPatchManager, frmPatchManager);
+  Application.CreateForm(TfrmPatchNotes, frmPatchNotes);
   Application.CreateForm(TfrmMidiMapping, frmMidiMapping);
   Application.CreateForm(TfrmSettings, frmSettings);
-  Application.CreateForm(TfrmEditorTools, frmEditorTools);
-  Application.CreateForm(TfrmPatchManager, frmPatchManager);
   Application.CreateForm(TfrmModuleDef, frmModuleDef);
-  Application.CreateForm(TfrmPatchNotes, frmPatchNotes);
+  Application.CreateForm(TfrmTestModule, frmTestModule);
   Application.Run;
 end.

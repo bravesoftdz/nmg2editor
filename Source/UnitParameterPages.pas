@@ -1,5 +1,25 @@
 unit UnitParameterPages;
 
+//  ////////////////////////////////////////////////////////////////////////////
+//
+//  Copyright (C) 2011 Bruno Verhue
+//
+//  This program is free software; you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation; either version 2 of the License, or
+//  (at your option) any later version.
+//
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//
+//  You should have received a copy of the GNU General Public License
+//  along with this program; if not, write to the Free Software
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+//
+//  ////////////////////////////////////////////////////////////////////////////
+
 {$IFDEF FPC}
   {$MODE Delphi}
 {$ENDIF}
@@ -9,11 +29,21 @@ interface
 uses
 {$IFDEF FPC}
 {$ELSE}
-  Windows,
+  {$IFDEF G2_VER220_up}
+    WinApi.Windows,
+  {$ELSE}
+    Windows,
+  {$ENDIF}
 {$ENDIF}
+{$IFDEF G2_VER220_up}
+  WinApi.Messages, System.SysUtils, System.Variants, System.Classes,
+  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls,
+{$ELSE}
   Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, G2_Graph, StdCtrls, G2_Types, G2_File, G2_classes, ExtCtrls,
-  graph_util_vcl, g2_database, DOM, XMLRead, XMLWrite, g2_midi;
+  Dialogs, ExtCtrls,
+{$ENDIF}
+  g2_graph, g2_midi, g2_types, G2_File, G2_classes,
+  graph_util_vcl, g2_database, DOM, XMLRead, XMLWrite;
 
 type
   TfrmParameterPages = class(TForm)
@@ -33,9 +63,6 @@ type
     Disp6A: TG2GraphDisplay;
     Disp7A: TG2GraphDisplay;
     Disp8A: TG2GraphDisplay;
-    Panel1: TPanel;
-    obParam: TG2GraphButtonRadio;
-    obPage: TG2GraphButtonRadio;
     Disp1B: TG2GraphDisplay;
     disp2B: TG2GraphDisplay;
     Disp3B: TG2GraphDisplay;
@@ -44,8 +71,6 @@ type
     Disp6B: TG2GraphDisplay;
     Disp7B: TG2GraphDisplay;
     Disp8B: TG2GraphDisplay;
-    btGlobalPages: TG2GraphButtonText;
-    Panel2: TPanel;
     bfP1: TG2GraphButtonFlat;
     bfP2: TG2GraphButtonFlat;
     bfP3: TG2GraphButtonFlat;
@@ -62,8 +87,13 @@ type
     Disp6C: TG2GraphDisplay;
     Disp7C: TG2GraphDisplay;
     Disp8C: TG2GraphDisplay;
-    procedure obParamClick(Sender: TObject);
-    procedure obPageClick(Sender: TObject);
+    pRight: TG2GraphPanel;
+    rbParamPage: TG2GraphButtonRadio;
+    pBottom: TG2GraphPanel;
+    rbSlot: TG2GraphButtonRadio;
+    rbVariation: TG2GraphButtonRadio;
+    rbMode: TG2GraphButtonRadio;
+    rbParamColumn: TG2GraphButtonRadio;
     procedure FormShow(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
@@ -71,10 +101,26 @@ type
     procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure skPMouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
-    procedure bfP1MouseDown(Sender: TObject; Button: TMouseButton;
+    procedure bfPMouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
-    procedure obParamMouseDown(Sender: TObject; Button: TMouseButton;
+    procedure rbParamPageMouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
+    procedure rbParamPageChange(Sender: TObject);
+    procedure rbParamColumnChange(Sender: TObject);
+    procedure rbParamColumnMouseDown(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
+    procedure rbVariationClick(Sender: TObject);
+    procedure rbSlotClick(Sender: TObject);
+    procedure rbSlotChange(Sender: TObject);
+    procedure rbModeClick(Sender: TObject);
+    procedure rbModeMouseDown(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
+    procedure rbVariationMouseDown(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
+    procedure rbSlotMouseDown(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
+    procedure rbModeChange(Sender: TObject);
+    procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
   private
     { Private declarations }
     FExtBitmap       : TBitmap;
@@ -169,6 +215,12 @@ begin
   FExtBitmap.Free;
 end;
 
+procedure TfrmParameterPages.FormKeyDown(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+  frmG2Main.HandleMainKeyDown( Key, Shift);
+end;
+
 procedure TfrmParameterPages.FormKeyUp(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 begin
@@ -257,37 +309,101 @@ end;
 
 procedure TfrmParameterPages.FormShow(Sender: TObject);
 begin
-{  frmMidiMapping.AddMidiEditorAssignment( obParam, 0, 20, 0, 4);
-  frmMidiMapping.AddMidiEditorAssignment( skP2, 0, 25, 0, 4);
-  frmMidiMapping.AddMidiEditorAssignment( bfP6, 0, 30, 0, 4);
-  frmMidiMapping.AddMidiEditorAssignment( btGlobalPages, 0, 35, 0, 4);}
-
   UpdateControls;
 end;
 
 function TfrmParameterPages.GetKnobIndexOffset: integer;
 begin
-  Result := obPage.Value * 8 + obParam.Value * 8 * 3;
+  Result := rbParamColumn.Value * 8 + rbParamPage.Value * 8 * 3;
 end;
 
-procedure TfrmParameterPages.obPageClick(Sender: TObject);
+procedure TfrmParameterPages.rbModeChange(Sender: TObject);
 begin
   UpdateControls;
 end;
 
-procedure TfrmParameterPages.obParamClick(Sender: TObject);
+procedure TfrmParameterPages.rbModeClick(Sender: TObject);
 begin
   UpdateControls;
 end;
 
-procedure TfrmParameterPages.obParamMouseDown(Sender: TObject;
+procedure TfrmParameterPages.rbModeMouseDown(Sender: TObject;
   Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 var P : TPoint;
 begin
   if ssRight in Shift then begin
-    P := obParam.ClientToScreen( Point(0, obParam.Height));
-    frmMidiMapping.PopupMenu( obParam, obParam.Value, P.X, P.Y);
-    obParam.Invalidate;
+    P := rbMode.ClientToScreen( Point(0, rbMode.Height));
+    frmMidiMapping.PopupMenu( rbMode, P.X, P.Y);
+    rbMode.Invalidate;
+  end;
+end;
+
+procedure TfrmParameterPages.rbParamColumnChange(Sender: TObject);
+begin
+  UpdateControls;
+end;
+
+procedure TfrmParameterPages.rbParamColumnMouseDown(Sender: TObject;
+  Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+var P : TPoint;
+begin
+  if ssRight in Shift then begin
+    P := rbParamColumn.ClientToScreen( Point(0, rbParamColumn.Height));
+    frmMidiMapping.PopupMenu( rbParamColumn, P.X, P.Y);
+    rbParamColumn.Invalidate;
+  end;
+end;
+
+procedure TfrmParameterPages.rbParamPageChange(Sender: TObject);
+begin
+  UpdateControls;
+end;
+
+procedure TfrmParameterPages.rbParamPageMouseDown(Sender: TObject;
+  Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+var P : TPoint;
+begin
+  if ssRight in Shift then begin
+    P := rbParamPage.ClientToScreen( Point(0, rbParamPage.Height));
+    frmMidiMapping.PopupMenu( rbParamPage, P.X, P.Y);
+    rbParamPage.Invalidate;
+  end;
+end;
+
+procedure TfrmParameterPages.rbSlotChange(Sender: TObject);
+begin
+  //UpdateControls;
+end;
+
+procedure TfrmParameterPages.rbSlotClick(Sender: TObject);
+begin
+  frmG2Main.SelectSlot( rbSlot.Value);
+end;
+
+procedure TfrmParameterPages.rbSlotMouseDown(Sender: TObject;
+  Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+var P : TPoint;
+begin
+  if ssRight in Shift then begin
+    P := rbSlot.ClientToScreen( Point(0, rbSlot.Height));
+    frmMidiMapping.PopupMenu( rbSlot, P.X, P.Y);
+    rbSlot.Invalidate;
+  end;
+end;
+
+procedure TfrmParameterPages.rbVariationClick(Sender: TObject);
+begin
+  frmG2Main.SelectVariation( rbSlot.Value, rbVariation.Value);
+end;
+
+procedure TfrmParameterPages.rbVariationMouseDown(Sender: TObject;
+  Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+var P : TPoint;
+begin
+  if ssRight in Shift then begin
+    P := rbVariation.ClientToScreen( Point(0, rbVariation.Height));
+    frmMidiMapping.PopupMenu( rbVariation, P.X, P.Y);
+    rbVariation.Invalidate;
   end;
 end;
 
@@ -303,20 +419,27 @@ begin
 
     if ssRight in Shift then begin
       P := Knob.ClientToScreen( Point(0, 0));
-      frmMidiMapping.PopupMenu( Knob, 0, P.X, P.Y);
+      frmMidiMapping.PopupMenu( Knob, P.X, P.Y);
       Knob.Invalidate;
     end;
   end;
 end;
 
-procedure TfrmParameterPages.bfP1MouseDown(Sender: TObject;
+procedure TfrmParameterPages.bfPMouseDown(Sender: TObject;
   Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 var Btn : TG2GraphButtonFlat;
+    P : TPoint;
 begin
   if Sender is TG2GraphButtonFlat then begin
     Btn :=  Sender as TG2GraphButtonFlat;
     if assigned(Btn.Parameter) then
       Btn.Parameter.Selected := True;
+
+    if ssRight in Shift then begin
+      P := Btn.ClientToScreen( Point(0, 0));
+      frmMidiMapping.PopupMenu( Btn, P.X, P.Y);
+      Btn.Invalidate;
+    end;
   end;
 end;
 
@@ -336,67 +459,180 @@ begin
   G2 := frmG2Main.SelectedG2;
   if assigned(G2) then begin
 
+    rbSlot.Value := G2.SelectedSlotIndex;
+    rbVariation.Value := G2.Patch[ rbSlot.Value].ActiveVariation;
+
     UpdateColorScema;
 
-    if btGlobalPages.Value = 0 then begin
+    case rbMode.Value of
+    0 : begin // Params
+          Patch := G2.SelectedPatch as TG2Patch;
+          for i := 0 to 7 do begin
 
-      Patch := G2.SelectedPatch as TG2Patch;
-      for i := 0 to 7 do begin
-        Knob := Patch.GetKnob( GetKnobIndexOffset + i);
-        //FDispModuleArray[i].TextFunction := 1000;
-        //FDispButtonArray[i].TextFunction := 1001;
-        FDispKnobArray[i].DisplayType := 1;
-        FDispModuleArray[i].DisplayType := 5;
-        FDispButtonArray[i].DisplayType := 3;
-        if assigned(Knob) and (Knob.IsAssigned = 1) then begin
-          FKnobArray[i].SetParameter( Knob.Parameter as TG2GraphParameter);
-          FDispKnobArray[i].SetParameter( Knob.Parameter as TG2GraphParameter);
-          FDispModuleArray[i].SetParameter( Knob.Parameter as TG2GraphParameter);
-          if assigned(Knob.Parameter.ButtonParam) then begin
-            FButtonArray[i].SetParameter( Knob.Parameter.ButtonParam);
-            FDispButtonArray[i].SetParameter( Knob.Parameter.ButtonParam);
-          end else begin
-            FButtonArray[i].SetParameter( nil);
-            FDispButtonArray[i].SetParameter( nil);
+            Knob := Patch.GetKnob( GetKnobIndexOffset + i);
+            FDispKnobArray[i].DisplayType := 1;
+            FDispModuleArray[i].DisplayType := 5;
+            FDispButtonArray[i].DisplayType := 3;
+
+            if assigned(Knob) and (Knob.IsAssigned = 1) then begin
+
+              FKnobArray[i].SetParameter( Knob.Parameter as TG2GraphParameter);
+              FDispKnobArray[i].SetParameter( Knob.Parameter as TG2GraphParameter);
+
+              if (i>0) and assigned(FDispModuleArray[i-1].Parameter)
+                and assigned( Knob.Parameter)
+                and (Knob.Parameter.Module = FDispModuleArray[i-1].Parameter.Module) then
+                FDispModuleArray[i].Visible := false
+              else
+                FDispModuleArray[i].Visible := True;
+
+              FDispModuleArray[i].SetParameter( Knob.Parameter as TG2GraphParameter);
+
+              if assigned(Knob.Parameter.ButtonParam) then begin
+                FButtonArray[i].SetParameter( Knob.Parameter.ButtonParam);
+                FDispButtonArray[i].SetParameter( Knob.Parameter.ButtonParam);
+              end else begin
+                FButtonArray[i].SetParameter( nil);
+                FDispButtonArray[i].SetParameter( nil);
+              end;
+
+            end else begin
+
+              FKnobArray[i].SetParameter( nil);
+              FDispKnobArray[i].SetParameter( nil);
+              FDispModuleArray[i].SetParameter( nil);
+              FButtonArray[i].SetParameter( nil);
+              FDispButtonArray[i].SetParameter(nil);
+
+            end;
           end;
-        end else begin
-          FKnobArray[i].SetParameter( nil);
-          FDispKnobArray[i].SetParameter( nil);
-          FDispModuleArray[i].SetParameter( nil);
-          FButtonArray[i].SetParameter( nil);
-          FDispButtonArray[i].SetParameter(nil);
         end;
-      end;
+    1 : begin // Global params
+          Perf := G2.Performance;
+          for i := 0 to 7 do begin
 
-    end else begin
+            Knob := Perf.GetGlobalKnob( GetKnobIndexOffset + i);
+            FDispKnobArray[i].DisplayType := 1;
+            FDispModuleArray[i].DisplayType := 4;
+            FDispButtonArray[i].DisplayType := 3;
 
-      Perf := G2.Performance;
-      for i := 0 to 7 do begin
-        Knob := Perf.GetGlobalKnob( GetKnobIndexOffset + i);
-        //FDispModuleArray[i].TextFunction := 1002;
-        //FDispButtonArray[i].TextFunction := 1001;
-        FDispKnobArray[i].DisplayType := 1;
-        FDispModuleArray[i].DisplayType := 4;
-        FDispButtonArray[i].DisplayType := 3;
-        if assigned(Knob) and (Knob.IsAssigned = 1) then begin
-          FKnobArray[i].SetParameter( Knob.Parameter as TG2GraphParameter);
-          FDispKnobArray[i].SetParameter( Knob.Parameter as TG2GraphParameter);
-          FDispModuleArray[i].SetParameter( Knob.Parameter as TG2GraphParameter);
-          if assigned(Knob.Parameter.ButtonParam) then begin
-            FButtonArray[i].SetParameter( Knob.Parameter.ButtonParam);
-            FDispButtonArray[i].SetParameter( Knob.Parameter.ButtonParam);
-          end else begin
-            FButtonArray[i].SetParameter( nil);
-            FDispButtonArray[i].SetParameter( nil);
+            if assigned(Knob) and (Knob.IsAssigned = 1) then begin
+
+              FKnobArray[i].SetParameter( Knob.Parameter as TG2GraphParameter);
+              FDispKnobArray[i].SetParameter( Knob.Parameter as TG2GraphParameter);
+
+              if (i>0) and assigned(FDispModuleArray[i-1].Parameter)
+                and assigned( Knob.Parameter)
+                and (Knob.Parameter.Module = FDispModuleArray[i-1].Parameter.Module) then
+                FDispModuleArray[i].Visible := false
+              else
+                FDispModuleArray[i].Visible := True;
+
+              FDispModuleArray[i].SetParameter( Knob.Parameter as TG2GraphParameter);
+
+              if assigned(Knob.Parameter.ButtonParam) then begin
+                FButtonArray[i].SetParameter( Knob.Parameter.ButtonParam);
+                FDispButtonArray[i].SetParameter( Knob.Parameter.ButtonParam);
+              end else begin
+                FButtonArray[i].SetParameter( nil);
+                FDispButtonArray[i].SetParameter( nil);
+              end;
+
+            end else begin
+              FKnobArray[i].SetParameter( nil);
+              FDispKnobArray[i].SetParameter( nil);
+              FDispModuleArray[i].SetParameter( nil);
+              FButtonArray[i].SetParameter( nil);
+              FDispButtonArray[i].SetParameter(nil);
+            end;
           end;
-        end else begin
-          FKnobArray[i].SetParameter( nil);
-          FDispKnobArray[i].SetParameter( nil);
-          FDispModuleArray[i].SetParameter( nil);
-          FButtonArray[i].SetParameter( nil);
-          FDispButtonArray[i].SetParameter(nil);
         end;
-      end;
+    2 : begin // Morphs
+          Patch := G2.SelectedPatch as TG2Patch;
+          for i := 0 to 7 do begin
+            FDispKnobArray[i].DisplayType := 1;
+            FDispModuleArray[i].DisplayType := 5;
+            FDispButtonArray[i].DisplayType := 3;
+
+            FKnobArray[i].SetParameter( Patch.Parameter[ PATCH_MORPH, i] as TG2GraphParameter);
+            FDispKnobArray[i].SetParameter( Patch.Parameter[ PATCH_MORPH, i] as TG2GraphParameter);
+            FDispModuleArray[i].SetParameter( Patch.Parameter[ PATCH_MORPH, i] as TG2GraphParameter);
+            FButtonArray[i].SetParameter( Patch.Parameter[ PATCH_MORPH, i + 8] as TG2GraphParameter);
+            FDispButtonArray[i].SetParameter( Patch.Parameter[ PATCH_MORPH, i + 8] as TG2GraphParameter);
+          end;
+        end;
+    3 : begin // Patch
+          Patch := G2.SelectedPatch as TG2Patch;
+          for i := 0 to 7 do begin
+            FDispKnobArray[i].DisplayType := 1;
+            FDispModuleArray[i].DisplayType := 5;
+            FDispButtonArray[i].DisplayType := 3;
+          end;
+
+          // Master clock
+          FKnobArray[0].SetParameter( Patch.Parameter[ PATCH_MASTERCLOCK, 0] as TG2GraphParameter);
+          FDispKnobArray[0].SetParameter( Patch.Parameter[ PATCH_MASTERCLOCK, 0] as TG2GraphParameter);
+          FDispModuleArray[0].SetParameter( Patch.Parameter[ PATCH_MASTERCLOCK, 0] as TG2GraphParameter);
+          // Master clock stop/run
+          FButtonArray[0].SetParameter( Patch.Parameter[ PATCH_MASTERCLOCK, 1] as TG2GraphParameter);
+          FDispButtonArray[0].SetParameter( Patch.Parameter[ PATCH_MASTERCLOCK, 1] as TG2GraphParameter);
+
+          // Voice mode
+          FKnobArray[1].SetParameter( Patch.Parameter[ PATCH_VOICES, 0] as TG2GraphParameter);
+          FDispKnobArray[1].SetParameter( Patch.Parameter[ PATCH_VOICES, 0] as TG2GraphParameter);
+          FDispModuleArray[1].SetParameter( Patch.Parameter[ PATCH_VOICES, 0] as TG2GraphParameter);
+          // Voice mode (Poly, Mono, Legato)
+          FButtonArray[1].SetParameter( Patch.Parameter[ PATCH_VOICES, 1] as TG2GraphParameter);
+          FDispButtonArray[1].SetParameter( Patch.Parameter[ PATCH_VOICES, 1] as TG2GraphParameter);
+
+          // Arpeggiator speed
+          FKnobArray[2].SetParameter( Patch.Parameter[ PATCH_ARPEGGIATOR, ARP_SPEED] as TG2GraphParameter);
+          FDispKnobArray[2].SetParameter( Patch.Parameter[ PATCH_ARPEGGIATOR, ARP_SPEED] as TG2GraphParameter);
+          FDispModuleArray[2].SetParameter( Patch.Parameter[ PATCH_ARPEGGIATOR, ARP_SPEED] as TG2GraphParameter);
+          // Arpeggiator on/off
+          FButtonArray[2].SetParameter( Patch.Parameter[ PATCH_ARPEGGIATOR, ARP_ON_OFF] as TG2GraphParameter);
+          FDispButtonArray[2].SetParameter( Patch.Parameter[ PATCH_ARPEGGIATOR, ARP_ON_OFF] as TG2GraphParameter);
+
+          // Arpeggiator direction
+          FKnobArray[3].SetParameter( Patch.Parameter[ PATCH_ARPEGGIATOR, ARP_DIRECTION] as TG2GraphParameter);
+          FDispKnobArray[3].SetParameter( Patch.Parameter[ PATCH_ARPEGGIATOR, ARP_DIRECTION] as TG2GraphParameter);
+          FDispModuleArray[3].SetParameter( Patch.Parameter[ PATCH_ARPEGGIATOR, ARP_DIRECTION] as TG2GraphParameter);
+          // Arpeggiator octaves
+          FButtonArray[3].SetParameter( Patch.Parameter[ PATCH_ARPEGGIATOR, ARP_OCTAVES] as TG2GraphParameter);
+          FDispButtonArray[3].SetParameter( Patch.Parameter[ PATCH_ARPEGGIATOR, ARP_OCTAVES] as TG2GraphParameter);
+
+          // Vibrato
+          FKnobArray[4].SetParameter( Patch.Parameter[ PATCH_VIBRATO, VIBRATO_DEPTH] as TG2GraphParameter);
+          FDispKnobArray[4].SetParameter( Patch.Parameter[ PATCH_VIBRATO, VIBRATO_DEPTH] as TG2GraphParameter);
+          FDispModuleArray[4].SetParameter( Patch.Parameter[ PATCH_VIBRATO, VIBRATO_DEPTH] as TG2GraphParameter);
+          // Vibrato mod source
+          FButtonArray[4].SetParameter( Patch.Parameter[ PATCH_VIBRATO, VIBRATO_MOD] as TG2GraphParameter);
+          FDispButtonArray[4].SetParameter( Patch.Parameter[ PATCH_VIBRATO, VIBRATO_MOD] as TG2GraphParameter);
+
+          // Glide speed
+          FKnobArray[5].SetParameter( Patch.Parameter[ PATCH_GLIDE, GLIDE_SPEED] as TG2GraphParameter);
+          FDispKnobArray[5].SetParameter( Patch.Parameter[ PATCH_GLIDE, GLIDE_SPEED] as TG2GraphParameter);
+          FDispModuleArray[5].SetParameter( Patch.Parameter[ PATCH_GLIDE, GLIDE_SPEED] as TG2GraphParameter);
+          // Glide type
+          FButtonArray[5].SetParameter( Patch.Parameter[ PATCH_GLIDE, GLIDE_TYPE] as TG2GraphParameter);
+          FDispButtonArray[5].SetParameter( Patch.Parameter[ PATCH_GLIDE, GLIDE_TYPE] as TG2GraphParameter);
+
+          // Bend range
+          FKnobArray[6].SetParameter( Patch.Parameter[ PATCH_BEND, BEND_RANGE] as TG2GraphParameter);
+          FDispKnobArray[6].SetParameter( Patch.Parameter[ PATCH_BEND, BEND_RANGE] as TG2GraphParameter);
+          FDispModuleArray[6].SetParameter( Patch.Parameter[ PATCH_BEND, BEND_RANGE] as TG2GraphParameter);
+          // Bend on/off
+          FButtonArray[6].SetParameter( Patch.Parameter[ PATCH_BEND, BEND_ON_OFF] as TG2GraphParameter);
+          FDispButtonArray[6].SetParameter( Patch.Parameter[ PATCH_BEND, BEND_ON_OFF] as TG2GraphParameter);
+
+          // Volume
+          FKnobArray[7].SetParameter( Patch.Parameter[ PATCH_VOLUME, VOLUME_LEVEL] as TG2GraphParameter);
+          FDispKnobArray[7].SetParameter( Patch.Parameter[ PATCH_VOLUME, VOLUME_LEVEL] as TG2GraphParameter);
+          FDispModuleArray[7].SetParameter( Patch.Parameter[ PATCH_VOLUME, VOLUME_LEVEL] as TG2GraphParameter);
+          // Mute
+          FButtonArray[7].SetParameter( Patch.Parameter[ PATCH_VOLUME, VOLUME_MUTE] as TG2GraphParameter);
+          FDispButtonArray[7].SetParameter( Patch.Parameter[ PATCH_VOLUME, VOLUME_MUTE] as TG2GraphParameter);
+        end;
     end;
   end;
   Invalidate;
@@ -404,9 +640,11 @@ end;
 
 procedure TfrmParameterPages.UpdateColorScema;
 begin
-  btGlobalPages.HightlightColor := G_HighlightColor;
-  obParam.HightlightColor := G_HighLightColor;
-  obPage.HightlightColor := G_HighlightColor;
+  rbParamPage.HightlightColor := G_HighLightColor;
+  rbParamColumn.HightlightColor := G_HighlightColor;
+  rbVariation.HightlightColor := G_HighlightColor;
+  rbSlot.HightlightColor := G_HighlightColor;
+  rbMode.HightlightColor := G_HighlightColor;
 end;
 
 

@@ -302,6 +302,7 @@ type
       function    isextended(buf_in : TByteBuffer): boolean;
       function    isembedded(buf_in : TByteBuffer): boolean;
     protected
+      procedure   SetPerfMode( aValue : TBits1); override;
       function    GetID : integer; override;
       property    OnNextInitStep : TInitStepEvent read FOnNextInitStep write FOnNextInitStep;
     public
@@ -361,6 +362,9 @@ type
       procedure   USBInitSeq(Sender: TObject);
       procedure   USBSentStartComm(Sender: TObject);
 
+      procedure   NextListMessage(Sender: TObject);
+      procedure   RefreshBanks;
+
       procedure   SendInitMessage;
       procedure   SendStartStopCommunicationMessage( Stop : byte);
       procedure   SendGetPatchVersionMessage(var patch_version: byte);
@@ -368,9 +372,17 @@ type
       procedure   SendSetSynthSettingsMessage;
       procedure   SendUnknown1Message;
       procedure   SendDumpMidiMessage;
-      procedure   SendListMessage( aMode, aBank, aPatch : byte; names : TStrings);
+      procedure   SendListMessage( aPatchFileType : TPatchFileType; aBank, aPatch : byte; names : TStrings);
       procedure   SendSetModeMessage( aMode : byte);
       procedure   SendNoteMessage( aNote : byte; aOnoff : byte);
+      procedure   SendGetMasterClockMessage;
+      procedure   SendGetAssignedVoicesMessage;
+      procedure   SendUploadBankMessage( aPatchFileType: TPatchFileType; aBank, aLocation: byte);
+      procedure   NextBankUploadMessage( Sender: TObject);
+      procedure   SendDownloadPatchBankMessage( aBank, aLocation: byte; aFileName : string);
+      procedure   NextPatchBankDownloadMessage( Sender: TObject);
+      procedure   SendDownloadPerfBankMessage( aBank, aLocation: byte; aFileName : string);
+      procedure   NextPerfBankDownloadMessage( Sender: TObject);
 
       property    IdTCPClient : TIdTCPClient read FIdTCPClient;
       property    Initialized : boolean read FInitialized;
@@ -397,6 +409,9 @@ type
     FInitStep           : integer;
     FStartCommAfterInit : boolean;
   protected
+    procedure   SetMasterClock( aValue : TBits8); override;
+    procedure   SetMasterClockRun( aValue : TBits8); override;
+
     property    OnNextInitStep : TInitStepEvent read FOnNextInitStep write FOnNextInitStep;
   public
     constructor Create( AOwner: TComponent); override;
@@ -411,11 +426,16 @@ type
     procedure   USBStartInit( aStartCommAfterInit : boolean);
     procedure   USBInitSeq(Sender: TObject);
 
+    procedure   USBStartInitPerf;
+    procedure   USBInitPerfSeq(Sender: TObject);
+
     procedure   SendGetPerfSettingsMessage;
     procedure   SendUnknown2Message;
     procedure   SendSelectSlotMessage( aSlot: byte);
     procedure   SendRetrieveMessage( aSlot, aBank, aPatch : byte);
     procedure   SendStoreMessage( aSlot, aBank, aPatch : byte);
+    procedure   SendClearMessage( aPatchFileType : TPatchFileType; aBank, aPatch : byte);
+    procedure   SendClearBankMessage( aPatchFileType : TPatchFileType; aBank, aFromLocation, aToLocation : byte);
     procedure   SendSetPerformanceMessage( aPerfName : AnsiString; aPerf : TG2FilePerformance);
     procedure   SendSetPerfSettingsMessage;
     procedure   SendSetPerfNameMessage( aPerfName : AnsiString);
@@ -453,6 +473,7 @@ type
     procedure   SendCurrentNoteMessage;
     procedure   SendUnknown6Message;
     procedure   SendGetSelectedParameterMessage;
+    procedure   SendSetPatchName( aPatchName : AnsiString);
     procedure   SendSetPatchMessage( aPatchName : AnsiString; aPatch : TG2FilePatch);
     procedure   SendGetPatchMessage;
     procedure   SendSelectVariationMessage( aVariationIndex: byte);
@@ -461,6 +482,8 @@ type
     procedure   SendSetMorphMessage( aLocation, aModule, aParam, aMorph, aValue, aNegative, aVariation: byte);
     procedure   SendSetModeMessage( aLocation, aModule, aParam, aValue: integer);
     procedure   SendCopyVariationMessage( aFromVariation, aToVariation : byte);
+    procedure   SendGetParamNamesMessage( aLocation : byte);
+    procedure   SendGetParamsMessage( aLocation : byte);
     // All responseless messages must be send through the ParamUpdBuf
     procedure   AddParamUpdRec( aSubCmd, aLocation, aModule, aParam, aMorph, aValue, aNegative, aVariation : byte; aClientContext : TClientContext);
 
@@ -474,6 +497,9 @@ type
 
     function    GetPerformance : TG2USBPerformance;
 
+    procedure   SetVoiceCount( aValue : byte); override;
+    procedure   SetVoiceMode( aValue : byte); override;
+
     function    SendCmdMessage( SendMessage : TG2SendMessage): boolean;
 
     procedure   SendUndoMessage;
@@ -481,7 +507,7 @@ type
     procedure   SetParamValue( aLocation : TLocationType; aModuleIndex : byte; aParameterIndex : byte; aVariation : byte; aValue: byte); override;
     function    MessSetPatchDescription( FPatchDescription : TPatchDescription): boolean;
     function    MessSetPatchNotes( aLines : TStrings): boolean;
-    function    MessAddModule( aLocation : TLocationType; aModuleType, aCol, aRow: byte): boolean; override;
+    function    MessAddModule( aLocation : TLocationType; aModuleTypeID, aAlternativeModuleTypeID, aCol, aRow: byte): boolean; override;
     function    MessCopyModules( aSrcePatch : TG2FilePatchPart; aFromLocation, aToLocation : TLocationType): boolean; override;
     function    MessAddConnection( aLocation : TLocationType; aFromConnector, aToConnector : TG2FileConnector): boolean; override;
     function    MessDeleteConnection( aLocation : TLocationType; aCable : TG2FileCable): boolean; override;
@@ -1848,6 +1874,14 @@ begin
       Result := False;
 end;
 
+procedure TG2USB.SetPerfMode(aValue: TBits1);
+begin
+  inherited;
+
+  SendSetModeMessage( aValue); // 0:Patch mode 1:Performance mode
+  (Performance as TG2USBPerformance).USBStartInit( True);
+end;
+
 procedure TG2USB.SetUSBActive(const Value: boolean);
 var iin_buf : TByteBuffer;
     bytes_read : integer;
@@ -2235,7 +2269,7 @@ end;
 procedure TG2USB.USBStartInit;
 begin
   FInitStep := 1;
-  NextBankListCmd.Mode := 0;
+  NextBankListCmd.PatchFileType := pftPatch;
   NextBankListCmd.Bank := 0;
   NextBankListCmd.Patch := 0;
 
@@ -2254,8 +2288,8 @@ begin
   3 : SendGetSynthSettingsMessage;
   4 : SendUnknown1Message;
   5 : GetPerformance.USBStartInit( False);
-  6 : if NextBankListCmd.Mode <> 2 then begin
-        SendListMessage( NextBankListCmd.Mode, NextBankListCmd.Bank, NextBankListCmd.Patch, FBanks);
+  6 : if NextBankListCmd.PatchFileType <> pftEnd then begin
+        SendListMessage( NextBankListCmd.PatchFileType, NextBankListCmd.Bank, NextBankListCmd.Patch, FBanks);
         do_next_step := false;
       end else begin
         SendStartStopCommunicationMessage( START_COMM);
@@ -2267,6 +2301,36 @@ begin
   end;
   if do_next_step then
     inc(FInitStep);
+end;
+
+procedure TG2USB.NextListMessage(Sender: TObject);
+begin
+  if NextBankListCmd.PatchFileType <> pftEnd then begin
+    SendListMessage( NextBankListCmd.PatchFileType, NextBankListCmd.Bank, NextBankListCmd.Patch, FBanks);
+  end else
+    OnNextInitStep := nil;
+end;
+
+procedure TG2USB.NextBankUploadMessage(Sender: TObject);
+var BankItem : TBankItem;
+begin
+  BankItem := BankList.FindNext( NextBankListCmd.PatchFileType, NextBankListCmd.Bank, NextBankListCmd.Patch);
+  if assigned(BankItem) then
+    SendUploadBankMessage( BankItem.PatchFileType, BankItem.Bank, BankItem.Patch)
+  else begin
+    // Last one send, save the bank dump list
+    BankDumpList.SaveToFile( BankDumpFolder + BankDumpFileName);
+    OnNextInitStep := nil;
+  end;
+end;
+
+procedure TG2USB.RefreshBanks;
+begin
+  NextBankListCmd.PatchFileType := pftPatch;
+  NextBankListCmd.Bank := 0;
+  NextBankListCmd.Patch := 0;
+  SendListMessage( NextBankListCmd.PatchFileType, NextBankListCmd.Bank, NextBankListCmd.Patch, FBanks);
+  OnNextInitStep := NextListMessage;
 end;
 
 procedure TG2USB.USBSentStartComm(Sender: TObject);
@@ -2285,9 +2349,19 @@ begin
   SendCmdMessage( CreateStartStopCommunicationMessage(Stop));
 end;
 
+procedure TG2USB.SendGetMasterClockMessage;
+begin
+  SendCmdMessage( CreateGetMasterClockMessage);
+end;
+
 procedure TG2USB.SendGetPatchVersionMessage;
 begin
   SendCmdMessage( CreateGetPatchVersionMessage);
+end;
+
+procedure TG2USB.SendGetAssignedVoicesMessage;
+begin
+  SendCmdMessage( CreateGetAssignedVoicesMessage);
 end;
 
 procedure TG2USB.SendGetSynthSettingsMessage;
@@ -2305,14 +2379,126 @@ begin
   SendCmdMessage( CreateUnknown1Message);
 end;
 
+procedure TG2USB.SendUploadBankMessage(aPatchFileType: TPatchFileType; aBank,
+  aLocation: byte);
+begin
+  {if aLocation = 0 then begin
+    // First one, init bank dump list
+    BankDumpList.Clear;
+    BankDumpList.Add('Version=Nord Modular G2 Bank Dump');
+    case aPatchFileType of
+      pftPatch :
+        begin
+          BankDumpFileName := 'PatchBank' + IntToStr(aBank + 1) + '.pchList';
+        end;
+      pftPerf :
+        begin
+          BankDumpFileName := 'PerfBank' + IntToStr(aBank + 1) + '.pchList';
+        end;
+      else
+        raise Exception.Create('Unknown patch file type.');
+    end;
+  end;}
+
+  OnNextInitStep := NextBankUploadMessage;
+  SendCmdMessage( CreateUploadBankMessage( aPatchFileType, aBank, aLocation));
+end;
+
+procedure TG2USB.NextPatchBankDownloadMessage( Sender: TObject);
+var OriginalBank, OriginalLocation : byte;
+    PatchFileName : string;
+begin
+  inc(BankDumpListIndex);
+  if BankDumpListIndex < BankDumpList.Count then begin
+    OnNextInitStep := NextPatchBankDownloadMessage;
+    if ParseBankDumpListLine( BankDumpList[BankDumpListIndex], OriginalBank, OriginalLocation, PatchFileName) then begin
+      SendDownLoadPatchBankMessage( BankDumpDestBank, BankDumpListIndex - 1, BankDumpFolder + PatchFileName);
+    end else begin
+      OnNextInitStep := nil;
+      raise Exception.Create('Error reading patch dump file.');
+    end
+  end else begin
+    OnNextInitStep := nil;
+    if assigned(OnAfterBankDownload) then
+      OnAfterBankDownload( Self, ID, pftPatch);
+  end;
+end;
+
+procedure TG2USB.SendDownloadPatchBankMessage( aBank, aLocation: byte; aFileName : string);
+var Patch: TG2FilePatch;
+    PatchName: string;
+    FileStream : TFileStream;
+begin
+  Patch := TG2FilePatch.Create(nil);
+  FileStream := TFileStream.Create( aFileName, fmOpenRead);
+  try
+    try
+      Patch.LoadFromFile( FileStream, LogLines);
+      PatchName := PatchNameFromFileName( aFileName);
+      SendCmdMessage( CreateDownloadPatchBankMessage( aBank, aLocation, PatchName, Patch));
+    except on E:Exception do begin
+        add_log_line('Error loading patch ' + PatchName + ', patch download aborted.', LOGCMD_ERR);
+        OnNextInitStep := nil;
+      end;
+    end;
+  finally
+    FileStream.Free;
+    Patch.Free;
+  end;
+end;
+
+procedure TG2USB.NextPerfBankDownloadMessage( Sender: TObject);
+var OriginalBank, OriginalLocation : byte;
+    PatchFileName : string;
+begin
+  inc(BankDumpListIndex);
+  if BankDumpListIndex < BankDumpList.Count then begin
+    OnNextInitStep := NextPerfBankDownloadMessage;
+    if ParseBankDumpListLine( BankDumpList[BankDumpListIndex], OriginalBank, OriginalLocation, PatchFileName) then begin
+      SendDownLoadPerfBankMessage( BankDumpDestBank, BankDumpListIndex - 1, BankDumpFolder + PatchFileName);
+    end else begin
+      OnNextInitStep := nil;
+      raise Exception.Create('Error reading patch dump file.');
+    end
+  end else begin
+    OnNextInitStep := nil;
+
+    if assigned(OnAfterBankDownload) then
+      OnAfterBankDownload( Self, ID, pftPerf);
+  end;
+end;
+
+procedure TG2USB.SendDownloadPerfBankMessage( aBank, aLocation: byte; aFileName : string);
+var Perf: TG2FilePerformance;
+    PerfName: string;
+    FileStream : TFileStream;
+begin
+  Perf := TG2FilePerformance.Create(nil);
+  FileStream := TFileStream.Create( aFileName, fmOpenRead);
+  try
+    try
+      Perf.LoadFromFile( FileStream, LogLines);
+      PerfName := PatchNameFromFileName( aFileName);
+      SendCmdMessage( CreateDownloadPerfBankMessage( aBank, aLocation, PerfName, Perf));
+    except on E:Exception do begin
+        add_log_line('Error loading patch ' + PerfName + ', patch download aborted.', LOGCMD_ERR);
+        OnNextInitStep := nil;
+      end;
+    end;
+  finally
+    FileStream.Free;
+    Perf.Free;
+  end;
+end;
+
 procedure TG2USB.SendDumpMidiMessage;
 begin
   SendCmdMessage( CreateMidiDumpMessage);
 end;
 
-procedure TG2USB.SendListMessage( aMode, aBank, aPatch : byte; names : TStrings);
+procedure TG2USB.SendListMessage( aPatchFileType : TPatchFileType; aBank, aPatch : byte; names : TStrings);
 begin
-  SendCmdMessage( CreateListMessage( aMode, aBank, aPatch, Names));
+  SendCmdMessage( CreateListMessage( aPatchFileType, aBank, aPatch, Names));
 end;
 
 procedure TG2USB.SendSetModeMessage( aMode : byte);
@@ -2377,15 +2563,62 @@ begin
    3 : GetSlot(1).USBStartInit( False);
    4 : GetSlot(2).USBStartInit( False);
    5 : GetSlot(3).USBStartInit( False);
-   6 : begin
+   6 : (G2 as TG2USB).SendGetAssignedVoicesMessage;
+   7 : (G2 as TG2USB).SendGetMasterClockMessage;
+   8 : begin
          SendGetGlobalKnobsMessage;
          if not FStartCommAfterInit then
            OnNextInitStep := nil;
        end;
-   7 : begin
+   9 : begin
          (G2 as TG2USB).SendStartStopCommunicationMessage( START_COMM);
           OnNextInitStep := nil;
        end;
+  end;
+  inc(FInitStep);
+end;
+
+procedure TG2USBPerformance.USBStartInitPerf;
+begin
+  FInitStep := 1;
+  FOnNextInitStep := USBInitPerfSeq;
+  (G2 as TG2USB).SendGetPatchVersionMessage( FPerfVersion);
+end;
+
+procedure TG2USBPerformance.USBInitPerfSeq(Sender: TObject);
+
+begin
+  case FInitStep of
+   0  : (G2 as TG2USB).SendGetPatchVersionMessage( FPerfVersion);
+   1  : SendSetPerformanceMessage( 'Empty perf', self);
+   2  : SendUnknown2Message;
+
+   3  : GetSlot(0).SendGetParamsMessage( ord(ltPatch));
+   4  : GetSlot(0).SendGetParamNamesMessage( ord(ltPatch));
+   5  : GetSlot(0).SendUnknown6Message;
+   6  : GetSlot(0).SendGetSelectedParameterMessage;
+
+   7  : GetSlot(1).SendGetParamsMessage( ord(ltPatch));
+   8  : GetSlot(1).SendGetParamNamesMessage( ord(ltPatch));
+   9  : GetSlot(1).SendUnknown6Message;
+   10 : GetSlot(1).SendGetSelectedParameterMessage;
+
+   11 : GetSlot(2).SendGetParamsMessage( ord(ltPatch));
+   12 : GetSlot(2).SendGetParamNamesMessage( ord(ltPatch));
+   13 : GetSlot(2).SendUnknown6Message;
+   14 : GetSlot(2).SendGetSelectedParameterMessage;
+
+   15 : GetSlot(3).SendGetParamsMessage( ord(ltPatch));
+   16 : GetSlot(3).SendGetParamNamesMessage( ord(ltPatch));
+   17 : GetSlot(3).SendUnknown6Message;
+   18 : GetSlot(3).SendGetSelectedParameterMessage;
+
+   19 : (G2 as TG2USB).SendGetAssignedVoicesMessage;
+   20 : (G2 as TG2USB).SendGetMasterClockMessage;
+   21 : begin
+          SendGetGlobalKnobsMessage;
+          OnNextInitStep := nil;
+        end;
   end;
   inc(FInitStep);
 end;
@@ -2398,6 +2631,18 @@ end;
 procedure TG2USBPerformance.SendUnknown2Message;
 begin
   SendCmdMessage( CreateUnknown2Message);
+end;
+
+procedure TG2USBPerformance.SetMasterClock(aValue: TBits8);
+begin
+  inherited;
+  SendSetPerfSettingsMessage;
+end;
+
+procedure TG2USBPerformance.SetMasterClockRun(aValue: TBits8);
+begin
+  inherited;
+  SendSetPerfSettingsMessage;
 end;
 
 procedure TG2USBPerformance.SendSelectSlotMessage( aSlot: byte);
@@ -2413,6 +2658,16 @@ end;
 procedure TG2USBPerformance.SendStoreMessage( aSlot, aBank, aPatch : byte);
 begin
   SendCmdMessage( CreateStoreMessage( aSlot, aBank, aPatch));
+end;
+
+procedure TG2USBPerformance.SendClearBankMessage(aPatchFileType : TPatchFileType; aBank, aFromLocation, aToLocation: byte);
+begin
+  SendCmdMessage( CreateClearBankMessage( aPatchFileType, aBank, aFromLocation, aToLocation));
+end;
+
+procedure TG2USBPerformance.SendClearMessage( aPatchFileType : TPatchFileType; aBank, aPatch : byte);
+begin
+  SendCmdMessage( CreateClearMessage( aPatchFileType, aBank, aPatch));
 end;
 
 procedure TG2USBPerformance.SendSetPerformanceMessage( aPerfName : AnsiString; aPerf : TG2FilePerformance);
@@ -2561,6 +2816,21 @@ begin
   SendCmdMessage( CreateSetPatchMessage( aPatchName, aPatch));
 end;
 
+procedure TG2USBSlot.SendSetPatchName( aPatchName : AnsiString);
+begin
+  SendCmdMessage( CreateSetPatchName( aPatchName));
+end;
+
+procedure TG2USBSlot.SendGetParamNamesMessage(aLocation: byte);
+begin
+  SendCmdMessage( CreateGetParamNamesMessage(aLocation));
+end;
+
+procedure TG2USBSlot.SendGetParamsMessage(aLocation: byte);
+begin
+  SendCmdMessage( CreateGetParamsMessage(aLocation));
+end;
+
 procedure TG2USBSlot.SendGetPatchMessage;
 begin
   SendCmdMessage( CreateGetPatchMessage);
@@ -2688,7 +2958,6 @@ begin
   Result := (Slot as TG2USBSlot).GetPerformance;
 end;
 
-
 function TG2USBPatch.SendCmdMessage( SendMessage : TG2SendMessage): boolean;
 begin
   if assigned(G2) then
@@ -2713,6 +2982,43 @@ begin
   inherited SetParamValue( aLocation, aModuleIndex, aParameterIndex, aVariation, aValue);
 end;
 
+procedure TG2USBPatch.SetVoiceCount(aValue: byte);
+var FPatchDescription : TPatchDescription;
+begin
+  if aValue > 32 then
+    exit;
+
+  FPatchDescription := PatchDescription;
+  if aValue > 0 then begin
+    FPatchDescription.MonoPoly := 0; // Poly
+    FPatchDescription.VoiceCount := aValue;
+  end else begin
+    if FPatchDescription.MonoPoly = 0 then
+      FPatchDescription.MonoPoly := 1; // Mono
+    FPatchDescription.VoiceCount := aValue;
+  end;
+  MessSetPatchDescription( FPatchDescription);
+end;
+
+procedure TG2USBPatch.SetVoiceMode(aValue: byte);
+var FPatchDescription : TPatchDescription;
+begin
+  if aValue > 2 then
+    exit;
+
+  FPatchDescription := PatchDescription;
+  if FPatchDescription.VoiceCount > 1 then
+    FPatchDescription.MonoPoly := 0 // Poly
+  else begin
+    if FPatchDescription.MonoPoly <> 1 then
+      FPatchDescription.MonoPoly := 1 // Mono
+    else
+      if FPatchDescription.MonoPoly <> 2 then
+        FPatchDescription.MonoPoly := 2 // Legato
+  end;
+  MessSetPatchDescription( FPatchDescription);
+end;
+
 function TG2USBPatch.MessSetPatchDescription( FPatchDescription : TPatchDescription): boolean;
 var MemStream : TG2SendMessage;
 begin
@@ -2727,17 +3033,18 @@ begin
   Result := SendCmdMessage( MemStream);
 end;
 
-function TG2USBPatch.MessAddModule( aLocation : TLocationType; aModuleType, aCol, aRow: byte): boolean;
+function TG2USBPatch.MessAddModule( aLocation : TLocationType; aModuleTypeID,
+  aAlternativeModuleTypeID, aCol, aRow: byte): boolean;
 var MemStream : TG2SendMessage;
     aModuleIndex : Byte;
 begin
-  inherited MessAddModule( aLocation, aModuleType, aCol, aRow);
+  inherited MessAddModule( aLocation, aModuleTypeID, aAlternativeModuleTypeID, aCol, aRow);
 
   // Get a new module index
   aModuleIndex := GetMaxModuleIndex( aLocation) + 1;
 
   // Send over usb
-  MemStream := CreateAddNewModuleMessage( aLocation, aModuleIndex, aModuleType, aCol, ARow);
+  MemStream := CreateAddNewModuleMessage( aLocation, aModuleIndex, aModuleTypeID, aAlternativeModuleTypeID, aCol, ARow);
   Result := SendCmdMessage( MemStream);
 end;
 

@@ -39,18 +39,26 @@ uses
 
 type
   TMidiCCRecieveEvent = procedure(Sender : TObject; SenderID : integer; MidiCC : byte) of Object;
+  TMidiClockReceiveEvent = procedure(Sender : TObject; SenderID : integer; BPM : integer) of Object;
   TSelectParamPageEvent = procedure( Sender: TObject; SenderID : integer; ParamPage : integer) of object;
   TPatchUpdateEvent = procedure(Sender: TObject; SenderID : integer; PatchIndex : integer) of object;
   TPatchNameChangeEvent = procedure(Sender: TObject; SenderID : integer; PatchIndex : integer; PatchName : AnsiString) of object;
+  TPerfNameChangeEvent = procedure(Sender: TObject; SenderID : integer; PerfName : AnsiString) of object;
   TVariationChangeEvent = procedure(Sender: TObject; SenderID : integer; Slot, Variation : integer) of object;
   TCopyVariationEvent = procedure(Sender: TObject; SenderID : integer; Slot, FromVariation, ToVariation : integer) of object;
   TSynthSettingsUpdateEvent = procedure( Sender : TObject; SenderID : integer) of Object;
   TStartStopCommunicationEvent = procedure(Sender: TObject; SenderID : integer; Stop : byte) of object;
   TPerfSettingsUpdateEvent = procedure(Sender: TObject; SenderID : integer; PerfMode : boolean) of object;
-  TAfterRetrievePatch = procedure(Sender: TObject; SenderID : integer; aSlot, aBank, aPatch : byte) of object;
+  TAfterRetrievePatch = procedure(Sender: TObject; SenderID : integer; Slot, Bank, Patch : byte) of object;
   TParamChangeMessEvent = procedure(Sender: TObject; SenderID : integer; Slot, Variation : byte; Location : TLocationType; ModuleIndex, ParamIndex : byte; aValue : byte) of object;
   TSetModuleLabelEvent = procedure(Sender: TObject; SenderID : integer; PatchIndex : byte; Location : TLocationType;  ModuleIndex : byte) of object;
   TSetParamLabelEvent = procedure(Sender: TObject; SenderID : integer; PatchIndex : byte; Location : TLocationType;  ModuleIndex : byte) of object;
+  TAfterBankListEvent = procedure( Sender : TObject; SenderID : integer) of Object;
+  TAfterStoreEvent = procedure( Sender : TObject; SenderID : integer; SlotIndex, BankIndex, PatchIndex : byte) of Object;
+  TAfterClearEvent = procedure( Sender : TObject; SenderID : integer; PatchFileType : TPatchFileType; BankIndex, PatchIndex : byte) of Object;
+  TAfterClearBankEvent = procedure( Sender : TObject; SenderID : integer; PatchFileType : TPatchFileType; BankIndex : byte) of Object;
+  TAfterBankDownloadEvent = procedure( Sender : TObject; SenderID : integer; PatchFileType : TPatchFileType) of Object;
+  TAfterGetAssignedVoices = procedure( Sender : TObject) of object;
 
   TG2MessPerformance = class;
   TG2MessSlot = class;
@@ -98,10 +106,10 @@ uses
   end;
 
   TNextBankListCmd = record
-    Cmd   : Byte;
-    Mode  : Byte;
-    Bank  : Byte;
-    Patch : Byte;
+    Cmd            : Byte;
+    PatchFileType  : TPatchFileType;
+    Bank           : Byte;
+    Patch          : Byte;
   end;
 
   TModuleColOrder = class
@@ -121,6 +129,9 @@ uses
   private
     // Synth settings
     FSynthName            : AnsiString;
+    FPerfMode             : TBits1;
+    FPerfBank             : TBits8;
+    FPerfLocation         : Tbits8;
     FMemoryProtect        : TBits1;
     FMidiChannelA         : TBits8; // 16 : Inactive
     FMidiChannelB         : TBits8; // 16 : Inactive
@@ -147,9 +158,11 @@ uses
     //FProcessLedData : boolean;
 
     FOnMidiCCReceive          : TMidiCCRecieveEvent;
+    FOnMidiClockReceive       : TMidiClockReceiveEvent;
     FOnSelectParamPage        : TSelectParamPageEvent;
     FOnPatchUpdate            : TPatchUpdateEvent;
     FOnPatchNameChange        : TPatchNameChangeEvent;
+    FOnPerfNameChange         : TPerfNameChangeEvent;
     FOnVariationChange        : TVariationChangeEvent;
     FOnCopyVariation          : TCopyVariationEvent;
     FOnSynthSettingsUpdate    : TSynthSettingsUpdateEvent;
@@ -159,12 +172,19 @@ uses
     FOnParamChangeMessage     : TParamChangeMessEvent;
     FOnSetModuleLabel         : TSetModuleLabelEvent;
     FOnSetParamLabel          : TSetParamLabelEvent;
+    FOnAfterBankList          : TAfterBankListEvent;
+    FOnAfterStore             : TAfterStoreEvent;
+    FOnAfterClear             : TAfterClearEvent;
+    FOnAfterClearBank         : TAfterClearBankEvent;
+    FOnAfterBankDownload      : TAfterBankDownloadEvent;
+    FOnAfterGetAssignedVoices : TAfterGetAssignedVoices;
 
     FErrorMessage        : boolean;
     FErrorMessageNo      : integer;
     FLastResponseMessage : Byte;
-
+  protected
     procedure   SetSynthName( aValue : AnsiString);
+    procedure   SetPerfMode( aValue : TBits1); virtual;
     procedure   SetMemoryProtect( aValue : TBits1);
     procedure   SetMidiChannelA( aValue : TBits8);
     procedure   SetMidiChannelB( aValue : TBits8);
@@ -188,6 +208,11 @@ uses
   public
     FLogPatchFileChunks  : boolean;
     NextBankListCmd : TNextBankListCmd;
+    BankDumpFolder : string;
+    BankDumpFileName : string;
+    BankDumpList : TStringList;
+    BankDumpListIndex : integer;
+    BankDumpDestBank : byte;
 
     constructor Create( AOwner: TComponent); override;
     destructor  Destroy; override;
@@ -217,11 +242,17 @@ uses
     function    CreateSetSynthSettingsMessage: TG2SendMessage;
     function    CreateUnknown1Message: TG2SendMessage;
     function    CreateMidiDumpMessage: TG2SendMessage;
-    function    CreateListMessage( aMode, aBank, aPatch : byte; names : TStrings): TG2SendMessage;
+    function    CreateListMessage( aPatchFileType : TPatchFileType; aBank, aPatch : byte; names : TStrings): TG2SendMessage;
     function    CreateSetModeMessage( aMode : byte): TG2SendMessage;
     function    CreateNoteMessage( aNote : byte; aOnoff : byte): TG2SendMessage;
+    function    CreateGetMasterClockMessage: TG2SendMessage;
+    function    CreateGetAssignedVoicesMessage : TG2SendMessage;
+    function    CreateUploadBankMessage( aPatchFileType : TPatchFileType; aBank : byte; aLocation : byte): TG2SendMessage;
+    function    CreateDownloadPatchBankMessage( aBank : byte; aLocation : byte; aPatchName : string; aPatch : TG2FilePatch): TG2SendMessage;
+    function    CreateDownloadPerfBankMessage( aBank : byte; aLocation : byte; aPerfName : string; aPerf : TG2FilePerformance): TG2SendMessage;
 
     property    SynthName : AnsiString read FSynthName write SetSynthName;
+    property    PerfMode : TBits1 read FPerfMode write SetPerfMode;
     property    MemoryProtect : TBits1 read FMemoryProtect write SetMemoryProtect;
     property    MidiChannelA : TBits8 read FMidiChannelA write SetMidiChannelA;
     property    MidiChannelB : TBits8 read FMidiChannelB write SetMidiChannelB;
@@ -247,9 +278,11 @@ uses
     property    ErrorMessage : boolean read FErrorMessage write FErrorMessage;
     property    ErrorMessageNo : integer read FErrorMessageNo write FErrorMessageNo;
     property    OnMidiCCReceive : TMidiCCRecieveEvent read FOnMidiCCReceive write FOnMidiCCReceive;
+    property    OnMidiClockReceive : TMidiClockReceiveEvent read FOnMidiClockReceive write FOnMidiClockReceive;
     property    OnSelectParamPage : TSelectParamPageEvent read FOnSelectParamPage write FOnSelectParamPage;
     property    OnPatchUpdate : TPatchUpdateEvent read FOnPatchUpdate write FOnPatchUpdate;
     property    OnPatchNameChange : TPatchNameChangeEvent read FOnPatchNameChange write FOnPatchNameChange;
+    property    OnPerfNameChange : TPerfNameChangeEvent read FOnPerfNameChange write FOnPerfNameChange;
     property    OnVariationChange : TVariationChangeEvent read FOnVariationChange write FOnVariationChange;
     property    OnCopyVariation : TCopyVariationEvent read FOnCopyVariation write FOnCopyVariation;
     property    OnStartStopCommunication : TStartStopCommunicationEvent read FOnStartStopCommunication write FOnStartStopCommunication;
@@ -259,6 +292,12 @@ uses
     property    OnParamChangeMessage : TParamChangeMessEvent read FOnParamChangeMessage write FOnParamChangeMessage;
     property    OnSetModuleLabel : TSetModuleLabelEvent read FOnSetModuleLabel write FOnSetModuleLabel;
     property    OnSetParamLabel : TSetParamLabelEvent read FOnSetParamLabel write FOnSetParamLabel;
+    property    OnAfterBankList : TAfterBankListEvent read FOnAfterBankList write FOnAfterBankList;
+    property    OnAfterStore : TAfterStoreEvent read FOnAfterStore write FOnAfterStore;
+    property    OnAfterClear : TAfterClearEvent read FOnAfterClear write FOnAfterClear;
+    property    OnAfterClearBank : TAfterClearBankEvent read FOnAfterClearBank write FOnAfterClearBank;
+    property    OnAfterBankDownload : TAfterBankDownloadEvent read FOnAfterBankDownload write FOnAfterBankDownload;
+    property    OnAfterGetAssignedVoices : TAfterGetAssignedVoices read FOnAfterGetAssignedVoices write FOnAfterGetAssignedVoices;
   end;
 
   TG2MessPerformance = class( TG2FilePerformance)
@@ -270,11 +309,14 @@ uses
     procedure   add_log_line(tekst : string; log_cmd : integer);
     function    GetSlot( aSlot : byte) : TG2MessSlot;
     function    ProcessSendMessage( MemStream: TMemoryStream; SenderID : integer): boolean;
+    function    ProcessResponseMessage( MemStream : TMemoryStream; Param : byte): boolean;
     function    CreateGetPerfSettingsMessage: TG2SendMessage;
     function    CreateUnknown2Message: TG2SendMessage;
     function    CreateSelectSlotMessage( aSlot: byte): TG2SendMessage;
     function    CreateRetrieveMessage( aSlot, aBank, aPatch : byte): TG2SendMessage;
     function    CreateStoreMessage( aSlot, aBank, aPatch : byte): TG2SendMessage;
+    function    CreateClearMessage( aPatchFileType : TPatchFileType; aBank, aPatch : byte): TG2SendMessage;
+    function    CreateClearBankMessage( aPatchFileType : TPatchFileType; aBank, aFromLocation, aToLocation : byte): TG2SendMessage;
     function    CreateSetPerformanceMessage( aPerfName : AnsiString; aPerf : TG2FilePerformance): TG2SendMessage;
     function    CreateSetPerfSettingsMessage: TG2SendMessage;
     function    CreateSetPerfNameMessage( aPerfName : AnsiString): TG2SendMessage;
@@ -284,6 +326,7 @@ uses
   TG2MessSlot = class( TG2FileSlot)
   protected
     FPatchVersion      : Byte;
+    FAssignedVoices    : Byte;
     FOnDeleteModule    : TDeleteModuleEvent;
     FOnPatchUpdate     : TPatchUpdateEvent;
     FOnVariationChange : TVariationChangeEvent;
@@ -314,17 +357,21 @@ uses
     function    CreateGetSelectedParameterMessage: TG2SendMessage;
     function    CreateSetPatchMessage( aPatchName : AnsiString; aPatch : TG2FilePatch): TG2SendMessage;
     function    CreateGetPatchMessage: TG2SendMessage;
+    function    CreateSetPatchName( aPatchName : AnsiString): TG2SendMessage;
     function    CreateSelectVariationMessage( aVariationIndex: byte): TG2SendMessage;
     function    CreateSetParamMessage( aLocation, aModule, aParam, aValue, aVariation: byte): TG2SendMessage;
     function    CreateSelParamMessage( aLocation, aModule, aParam: integer): TG2SendMessage;
     function    CreateSetMorphMessage( aLocation, aModule, aParam, aMorph, aValue, aNegative, aVariation: byte): TG2SendMessage;
     function    CreateSetModeMessage( aLocation, aModule, aParam, aValue: integer): TG2SendMessage;
     function    CreateCopyVariationMessage( aFromVariation, aToVariation : byte): TG2SendMessage;
+    function    CreateGetParamNamesMessage( aLocation : byte): TG2SendMessage;
+    function    CreateGetParamsMessage( aLocation : byte): TG2SendMessage;
 
     function    ProcessResponseMessage( MemStream : TMemoryStream; Param : byte): boolean; dynamic;
     function    ProcessSendMessage( MemStream : TMemoryStream; SenderID : integer): boolean;  dynamic;
 
     property    PatchVersion : byte read FPatchVersion write FPatchVersion;
+    property    AssignedVoices : byte read FAssignedVoices;
     property    OnDeleteModule : TDeleteModuleEvent read FOnDeleteModule write FOnDeleteModule;
     property    OnPatchUpdate : TPatchUpdateEvent read FOnPatchUpdate write FOnPatchUpdate;
     property    OnVariationChange : TVariationChangeEvent read FOnVariationChange write FOnVariationChange;
@@ -343,7 +390,7 @@ uses
     function    FindCable( Location : TLocationType; FromModule : byte; FromConnector : byte; ToModule : byte; ToConnector : byte): TG2FileCable;
 
     procedure   AddReplaceModulesMessages( SendMessage : TG2SendMessage; aModulesToReplaceList, aModulesMovedList : TModuleList);
-    procedure   AddNewModuleMessage( SendMessage : TG2SendMessage; aLocation : TLocationType; aNewModuleIndex, aModuleType, aCol, aRow: byte);
+    procedure   AddNewModuleMessage( SendMessage : TG2SendMessage; aLocation : TLocationType; aNewModuleIndex, aModuleTypeID, aAlternativeModuleTypeID, aCol, aRow: byte);
     procedure   AddCopyModuleMessage( SendMessage : TG2SendMessage; aLocation : TLocationType; aModule : TG2FileModule);
     procedure   AddCopyModuleParametersMessage( SendMessage : TG2SendMessage; aLocation : TLocationType; aModule : TG2FileModule);
     procedure   AddCopyModuleParamLabelsMessage( SendMessage : TG2SendMessage; aLocation: TLocationType; aModule : TG2FileModule);
@@ -379,7 +426,7 @@ uses
     function    CreatePatchMessage: TG2SendMessage;
     procedure   ResetUprateValues( aLocation : TLocationType);
     procedure   CheckUprateChange( aStream: TG2SendMessage; aUprateValue : Byte; aToConnector : TG2FileConnector; aToModule : TG2FileModule);
-    function    CreateAddNewModuleMessage( aLocation : TLocationType; aNewModuleIndex, aModuleType, aCol, aRow: byte): TG2SendMessage;
+    function    CreateAddNewModuleMessage( aLocation : TLocationType; aNewModuleIndex, aModuleTypeID, aAlternativeModuleTypeID, aCol, aRow: byte): TG2SendMessage;
     function    CreateCopyModulesMessage( aSrcePatch : TG2FilePatchPart; aFromLocation, aToLocation : TLocationType; RenumberModules : boolean): TG2SendMessage;
     function    CreateMoveModulesMessage( aLocation : TLocationType): TG2SendMessage;
     function    CreateSetModuleColorMessage( aLocation: TLocationType; aModuleIndex, aColor : byte): TG2SendMessage;
@@ -419,7 +466,73 @@ uses
     property    UndoCount : integer read GetUndoCount;
   end;
 
+  function ParseBankDumpListLine( line : string; var aBank, aLocation : byte;
+    var aPatchFileName : string): boolean;
+
 implementation
+
+
+function ParseBankDumpListLine( line : string; var aBank, aLocation : byte;
+    var aPatchFileName : string): boolean;
+var i, c : integer;
+    value : string;
+begin
+  Result := True;
+
+  i := 1;
+  // Read bank;
+  value := '';
+  while (i<=Length(line)) and (line[i] <> ':') do begin
+    if line[i] in ['0'..'9'] then
+      value := value + line[i];
+    inc(i);
+  end;
+
+  if (i>Length(line)) then begin
+    Result := False;
+    exit;
+  end;
+
+  val(value, aBank, c);
+  if c > 0 then begin
+    Result := False;
+    exit;
+  end;
+
+  inc(i);
+
+  // Read location (is ignored)
+  value := '';
+  while (i<=Length(line)) and (line[i] <> ':') do begin
+    if line[i] in ['0'..'9'] then
+      value := value + line[i];
+    inc(i);
+  end;
+
+  if (i>Length(line)) then begin
+    Result := False;
+    exit;
+  end;
+
+  val(value, aLocation, c);
+  if c > 0 then begin
+    Result := False;
+    exit;
+  end;
+
+  inc(i);
+
+  // skip spaces
+  while (i<=Length(line)) and (line[i] in [' ', #9]) do
+    inc(i);
+
+  // Read filename
+  aPatchFileName := '';
+  while (i<=Length(line)) do begin
+    aPatchFileName := aPatchFileName + line[i];
+    inc(i);
+  end;
+end;
 
 ////////////////////////////////////////////////////////////////////////////////
 //  TG2SendMessage
@@ -588,8 +701,15 @@ begin
 end;
 
 function TG2ResponseMessage.GetIsLedData: boolean;
+var b : byte;
 begin
-  Result := GetCommand in [$00, $01, $02, $03];
+  Result := False;
+
+  if Size < 4 then
+    exit;
+
+  Result := (PStaticByteBuffer( Memory)^[1] in [$00, $01, $02, $03])
+        and (PStaticByteBuffer( Memory)^[3] in [R_LED_DATA, R_VOLUME_DATA]);
 end;
 
 procedure TG2ResponseMessage.CalcCRC;
@@ -647,10 +767,14 @@ begin
   FControlPedalGain := 0;
 
   FLogPatchFileChunks := False;
+  BankDumpFolder := '';
+  BankDumpFileName := '';
+  BankDumpList := TStringList.Create;
 end;
 
 destructor TG2Mess.Destroy;
 begin
+  BankDumpList.Free;
   inherited;
 end;
 
@@ -816,6 +940,11 @@ begin
   FPedalPolarity := aValue;
 end;
 
+procedure TG2Mess.SetPerfMode(aValue: TBits1);
+begin
+  FPerfMode := aValue;
+end;
+
 procedure TG2Mess.SetControlPedalGain( aValue : TBits8);
 begin
   if aValue > 32 then
@@ -953,8 +1082,7 @@ begin
   Result.WriteMessage( $01);
   Result.WriteMessage( SlotIndex + $08);
   Result.WriteMessage( FPatchVersion);
-  Result.WriteMessage( R_PATCH_NAME);
-  Result.WriteClaviaString( PatchName);
+  Result.WriteMessage( S_PATCH_NAME);
 end;
 
 function TG2MessSlot.CreateCurrentNoteResponseMessage: TG2ResponseMessage;
@@ -1072,8 +1200,6 @@ begin
                             begin
                               Result := CreateGetGlobalKnobsResponseMessage;
                             end;
-
-
                       end;
                     end;
           $08, $09, $0a, $0b :
@@ -1141,12 +1267,15 @@ begin
 end;
 
 function TG2Mess.ProcessResponseMessage( MemStream : TMemoryStream; Param : byte): boolean;
-var aR, aCmd, aVersion, aSubCmd, aSlot, b : byte;
+var aR, aCmd, aVersion, aPatchType, aSubCmd, aSlot, aBank, aPatch, aCategory,
+    b, hb, lb, aPatchVersion, aFromBank, aFromLocation, aToBank, aToLocation : byte;
     i : integer;
+    NameExt, FileExt : string;
     Chunk : TPatchChunk;
     aMidiCC : byte;
-    aMode, aBank, aPatch, aCategory : integer;
-    patch_name, perf_name : AnsiString;
+    aPatchFileType : TPatchFileType;
+    patch_name, perf_name, file_name : AnsiString;
+    PatchData : TMemoryStream;
     BankItem : TBankItem;
     BitReader : TBitReader;
 begin
@@ -1200,7 +1329,9 @@ begin
                                       end;
                                     end;
                                   end;
-                            $38 : begin // TODO : Follows after retrieving a patch, don't know all of it
+                            $38 : begin
+                                    // TODO : Follows after retrieving a patch, don't know the meaning
+                                    // of the complete message
                                     MemStream.Read( aSlot, 1);
                                     case aSlot of
                                     $00..$03 :
@@ -1226,226 +1357,364 @@ begin
                     else begin
                       if aVersion = GetPerformance.FPerfVersion then begin
 
-                          MemStream.Read(aSubCmd, 1);
-                          case aSubCmd of
-                          S_SYNTH_SETTINGS :
-                                begin // synth settings
-                                  BitReader := TBitReader.Create;
-                                  try
-                                    FSynthName := GetPerformance.ReadClaviaString(MemStream);
-                                    //while (length(FSynthName) < 16) and (MemStream.Read(b, 1) = 1) and (b <> 0) do begin
-                                    //  FSynthName := FSynthName + char(b);
-                                    //end;
-                                    b := BitReader.ReadBits( MemStream, 8); // $80
-                                    b := BitReader.ReadBits( MemStream, 8); // $00
-                                    b := BitReader.ReadBits( MemStream, 8); // $00
-                                    b := BitReader.ReadBits( MemStream, 8); // $00
-                                    FMemoryProtect := BitReader.ReadBits( MemStream, 1);
-                                    b := BitReader.ReadBits( MemStream, 7);
-                                    FMidiChannelA := BitReader.ReadBits( MemStream, 8);
-                                    FMidiChannelB := BitReader.ReadBits( MemStream, 8);
-                                    FMidiChannelC := BitReader.ReadBits( MemStream, 8);
-                                    FMidiChannelD := BitReader.ReadBits( MemStream, 8);
-                                    FMidiGlobalChannel := BitReader.ReadBits( MemStream, 8);
-                                    FSysExID := BitReader.ReadBits( MemStream, 8);
-                                    FLocalOn := BitReader.ReadBits( MemStream, 1);
-                                    b := BitReader.ReadBits( MemStream, 7);
-                                    b := BitReader.ReadBits( MemStream, 6);
-                                    FProgramChangeReceive := BitReader.ReadBits( MemStream, 1);
-                                    FProgramChangeSend := BitReader.ReadBits( MemStream, 1);
-                                    b := BitReader.ReadBits( MemStream, 6);
-                                    FControllersReceive := BitReader.ReadBits( MemStream, 1);
-                                    FControllersSend := BitReader.ReadBits( MemStream, 1);
-                                    b := BitReader.ReadBits( MemStream, 1);
-                                    FSendClock := BitReader.ReadBits( MemStream, 1);
-                                    FIgnoreExternalClock := BitReader.ReadBits( MemStream, 1);
-                                    b := BitReader.ReadBits( MemStream, 5);
-                                    FTuneCent := BitReader.ReadBits( MemStream, 8);
-                                    FGlobalOctaveShiftActive := BitReader.ReadBits( MemStream, 1);
-                                    b := BitReader.ReadBits( MemStream, 7);
-                                    FGlobalOctaveShift := BitReader.ReadBits( MemStream, 8);
-                                    FTuneSemi := BitReader.ReadBits( MemStream, 8);
-                                    b := BitReader.ReadBits( MemStream, 8);
-                                    FPedalPolarity := BitReader.ReadBits( MemStream, 1);
-                                    b := BitReader.ReadBits( MemStream, 7);
-                                    FControlPedalGain := BitReader.ReadBits( MemStream, 8);
+                          repeat
+                            MemStream.Read(aSubCmd, 1);
+                            case aSubCmd of
+                            S_SYNTH_SETTINGS :
+                                  begin // synth settings
+                                    BitReader := TBitReader.Create;
+                                    try
+                                      FSynthName := GetPerformance.ReadClaviaString(MemStream);
+                                      //while (length(FSynthName) < 16) and (MemStream.Read(b, 1) = 1) and (b <> 0) do begin
+                                      //  FSynthName := FSynthName + char(b);
+                                      //end;
+                                      FPerfMode := BitReader.ReadBits( MemStream, 1); // Perf mode? Check!
+                                      b := BitReader.ReadBits( MemStream, 7);
+                                      b := BitReader.ReadBits( MemStream, 8); // $00
+                                      FPerfBank := BitReader.ReadBits( MemStream, 8);
+                                      FPerfLocation := BitReader.ReadBits( MemStream, 8);
+                                      FMemoryProtect := BitReader.ReadBits( MemStream, 1);
+                                      b := BitReader.ReadBits( MemStream, 7);
+                                      FMidiChannelA := BitReader.ReadBits( MemStream, 8);
+                                      FMidiChannelB := BitReader.ReadBits( MemStream, 8);
+                                      FMidiChannelC := BitReader.ReadBits( MemStream, 8);
+                                      FMidiChannelD := BitReader.ReadBits( MemStream, 8);
+                                      FMidiGlobalChannel := BitReader.ReadBits( MemStream, 8);
+                                      FSysExID := BitReader.ReadBits( MemStream, 8);
+                                      FLocalOn := BitReader.ReadBits( MemStream, 1);
+                                      b := BitReader.ReadBits( MemStream, 7);
+                                      b := BitReader.ReadBits( MemStream, 6);
+                                      FProgramChangeReceive := BitReader.ReadBits( MemStream, 1);
+                                      FProgramChangeSend := BitReader.ReadBits( MemStream, 1);
+                                      b := BitReader.ReadBits( MemStream, 6);
+                                      FControllersReceive := BitReader.ReadBits( MemStream, 1);
+                                      FControllersSend := BitReader.ReadBits( MemStream, 1);
+                                      b := BitReader.ReadBits( MemStream, 1);
+                                      FSendClock := BitReader.ReadBits( MemStream, 1);
+                                      FIgnoreExternalClock := BitReader.ReadBits( MemStream, 1);
+                                      b := BitReader.ReadBits( MemStream, 5);
+                                      FTuneCent := BitReader.ReadBits( MemStream, 8);
+                                      FGlobalOctaveShiftActive := BitReader.ReadBits( MemStream, 1);
+                                      b := BitReader.ReadBits( MemStream, 7);
+                                      FGlobalOctaveShift := BitReader.ReadBits( MemStream, 8);
+                                      FTuneSemi := BitReader.ReadBits( MemStream, 8);
+                                      b := BitReader.ReadBits( MemStream, 8);
+                                      FPedalPolarity := BitReader.ReadBits( MemStream, 1);
+                                      b := BitReader.ReadBits( MemStream, 7);
+                                      FControlPedalGain := BitReader.ReadBits( MemStream, 8);
 
-                                  finally
-                                    BitReader.Free;
+                                    finally
+                                      BitReader.Free;
+                                    end;
+
+                                    Result := True;
+
+                                    if assigned(FOnSynthSettingsUpdate) then
+                                      FOnSynthSettingsUpdate(self, ID);
                                   end;
+                            R_LIST_NAMES :
+                                  begin
+                                    MemStream.Read( b, 1); // $30 unknown
+                                    MemStream.Read( b, 1); // $02 Unknown
+                                  end;
+                            R_ADD_NAMES :
+                                  begin // List names
+                                    //for i := 0 to 3 do
+                                    //  MemStream.Read( b, 1); // read 4 unknown bytes
+                                    MemStream.Read( b, 1); // $00 - After store $01 - After list
 
-                                  Result := True;
+                                    MemStream.Read( aPatchFileType, 1);
 
-                                  if assigned(FOnSynthSettingsUpdate) then
-                                    FOnSynthSettingsUpdate(self, ID);
-                                end;
-                          R_LIST_NAMES :
-                                begin // List names
-                                  for i := 0 to 3 do
-                                    MemStream.Read( b, 1); // read 4 unknown bytes
+                                    patch_name := '';
 
-                                  MemStream.Read( aMode, 1);
-                                  //MemStream.Read( b, 1);   // unknown;
-                                  //MemStream.Read( aBank, 1);
-                                  //MemStream.Read( aPatch, 1);
-                                  patch_name := '';
-                                  while MemStream.Read(b, 1) = 1 do begin
-                                    case b of
-                                    $01 : begin // ????
-                                            i := 1;
-                                          end;
-                                    $02 : begin // ????
-                                            with NextBankListCmd do begin
-                                              Cmd   := b;
-                                              Mode  := aMode;
-                                              Bank  := aBank;
-                                              Patch := aPatch;
+                                    while MemStream.Read(b, 1) = 1 do begin
+                                      case b of
+                                      $01 : begin // read patch location
+                                              MemStream.Read( aPatch, 1);
+                                              with NextBankListCmd do begin
+                                                Cmd   := b;
+                                                PatchFileType  := aPatchFileType;
+                                                Bank  := aBank;
+                                                Patch := aPatch;
+                                              end;
                                             end;
-                                            break;
-                                          end;
-                                    $03 : begin // read bank
-                                            MemStream.Read( aBank, 1);
-                                            //aPatch := 0;
-                                            MemStream.Read( aPatch, 1);
-                                            with NextBankListCmd do begin
-                                              Cmd   := b;
-                                              Mode  := aMode;
-                                              Bank  := aBank;
-                                              Patch := aPatch;
+                                      $02 : begin // ????
+                                              with NextBankListCmd do begin
+                                                Cmd   := b;
+                                                PatchFileType  := aPatchFileType;
+                                                Bank  := aBank;
+                                                Patch := aPatch;
+                                              end;
+                                              break;
                                             end;
-                                            //break;
-                                          end;
-                                    $04 : begin // next mode  0 = patch, 1 = perf, 2 = finished
-                                            inc( aMode);
-                                            aBank := 0;
-                                            aPatch := 0;
-                                            with NextBankListCmd do begin
-                                              Cmd   := b;
-                                              Mode  := aMode;
-                                              Bank  := aBank;
-                                              Patch := aPatch;
+                                      $03 : begin // read bank
+                                              MemStream.Read( aBank, 1);
+                                              MemStream.Read( aPatch, 1);
+                                              with NextBankListCmd do begin
+                                                Cmd   := b;
+                                                PatchFileType  := aPatchFileType;
+                                                Bank  := aBank;
+                                                Patch := aPatch;
+                                              end;
                                             end;
-                                            break;
-                                          end;
-                                    $05 : begin; // last patch in message read
-                                            inc( aPatch);
-                                            with NextBankListCmd do begin
-                                              Cmd   := b;
-                                              Mode  := aMode;
-                                              Bank  := aBank;
-                                              Patch := aPatch;
-                                            end;
-                                            break;
-                                          end
-                                    else
-                                      if b = $00 then begin
-                                        // End of string
-                                        MemStream.Read( aCategory, 1);
-                                        FBanks.Add('Category : ' + IntToStr(aCategory) + ' Mode:' + IntToStr( aMode) + ' Bank: ' + IntToStr(aBank)
-                                                   + ' Patch: ' + IntTostr( aPatch) + ' ' + string(patch_name));
+                                      $04 : begin // next mode  0 = patch, 1 = perf, 2 = finished
+                                              inc( aPatchFileType);
+                                              aBank := 0;
+                                              aPatch := 0;
+                                              with NextBankListCmd do begin
+                                                Cmd   := b;
+                                                PatchFileType  := aPatchFileType;
+                                                Bank  := aBank;
+                                                Patch := aPatch;
+                                              end;
 
-                                        BankItem := TBankItem.Create;
-                                        BankItem.Mode := aMode;
-                                        BankItem.Bank := aBank;
-                                        BankItem.Patch := aPatch;
-                                        BankItem.PatchName := patch_name;
-                                        BankItem.Category := aCategory;
-                                        if (aMode = 0) and (aBank = 0) and (aPatch = 0) then
-                                          BankList.Clear;
-                                        BankList.AddBankItem( BankItem);
+                                              break;
+                                            end;
+                                      $05 : begin; // last patch in message read
+                                              //inc( aPatch);
+                                              with NextBankListCmd do begin
+                                                Cmd   := b;
+                                                PatchFileType  := aPatchFileType;
+                                                Bank  := aBank;
+                                                Patch := aPatch;
+                                              end;
 
-                                        patch_name := '';
-                                        inc(aPatch);
-                                      end else begin
-                                        patch_name := patch_name + AnsiChar(b);
-                                        if length(patch_name) = 16 then begin
-                                          // String reached 16 chars
+                                              break;
+                                            end
+                                      else
+                                        if b = $00 then begin
+                                          // End of string
                                           MemStream.Read( aCategory, 1);
-                                          FBanks.Add('Category : ' + IntToStr(aCategory) + ' Mode:' + IntToStr( aMode) + ' Bank: ' + IntToStr(aBank)
+                                          FBanks.Add('Category : ' + IntToStr(aCategory) + ' Mode:' + IntToStr( ord(aPatchFileType)) + ' Bank: ' + IntToStr(aBank)
                                                      + ' Patch: ' + IntTostr( aPatch) + ' ' + string(patch_name));
 
-                                          BankItem := TBankItem.Create;
-                                          BankItem.Mode := aMode;
-                                          BankItem.Bank := aBank;
-                                          BankItem.Patch := aPatch;
-                                          BankItem.PatchName := patch_name;
-                                          if (aMode = 0) and (aBank = 0) and (aPatch = 0) then
+                                          if (ord(aPatchFileType) = 0) and (aBank = 0) and (aPatch = 0) then
                                             BankList.Clear;
-                                          BankItem.Category := aCategory;
-                                          BankList.AddBankItem( BankItem);
+
+                                          BankItem := BankList.Find( aPatchFileType, aBank, aPatch);
+                                          if not assigned(BankItem) then begin
+                                            BankItem := TBankItem.Create;
+                                            BankItem.PatchFileType := aPatchFileType;
+                                            BankItem.Bank := aBank;
+                                            BankItem.Patch := aPatch;
+                                            BankItem.PatchName := patch_name;
+                                            BankItem.Category := aCategory;
+                                            BankList.AddBankItem( BankItem);
+                                          end else begin
+                                            BankItem.PatchName := patch_name;
+                                            BankItem.Category := aCategory;
+                                          end;
 
                                           patch_name := '';
                                           inc(aPatch);
+                                        end else begin
+                                          patch_name := patch_name + AnsiChar(b);
+                                          if length(patch_name) = 16 then begin
+                                            // String reached 16 chars
+                                            MemStream.Read( aCategory, 1);
+                                            FBanks.Add('Category : ' + IntToStr(aCategory) + ' Mode:' + IntToStr( ord(aPatchFileType)) + ' Bank: ' + IntToStr(aBank)
+                                                       + ' Patch: ' + IntTostr( aPatch) + ' ' + string(patch_name));
+
+                                            if (ord(aPatchFileType) = 0) and (aBank = 0) and (aPatch = 0) then
+                                              BankList.Clear;
+
+                                            BankItem := BankList.Find( aPatchFileType, aBank, aPatch);
+                                            if not assigned(BankItem) then begin
+                                              BankItem := TBankItem.Create;
+                                              BankItem.PatchFileType := aPatchFileType;
+                                              BankItem.Bank := aBank;
+                                              BankItem.Patch := aPatch;
+                                              BankItem.PatchName := patch_name;
+                                              BankItem.Category := aCategory;
+                                              BankList.AddBankItem( BankItem);
+                                            end else begin
+                                              BankItem.PatchName := patch_name;
+                                              BankItem.Category := aCategory;
+                                            end;
+
+                                            patch_name := '';
+                                            inc(aPatch);
+                                          end;
                                         end;
                                       end;
                                     end;
-                                  end;
-                                  Result := True;
-                                end;
-                          $1e : begin // unknown_2
-                                  Result := True;
-                                end;
-                          C_PERF_NAME,
-                          C_PERF_SETTINGS :
-                                begin // Performance settings
-                                  // its actially first perf name and then the chunk
-                                  perf_name := '';
-                                  while (length(perf_name) < 16) and (MemStream.Read(b, 1) = 1) and (b <> 0) do begin
-                                    perf_name := perf_name + AnsiChar(b);
-                                  end;
-                                  GetPerformance.PerformanceName := perf_name;
-
-                                  Chunk := TPatchChunk.Create(MemStream);
-                                  try
-                                    Chunk.ReadChunk;
-                                    // Parse the performance settings
-                                    GetPerformance.Read( Chunk);
-
                                     Result := True;
-                                  finally
-                                    Chunk.Free;
                                   end;
-                                end;
-                          C_KNOBS_GLOBAL :
-                                begin // Performance settings
-                                  MemStream.Position := MemStream.Position - 1;
-                                  Chunk := TPatchChunk.Create(MemStream);
-                                  try
-                                    if assigned(LogLines) then
-                                      Chunk.FLogLines := LogLines;
+                            R_STORE : // Folows after store (behind list message), but also after clear
+                                  begin
+                                     MemStream.Read( aSlot, 1);
+                                     MemStream.Read( aBank, 1);
+                                     MemStream.Read( aPatch, 1);
+                                     MemStream.Read( b, 1);  // Unknown
+                                     MemStream.Read( b, 1);  // Unknown
+                                     Result := True;
+                                  end;
+                            R_CLEAR :
+                                  begin
+                                     MemStream.Read( aPatchFileType, 1); // 0 - patch, 1 - perf
+                                     MemStream.Read( aBank, 1);
+                                     MemStream.Read( aPatch, 1);
+                                     i := BankList.FindIndex( aPatchFileType, aBank, aPatch);
+                                     if i <> -1 then
+                                       BankList.Delete(i);
+                                     Result := True;
+                                  end;
+                            R_CLEAR_BANK :
+                                  begin
+                                     MemStream.Read( aPatchFileType, 1); // 0 - patch, 1 - perf
+                                     MemStream.Read( aFromBank, 1);
+                                     MemStream.Read( aFromLocation, 1);
+                                     MemStream.Read( aToBank, 1);
+                                     MemStream.Read( aToLocation, 1);
+                                     while (aFromLocation <= aToLocation) and (aFromBank = aToBank) do begin
+                                       i := BankList.FindIndex( aPatchFileType, aFromBank, aFromLocation);
+                                       if i <> -1 then
+                                         BankList.Delete(i);
+                                       inc( aFromLocation);
+                                     end;
+                                     Result := True;
+                                  end;
+                            R_PATCH_BANK_UPDLOAD :
+                                  begin
+                                     MemStream.Read( b, 1);  // Unknown $04
+                                     MemStream.Read( aPatchFileType, 1); // 0 - patch, 1 - perf
+                                     MemStream.Read( aBank, 1);
+                                     MemStream.Read( aPatch, 1);
 
-                                    Chunk.ReadChunk;
-                                    // Parse the performance settings
-                                    GetPerformance.Read( Chunk);
+                                     with NextBankListCmd do begin
+                                       Cmd   := b;
+                                       PatchFileType  := aPatchFileType;
+                                       Bank  := aBank;
+                                       Patch := aPatch;
+                                     end;
+                                     Result := True;
+                                  end;
+                            S_PATCH_BANK_DATA :
+                                  begin
+                                    MemStream.Read( aPatchFileType, 1); // 0 - patch, 1 - perf
+                                    MemStream.Read( aBank, 1);
+                                    MemStream.Read( aPatch, 1);
+                                    with NextBankListCmd do begin
+                                      Cmd   := b;
+                                      PatchFileType  := aPatchFileType;
+                                      Bank  := aBank;
+                                      Patch := aPatch;
+                                    end;
 
+                                    patch_name := '';
+                                    while (length(Patch_name) < 16) and (MemStream.Read(b, 1) = 1) and (b <> 0) do begin
+                                      Patch_name := Patch_name + AnsiChar(b);
+                                    end;
+
+                                    MemStream.Read( hb, 1); // Size
+                                    MemStream.Read( lb, 1);
+                                    MemStream.Read( aPatchVersion, 1); // Version
+                                    MemStream.Read( aPatchType, 1); // PatchType, always 0?
+
+                                    PatchData := TMemoryStream.Create;
+                                    try
+                                      // Save to file
+                                      i := 0;
+                                      NameExt := '';
+                                      if TPatchFileType(aPatchFileType) = pftPatch then begin
+                                        FileExt := '.pch2';
+                                        AddHeaderInfo( pftPatch, PatchData);
+                                      end else begin
+                                        FileExt := '.prf2';
+                                        AddHeaderInfo( pftPerf, PatchData);
+                                      end;
+                                      // Check: Crc??
+
+                                      while FileExists( BankDumpFolder + patch_name + NameExt + FileExt) do begin
+                                        inc(i);
+                                        NameExt := IntToStr(i);
+                                      end;
+                                      file_name := patch_name + NameExt + FileExt;
+
+                                      PatchData.Size := PatchData.Size + hb*256+lb - 1;
+                                      MemStream.Read( PStaticByteBuffer(PatchData.Memory)^[PatchData.Position], hb*256+lb);
+                                      PatchData.SaveToFile( BankDumpFolder + file_name);
+
+                                      // Seems clavia software starts first file entry with 2????
+                                      BankDumpList.Add( IntToStr(aBank+1) + ':' + IntToStr(BankDumpList.Count + 1) + ': ' + file_name);
+                                    finally
+                                      PatchData.Free;
+                                    end;
+                                  end;
+                            $1e : begin // unknown_2
                                     Result := True;
-                                  finally
-                                    Chunk.Free;
                                   end;
-                                end;
-                          R_OK : begin
-                                   FLastResponseMessage := R_OK;
-                                   Result := True;
-                                 end;
-                          R_ERROR :
-                                begin
-                                  MemStream.Read(b, 1); // error no?
-                                  FErrorMessage := True;
-                                  FErrorMessageNo := b;
+                            C_PERF_NAME,
+                            C_PERF_SETTINGS :
+                                  begin // Performance settings
+                                    // its actially first perf name and then the chunk
+                                    perf_name := '';
+                                    while (length(perf_name) < 16) and (MemStream.Read(b, 1) = 1) and (b <> 0) do begin
+                                      perf_name := perf_name + AnsiChar(b);
+                                    end;
+                                    GetPerformance.PerformanceName := perf_name;
 
-                                  add_log_line('G2 returns error ' + IntToHex(b, 2) + '!', LOGCMD_ERR);
+                                    Chunk := TPatchChunk.Create(MemStream);
+                                    try
+                                      Chunk.ReadChunk;
+                                      // Parse the performance settings
+                                      GetPerformance.Read( Chunk);
 
-                                  FLastResponseMessage := R_ERROR;
-                                  Result := True;
-                                end;
-                          $80 : begin // Unknown 1
-                                  Result := True;
-                                end;
-                            else begin
-                              add_log_line('Unknown subcommand ' + IntToHex(aR, 2) + ' ' + IntToHex(aCmd, 2) + ' ' + IntToHex(aVersion, 2) + ' ' + IntToHex(aSubCmd, 2), LOGCMD_ERR);
-                              Result := False;
+                                      Result := True;
+                                    finally
+                                      Chunk.Free;
+                                    end;
+                                  end;
+                            C_KNOBS_GLOBAL :
+                                  begin // Performance settings
+                                    MemStream.Position := MemStream.Position - 1;
+                                    Chunk := TPatchChunk.Create(MemStream);
+                                    try
+                                      if assigned(LogLines) then
+                                        Chunk.FLogLines := LogLines;
+
+                                      Chunk.ReadChunk;
+                                      // Parse the performance settings
+                                      GetPerformance.Read( Chunk);
+
+                                      Result := True;
+                                    finally
+                                      Chunk.Free;
+                                    end;
+                                  end;
+                            R_ASSIGNED_VOICES,
+                            R_MASTER_CLOCK :
+                                  begin
+                                    MemStream.Position := MemStream.Position - 2;
+                                    Result := GetPerformance.ProcessResponseMessage( MemStream, Param)
+
+                                  end;
+                            R_OK : begin
+                                     FLastResponseMessage := R_OK;
+                                     Result := True;
+                                   end;
+                            R_ERROR :
+                                  begin
+                                    MemStream.Read(b, 1); // error no?
+                                    FErrorMessage := True;
+                                    FErrorMessageNo := b;
+
+                                    add_log_line('G2 returns error ' + IntToHex(b, 2) + '!', LOGCMD_ERR);
+
+                                    FLastResponseMessage := R_ERROR;
+                                    Result := True;
+                                  end;
+                            $80 : begin // Unknown 1
+                                    Result := True;
+                                  end;
+                              else begin
+                                add_log_line('Unknown subcommand ' + IntToHex(aR, 2) + ' ' + IntToHex(aCmd, 2) + ' ' + IntToHex(aVersion, 2) + ' ' + IntToHex(aSubCmd, 2), LOGCMD_ERR);
+                                Result := False;
+                                exit;
+                              end;
                             end;
-                          end;
+
+                          until MemStream.Position >= MemStream.Size - 2;
                       end else begin
                         add_log_line('Performance version differs ' + IntToHex(aR, 2) + ' ' + IntToHex(aCmd, 2) + ' ' + IntToHex(aVersion, 2), LOGCMD_ERR);
                         Result := False;
@@ -1469,7 +1738,10 @@ begin
                 begin
                   Result := GetSlot(3).ProcessResponseMessage( MemStream, aCmd);
                 end;
-          R_MIDI_CC :
+          $04 : begin
+                  Result := GetPerformance.ProcessResponseMessage( MemStream, aCmd);
+                end;
+          {R_MIDI_CC :
                 begin // Receive Midi info from G2, CC or Program change...
                   MemStream.Read( b, 1);
                   MemStream.Read( b, 1);
@@ -1492,8 +1764,40 @@ begin
                           if assigned( FOnAfterRetrievePatch) then
                             FOnAfterRetrievePatch( self, ID, aSlot, 0, 0);
                         end;
+                  $5D : begin
+                          // External clock
+                          MemStream.Read( b, 1);
+                          MemStream.Read( hb, 1);
+                          MemStream.Read( lb, 1);
+
+                          if assigned( FOnMidiClockReceive) then
+                            FOnMidiClockReceive( self, ID, hb*256+lb);
+
+                          Result := True;
+                        end;
+                  C_PERF_NAME,
+                  C_PERF_SETTINGS : // Strange, sometimes received after store
+                        begin // Performance settings
+                          // its actially first perf name and then the chunk
+                          perf_name := '';
+                          while (length(perf_name) < 16) and (MemStream.Read(b, 1) = 1) and (b <> 0) do begin
+                            perf_name := perf_name + AnsiChar(b);
+                          end;
+                          GetPerformance.PerformanceName := perf_name;
+
+                          Chunk := TPatchChunk.Create(MemStream);
+                          try
+                            Chunk.ReadChunk;
+                            // Parse the performance settings
+                            GetPerformance.Read( Chunk);
+
+                            Result := True;
+                          finally
+                            Chunk.Free;
+                          end;
+                        end;
                   end;
-                end;
+                end;}
             else begin
               add_log_line('Unknown command ' + IntToHex(aR, 2) + ' ' + IntToHex(aCmd, 2), LOGCMD_ERR);
               Result := False;
@@ -1515,8 +1819,9 @@ begin
 end;
 
 function TG2Mess.ProcessSendMessage( MemStream: TMemoryStream; SenderID: integer): boolean;
-var Cmd, SubCmd, R, b, bh, bl, Stop, Slot, Bank, Patch : byte;
-    Size : integer;
+var Cmd, SubCmd, R, b, bh, bl, Stop, Slot, Mode, Bank, Patch : byte;
+    i, Size : integer;
+    perf_name : string;
 begin
   // Return True if processed
   Result := False;
@@ -1575,6 +1880,25 @@ begin
                     MemStream.Position := MemStream.Position - 1;
                     Result := (Performance as TG2MessPerformance).ProcessSendMessage( MemStream, SenderID);
                   end;
+                C_PERF_NAME :
+                     begin
+                        perf_name := '';
+                        i := 1;
+                        MemStream.Read(b, 1);
+                        while (MemStream.Position < MemStream.Size - 1) and (i<=16) and (b<>0) do begin
+                          perf_name := perf_name + AnsiChar(b);
+                          MemStream.Read(b, 1);
+                          inc(i);
+                        end;
+
+                        MemStream.Position := MemStream.Size; // Todo
+                        Result := True;
+
+                        Performance.PerformanceName := perf_name;
+
+                        if assigned(FOnPerfNameChange) then
+                          FOnPerfNameChange(self, ID, perf_name);
+                     end;
                 S_START_STOP_COM :
                   begin
                     MemStream.Read( Stop, 1);
@@ -1587,7 +1911,39 @@ begin
                     MemStream.Position := MemStream.Position - 1;
                     Result := (Performance as TG2MessPerformance).ProcessSendMessage( MemStream, SenderID);
                   end;
-                S_LOAD :
+               S_STORE :
+                  begin
+                    MemStream.Read( Slot, 1);
+                    MemStream.Read( Bank, 1);
+                    MemStream.Read( Patch, 1);
+                    Result := True;
+
+                    if assigned(FOnAfterStore) then
+                      FOnAfterStore( self, ID, Slot, Bank, Patch);
+                  end;
+               S_CLEAR :
+                  begin
+                    MemStream.Read( Mode, 1);
+                    MemStream.Read( Bank, 1);
+                    MemStream.Read( Patch, 1);
+                    Result := True;
+
+                    if assigned(FOnAfterClear) then
+                      FOnAfterClear( self, ID, TPatchFileType(Mode), Bank, Patch);
+                  end;
+               S_CLEAR_BANK :
+                  begin
+                    MemStream.Read( Mode, 1);
+                    MemStream.Read( Bank, 1);
+                    MemStream.Read( Patch, 1);
+                    MemStream.Position := MemStream.Size; // Skip the rest
+
+                    Result := True;
+
+                    if assigned(FOnAfterClearBank) then
+                      FOnAfterClearBank( self, ID, TPatchFileType(Mode), Bank);
+                  end;
+                S_RETREIVE :
                   begin
                     MemStream.Read( Slot, 1);
                     MemStream.Read( Bank, 1);
@@ -1605,6 +1961,15 @@ begin
                   begin
                     MemStream.Read( b, 1);
                     Result := True;
+
+                   if (NextBankListCmd.PatchFileType = pftEnd) and (assigned(FOnAfterBankList)) then
+                     FOnAfterBankList( self, ID);
+                  end;
+                Q_ASSIGNED_VOICES :
+                  begin
+                    MemStream.Read( b, 1);
+                    Result := True;
+
                   end
                 else
                   MemStream.Position := MemStream.Size; // Todo
@@ -1668,6 +2033,17 @@ begin
   Result.WriteMessage( $04);
 end;
 
+function TG2Mess.CreateGetAssignedVoicesMessage: TG2SendMessage;
+begin
+  add_log_line('Get slots enabled', LOGCMD_HDR);
+
+  Result := TG2SendMessage.Create;
+  Result.WriteMessage( $01);
+  Result.WriteMessage( CMD_REQ + CMD_SYS );
+  Result.WriteMessage( $41);
+  Result.WriteMessage( Q_ASSIGNED_VOICES);
+end;
+
 function TG2Mess.CreateGetSynthSettingsMessage: TG2SendMessage;
 begin
   add_log_line('Synth settings', LOGCMD_HDR);
@@ -1687,8 +2063,10 @@ begin
     GetPerformance.WriteClaviaString( SendMessage, FSynthName); // TODO
     SendMessage.WriteMessage( $80);
     SendMessage.WriteMessage( $00);
-    SendMessage.WriteMessage( $00);
-    SendMessage.WriteMessage( $00);
+    //SendMessage.WriteMessage( $00);
+    BitWriter.WriteBits( SendMessage, FPerfBank, 8);
+    //SendMessage.WriteMessage( $00);
+    BitWriter.WriteBits( SendMessage, FPerfLocation, 8);
     BitWriter.WriteBits( SendMessage, FMemoryProtect, 1);
     BitWriter.WriteBits( SendMessage, $00,            7);
     BitWriter.WriteBits( SendMessage, FMidiChannelA, 8);
@@ -1775,7 +2153,7 @@ begin
 end;
 
 
-function TG2Mess.CreateListMessage( aMode, aBank, aPatch : byte; names : TStrings): TG2SendMessage;
+function TG2Mess.CreateListMessage( aPatchFileType : TPatchFileType; aBank, aPatch : byte; names : TStrings): TG2SendMessage;
 begin
   add_log_line('List', LOGCMD_HDR);
 
@@ -1784,7 +2162,7 @@ begin
   Result.WriteMessage( CMD_REQ + CMD_SYS );
   Result.WriteMessage( $41);
   Result.WriteMessage( Q_LIST_NAMES);
-  Result.WriteMessage( aMode);
+  Result.WriteMessage( ord(aPatchFileType));
   Result.WriteMessage( aBank);
   Result.WriteMessage( aPatch);
 
@@ -1827,6 +2205,127 @@ begin
   Result.WriteMessage( aNote);
 end;
 
+function TG2Mess.CreateGetMasterClockMessage: TG2SendMessage;
+begin
+  add_log_line('Get master clock', LOGCMD_HDR);
+
+  Result := TG2SendMessage.Create;
+  Result.WriteMessage( $01);
+  Result.WriteMessage( CMD_REQ + CMD_SYS );
+  Result.WriteMessage( $41);
+  Result.WriteMessage( Q_MASTER_CLOCK);
+end;
+
+function TG2Mess.CreateUploadBankMessage(aPatchFileType: TPatchFileType; aBank, aLocation: byte): TG2SendMessage;
+begin
+  add_log_line('Upload bank patch from G2 synth to disk', LOGCMD_HDR);
+
+  Result := TG2SendMessage.Create;
+  Result.WriteMessage( $01);
+  Result.WriteMessage( CMD_REQ + CMD_SYS );
+  Result.WriteMessage( $41);
+  Result.WriteMessage( S_PATCH_BANK_UPLOAD);
+  Result.WriteMessage( ord(aPatchFileType));
+  Result.WriteMessage( aBank);
+  Result.WriteMessage( aLocation);
+end;
+
+function TG2Mess.CreateDownloadPatchBankMessage( aBank, aLocation: byte; aPatchName: string;
+  aPatch: TG2FilePatch): TG2SendMessage;
+var Chunk : TPatchChunk;
+    MemStream : TMemoryStream;
+    Size : integer;
+    i : integer;
+    Crc, Crc2 : Word;
+    Line : string;
+begin
+  add_log_line('Download patch from disk to G2 synth bank', LOGCMD_HDR);
+
+  MemStream := TMemoryStream.Create;
+  try
+    Chunk := TPatchChunk.Create( MemStream);
+    try
+      Result := TG2SendMessage.Create;
+      Result.WriteMessage( $01);
+      Result.WriteMessage( CMD_REQ + CMD_SYS );
+      Result.WriteMessage( $41);
+      Result.WriteMessage( S_PATCH_BANK_DATA);
+      Result.WriteMessage( ord(pftPatch));
+      Result.WriteMessage( aBank);
+      Result.WriteMessage( aLocation);
+
+      Result.WriteClaviaString( aPatchName);
+
+      Chunk.WriteBits( aPatch.PatchVersion, 8);
+      Chunk.WriteBits(ord(pftPatch), 8);
+      Chunk.Flush;
+      aPatch.Write( Chunk, 9); // 9 Variations are written to file
+      Chunk.WriteCrc(MemStream);
+
+      Size := MemStream.Size + 1; // ?
+      Result.WriteMessage( Size div 256);
+      Result.WriteMessage( Size mod 256);
+      Result.WriteMessage( PATCH_VERSION);
+      Result.WriteMessage( ord(pftPatch));  // Always 0?
+      Result.Write( MemStream.Memory^, MemStream.Size);
+
+    finally
+      Chunk.Free;
+    end;
+  finally
+    MemStream.Free;
+  end;
+end;
+
+function TG2Mess.CreateDownloadPerfBankMessage( aBank, aLocation: byte; aPerfName: string;
+  aPerf: TG2FilePerformance): TG2SendMessage;
+var Chunk : TPatchChunk;
+    MemStream : TMemoryStream;
+    Size : integer;
+    i : integer;
+    Crc, Crc2 : Word;
+    Line : string;
+begin
+  add_log_line('Download performance from disk to G2 synth bank', LOGCMD_HDR);
+
+  MemStream := TMemoryStream.Create;
+  try
+    Chunk := TPatchChunk.Create( MemStream);
+    try
+      Result := TG2SendMessage.Create;
+      Result.WriteMessage( $01);
+      Result.WriteMessage( CMD_REQ + CMD_SYS );
+      Result.WriteMessage( $41);
+      Result.WriteMessage( S_PATCH_BANK_DATA);
+      Result.WriteMessage( ord(pftPerf));
+      Result.WriteMessage( aBank);
+      Result.WriteMessage( aLocation);
+
+      Result.WriteClaviaString( aPerfName);
+
+      Chunk.WriteBits(aPerf.PatchVersion, 8);
+      Chunk.WriteBits(ord(pftPerf), 8);
+      Chunk.Flush;
+      aPerf.WriteSettings(Chunk);
+      aPerf.Write( Chunk, 9); // 9 Variations are written to file
+      Chunk.WriteCrc( MemStream);
+
+      Size := MemStream.Size + 1; // ?
+      Result.WriteMessage( Size div 256);
+      Result.WriteMessage( Size mod 256);
+      Result.WriteMessage( PATCH_VERSION);
+      //Result.WriteMessage( ord(pftPerf));
+      Result.WriteMessage( ord(pftPatch)); // Always 0?
+      Result.Write( MemStream.Memory^, MemStream.Size);
+
+    finally
+      Chunk.Free;
+    end;
+  finally
+    MemStream.Free;
+  end;
+end;
+
 ////////////////////////////////////////////////////////////////////////////////
 //  TG2MessPerformance
 ////////////////////////////////////////////////////////////////////////////////
@@ -1852,6 +2351,112 @@ procedure TG2MessPerformance.add_log_line(tekst : string; log_cmd : integer);
 begin
   if assigned(G2) then
     (G2 as TG2Mess).add_log_line( tekst, log_cmd);
+end;
+
+function TG2MessPerformance.ProcessResponseMessage( MemStream : TMemoryStream; Param : byte): boolean;
+var SubCmd, b, hb, lb, MidiCC, Version, Slot : byte;
+    perf_name : AnsiString;
+    Chunk : TPatchChunk;
+begin
+  // Return True if processed
+
+  MemStream.Read(Version, 1);
+
+  if Version = $40 then begin
+    MemStream.Read( SubCmd, 1);
+    case SubCmd of
+    R_PATCH_VERSION_CHANGE :
+          begin
+            // Slot patch version changed. Reload slot
+            MemStream.Read( Slot, 1);
+            MemStream.Read( b, 1);
+            GetSlot( Slot).FPatchVersion := b;
+            Result := True;
+
+            if assigned(G2) then
+              if assigned((G2 as TG2Mess).FOnAfterRetrievePatch) then
+                (G2 as TG2Mess).FOnAfterRetrievePatch( G2, G2.ID, Slot, 0, 0);
+          end;
+      else begin
+             add_log_line('Performance unknown command ' + IntToHex(SubCmd, 2), LOGCMD_ERR);
+             Result := False;
+           end;
+    end;
+  end else
+
+    if Version = FPerfVersion then begin
+
+      MemStream.Read( SubCmd, 1);
+      case SubCmd of
+      R_ASSIGNED_VOICES :
+            begin
+              MemStream.Read(b, 1);
+              GetSlot(0).FAssignedVoices := b;
+              MemStream.Read(b, 1);
+              GetSlot(1).FAssignedVoices := b;
+              MemStream.Read(b, 1);
+              GetSlot(2).FAssignedVoices := b;
+              MemStream.Read(b, 1);
+              GetSlot(3).FAssignedVoices := b;
+              Result := True;
+
+              if assigned(G2) then
+                if assigned((G2 as TG2Mess).FOnAfterGetAssignedVoices) then
+                  (G2 as TG2Mess).FOnAfterGetAssignedVoices( self);
+
+            end;
+      R_MIDI_CC :
+            begin
+              // Midi CC
+              // 82 01 04 00 80 00 3f 30 40 00 00 00 00 00 00 00  = CC #63
+              MemStream.Read( b, 1);
+              MemStream.Read( MidiCC, 1);
+              Result := True;
+
+              if assigned(G2) then
+                if assigned((G2 as TG2Mess).FOnMidiCCReceive) then
+                  (G2 as TG2Mess).FOnMidiCCReceive( G2, G2.ID, MidiCC);
+            end;
+      R_MASTER_CLOCK :
+            begin
+              // External clock
+              MemStream.Read( b, 1);
+              MemStream.Read( hb, 1);
+              MemStream.Read( lb, 1);
+              Result := True;
+
+              if assigned(G2) then
+                if assigned((G2 as TG2Mess).FOnMidiClockReceive) then
+                  // Seems to be value received - 10%
+                  (G2 as TG2Mess).FOnMidiClockReceive( G2, G2.ID, hb*256+lb);
+            end;
+      C_PERF_NAME,
+      C_PERF_SETTINGS : // Strange, sometimes received after store : because patch bank location is in slot settings...
+            begin // Performance settings
+              // its actially first perf name and then the chunk
+              perf_name := '';
+              while (length(perf_name) < 16) and (MemStream.Read(b, 1) = 1) and (b <> 0) do begin
+                perf_name := perf_name + AnsiChar(b);
+              end;
+              PerformanceName := perf_name;
+
+              Chunk := TPatchChunk.Create(MemStream);
+              try
+                Chunk.ReadChunk;
+                // Parse the performance settings
+                Read( Chunk);
+
+                Result := True;
+              finally
+                Chunk.Free;
+              end;
+            end;
+      else begin
+             add_log_line('Performance unknown command ' + IntToHex(SubCmd, 2), LOGCMD_ERR);
+             Result := False;
+           end;
+      end;
+    end;
 end;
 
 function TG2MessPerformance.ProcessSendMessage( MemStream: TMemoryStream; SenderID: integer): boolean;
@@ -1882,17 +2487,6 @@ begin
            MemStream.Read( aSlot, 1);
            SetSelectedSlotIndex( aSlot);
            Result := True;
-         {  for i := 0 to 3 do
-             (Slot[i].Patch as TG2MessPatch).Visible := (i = aSlot);
-
-           if assigned((G2 as TG2Graph).ScrollboxVA)  then
-             (G2 as TG2Graph).ScrollboxVA.Invalidate;
-
-           if assigned((G2 as TG2Graph).ScrollboxFX) then
-             (G2 as TG2Graph).ScrollboxFX.Invalidate;}
-
-           {if assigned((G2 as TG2Mess).FOnSelectSlot) then
-             (G2 as TG2Mess).FOnSelectSlot( self, G2.ID, aSlot);}
          end;
     C_PERF_SETTINGS :
          begin
@@ -1921,9 +2515,6 @@ begin
             end;
             PerformanceName := perf_name;
 
-{            for i := 0 to NSLOTS - 1 do
-              (Slot[i].Patch as TG2MessPatch).Visible := False;}
-
             Chunk := TPatchChunk.Create(MemStream);
             try
               if assigned(G2) and (G2 as TG2Mess).FLogPatchFileChunks then
@@ -1942,7 +2533,6 @@ begin
             finally
               Chunk.Free;
 
-{              (Slot[ SelectedSlot].Patch as TG2Patch).Visible := True;}
             end;
 
             // Must be called AFTER moduleindex is known
@@ -2062,7 +2652,7 @@ begin
   Result.WriteMessage( $01);
   Result.WriteMessage( CMD_REQ + CMD_SYS );
   Result.WriteMessage( $41);
-  Result.WriteMessage( S_LOAD);
+  Result.WriteMessage( S_RETREIVE);
   Result.WriteMessage( aSlot);
   Result.WriteMessage( aBank);
   Result.WriteMessage( aPatch);
@@ -2079,10 +2669,46 @@ begin
   Result.WriteMessage( $01);
   Result.WriteMessage( CMD_REQ + CMD_SYS );
   Result.WriteMessage( $41);
-  Result.WriteMessage( S_SAVE);
+  Result.WriteMessage( S_STORE);
   Result.WriteMessage( aSlot);
   Result.WriteMessage( aBank);
   Result.WriteMessage( aPatch);
+end;
+
+function TG2MessPerformance.CreateClearBankMessage(aPatchFileType : TPatchFileType; aBank, aFromLocation, aToLocation : byte): TG2SendMessage;
+var i : integer;
+begin
+   add_log_line('Clear bank', LOGCMD_HDR);
+
+  Result := TG2SendMessage.Create;
+  Result.WriteMessage( $01);
+  Result.WriteMessage( CMD_REQ + CMD_SYS );
+  Result.WriteMessage( $41);
+  Result.WriteMessage( S_CLEAR_BANK);
+  Result.WriteMessage( ord(aPatchFileType)); // $00 - patch - $01 - perf
+
+  Result.WriteMessage( aBank);
+  Result.WriteMessage( aFromLocation);
+
+  Result.WriteMessage( aBank);
+  Result.WriteMessage( aToLocation);
+
+  Result.WriteMessage( $00); // Unknown
+end;
+
+function TG2MessPerformance.CreateClearMessage( aPatchFileType : TPatchFileType; aBank, aPatch : byte): TG2SendMessage;
+begin
+  add_log_line('Clear bank location', LOGCMD_HDR);
+
+  Result := TG2SendMessage.Create;
+  Result.WriteMessage( $01);
+  Result.WriteMessage( CMD_REQ + CMD_SYS );
+  Result.WriteMessage( $41);
+  Result.WriteMessage( S_CLEAR);
+  Result.WriteMessage( ord(aPatchFileType)); // $00 - patch - $01 - perf
+  Result.WriteMessage( aBank);
+  Result.WriteMessage( aPatch);
+  Result.WriteMessage( $00); // Unknown
 end;
 
 function TG2MessPerformance.CreateSetPerformanceMessage( aPerfName : AnsiString; aPerf : TG2FilePerformance): TG2SendMessage;
@@ -2185,6 +2811,7 @@ constructor TG2MessSlot.Create( AOwner: TComponent);
 begin
   inherited;
   FPatchVersion := 0;
+  FAssignedVoices := 0;
 
   Init;
 end;
@@ -2283,7 +2910,23 @@ begin
                 Chunk.Free;
               end;
             end;
-      R_PATCH_NAME :
+      {C_CURRENT_NOTE_2 :
+            begin // Current note
+              Result := True;
+            end;
+      C_PATCH_NOTES :
+            begin // Text pad
+              Result := True;
+            end;}
+      C_CURRENT_NOTE_2,
+      C_PATCH_NOTES,
+      C_PARAM_LIST,
+      C_PARAM_NAMES :
+            begin
+              MemStream.Position := MemStream.Position - 1;
+              Result := GetPatch.ProcessMessage( MemStream);
+            end;
+      S_PATCH_NAME :
             begin // patch name
               PatchName := '';
               while (MemStream.Read(b, 1) = 1) and (length(PatchName) < 16) and (b <> 0) do begin
@@ -2300,6 +2943,16 @@ begin
               FPatch.SelectParameter( aLocation, aModuleIndex, aParamIndex);
 
               Result := True;
+            end;
+      S_SEL_VARIATION :
+            begin
+              MemStream.Read(aVariation, 1);
+              GetPatch.Variation := aVariation;
+              Result := True;
+
+              if assigned(G2) then
+                if assigned((G2 as TG2Mess).FOnVariationChange) then
+                  (G2 as TG2Mess).FOnVariationChange( G2, G2.ID, SlotIndex, aVariation);
             end;
       R_VOLUME_DATA :
             begin // Volume indicator data
@@ -2349,15 +3002,6 @@ begin
                 //FPatch.InitParameterValue(TLocationType(aLocation), aModuleIndex, aParamIndex, aVariation, aValue);
                 FPatch.SetParamInPatch(TLocationType(aLocation), aModuleIndex, aParamIndex, aVariation, aValue);
             end;
-      C_CURRENT_NOTE_2 :
-            begin // Current note
-              Result := True;
-            end;
-      C_PATCH_NOTES :
-            begin // Text pad
-              Result := True;
-            end;
-
       R_RESOURCES_USED :
             begin // Resources in use
               MemStream.Read(aLocation, 1);
@@ -2407,7 +3051,7 @@ function TG2MessSlot.ProcessSendMessage( MemStream: TMemoryStream; SenderID : in
 var Cmd, SubCmd, aVariation, aLocation, aModuleIndex, aParameterIndex,
     aFromVariation, aToVariation, aValue, b, bh, bl : byte;
     Chunk : TPatchChunk;
-    Size : integer;
+    i, Size : integer;
     Patch : TG2MessPatch;
     Performance : TG2MessPerformance;
 begin
@@ -2531,6 +3175,24 @@ begin
                       begin
                         MemStream.Position := MemStream.Size; // Todo
                         Result := True;
+                      end;
+                S_PATCH_NAME :
+                      begin
+                        PatchName := '';
+                        i := 1;
+                        MemStream.Read(b, 1);
+                        while (MemStream.Position < MemStream.Size - 1) and (i<=16) and (b<>0) do begin
+                          PatchName := PatchName + AnsiChar(b);
+                          MemStream.Read(b, 1);
+                          inc(i);
+                        end;
+
+                        MemStream.Position := MemStream.Size; // Todo
+                        Result := True;
+
+                        if assigned(G2) then
+                          if assigned((G2 as TG2Mess).FOnPatchNameChange) then
+                            (G2 as TG2Mess).FOnPatchNameChange(G2, SenderID, SlotIndex, PatchName);
                       end;
                 Q_PATCH_NAME :
                       begin
@@ -2684,6 +3346,18 @@ begin
   Result.WriteMessage( Q_SELECTED_PARAM);
 end;
 
+function TG2MessSlot.CreateSetPatchName( aPatchName : AnsiString): TG2SendMessage;
+begin
+  add_log_line('Set patch name, slot ' + IntToStr(SlotIndex) + ', patch_version ' + IntToStr(FPatchVersion), LOGCMD_HDR);
+
+  Result := TG2SendMessage.Create;
+  Result.WriteMessage( $01);
+  Result.WriteMessage( CMD_REQ + CMD_SLOT + SlotIndex );
+  Result.WriteMessage( FPatchVersion);
+  Result.WriteMessage( S_PATCH_NAME);
+  Result.WriteClaviaString( aPatchName);
+end;
+
 function TG2MessSlot.CreateSetPatchMessage( aPatchName : AnsiString; aPatch : TG2FilePatch): TG2SendMessage;
 var Chunk : TPatchChunk;
 begin
@@ -2714,6 +3388,30 @@ begin
   finally
     Chunk.Free;
   end;
+end;
+
+function TG2MessSlot.CreateGetParamNamesMessage( aLocation: byte): TG2SendMessage;
+begin
+  add_log_line('Get param names, location ' + IntToStr(aLocation), LOGCMD_HDR);
+
+  Result := TG2SendMessage.Create;
+  Result.WriteMessage( $01);
+  Result.WriteMessage( CMD_REQ + CMD_SLOT + SlotIndex );
+  Result.WriteMessage( FPatchVersion);
+  Result.WriteMessage( Q_PARAM_NAMES);
+  Result.WriteMessage( aLocation);
+end;
+
+function TG2MessSlot.CreateGetParamsMessage(aLocation: byte): TG2SendMessage;
+begin
+  add_log_line('Get params, location ' + IntToStr(aLocation), LOGCMD_HDR);
+
+  Result := TG2SendMessage.Create;
+  Result.WriteMessage( $01);
+  Result.WriteMessage( CMD_REQ + CMD_SLOT + SlotIndex );
+  Result.WriteMessage( FPatchVersion);
+  Result.WriteMessage( Q_PARAMS);
+  Result.WriteMessage( aLocation);
 end;
 
 function TG2MessSlot.CreateGetPatchMessage: TG2SendMessage;
@@ -3570,7 +4268,8 @@ begin
   end;
 end;
 
-procedure TG2MessPatch.AddNewModuleMessage( SendMessage : TG2SendMessage; aLocation : TLocationType; aNewModuleIndex, aModuleType, aCol, aRow: byte);
+procedure TG2MessPatch.AddNewModuleMessage( SendMessage : TG2SendMessage; aLocation : TLocationType;
+  aNewModuleIndex, aModuleTypeID, aAlternativeModuleTypeID, aCol, aRow: byte);
 var Chunk : TPatchChunk;
     BitWriter : TBitWriter;
     MemStream : TG2Message;
@@ -3592,11 +4291,11 @@ begin
   try
     // Get the module data
     i := 0;
-    while ( i < G2.FModuleDefList.Count) and (G2.FModuleDefList.ModuleDef[i].ModuleType <> aModuleType) do
+    while ( i < G2.FModuleDefList.Count) and (G2.FModuleDefList.ModuleDef[i].ModuleType <> aModuleTypeID) do
       inc(i);
 
     if not( i < G2.FModuleDefList.Count) then
-      raise Exception.Create('Module type ' + IntToStr(aModuleType) + ' not found.');
+      raise Exception.Create('Module type ' + IntToStr(aModuleTypeID) + ' not found.');
 
     ModuleDef := G2.FModuleDefList.ModuleDef[ i];
 
@@ -3628,7 +4327,7 @@ begin
     Chunk := TPatchChunk.Create( MemStream);
     try
       Chunk.WriteBits( S_ADD_MODULE,     8);
-      Chunk.WriteBits( aModuleType,      8);
+      Chunk.WriteBits( aAlternativeModuleTypeID, 8);
       Chunk.WriteBits( ord(aLocation),   8);
       Chunk.WriteBits( aNewModuleIndex,  8);
       Chunk.WriteBits( aCol,             8);
@@ -3696,7 +4395,7 @@ begin
 
       // Write paramnames chunk
 
-      if aModuleType = 121 then begin
+      if aModuleTypeID = 121 then begin
         // In case of SeqNote, 2 parameters are put in the paramnames chunk:
         // [0, 1, mag, 0, 1, octave]
         // mag: 0=3-octaves,1=2-octaves,2=1-octave
@@ -4100,11 +4799,12 @@ begin
   end;
 end;
 
-function TG2MessPatch.CreateAddNewModuleMessage( aLocation : TLocationType; aNewModuleIndex, aModuleType, aCol, aRow: byte): TG2SendMessage;
+function TG2MessPatch.CreateAddNewModuleMessage( aLocation : TLocationType; aNewModuleIndex, aModuleTypeID,
+  aAlternativeModuleTypeID, aCol, aRow: byte): TG2SendMessage;
 begin
   Result := CreatePatchMessage;
   // todo : add module move messages for other modules to prevent overlap
-  AddNewModuleMessage( Result, aLocation, aNewModuleIndex, aModuleType, aCol, aRow);
+  AddNewModuleMessage( Result, aLocation, aNewModuleIndex, aModuleTypeID, aAlternativeModuleTypeID, aCol, aRow);
 end;
 
 function TG2MessPatch.CreateCopyModulesMessage( aSrcePatch : TG2FilePatchPart; aFromLocation, aToLocation : TLocationType; RenumberModules : boolean): TG2SendMessage;

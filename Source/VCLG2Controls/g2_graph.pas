@@ -43,15 +43,22 @@ uses
 {$IFDEF FPC}
   LclIntf, intfgraphics, FPImage,
 {$ELSE}
-  Windows,
+  {$IFDEF VER220}
+    WinApi.Windows,
+  {$ELSE}
+    Windows,
+  {$ENDIF}
 {$ENDIF}
+
 {$IFDEF VER220}
+  WinApi.Messages, System.Classes, System.SysUtils, Vcl.Forms,StdCtrls,
+  Vcl.ExtCtrls, Vcl.Controls, Vcl.Graphics, Vcl.Menus, VCL.Dialogs, System.math,
   System.Contnrs,
 {$ELSE}
-  Contnrs,
-{$ENDIF}
   Forms, Messages, Classes, SysUtils, StdCtrls, ExtCtrls, Controls,
-  Graphics, Menus, VCL.Dialogs, math, g2_database,
+  Graphics, Menus, VCL.Dialogs, math, Contnrs,
+{$ENDIF}
+  g2_database, MidiType,
   g2_file, g2_types, graph_util_vcl, g2_usb, g2_midi, fastbitmap;
 
 type
@@ -450,16 +457,17 @@ type
     function    GetParamLabelIndex : integer; virtual;
     procedure   SetParameter( aParam : TG2FileParameter); virtual;
     procedure   SetModule( aValue : TG2GraphModulePanel);
+    function    GetParameter : TG2FileParameter; override;
     procedure   SetValue( aValue : byte);
-    function    GetValue : byte;
-    procedure   SetValueByMidi( aValue : byte); override;
+    function    GetValue : byte; override;
+    procedure   SetValueByCtrlMidi( aMidiEditorAssignment : TMidiEditorAssignment; aMidiEvent : TMyMidiEvent); override;
     procedure   SetParamLabel( aIndex : integer; aValue : AnsiString);
     function    GetParamLabel( aIndex : integer) : AnsiString;
     procedure   InitValue( aValue: integer);
     function    CheckValueBounds( aValue : integer): byte;
     procedure   SetMorphValue( aValue: byte);
-    function    GetHighValue : byte;
-    function    GetLowValue : byte;
+    function    GetHighValue : byte; override;
+    function    GetLowValue : byte; override;
     function    GetGraphModule : TG2GraphModulePanel;
     function    GetMorphValue: byte;
     function    HasMorph: boolean;
@@ -468,7 +476,7 @@ type
     procedure   ParsePanelData( fs : TModuleDefStream); virtual;
     function    ParseProperties( fs: TModuleDefStream; aName : AnsiString): boolean; virtual;
 
-    property    Parameter   : TG2FileParameter read FParameter write SetParameter;
+    property    Parameter   : TG2FileParameter read GetParameter write SetParameter;
     property    ParamIndex  : integer read GetParamIndex;
     property    Module      : TG2GraphModulePanel read FModule write SetModule;
     property    MouseInput  : boolean read FMouseInput write FMouseInput;
@@ -660,7 +668,7 @@ type
     procedure   SetButtonText( aValue : TStrings);
     procedure   SetHighLightColor( aValue : TColor);
     procedure   SetBorderColor( aValue : TColor);
-    procedure   SetButtonCount( aValue : integer);
+    procedure   SetButtonCount( aValue : integer); virtual;
     procedure   SetBevel( aValue : boolean);
     procedure   SetOrientation( aValue : TOrientationType); virtual;
   public
@@ -695,6 +703,7 @@ type
     procedure   PaintOn( ExtCanvas : TCanvas; ExtBoundsRect : TRect); override;
     procedure   ParsePanelData( fs : TModuleDefStream); override;
     function    ParseProperties( fs: TModuleDefStream; aName : AnsiString): boolean; override;
+    procedure   SetValueByCtrlMidi( aMidiEditorAssignment : TMidiEditorAssignment; aMidiEvent : TMyMidiEvent); override;
   published
     property    ButtonTextType : TButtonTextType read FButtonTextType write SetButtonTextType;
   end;
@@ -713,6 +722,7 @@ type
     destructor  Destroy; override;
     procedure   PaintOn( ExtCanvas : TCanvas; ExtBoundsRect : TRect); override;
     procedure   ParsePanelData( fs : TModuleDefStream); override;
+    procedure   SetValueByCtrlMidi( aMidiEditorAssignment : TMidiEditorAssignment; aMidiEvent : TMyMidiEvent); override;
   end;
 
   TG2GraphLevelShift = class( TG2GraphButtonFlat)
@@ -731,9 +741,12 @@ type
     constructor Create( AOwner: TComponent); override;
     destructor  Destroy; override;
     procedure   PaintOn( ExtCanvas : TCanvas; ExtBoundsRect : TRect); override;
+    procedure   SetButtonCount( aValue : integer); override;
     procedure   SetBounds(ALeft: Integer; ATop: Integer;  AWidth: Integer; AHeight: Integer); override;
     procedure   ParsePanelData( fs : TModuleDefStream); override;
     function    ParseProperties( fs: TModuleDefStream; aName : AnsiString): boolean; override;
+    procedure   SetValueByCtrlMidi( aMidiEditorAssignment : TMidiEditorAssignment; aMidiEvent : TMyMidiEvent); override;
+
     property    UpsideDown : boolean read FUpsideDown write FUpsideDown;
   end;
 
@@ -978,16 +991,32 @@ begin
 end;
 
 procedure DrawMidiAwareBox( aCanvas : TCanvas; aRect : TRect; aMidiEditorAssignment : TMidiEditorAssignment);
+var OldFontSize : integer;
 begin
-  if aMidiEditorAssignment.FNote > 0 then begin
-    aCanvas.Brush.Color := clAqua;
-    aCanvas.FillRect( aRect);
-    TextCenter( aCanvas, aRect, 'N' + IntToStr(aMidiEditorAssignment.FNote));
-  end;
-  if aMidiEditorAssignment.FCC > 0 then begin
-    aCanvas.Brush.Color := clAqua;
-    aCanvas.FillRect( aRect);
-    TextCenter( aCanvas, aRect, 'C' + IntToStr(aMidiEditorAssignment.FCC));
+  if not(assigned(aCanvas) and assigned(aCanvas.Font)) then
+    exit;
+
+  OldFontSize := aCanvas.Font.Size;
+  try
+    aCanvas.Font.Size := 6;
+    if assigned(aMidiEditorAssignment) then begin
+      if aMidiEditorAssignment.Note > 0 then begin
+        aCanvas.Brush.Color := clWhite;
+        aCanvas.FillRect( aRect);
+        TextCenter( aCanvas, aRect, 'N' + IntToStr(aMidiEditorAssignment.Note));
+      end;
+      if aMidiEditorAssignment.CC > 0 then begin
+        aCanvas.Brush.Color := clWhite;
+        aCanvas.FillRect( aRect);
+        TextCenter( aCanvas, aRect, 'C' + IntToStr(aMidiEditorAssignment.CC));
+      end;
+    end else begin
+      // Just draw empty box
+      aCanvas.Brush.Color := clWhite;
+      aCanvas.FillRect( aRect);
+    end;
+  finally
+    aCanvas.Font.Size := OldFontSize;
   end;
 end;
 
@@ -1564,7 +1593,7 @@ begin
   // - then the Update method of the parent is called.
   // That way the control is redrawn immediately.
 
-  // When Update isn't called, windows will combine paint messages.
+  // When Update isn't called, but only invalidate, windows will combine paint messages.
   // If the area's are wide apart, this can result in a big area to be redrawn.
   // This is especially important for the led controls!
 
@@ -1572,7 +1601,6 @@ begin
   // 1 : background
   // 2 : Modules and on top of the modules the controls
   // 3 : the cables
-
 
   if assigned(FG2Graph) then
     FPatch := FG2Graph.GetSelectedPatch
@@ -1873,7 +1901,6 @@ begin
     Result := Performance.Slot[ Performance.SelectedSlot].Patch as TG2GraphPatch
   else
     Result := nil;
-    //raise Exception.Create('Performance not assigned to G2.')};
 end;
 
 function TG2Graph.G2MessageDlg(tekst: string; code: integer): integer;
@@ -1920,8 +1947,6 @@ begin
   if not(i < Length(FControlList)) then begin
     SetLength(FControlList, i + 1);
     FControlList[i] := aControl as TG2GraphChildControl;
-    // check!
-    //FControlList[i].FParameter := self;
   end;
 end;
 
@@ -1936,8 +1961,6 @@ begin
     inc(i);
 
   if (i < Length(FControlList)) then begin
-    // check!
-    //FControlList[i].FParameter := nil;
     for j := i + 1 to Length(FControlList) - 1 do begin
       FControlList[j-1] := FControlList[j];
     end;
@@ -1951,8 +1974,9 @@ var i, j : integer;
     Display : TG2GraphDisplay;
 begin
   // Update all controls attached to the parameter
-  for i := 0 to Length(FControlList) - 1 do
+  for i := 0 to Length(FControlList) - 1 do begin
     FControlList[i].Update;
+  end;
 end;
 
 
@@ -3422,6 +3446,10 @@ begin
         (FParameter as TG2GraphParameter).AssignControl( self);
     end;
     Invalidate;
+
+    //Update;
+  end else begin
+    Invalidate;
   end;
 end;
 
@@ -3470,6 +3498,11 @@ begin
     Result := 0;
 end;
 
+function TG2GraphChildControl.GetParameter: TG2FileParameter;
+begin
+  Result := FParameter;
+end;
+
 function TG2GraphChildControl.GetParamIndex: integer;
 begin
   if assigned( FParameter) then
@@ -3513,8 +3546,12 @@ begin
   if assigned( FModule) and assigned( FModule.Parent) then begin
     Rect := AddRect( BoundsRect, FModule.BoundsRect);
     InvalidateRect( FModule.Parent.Handle, @Rect, True);
-  end else
+
+    SendCtrlMidiValue;
+  end else begin
     inherited Invalidate;
+    SendCtrlMidiValue;
+  end;
 end;
 
 procedure TG2GraphChildControl.Update;
@@ -3524,9 +3561,13 @@ begin
     Rect := AddRect( BoundsRect, FModule.BoundsRect);
     InvalidateRect( FModule.Parent.Handle, @Rect, True);
     FModule.Parent.Update;
+
+    SendCtrlMidiValue;
   end else begin
     inherited Invalidate;
     inherited Update;
+
+    SendCtrlMidiValue;
   end;
 end;
 
@@ -3580,6 +3621,8 @@ end;
 
 function TG2GraphChildControl.ParseProperties( fs: TModuleDefStream; aName : AnsiString): boolean;
 var aValue : AnsiString;
+    G2 : TG2File;
+    temp : string;
 begin
   Result := True;
 
@@ -3616,6 +3659,15 @@ begin
     aValue := fs.ReadUntil( [#13]);
     if assigned(FParameter) then
       FParameter.InfoFunctionIndex := StrToInt( string(aValue));
+
+    if assigned(FParameter) and assigned(FParameter.Patch)
+       and assigned(FParameter.Patch.G2) then begin
+      G2 := FParameter.Patch.G2;
+      temp := FParameter.InfoFunction( FParameter.InfoFunctionIndex);
+      if pos('?', temp)>0 then
+         G2.add_log_line( FParameter.ModuleName + ' ' + FParameter.ParamName + ' ' + IntToStr(FParameter.InfoFunctionIndex) + ' ' + temp, LOGCMD_NUL);
+    end;
+
   end else
 
     Result := False
@@ -3653,21 +3705,51 @@ end;
 
 procedure TG2GraphChildControl.SetValue( aValue: byte);
 begin
-  if assigned( FParameter) then
-    FParameter.SetParameterValue( aValue)
-  else begin
+  if assigned( FParameter) then begin
+    FParameter.SetParameterValue( aValue);
+
+//    SendMidiValue;
+
+  end else begin
     FValue := aValue;
     Update;
+
+//    SendMidiValue;
 
     if assigned( FOnChange) then
       FOnChange( self);
   end;
 end;
 
-procedure TG2GraphChildControl.SetValueByMidi(aValue: byte);
+procedure TG2GraphChildControl.SetValueByCtrlMidi(aMidiEditorAssignment : TMidiEditorAssignment; aMidiEvent : TMyMidiEvent);
+var MidiMessage, MidiValue1, MidiValue2 : byte;
+    CtrlRange, MidiRange : byte;
 begin
-  inherited;
-  Value := aValue;
+  if assigned(aMidiEditorAssignment) then begin
+    MidiMessage := aMidiEvent.MidiMessage shr 4;
+    MidiValue1 := aMidiEvent.Data1;
+    MidiValue2 := aMidiEvent.Data2;
+
+    MidiReceiving := True;
+    try
+
+      if aMidiEditorAssignment.Note <> 0 then begin
+        if MidiMessage = $09 then
+          Value := HighValue
+        else
+          if MidiMessage = $08 then
+            Value := LowValue;
+      end else begin
+        CtrlRange := (HighValue - LowValue);
+        MidiRange := (aMidiEditorAssignment.MaxValue - aMidiEditorAssignment.MinValue);
+        if MidiRange <> 0 then begin
+          Value := trunc(((MidiValue2 - aMidiEditorAssignment.MinValue) / MidiRange) * CtrlRange + LowValue);
+        end;
+      end;
+    finally
+      MidiReceiving := False;
+    end;
+  end;
 end;
 
 procedure TG2GraphChildControl.SetLowValue( aValue: byte);
@@ -4371,6 +4453,9 @@ var Rect, LineRect : TRect;
     LineHeight : integer;
     BitMap : TBitmap;
 begin
+  if not Visible then
+    exit;
+
   Rect := SubRect( GetRelToParentRect, ExtBoundsRect);
 
   if FLineCount > 0 then
@@ -4408,7 +4493,7 @@ begin
             end;
         3 : TextCenter( Bitmap.Canvas, LineRect, FParameter.ParamName);
         4 : TextCenter( Bitmap.Canvas, LineRect, IntToStr(FParameter.Patch.Slot.SlotIndex + 1) + ':' + string(FParameter.ModuleName));
-        5 : TextCenter( Bitmap.Canvas, LineRect, FParameter.ModuleName);
+        5 : if assigned(FParameter.Module) then TextCenter( Bitmap.Canvas, LineRect, FParameter.Module.ModuleName);
         end;
       end else
         TextCenter( Bitmap.Canvas, LineRect, Line[i]);
@@ -4426,7 +4511,8 @@ function TG2GraphDisplay.ParseProperties( fs: TModuleDefStream; aName : AnsiStri
 var aValue : AnsiString;
     sl : TStringList;
     i, value, c : integer;
-
+    G2 : TG2File;
+    temp : string;
 begin
   Result := True;
   if not inherited ParseProperties( fs, aName) then begin
@@ -4442,6 +4528,7 @@ begin
     if aName = 'Text Func' then begin
       aValue := fs.ReadUntil( [#13]);
       FTextFunction := StrToInt(string(aValue));
+
     end else
 
     if aName = 'Dependencies' then begin
@@ -4470,9 +4557,9 @@ begin
                   (FParameter as TG2GraphParameter).AssignControl(self);
                 end;
               end else begin
-                 FParameter := FModule.FData.Parameter[ FMasterRef] as TG2GraphParameter;
-                  FParameter.TextFunctionIndex := FTextFunction;
-                  (FParameter as TG2GraphParameter).AssignControl(self);
+                FParameter := FModule.FData.Parameter[ FMasterRef] as TG2GraphParameter;
+                FParameter.TextFunctionIndex := FTextFunction;
+                (FParameter as TG2GraphParameter).AssignControl(self);
               end;
 
               if assigned(FParameter) then begin
@@ -4499,6 +4586,15 @@ begin
       finally
         sl.Free;
       end;
+
+      if assigned(FParameter) and assigned(FParameter.Patch)
+         and assigned(FParameter.Patch.G2) then begin
+        G2 := FParameter.Patch.G2;
+        temp := FParameter.TextFunction;
+        if pos('*', temp)>0 then
+           G2.add_log_line( FParameter.ModuleName + ' ' + FParameter.ParamName + ' Textfunc ' + IntToStr(FParameter.TextFunctionIndex) + ' ' + temp + ' InfoFunc ' + IntToStr(FParameter.InfoFunctionIndex), LOGCMD_NUL);
+      end;
+
     end else
 
       Result := False
@@ -4608,6 +4704,7 @@ end;
 
 procedure TG2GraphButton.PaintOn( ExtCanvas : TCanvas; ExtBoundsRect : TRect);
 var Rect, Rect2 : TRect;
+    MidiEditorAssignment : TMidiEditorAssignment;
 begin
   inherited;
 
@@ -4642,8 +4739,12 @@ begin
   else
     DrawBevel( ExtCanvas, Rect, bvRaised);
 
-  if FMidiEditorAssignment <> nil then begin
-    DrawMidiAwareBox( ExtCanvas, MakeRect( Rect.Left, Rect.Top, 16, 8), FMidiEditorAssignment);
+  if MidiAware and ShowMidiBox then begin
+    if assigned(FMidiEditorAssignmentList) then
+      MidiEditorAssignment := FMidiEditorAssignmentList.FindControl(self)
+    else
+      MidiEditorAssignment := nil;
+    DrawMidiAwareBox( ExtCanvas, MakeRect( Rect.Left, Rect.Top, 16, 8), MidiEditorAssignment);
   end;
 end;
 
@@ -4700,8 +4801,6 @@ end;
 procedure TG2GraphButton.SetButtonCount( aValue: integer);
 begin
   FButtonCount := aValue;
-  FLowValue := 0;
-  FHighValue := aValue - 1;
   Invalidate;
 end;
 
@@ -4819,6 +4918,7 @@ procedure TG2GraphButtonText.PaintOn( ExtCanvas : TCanvas; ExtBoundsRect : TRect
 var Rect, IconRect : TRect;
     LabelText : string;
     OldBrushColor : TColor;
+    MidiEditorAssignment : TMidiEditorAssignment;
 begin
   OldBrushColor := ExtCanvas.Brush.Color;
   try
@@ -4856,10 +4956,11 @@ begin
         if assigned(Parameter) then
           LabelText := Parameter.SelectedButtonText
         else
-          if FButtonText.Count > 0 then begin
+          if (FButtonText.Count > 0) then begin
             LabelText := string(ParamLabel[0]);
             if LabelText = '' then
-              LabelText := FButtonText[0];
+              if  Value < FButtonText.Count then
+                LabelText := FButtonText[ Value];
           end;
         TextCenter( ExtCanvas, Rect, LabelText);
       end;
@@ -4875,8 +4976,12 @@ begin
         DrawBevel( ExtCanvas, Rect, bvNone);
     end;
 
-    if FMidiEditorAssignment <> nil then begin
-      DrawMidiAwareBox( ExtCanvas, MakeRect( Rect.Left, Rect.Top, 16, 8), FMidiEditorAssignment);
+    if MidiAware and ShowMidiBox then begin
+      if assigned(FMidiEditorAssignmentList) then
+        MidiEditorAssignment := FMidiEditorAssignmentList.FindControl(self)
+      else
+        MidiEditorAssignment := nil;
+      DrawMidiAwareBox( ExtCanvas, MakeRect( Rect.Left, Rect.Top, 16, 8), MidiEditorAssignment);
     end;
 
   finally
@@ -4922,6 +5027,38 @@ begin
   end;
 end;
 
+procedure TG2GraphButtonText.SetValueByCtrlMidi( aMidiEditorAssignment: TMidiEditorAssignment; aMidiEvent: TMyMidiEvent);
+var MidiMessage, MidiValue1, MidiValue2 : byte;
+    CtrlRange, MidiRange : byte;
+begin
+  if assigned(aMidiEditorAssignment) then begin
+    MidiMessage := aMidiEvent.MidiMessage shr 4;
+    MidiValue1 := aMidiEvent.Data1;
+    MidiValue2 := aMidiEvent.Data2;
+
+    MidiReceiving := True;
+    try
+      if aMidiEditorAssignment.Note <> 0 then begin
+        if MidiMessage = $09 then begin
+          if Value = HighValue then
+            Value := LowValue
+          else
+            Value := Value + 1;
+        end;
+      end else begin
+        if Value = HighValue then
+          Value := LowValue
+        else
+          Value := Value + 1;
+      end;
+    finally
+      MidiReceiving := False;
+    end;
+
+    if assigned(FOnClick) then FOnClick( self);
+  end;
+end;
+
 procedure TG2GraphButtonText.SetButtonTextType( aValue: TButtonTextType);
 begin
   FButtonTextType := aValue;
@@ -4959,6 +5096,7 @@ end;
 procedure TG2GraphButtonFlat.PaintOn( ExtCanvas : TCanvas; ExtBoundsRect : TRect);
 var Rect : TRect;
     LabelText : string;
+    MidiEditorAssignment : TMidiEditorAssignment;
 begin
   //AddLogLine('Paint button flat');
 
@@ -4989,7 +5127,7 @@ begin
         LabelText := FButtonText[Value];
 
     if assigned(Parameter) and (LabelText = '') then
-      LabelText := Parameter.InfoFunction;
+      LabelText := Parameter.InfoFunction( Parameter.InfoFunctionIndex);
 
     TextCenter( ExtCanvas, Rect, LabelText)
   end;
@@ -5001,8 +5139,12 @@ begin
 
   DrawRect( ExtCanvas, Rect);
 
-  if FMidiEditorAssignment <> nil then begin
-    DrawMidiAwareBox( ExtCanvas, MakeRect( Rect.Left, Rect.Top, 16, 8), FMidiEditorAssignment);
+  if MidiAware and ShowMidiBox then begin
+    if assigned(FMidiEditorAssignmentList) then
+      MidiEditorAssignment := FMidiEditorAssignmentList.FindControl(self)
+    else
+      MidiEditorAssignment := nil;
+    DrawMidiAwareBox( ExtCanvas, MakeRect( Rect.Left, Rect.Top, 16, 8), MidiEditorAssignment);
   end;
 end;
 
@@ -5015,6 +5157,38 @@ begin
       FImageList.BitmapWidth := FImageWidth;
       FImageList.ParseImageData( FImageCount, True)
     end;
+end;
+
+procedure TG2GraphButtonFlat.SetValueByCtrlMidi( aMidiEditorAssignment: TMidiEditorAssignment; aMidiEvent: TMyMidiEvent);
+var MidiMessage, MidiValue1, MidiValue2 : byte;
+    CtrlRange, MidiRange : byte;
+begin
+  if assigned(aMidiEditorAssignment) then begin
+    MidiMessage := aMidiEvent.MidiMessage shr 4;
+    MidiValue1 := aMidiEvent.Data1;
+    MidiValue2 := aMidiEvent.Data2;
+
+    MidiReceiving := True;
+    try
+      if aMidiEditorAssignment.Note <> 0 then begin
+        if MidiMessage = $09 then begin
+          if Value = HighValue then
+            Value := LowValue
+          else
+            Value := Value + 1;
+        end;
+      end else begin
+        if Value = HighValue then
+          Value := LowValue
+        else
+          Value := Value + 1;
+      end;
+    finally
+      MidiReceiving := False;
+    end;
+
+    if assigned(FOnClick) then FOnClick( self);
+  end;
 end;
 
 procedure TG2GraphButtonFlat.MouseDown( Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
@@ -5044,6 +5218,7 @@ procedure TG2GraphLevelShift.PaintOn( ExtCanvas : TCanvas; ExtBoundsRect : TRect
 var Rect, RectTop, RectBottom : TRect;
     HorzCenter, VertCenter: integer;
     P1, P2 : TPoint;
+    MidiEditorAssignment : TMidiEditorAssignment;
 begin
   inherited;
 
@@ -5160,8 +5335,12 @@ begin
 
   DrawRect( ExtCanvas, Rect);
 
-  if FMidiEditorAssignment <> nil then begin
-    DrawMidiAwareBox( ExtCanvas, MakeRect( Rect.Left, Rect.Top, 16, 8), FMidiEditorAssignment);
+  if MidiAware and ShowMidiBox then begin
+    if assigned(FMidiEditorAssignmentList) then
+      MidiEditorAssignment := FMidiEditorAssignmentList.FindControl(self)
+    else
+      MidiEditorAssignment := nil;
+    DrawMidiAwareBox( ExtCanvas, MakeRect( Rect.Left, Rect.Top, 16, 8), MidiEditorAssignment);
   end;
 end;
 
@@ -5176,6 +5355,7 @@ begin
   FBevel := False;
   FUpsideDown := False;
   Height := 14;
+  IndexedControl := True;
 end;
 
 destructor TG2GraphButtonRadio.Destroy;
@@ -5207,6 +5387,7 @@ var ExtRect, Rect : TRect;
     Bitmap : TBitmap;
     i : integer;
     LabelText : string;
+    MidiEditorAssignment : TMidiEditorAssignment;
 begin
   ExtRect := SubRect( GetRelToParentRect, ExtBoundsRect);
 
@@ -5284,8 +5465,12 @@ begin
           DrawRect( Bitmap.Canvas, Rect);
         end;
 
-        if (FMidiEditorAssignment <> nil) and (FMidiEditorAssignment.FValue = i) then begin
-          DrawMidiAwareBox( Bitmap.Canvas, MakeRect( Rect.Left, Rect.Top, 16, 8), FMidiEditorAssignment);
+        if MidiAware and ShowMidiBox then begin
+          if assigned(FMidiEditorAssignmentList) then
+            MidiEditorAssignment := FMidiEditorAssignmentList.FindControlHasIndex(self, i)
+          else
+            MidiEditorAssignment := nil;
+          DrawMidiAwareBox( Bitmap.Canvas, MakeRect( Rect.Left, Rect.Top, 16, 8), MidiEditorAssignment)
         end;
 
         if FOrientation = otHorizontal then begin
@@ -5300,8 +5485,8 @@ begin
             Rect.Bottom := Rect.Bottom + FButtonHeight - 1;
           end;
         end;
-
       end;
+
     end else
       Bitmap.Canvas.Rectangle( ClientRect);
 
@@ -5391,10 +5576,34 @@ begin
   end;
 end;
 
+procedure TG2GraphButtonRadio.SetButtonCount( aValue: integer);
+begin
+  FButtonCount := aValue;
+  FLowValue := 0;
+  FHighValue := aValue - 1;
+  Invalidate;
+end;
+
 procedure TG2GraphButtonRadio.SetOrientation( aValue: TOrientationType);
 begin
   FOrientation := aValue;
   Invalidate;
+end;
+
+procedure TG2GraphButtonRadio.SetValueByCtrlMidi( aMidiEditorAssignment: TMidiEditorAssignment; aMidiEvent: TMyMidiEvent);
+var MidiMessage, MidiValue1, MidiValue2 : byte;
+    CtrlRange, MidiRange : byte;
+begin
+  if assigned(aMidiEditorAssignment) then begin
+    MidiMessage := aMidiEvent.MidiMessage shr 4;
+    MidiValue1 := aMidiEvent.Data1;
+    MidiValue2 := aMidiEvent.Data2;
+
+    if Value <> aMidiEditorAssignment.ControlIndex then
+      Value := aMidiEditorAssignment.ControlIndex;
+
+    if assigned(FOnClick) then FOnClick(self)
+  end;
 end;
 
 // ==== TG2GraphButtonRadioEdit ================================================
@@ -5405,6 +5614,7 @@ begin
   FButtonRows := 1;
   FButtonColumns := 1;
   FClickedButton := -1;
+  FIndexedControl := True;
 end;
 
 destructor TG2GraphButtonRadioEdit.Destroy;
@@ -5463,6 +5673,7 @@ var ExtRect, Rect : TRect;
     Bitmap : TBitmap;
     i, r, c : integer;
     LabelText : string;
+    MidiEditorAssignment : TMidiEditorAssignment;
 begin
   ExtRect := SubRect( GetRelToParentRect, ExtBoundsRect);
 
@@ -5527,8 +5738,12 @@ begin
         inc(i);
       end;
 
-      if (FMidiEditorAssignment <> nil) and (FMidiEditorAssignment.FValue = i) then begin
-        DrawMidiAwareBox( Bitmap.Canvas, MakeRect( Rect.Left, Rect.Top, 16, 8), FMidiEditorAssignment);
+      if MidiAware and ShowMidiBox then begin
+        if (FMidiEditorAssignmentList <> nil) then
+          MidiEditorAssignment := FMidiEditorAssignmentList.FindControlHasIndex( self, i)
+        else
+          MidiEditorAssignment := nil;
+        DrawMidiAwareBox( Bitmap.Canvas, MakeRect( Rect.Left, Rect.Top, 16, 8), MidiEditorAssignment);
       end;
 
       Rect.Top := Rect.Top + FButtonHeight - 1;
@@ -5587,6 +5802,7 @@ begin
   FButtonPressed := -1;
   FBevel := True;
   Color := CL_BTN_FACE;
+  FIndexedControl := True;
 end;
 
 destructor TG2GraphButtonIncDec.Destroy;
@@ -5623,6 +5839,7 @@ end;
 procedure TG2GraphButtonIncDec.PaintOn(ExtCanvas: TCanvas; ExtBoundsRect: TRect);
 var i : integer;
     Rect, Rect2, IconRect : TRect;
+    MidiEditorAssignment : TMidiEditorAssignment;
 begin
   inherited;
 
@@ -5684,8 +5901,12 @@ begin
     else
       DrawBevel( ExtCanvas, Rect2, bvNone);
 
-    if (FMidiEditorAssignment <> nil) and (FMidiEditorAssignment.FValue = i) then begin
-      DrawMidiAwareBox( ExtCanvas, MakeRect( Rect2.Left, Rect2.Top, 16, 8), FMidiEditorAssignment);
+    if MidiAware and ShowMidiBox then begin
+      if assigned(FMidiEditorAssignmentList) then
+        MidiEditorAssignment := FMidiEditorAssignmentList.FindControlHasIndex( self, i)
+      else
+        MidiEditorAssignment := nil;
+      DrawMidiAwareBox( ExtCanvas, MakeRect( Rect2.Left, Rect2.Top, 16, 8), MidiEditorAssignment);
     end;
 
     if FOrientation = otHorizontal then begin
@@ -5695,8 +5916,13 @@ begin
       Rect2.Top := Rect2.Top + FButtonHeight;
       Rect2.Bottom := Rect2.Bottom + FButtonHeight;
     end;
-
   end;
+
+  {if (FMidiEditorAssignmentList <> nil) then begin
+    MidiEditorAssignment := FMidiEditorAssignmentList.FindControlHasCC( self);
+    if assigned(MidiEditorAssignment) then
+      DrawMidiAwareBox( ExtCanvas, MakeRect( Rect.Left, Rect.Top, 16, 8), MidiEditorAssignment);
+  end;}
 end;
 
 procedure TG2GraphButtonIncDec.ParsePanelData( fs: TModuleDefStream);
@@ -6057,9 +6283,13 @@ begin
     FStartY := Y;
     FStartValue := Value;
 
+    if assigned(Parameter) and (Parameter.ParamType <> ptParam) then
+      Parameter.SuspendUpdate := True;
+
     if (FType in [ktSlider, ktSeqSlider]) then begin
-      if (PointInRect( X, Y, GetSliderRect)) then
+      if (PointInRect( X, Y, GetSliderRect)) then begin
         FSLiderSelected := True;
+      end;
     end else
       if (FType in [ktReset, ktResetMedium]) and PointInRect( X, Y, FCenterButtonRect) then begin
         Value := (HighValue - LowValue + 1) div 2;
@@ -6115,6 +6345,9 @@ end;
 
 procedure TG2GraphKnob.MouseUp(Button: TMouseButton; Shift: TShiftState; X,  Y: Integer);
 begin
+  if assigned(Parameter) and Parameter.SuspendUpdate then
+    Parameter.SuspendUpdate := False;
+
   FSliderSelected := False;
   inherited;
 end;
@@ -6127,6 +6360,7 @@ var mx, my, r : integer;
     MorphParameter : TMorphParameter;
     FastBitmap : TFastbitmap;
     BitMap : TBitmap;
+    MidiEditorAssignment : TMidiEditorAssignment;
 begin
   inherited;
 
@@ -6271,8 +6505,12 @@ begin
         Bitmap.Canvas.FillRect( GetSliderRect);
       end;
 
-    if (FMidiEditorAssignment <> nil) then begin
-      DrawMidiAwareBox( Bitmap.Canvas, MakeRect( FKnobRect.Left, FKnobRect.Top, 16, 8), FMidiEditorAssignment);
+    if MidiAware and ShowMidiBox then begin
+      if assigned(FMidiEditorAssignmentList) then
+        MidiEditorAssignment := FMidiEditorAssignmentList.FindControlHasCC( self)
+      else
+        MidiEditorAssignment := nil;
+      DrawMidiAwareBox( Bitmap.Canvas, MakeRect( FKnobRect.Left, FKnobRect.Top, 16, 8), MidiEditorAssignment);
     end;
 
     ExtCanvas.Draw( Rect.Left, Rect.Top, Bitmap);

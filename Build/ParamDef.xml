@@ -95,6 +95,7 @@
     <DefaultValue>2</DefaultValue>
     <Definitions/>
     <Comments/>
+    <ButtonText>1;2;4;8;16;32;</ButtonText>
   </ParamDef>
   <ParamDef>
     <Id>9</Id>
@@ -701,7 +702,7 @@
     <DefaultValue>0</DefaultValue>
     <Definitions/>
     <Comments/>
-    <ButtonText>Off;25%;50%;75%;100%;</ButtonText>
+    <ButtonText>Off;25%;50%;75%;100;</ButtonText>
   </ParamDef>
   <ParamDef>
     <Id>68</Id>
@@ -846,7 +847,7 @@
     <DefaultValue>0</DefaultValue>
     <Definitions/>
     <Comments/>
-    <ButtonText>1;2;3;4;5;</ButtonText>
+    <ButtonText>Sine;CosBell;TriBell;Saw2Tri;Sqr2Tri;Sqr;</ButtonText>
   </ParamDef>
   <ParamDef>
     <Id>82</Id>

@@ -39,6 +39,7 @@ uses
 
 const
   NMG2_VERSION = '0.24';
+  PATCH_VERSION = 23;
 
   NMORPHS = 8;
   NVARIATIONS = 9;
@@ -108,28 +109,47 @@ const
 const
   Q_SYNTH_SETTINGS        = $02;
   S_SYNTH_SETTINGS        = $03;
-  R_MIDI_CC               = $04;
+  Q_ASSIGNED_VOICES       = $04;
+  R_ASSIGNED_VOICES       = $05;
+  // $06
+  // $07
+  // $08
   S_SEL_SLOT              = $09;
-  S_LOAD                  = $0a;
-  S_SAVE                  = $0b;
+  S_RETREIVE              = $0a;
+  S_STORE                 = $0b;
   S_CLEAR                 = $0c;
+  R_STORE                 = $0d; // ?
+  S_CLEAR_BANK            = $0e;
+  // $0f
   Q_PERF_SETTINGS         = $10;
   C_PERF_SETTINGS         = $11;
+  R_CLEAR_BANK            = $12;
   R_LIST_NAMES            = $13;
   Q_LIST_NAMES            = $14;
+  R_CLEAR                 = $15;
+  R_ADD_NAMES             = $16;
+  S_PATCH_BANK_UPLOAD     = $17;
+  R_PATCH_BANK_UPDLOAD    = $18;
+  S_PATCH_BANK_DATA       = $19;
+  // $1a
+  // $1b
   S_ASS_GLOBAL_KNOB       = $1c;
   S_DEASS_GLOB_KNOB       = $1d;
   S_SEL_GLOBAL_PAGE       = $1e;
+  // $1f
+  // $20
   C_PATCH_DESCR           = $21;
   S_ASSIGN_MIDICC         = $22;
   S_DEASSIGN_MIDICC       = $23;
+  // $24
   S_ASSIGN_KNOB           = $25;
   S_DEASSIGN_KNOB         = $26;
-  R_PATCH_NAME            = $27;
+  S_PATCH_NAME            = $27;
   Q_PATCH_NAME            = $28;
   C_PERF_NAME             = $29;
   S_SET_UPRATE            = $2a;
   S_SET_MODE              = $2b;
+  // $2c
   S_SEL_PARAM_PAGE        = $2d;
   Q_SELECTED_PARAM        = $2e;
   S_SEL_PARAM             = $2f;
@@ -139,44 +159,83 @@ const
   S_SET_MODULE_LABEL      = $33;
   S_MOV_MODULE            = $34;
   Q_VERSION_CNT           = $35;
+  // $36
   S_SET_PATCH             = $37;
+  R_PATCH_VERSION_CHANGE  = $38; // After upload patch through midi
   R_LED_DATA              = $39;
   R_VOLUME_DATA           = $3a;
+  Q_MASTER_CLOCK          = $3b;
   Q_PATCH                 = $3c;
   S_MIDI_DUMP             = $3d;
   S_SET_PARAM_MODE        = $3e;
+  // $3f
   S_SET_PARAM             = $40;
+  // $41
   S_SET_PARAM_LABEL       = $42;
   S_SET_MORPH_RANGE       = $43;
   S_COPY_VARIATION        = $44;
+  // $45
+  // $46
+  // $47
+  // $48
+  // $49
   C_MODULE_LIST           = $4a;
+  // $4b
+  Q_PARAMS                = $4c;
   C_PARAM_LIST            = $4d;
+  // $4e
+  Q_PARAM_NAMES           = $4f;
   S_ADD_CABLE             = $50;
   S_DEL_CABLE             = $51;
   C_CABLE_LIST            = $52;
+  // $53
   S_CABLE_COLOR           = $54;
   S_CTRL_SNAPSHOT         = $55;
   S_PLAY_NOTE             = $56;
+  // $57
+  // $58
   M_UNKNOWN_2             = $59;
   C_MODULE_NAMES          = $5a;
   C_PARAM_NAMES           = $5b;
+  // $5c
+  R_MASTER_CLOCK          = $5d;
   Q_GLOBAL_KNOBS          = $5e;
   C_KNOBS_GLOBAL          = $5f;
   C_CONTROLLERS           = $60;
+  // $61
   C_KNOBS                 = $62;
+  // $63
+  // $64
   C_MORPH_PARAM           = $65;
+  // $66
+  // $67
   Q_CURRENT_NOTE          = $68;
   C_CURRENT_NOTE_2        = $69;
   S_SEL_VARIATION         = $6a;
+  // $6b
+  // $6c
+  // $6d
   Q_PATCH_TEXT            = $6e;
   C_PATCH_NOTES           = $6f;
   M_UNKNOWN_6             = $70;
   Q_RESOURCES_USED        = $71;
   R_RESOURCES_USED        = $72;
+  // 73
+  // 74
+  // 75
+  // 76
+  // 77
+  // 78
+  // 79
+  // 7a
+  // 7b
+  // 7c
   S_START_STOP_COM        = $7d;
   R_ERROR                 = $7e;
   R_OK                    = $7f;
+  R_MIDI_CC               = $80;
   M_UNKNOWN_1             = $81;
+
 
   START_COMM              = $00;
   STOP_COMM               = $01;
@@ -209,6 +268,9 @@ const
   PATCH_SUSTAIN           = $07;
     SUSTAIN_PEDAL         = $01;
     OCTAVE_SHIFT          = $00;
+
+  PATCH_MASTERCLOCK       = $08;
+  PATCH_VOICES            = $09;
 
   STD_MORPH_NAMES : array[0..7] of AnsiString = ('Wheel',
                                                  'Vel',
@@ -345,8 +407,9 @@ const
   MaxPixelCount = 32768;
 
 type
+  TPatchFileType = (pftPatch, pftPerf, pftEnd);
   TMessageDataType = (mdtResponseMessage = 0, mdtSendMessage = 1);
-  TParamType = ( ptParam, ptMode);
+  TParamType = ( ptParam, ptMode, ptMasterClock, ptVoiceMode);
   TKnobType = ( ktBig, ktMedium, ktSmall, ktExtraSmall, ktReset, ktResetMedium, ktSlider, ktSeqSlider);
   TButtonTextType = (bttNormal, bttPush, bttCheck, bttCheckBox);
   TOrientationType = ( otHorizontal, otVertical);
@@ -357,6 +420,7 @@ type
   TLedType = (ltSequencer, ltGreen, ltMiniVU);
   TLocationType = (ltFX = 0, ltVA = 1, ltPatch = 2);
   TClientType = (ctEditor, ctVST);
+  TMidiDeviceAssignmentType = (mdatNone, mdatCtrl, mdatSysEx);
 
   TByteBuffer = packed array of byte;
 
@@ -436,6 +500,7 @@ type
   end;
 
 function  CrcClavia( Seed: Integer; aVal: Integer): Word;
+function  G2BPM( aValue : integer): string;
 function  BoolToByte( Value : boolean): byte;
 function  BoolToInt( value : boolean): integer;
 function  BoolToStr( value : boolean): string;
@@ -451,6 +516,7 @@ function  ConvertToObjectName( aValue : string): string;
 function  GetKeyName( aKeyNumber : integer): string;
 function  G2FloatToStr( aValue : single; aLen : integer): string;
 function  G2FloatToStrFixed( aValue : single; aLen : integer): string;
+function  PatchNameFromFileName( aFileName : string): string;
 
 
 {$IFNDEF G2_VST}
@@ -500,6 +566,29 @@ var
   G_CableThickness : integer;
 
 implementation
+
+function PatchNameFromFileName( aFileName : string): string;
+var i : integer;
+begin
+  Result := '';
+  aFileName := ExtractFilename( aFileName);
+  i := 1;
+  while (i<=Length( aFileName)) and (i<=16) and ( aFileName[i] <> '.') do begin
+    Result := Result + AnsiChar(aFileName[i]);
+    inc(i);
+  end;
+end;
+
+function G2BPM( aValue : integer): string;
+begin
+   if aValue <= 32 then
+     Result := IntToStr(24 + 2*aValue)
+   else
+     if aValue <= 96 then
+       Result := IntToStr(88 + aValue - 32)
+     else
+       Result := IntToStr(152 + (aValue - 96)*2);
+end;
 
 function CompletePath( path : string): string;
 begin
@@ -556,7 +645,7 @@ begin
     if p > 1 then begin
       Result := FloatToStr(t/p);
       if frac(t/p)=0 then
-        Result := Result + ',';
+        Result := Result + '.';
       if t < 0 then
         inc(aLen); // - sign
       while Length(Result) < aLen do

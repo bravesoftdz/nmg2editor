@@ -13,7 +13,7 @@ uses
 {$ENDIF}
   Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, StdCtrls, ExtCtrls, g2_types, g2_file, g2_graph, g2_classes,
-  UnitG2Editor, g2_database, DOM, XMLRead, XMLWrite;
+  UnitG2Editor, g2_database, DOM, XMLRead, XMLWrite, g2_midi;
 
 type
   TfrmPatchSettings = class(TForm)
@@ -36,8 +36,8 @@ type
     obOctaveShift: TG2GraphButtonRadio;
     obSustainPedalOnOff: TG2GraphButtonRadio;
     obVibratoMod: TG2GraphButtonRadio;
-    VibratoRate: TLabel;
     obArpDir: TG2GraphButtonRadio;
+    G2GraphLabel7: TG2GraphLabel;
     procedure PatchCtrlMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure FormCreate(Sender: TObject);
     procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);

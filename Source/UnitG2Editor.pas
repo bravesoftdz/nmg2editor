@@ -89,7 +89,8 @@ unit UnitG2Editor;
 // Menu-driven patching (for use with Jaws)
 // Select parameter messaging between G2 and editor
 // Patch notes dialog window
-// Changes to the moduledef.xml (parameter mappings to parameter pages knobs, still some modules todo)// Auto adjust module positions on module insert (no overlapping modules)
+// Changes to the moduledef.xml (parameter mappings to parameter pages knobs, still some modules todo)
+// Auto adjust module positions on module insert (no overlapping modules)
 // Numbering modules when adding modules, check change module names
 // Close dialogs with ESC
 // Variation init function:
@@ -100,7 +101,8 @@ unit UnitG2Editor;
 // ===============
 
 // Added selection buttons on switches
-// Fixed error in filter modules, shows filtertype didn't correspond with actual filtertype
+// Fixed error in filter modules, shows filtertype didn't correspond with actual filtertype
+
 // Added unit conversions of many parameters
 // Added uni/polar direction buttons on envelopes/lfo's
 // Fixed editing parameter labels on switches and mixer knobs
@@ -111,16 +113,37 @@ unit UnitG2Editor;
 // ===============
 
 // Detection of modules incomaptible with original clavia edtor, will be saved with extensions prf2x en pch2x
-// Bug placing modules when adding modules in scrolled scrollbox
 // Delay parameter where not shown in units in param pages.
 // Added some other missing unit conversions.
 // Added help to application settings
 // Added menu option to run g2ools from editor
 // Added option to change led colors
+// Bug placing modules when adding modules in scrolled scrollbox
 // Added option to control editor ui elements with midi (ctrl midi input) ableton style
+// Added init performance messages
+// Implemented assigned voices message
+// Implemented init perf message sequence
+// Implemented clear bank location message
+// prevent echo ctrl midi on radio controls (midi + index)
+// Global point seperator, in stead of from country settings
+// Check box list for ctrl midi devices
+// Keep midi devices in ini file that system can't find (turned off)
+// patch manager : load, save patch/perf, init perf, load/save bank, rename, variations, slot selection also selectslot, select category
+// Assigned voices red when nil
+// Check box list for sysex midi devices
+
+// Todo :
+// Move modules
+// External clock show red
+// Edit Midi assignment dialog
+// How/Hide midi aware indicator on controls
+// Download bank, clear rest of bank
+// Added test section in Add module with the hidden modules for trying out if they can be activated.
+// Ini settings patch manager
 
 
 // Still todo:
+// Update display of dependend param in param pages
 // PatchSettings: add popup menu for patch parameters
 // Add Slot settings dialog
 // Make dialogs Jaws compatible
@@ -135,7 +158,8 @@ unit UnitG2Editor;
    // Osc B incl morphs : 00 31 01 28 00 43 01 03 00 00 2B 00 00 43 01 03 06
    //                     00 1E 00 00 43 01 03 08 00 04 00 00 4D 00 0F 40 40
    //                     40 C5 80 55 4A 04 00 00 00 00 02 02 00 91 00
-// Reclass controls for use with Jaws : TEdit : DEdit, TListView : DListView etc.
+
+// Reclass controls for use with Jaws : TEdit : DEdit, TListView : DListView etc.
 
 // TODO List next
 // ==============
@@ -205,17 +229,29 @@ uses
 {$IFDEF FPC}
   FileUtil, LclIntf,
 {$ELSE}
-  Windows, XPStyleActnCtrls, ActnMan, ScktComp,
-  {$IFDEF G2_VER200_up}
-    // Don't know exactly in what version this style was introduced
-    Vcl.PlatformDefaultStyleActnCtrls,
+
+  {$IFDEF G2_VER220_up}
+    WinApi.Windows, Vcl.ActnMan, ScktComp, Vcl.PlatformDefaultStyleActnCtrls,
+  {$ELSE}
+    Windows, XPStyleActnCtrls, ActnMan, ScktComp,
   {$ENDIF}
+
 {$ENDIF}
+
+{$IFDEF G2_VER220_up}
+  WinApi.Messages, System.SysUtils, System.Variants, System.Classes,
+  System.Contnrs,
+  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls,
+  Vcl.ExtCtrls,  Vcl.ActnList, Vcl.ImgList, Vcl.Menus, Vcl.Buttons,
+  Vcl.ComCtrls,
+{$ELSE}
   Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, StdCtrls, ExtCtrls,  ActnList, ImgList, Contnrs,
-  g2_types, g2_database, g2_file, g2_mess, g2_usb, g2_graph, g2_midi, g2_classes,
-  graph_util_vcl, LibUSBWinDyn, Menus, Buttons, DOM, XMLRead, XMLWrite,
-  {MMSystem, MidiType, MidiIn, MidiOut,} ComCtrls;
+  Menus, Buttons, ComCtrls,
+{$ENDIF}
+
+  g2_types, g2_database, g2_file, g2_mess, g2_usb, g2_graph, g2_midi,
+  g2_classes, graph_util_vcl, LibUSBWinDyn, DOM, XMLRead, XMLWrite;
 
 type
   TEditorSettings = class
@@ -259,6 +295,7 @@ type
   public
     constructor Create( AOwner : TComponent; aSlot : TG2Slot);
     destructor Destroy; override;
+
     procedure  UpdateControls;
     procedure  SetSlotStripColors( aSlotStripColor, aSlotStripInverseColor, aHighLightColor : TColor);
 
@@ -276,7 +313,6 @@ type
     Uploadpatch1: TMenuItem;
     View1: TMenuItem;
     Patchsettings1: TMenuItem;
-    cbMode: TCheckBox;
     Splitter1: TSplitter;
     puAddModule: TPopupMenu;
     cbOnline: TCheckBox;
@@ -451,31 +487,51 @@ type
     G2oolsDXtoG21: TMenuItem;
     N18: TMenuItem;
     miModuleHelp: TMenuItem;
+    N19: TMenuItem;
+    N20: TMenuItem;
+    N21: TMenuItem;
+    N22: TMenuItem;
+    aPatchBrowser: TAction;
+    aInitPerf: TAction;
+    Initperformance1: TMenuItem;
+    N23: TMenuItem;
+    gdMasterClock: TG2GraphDisplay;
+    StaticText2: TStaticText;
+    aPatchRename: TAction;
+    aPerfRename: TAction;
+
     procedure FormCreate(Sender: TObject);
-    procedure cbModeClick(Sender: TObject);
-    procedure aPatchSettingsExecute(Sender: TObject);
-    procedure aViewLogExecute(Sender: TObject);
     procedure FormShow(Sender: TObject);
-    procedure aInitPatchExecute(Sender: TObject);
+    procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
-    procedure StartupTimerTimer(Sender: TObject);
-    procedure aParameterPagesExecute(Sender: TObject);
-    procedure aDownloadPatchExecute(Sender: TObject);
+    procedure FormDestroy(Sender: TObject);
+    procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure Splitter1Moved(Sender: TObject);
     procedure sbFXMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure sbVAMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure VariaionCopytoClick(Sender: TObject);
     procedure Properties1Click(Sender: TObject);
-    procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure AssignMidiCC( Sender: TObject);
     procedure DeAssignMidiCC( Sender: TObject);
     procedure AssignMorph( Sender: TObject);
-    procedure aSynthSettingsExecute(Sender: TObject);
+    procedure cbOnlineClick(Sender: TObject);
+    procedure ResponseTimerTimer(Sender: TObject);
+    procedure Def1Click(Sender: TObject);
+    procedure rbSynthChange(Sender: TObject);
+    procedure miModuleAssignKnobsClick(Sender: TObject);
+    procedure miSelectClick(Sender: TObject);
+    procedure miAddClick(Sender: TObject);
     procedure miEditParamNameClick(Sender: TObject);
     procedure miModuleRenameClick(Sender: TObject);
-    procedure FormDestroy(Sender: TObject);
-    procedure G2SelectSlot(Sender: TObject; SenderID: Integer; Slot: Integer);
-    procedure Splitter1Moved(Sender: TObject);
-    procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure miModuleHelpClick(Sender: TObject);
+
+    procedure aPatchSettingsExecute(Sender: TObject);
+    procedure aViewLogExecute(Sender: TObject);
+    procedure aInitPatchExecute(Sender: TObject);
+    procedure StartupTimerTimer(Sender: TObject);
+    procedure aParameterPagesExecute(Sender: TObject);
+    procedure aDownloadPatchExecute(Sender: TObject);
+    procedure aSynthSettingsExecute(Sender: TObject);
     procedure aUndoExecute(Sender: TObject);
     procedure aRedoExecute(Sender: TObject);
     procedure aCutExecute(Sender: TObject);
@@ -496,26 +552,19 @@ type
     procedure aSavePerformanceAsSysExExecute(Sender: TObject);
     procedure aSavePerformanceAsFXBExecute(Sender: TObject);
     procedure aExitExecute(Sender: TObject);
-    procedure cbOnlineClick(Sender: TObject);
-    procedure ResponseTimerTimer(Sender: TObject);
     procedure aSendControllerSnapshotExecute(Sender: TObject);
     procedure aMidiDumpExecute(Sender: TObject);
-    procedure Def1Click(Sender: TObject);
     procedure aSendPartchSysexExecute(Sender: TObject);
     procedure aSendPerfSysexExecute(Sender: TObject);
-    procedure miModuleAssignKnobsClick(Sender: TObject);
     procedure aGetPatchSysexFromBankExecute(Sender: TObject);
     procedure aGetPerfSysexFromBankExecute(Sender: TObject);
     procedure aGetActivePatchSysexExecute(Sender: TObject);
     procedure aGetActivePerfSysexExecute(Sender: TObject);
     procedure aAnalyzePatchExecute(Sender: TObject);
-    procedure rbSynthChange(Sender: TObject);
     procedure aShowSelectSlotExecute(Sender: TObject);
     procedure aShowSelectLocationExecute(Sender: TObject);
     procedure aShowSelectModuleExecute(Sender: TObject);
     procedure aShowSelectParamExecute(Sender: TObject);
-    procedure miSelectClick(Sender: TObject);
-    procedure miAddClick(Sender: TObject);
     procedure aShowAddModuleExecute(Sender: TObject);
     procedure aShowAddCableExecute(Sender: TObject);
     procedure aShowSelectCableExecute(Sender: TObject);
@@ -524,11 +573,19 @@ type
     procedure aPatchNotesExecute(Sender: TObject);
     procedure aShowCopyVariationExecute(Sender: TObject);
     procedure aSaveLogFileExecute(Sender: TObject);
+    procedure aG2oolsDX2G2Execute(Sender: TObject);
+    procedure aG2oolsNM1toG2Execute(Sender: TObject);
+    procedure aPatchBrowserExecute(Sender: TObject);
+    procedure aInitPerfExecute(Sender: TObject);
+    procedure aPerfRenameExecute(Sender: TObject);
+    procedure aPatchRenameExecute(Sender: TObject);
 
+    procedure G2SelectSlot(Sender: TObject; SenderID: Integer; Slot: Integer);
     procedure G2VariationChange(Sender: TObject; SenderID: Integer; Slot, Variation: Integer);
     procedure G2USBActiveChange(Sender: TObject; Active: Boolean);
     procedure G2PatchUpdate(Sender: TObject; SenderID: Integer; PatchIndex: Integer);
     procedure G2PatchNameChange(Sender: TObject; SenderID: Integer; PatchIndex: Integer; PatchName : AnsiString);
+    procedure G2PerfNameChange(Sender: TObject; SenderID: Integer; PerfName : AnsiString);
     procedure G2CreateModule(Sender: TObject; SenderID: Integer; Module: TG2FileModule);
     procedure G2DeassignKnob(Sender: TObject; SenderID: Integer; Slot : byte; KnobIndex: Integer);
     procedure G2AssignKnob(Sender: TObject; SenderID: Integer; Slot : byte; KnobIndex: Integer);
@@ -552,22 +609,22 @@ type
     procedure G2DeleteCable(Sender : TObject; SenderID : integer; Location: TLocationType; FromModuleIndex, FromConnectorIndex, ToModuleIndex, ToConnectorIndex : integer);
     procedure G2SelectModule(Sender : TObject; SenderID : integer; Module : TG2FileModule);
     procedure G2SelectParam(Sender : TObject; SenderID : integer; Param : TG2FileParameter);
-    procedure aG2oolsDX2G2Execute(Sender: TObject);
-    procedure aG2oolsNM1toG2Execute(Sender: TObject);
-    procedure miModuleHelpClick(Sender: TObject);
+    procedure G2AfterBankList(Sender: TObject; SenderID: Integer);
+    procedure G2AfterStore(Sender: TObject; SenderID: Integer; SlotIndex, BankIndex, PatchIndex : byte);
+    procedure G2AfterClear(Sender: TObject; SenderID: Integer; PatchFileType : TPatchFileType; BankIndex, PatchIndex : byte);
+    procedure G2AfterClearBank(Sender: TObject; SenderID: Integer; PatchFileType : TPatchFileType; BankIndex : byte);
+    procedure G2AfterBankDownload( Sender : TObject; SenderID : integer; PatchFileType : TPatchFileType);
+    procedure G2MidiClockReceive(Sender : TObject; SenderID : integer; BPM : integer);
+    procedure G2AfterGetAssignedVoices(Sender : TObject);
 
   private
     { Private declarations }
-    //FCtrlMidiEnabled : boolean;
-    //FCtrlMidiInput : TMidiInput;
     procedure DialogKey(var Msg: TWMKey); message CM_DIALOGKEY;
-    //procedure SetCtrlMidiEnabled( aValue : boolean);
   public
     { Public declarations }
     FDisableControls      : boolean;
     FSlotPanel            : array[0..3] of TSlotPanel;
     FAddPoint             : TPoint;
-    //FLocation             : TLocationType;
     FOldSplitterPos       : integer;
     FLastReceivedMidiCC   : byte;
     FCopyPatch            : TG2FilePatchPart;
@@ -576,12 +633,17 @@ type
     FEditorSettingsList   : TObjectList;
     FOnlyTextMenus        : boolean;
 
+    FMidiInDevices,
+    FMidiOutDevices       : TMidiDeviceList;
+
     procedure AddG2( G2USBDevice : pusb_device);
     function  SelectedG2: TG2;
     procedure SelectG2( G2Index : integer);
 
     procedure AddModule( aModuleType : byte);
+    procedure AddTestModule( aModuleType, aAlternativeModuleType : byte);
     procedure DoAddModule( Sender: TObject);
+    procedure DoAddTestModule( Sender: TObject);
     procedure AssignKnob( Sender: TObject);
     procedure DeAssignKnob( Sender: TObject);
     procedure AssignGlobalKnob( Sender: TObject);
@@ -598,8 +660,11 @@ type
                                  aCableThickness : integer);
     procedure ShakeCables;
     procedure UpdateColorSchema;
+    procedure SetMidiBoxVisible( aValue : boolean);
 
     function IsShortCut(var Message: TWMKey): Boolean; override;
+    function HandleMainKeyDown( var Key: Word; Shift: TShiftState): boolean;
+
     procedure UpdateMainFormActions;
     procedure CreateAddModuleMenu;
     procedure CreateModuleMenu;
@@ -655,16 +720,12 @@ type
     procedure SaveIniXML;
     procedure LoadIniXML;
 
-    //procedure DoCtrlMidiInput(Sender: TObject);
-
     procedure PatchCtrlMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure ModuleClick( Sender : TObject; Button: TMouseButton; Shift: TShiftState; X,  Y: Integer; Module : TG2FileModule);
     procedure ParameterClick( Sender : TObject; Button: TMouseButton; Shift: TShiftState; X,  Y: Integer; Parameter : TG2FileParameter);
     procedure ConnectorClick( Sender : TObject; Button: TMouseButton; Shift: TShiftState; X,  Y: Integer; Connector : TG2FileConnector);
     procedure PanelClick(Sender: TObject);
 
-    //property CtrlMidiEnabled : boolean read FCtrlMidiEnabled write SetCtrlMidiEnabled;
-    //property CtrlMidiInput : TMidiInput read FCtrlMidiInput;
     property OnlyTextMenus : boolean read FOnlyTextMenus write SetOnlyTextMenus;
   end;
 
@@ -679,8 +740,8 @@ implementation
 uses ShellApi, Vcl.HtmlHelpViewer,
   UnitLog, UnitPatchSettings, UnitParameterPages, UnitSeqGrid,
   UnitSynthSettings, UnitPerfSettings, UnitEditLabel, UnitSettings,
-  UnitEditorTools, UnitPatchManager, UnitModuleDef, UnitPatchNotes,
-  UnitMidiMapping;
+  UnitEditorTools, UnitPatchBrowser, UnitModuleDef, UnitPatchNotes,
+  UnitMidiMapping, UnitTestModule, UnitPatchManager;
 
 {$IFNDEF FPC}
   {$R *.dfm}
@@ -921,16 +982,20 @@ begin
     FG2btMute.Parameter  := FSlot.Patch.Parameter[ PATCH_VOLUME, VOLUME_MUTE];
     FG2kVolume.Parameter := FSlot.Patch.Parameter[ PATCH_VOLUME, VOLUME_LEVEL];
 
+    if FSlot.AssignedVoices = 0 then
+      FG2dVoices.Font.Color := clRed
+    else
+      FG2dVoices.Font.Color := clWhite;
     FG2idVoiceMode.InitValue( FSlot.Patch.PatchDescription.VoiceCount + 2 - FSlot.Patch.PatchDescription.MonoPoly - 1);
-    FG2dVoices.Line[ 0] := FSlot.G2.TextFunction(0, FG2idVoiceMode.Value, 0, 0);
+    if FG2idVoiceMode.Value <= 1 then
+      FG2dVoices.Line[ 0] := FSlot.G2.TextFunction(0, FG2idVoiceMode.Value, 0, 0)
+    else
+      FG2dVoices.Line[ 0] := IntToStr(FSlot.AssignedVoices) + ' (' + FSlot.G2.TextFunction(0, FG2idVoiceMode.Value, 0, 0) + ')';
+
     for i := 0 to 7 do begin
       FG2kMorphArray[i].Parameter := FSlot.Patch.Parameter[ PATCH_MORPH, i];
       FG2btMorphArray[i].Parameter := FSlot.Patch.Parameter[ PATCH_MORPH, 8 + i];
     end;
-
-    frmPatchSettings.UpdateControls;
-    frmParameterPages.UpdateControls;
-    frmPatchNotes.UpdateControls;
 
     Invalidate;
   finally
@@ -1047,6 +1112,14 @@ var ModuleMap : TBitmap;
     G2DeviceList : TList;
     i : integer;
 begin
+  DecimalSeparator := '.';
+  Application.UpdateFormatSettings := False;
+
+  FMidiInDevices := TMidiDeviceList.Create(True);
+  FMidiOutDevices := TMidiDeviceList.Create(True);
+
+  InitMidiDevices( FMidiInDevices, FMidiOutDevices);
+
   FG2List := TObjectList.Create( True);
   FEditorSettingsList := TObjectList.Create( True);
 
@@ -1088,9 +1161,6 @@ begin
   finally
     ModuleMap.Free;
   end;
-
-  //FCtrlMidiInput := TMidiInput.Create(self);
-  //FCtrlMidiInput.OnMidiInput := DoCtrlMidiInput;
 
   LoadIniXML;
 
@@ -1150,6 +1220,7 @@ begin
   G2.OnMidiCCReceive := G2MidiCCReceive;
   G2.OnPatchUpdate := G2PatchUpdate;
   G2.OnPatchNameChange := G2PatchNameChange;
+  G2.OnPerfNameChange := G2PerfNameChange;
   G2.OnPerfSettingsUpdate := G2PerfSettingsUpdate;
   G2.OnReceiveResponseMessage := G2ReceiveResponseMessage;
   G2.OnSelectSlot := G2SelectSlot;
@@ -1165,6 +1236,13 @@ begin
   G2.OnSetParamLabel := G2SetParamLabel;
   G2.OnSelectModule := G2SelectModule;
   G2.OnSelectParam := G2SelectParam;
+  G2.OnAfterBankList := G2AfterBankList;
+  G2.OnAfterStore := G2AfterStore;
+  G2.OnAfterClear := G2AfterClear;
+  G2.OnAfterClearBank := G2AfterClearBank;
+  G2.OnMidiClockReceive := G2MidiClockReceive;
+  G2.OnAfterBankDownload := G2AfterBankDownload;
+  G2.OnAfterGetAssignedVoices := G2AfterGetAssignedVoices;
 
   FG2List.Add(G2);
 
@@ -1221,7 +1299,7 @@ begin
   sbVA.Invalidate;
   sbFX.Invalidate;
 
-  if assigned(frmParameterPages) then
+  {if assigned(frmParameterPages) then
     frmParameterPages.UpdateControls;
 
   if assigned(frmPatchSettings) then
@@ -1241,7 +1319,7 @@ begin
 
   if assigned(frmPatchManager) then begin
     frmPatchManager.TabControl1Change(self);
-  end;
+  end;}
 
 end;
 
@@ -1312,13 +1390,14 @@ end;
 
 procedure TfrmG2Main.FormDestroy(Sender: TObject);
 begin
-  //FCtrlMidiInput.Free;
-
   if assigned(FCopyPatch) then
     FCopyPatch.Free;
 
   FEditorSettingsList.Free;
   FG2List.Free;
+
+  FMidiOutDevices.Free;
+  FMidiInDevices.Free;
 end;
 
 procedure TfrmG2Main.LoadImageMap(aBitmap: TBitmap; aCols, aRows: integer; aImageList: TImageList);
@@ -1439,9 +1518,12 @@ procedure TfrmG2Main.SaveIniXML;
 var Doc : TXMLDocument;
     RootNode, SynthNode : TDOMNode;
     TCPSettingsNode : TXMLTCPSettingsType;
-    MidiSettingsNode : TXMLMidiSettingsType;
+    MidiSettingsNode : TXMLMidiDeviceType;
     EditorSettingsNode : TXMLEditorSettingsType;
-    CtrlMidiSettingsNode : TXMLCtrlMidiSettingsType;
+    CtrlMidiDeviceListNode : TDOMElement;
+    CtrlMidiDeviceNode : TXMLCtrlMidiDeviceType;
+    CtrlMidiAssignmentListNode : TDOMElement;
+    CtrlMidiAssignmentNode : TXMLCtrlMidiassignmentType;
     PatchManagerSettingsNode : TXMLPatchManagerSettingsType;
     DirSettingsNode : TXMLDirectorySettingsType;
     FormSettingsNode : TXMLFormSettingsType;
@@ -1450,30 +1532,21 @@ var Doc : TXMLDocument;
 begin
   Doc := TXMLDocument.Create;
   try
-    if FileExists('G2_editor_ini.xml') then
-      ReadXMLFile( Doc, 'G2_editor_ini.xml');
+    //if FileExists('G2_editor_ini.xml') then
+    //  ReadXMLFile( Doc, 'G2_editor_ini.xml');
 
-    RootNode := Doc.FindNode('G2_Editor_settings');
-    if not assigned(RootNode) then begin
-      RootNode := Doc.CreateElement('G2_Editor_settings');
-      Doc.AppendChild(RootNode);
-    end;
+    RootNode := Doc.CreateElement('G2_Editor_settings');
+    Doc.AppendChild(RootNode);
 
     for i := 0 to FG2List.Count - 1 do begin
 
-      SynthNode := RootNode.FindNode('G2_Synth_' + IntToStr(i+1));
-      if not assigned(SynthNode) then begin
-        SynthNode := Doc.CreateElement('G2_Synth_' + IntToStr(i+1));
-        RootNode.AppendChild(SynthNode);
-      end;
+      SynthNode := Doc.CreateElement('G2_Synth_' + IntToStr(i+1));
+      RootNode.AppendChild(SynthNode);
 
       G2 := FG2List[i] as TG2;
 
-      EditorSettingsNode := TXMLEditorSettingsType(SynthNode.FindNode('Editor_settings'));
-      if not assigned(EditorSettingsNode) then begin
-        EditorSettingsNode := TXMLEditorSettingsType( Doc.CreateElement('Editor_settings'));
-        SynthNode.AppendChild( EditorSettingsNode);
-      end;
+      EditorSettingsNode := TXMLEditorSettingsType( Doc.CreateElement('Editor_settings'));
+      SynthNode.AppendChild( EditorSettingsNode);
       EditorSettingsNode.LogEnabled := G2.LogLevel = 1;
       EditorSettingsNode.OnlyTextMenus := OnlyTextMenus;
       with FEditorSettingsList[i] as TEditorSettings do begin
@@ -1485,124 +1558,143 @@ begin
         EditorSettingsNode.LedColor := FLedColor;
       end;
 
-      TCPSettingsNode := TXMLTCPSettingsType( SynthNode.FindNode('TCP_settings'));
-      if not assigned( TCPSettingsNode) then begin
-        TCPSettingsNode := TXMLTCPSettingsType( Doc.CreateElement('TCP_settings'));
-        SynthNode.AppendChild(TCPSettingsNode);
-      end;
+      TCPSettingsNode := TXMLTCPSettingsType( Doc.CreateElement('TCP_settings'));
+      SynthNode.AppendChild(TCPSettingsNode);
       TCPSettingsNode.IsServer := G2.IsServer;
       TCPSettingsNode.IP := G2.Host;
       TCPSettingsNode.Port := G2.Port;
       TCPSettingsNode.TimerBroadcastLedMessages := G2.TimerBroadcastLedMessages;
 
-      MidiSettingsNode := TXMLMidiSettingsType( SynthNode.FindNode('MIDI_settings'));
-      if not assigned( MidiSettingsNode) then begin
-        MidiSettingsNode := TXMLMidiSettingsType( Doc.CreateElement('MIDI_settings'));
-        SynthNode.AppendChild( MidiSettingsNode);
+      MidiSettingsNode := TXMLMidiDeviceType( Doc.CreateElement('MIDI_settings'));
+      SynthNode.AppendChild( MidiSettingsNode);
+      //MidiSettingsNode.MidiEnabled := G2.MidiEnabled;
+      MidiSettingsNode.MidiInDevice := G2.MidiInDeviceName;
+      MidiSettingsNode.MidiOutDevice := G2.MidiOutDeviceName;
+    end;
+
+    CtrlMidiDeviceListNode := Doc.CreateElement('CTRL_MIDI_in_device_list');
+    RootNode.AppendChild( CtrlMidiDeviceListNode);
+    {for i := 0 to frmSettings.lvCtrlMidiIn.Items.Count - 1 do begin
+      if frmSettings.lvCtrlMidiIn.Items[i].Checked then begin
+        CtrlMidiDeviceNode := TXMLCtrlMidiDeviceType( Doc.CreateElement('CtrlMidiDevice'));
+        CtrlMidiDeviceListNode.AppendChild( CtrlMidiDeviceNode);
+        CtrlMidiDeviceNode.CtrlMidiDevice := frmSettings.lvCtrlMidiIn.Items[i].Caption;
+        CtrlMidiDeviceNode.CtrlMidiEnabled := True;
       end;
-      MidiSettingsNode.MidiEnabled := G2.MidiEnabled;
-      MidiSettingsNode.MidiInDevice := G2.MidiInput.ProductName;
-      MidiSettingsNode.MidiOutDevice := G2.MidiOutput.ProductName;
+    end;}
+    for i := 0 to frmSettings.clbCtrlMidiInDevices.Items.Count - 1 do begin
+      if frmSettings.clbCtrlMidiInDevices.Checked[i] then begin
+        CtrlMidiDeviceNode := TXMLCtrlMidiDeviceType( Doc.CreateElement('CtrlMidiDevice'));
+        CtrlMidiDeviceListNode.AppendChild( CtrlMidiDeviceNode);
+        CtrlMidiDeviceNode.CtrlMidiDevice := frmSettings.clbCtrlMidiInDevices.Items[i];
+        CtrlMidiDeviceNode.CtrlMidiEnabled := True;
+      end;
     end;
 
-    CtrlMidiSettingsNode := TXMLCtrlMidiSettingsType( RootNode.FindNode('CTRL_MIDI_settings'));
-    if not assigned( CtrlMidiSettingsNode) then begin
-      CtrlMidiSettingsNode := TXMLCtrlMidiSettingsType( Doc.CreateElement('CTRL_MIDI_settings'));
-      RootNode.AppendChild( CtrlMidiSettingsNode);
+    CtrlMidiDeviceListNode := Doc.CreateElement('CTRL_MIDI_out_device_list');
+    RootNode.AppendChild( CtrlMidiDeviceListNode);
+    {for i := 0 to frmSettings.lvCtrlMidiOut.Items.Count - 1 do begin
+      if frmSettings.lvCtrlMidiOut.Items[i].Checked then begin
+        CtrlMidiDeviceNode := TXMLCtrlMidiDeviceType( Doc.CreateElement('CtrlMidiDevice'));
+        CtrlMidiDeviceListNode.AppendChild( CtrlMidiDeviceNode);
+        CtrlMidiDeviceNode.CtrlMidiDevice := frmSettings.lvCtrlMidiOut.Items[i].Caption;
+        CtrlMidiDeviceNode.CtrlMidiEnabled := True;
+      end;
+    end;}
+    for i := 0 to frmSettings.clbCtrlMidiOutDevices.Items.Count - 1 do begin
+      if frmSettings.clbCtrlMidiOutDevices.Checked[i] then begin
+        CtrlMidiDeviceNode := TXMLCtrlMidiDeviceType( Doc.CreateElement('CtrlMidiDevice'));
+        CtrlMidiDeviceListNode.AppendChild( CtrlMidiDeviceNode);
+        CtrlMidiDeviceNode.CtrlMidiDevice := frmSettings.clbCtrlMidiOutDevices.Items[i];
+        CtrlMidiDeviceNode.CtrlMidiEnabled := True;
+      end;
     end;
-    CtrlMidiSettingsNode.CtrlMidiEnabled := frmMidiMapping.CtrlMidiEnabled;
-    CtrlMidiSettingsNode.CtrlMidiInDevice := frmMidiMapping.CtrlMidiInput.ProductName;
 
-    FormSettingsNode := TXMLFormSettingsType( RootNode.FindNode('MainForm'));
-    if not assigned( FormSettingsNode) then begin
-      FormSettingsNode := TXMLFormSettingsTYpe( Doc.CreateElement('MainForm'));
-      RootNode.AppendChild( FormSettingsNode);
+    CtrlMidiAssignmentListNode := Doc.CreateElement('CTRL_MIDI_ASSIGNMENT_LIST');
+    RootNode.AppendChild( CtrlMidiAssignmentListNode);
+    for i := 0 to  frmMidiMapping.MidiEditorAssignmentList.Count - 1 do begin
+      CtrlMidiassignmentNode := TXMLCtrlMidiassignmentType( Doc.CreateElement('CTRL_MIDI_ASSIGNMENT'));
+      CtrlMidiAssignmentListNode.AppendChild( CtrlMidiassignmentNode);
+      CtrlMidiassignmentNode.ID := i;
+      CtrlMidiassignmentNode.Channel := frmMidiMapping.MidiEditorAssignmentList[i].Channel;
+      CtrlMidiassignmentNode.Note := frmMidiMapping.MidiEditorAssignmentList[i].Note;
+      CtrlMidiassignmentNode.ControlIndex := frmMidiMapping.MidiEditorAssignmentList[i].ControlIndex;
+      CtrlMidiassignmentNode.CC := frmMidiMapping.MidiEditorAssignmentList[i].CC;
+      CtrlMidiassignmentNode.MinValue := frmMidiMapping.MidiEditorAssignmentList[i].MinValue;
+      CtrlMidiassignmentNode.MaxValue := frmMidiMapping.MidiEditorAssignmentList[i].MaxValue;
+      CtrlMidiassignmentNode.ControlPath := frmMidiMapping.MidiEditorAssignmentList[i].ControlPath;
     end;
+
+    FormSettingsNode := TXMLFormSettingsTYpe( Doc.CreateElement('MainForm'));
+    RootNode.AppendChild( FormSettingsNode);
     FormSettingsNode.PosX := Left;
     FormSettingsNode.PosY := Top;
     FormSettingsNode.SizeX := Width;
     FormSettingsNode.SizeY := Height;
     FormSettingsNode.Visible := True;
 
-    DirSettingsNode := TXMLDirectorySettingsType(RootNode.FindNode('DirectorySettings'));
-    if not assigned(DirSettingsNode) then begin
-      DirSettingsNode := TXMLDirectorySettingsType(Doc.CreateElement('DirectorySettings'));
-      RootNode.AppendChild(DirSettingsNode);
-    end;
+    DirSettingsNode := TXMLDirectorySettingsType(Doc.CreateElement('DirectorySettings'));
+    RootNode.AppendChild(DirSettingsNode);
     DirSettingsNode.G2oolsFolder := AnsiString(frmSettings.eG2oolsFolder.Text);
     DirSettingsNode.ModuleHelpFile := AnsiString(frmSettings.eModuleHelpFile.Text);
 
-    PatchManagerSettingsNode := TXMLPatchManagerSettingsType(RootNode.FindNode('PatchManagerSettings'));
-    if not assigned(PatchManagerSettingsNode) then begin
-      PatchManagerSettingsNode := TXMLPatchManagerSettingsType(Doc.CreateElement('PatchManagerSettings'));
-      RootNode.AppendChild(PatchManagerSettingsNode);
-    end;
+    PatchManagerSettingsNode := TXMLPatchManagerSettingsType(Doc.CreateElement('PatchManagerSettings'));
+    RootNode.AppendChild(PatchManagerSettingsNode);
     PatchManagerSettingsNode.BaseFolder := AnsiString(frmSettings.ePatchRootFolder.Text);
-    PatchManagerSettingsNode.SelectedTab := frmPatchManager.TabControl1.TabIndex;
-    PatchManagerSettingsNode.ExternalSortCol := frmPatchManager.FExternalSortCol;
-    PatchManagerSettingsNode.InternalSortCol := frmPatchManager.FInternalSortCol;
+    PatchManagerSettingsNode.SelectedTab := frmPatchBrowser.TabControl1.TabIndex;
+    PatchManagerSettingsNode.ExternalSortCol := frmPatchBrowser.FExternalSortCol;
+    PatchManagerSettingsNode.InternalSortCol := frmPatchBrowser.FInternalSortCol;
 
-    FormSettingsNode := TXMLFormSettingsType(RootNode.FindNode('PatchManagerForm'));
-    if not assigned(FormSettingsNode) then begin
-      FormSettingsNode := TXMLFormSettingsTYpe(Doc.CreateElement('PatchManagerForm'));
-      RootNode.AppendChild(FormSettingsNode);
-    end;
+    FormSettingsNode := TXMLFormSettingsTYpe(Doc.CreateElement('PatchBrowserForm'));
+    RootNode.AppendChild(FormSettingsNode);
+    FormSettingsNode.PosX := frmPatchBrowser.Left;
+    FormSettingsNode.PosY := frmPatchBrowser.Top;
+    FormSettingsNode.SizeX := frmPatchBrowser.Width;
+    FormSettingsNode.SizeY := frmPatchBrowser.Height;
+    FormSettingsNode.Visible := frmPatchBrowser.Visible;
 
+    FormSettingsNode := TXMLFormSettingsTYpe(Doc.CreateElement('PatchManagerForm'));
+    RootNode.AppendChild(FormSettingsNode);
     FormSettingsNode.PosX := frmPatchManager.Left;
     FormSettingsNode.PosY := frmPatchManager.Top;
     FormSettingsNode.SizeX := frmPatchManager.Width;
     FormSettingsNode.SizeY := frmPatchManager.Height;
     FormSettingsNode.Visible := frmPatchManager.Visible;
 
-    FormSettingsNode := TXMLFormSettingsType(RootNode.FindNode('SettingsForm'));
-    if not assigned(FormSettingsNode) then begin
-      FormSettingsNode := TXMLFormSettingsTYpe(Doc.CreateElement('SettingsForm'));
-      RootNode.AppendChild(FormSettingsNode);
-    end;
+    FormSettingsNode := TXMLFormSettingsTYpe(Doc.CreateElement('SettingsForm'));
+    RootNode.AppendChild(FormSettingsNode);
     FormSettingsNode.PosX := frmSettings.Left;
     FormSettingsNode.PosY := frmSettings.Top;
     FormSettingsNode.SizeX := frmSettings.Width;
     FormSettingsNode.SizeY := frmSettings.Height;
     FormSettingsNode.Visible := frmSettings.Visible;
 
-    FormSettingsNode := TXMLFormSettingsType(RootNode.FindNode('ParameterPagesForm'));
-    if not assigned(FormSettingsNode) then begin
-      FormSettingsNode := TXMLFormSettingsTYpe(Doc.CreateElement('ParameterPagesForm'));
-      RootNode.AppendChild(FormSettingsNode);
-    end;
+    FormSettingsNode := TXMLFormSettingsTYpe(Doc.CreateElement('ParameterPagesForm'));
+    RootNode.AppendChild(FormSettingsNode);
     FormSettingsNode.PosX := frmParameterPages.Left;
     FormSettingsNode.PosY := frmParameterPages.Top;
     FormSettingsNode.SizeX := frmParameterPages.Width;
     FormSettingsNode.SizeY := frmParameterPages.Height;
     FormSettingsNode.Visible := frmParameterPages.Visible;
 
-    FormSettingsNode := TXMLFormSettingsType(RootNode.FindNode('PatchSettingsForm'));
-    if not assigned(FormSettingsNode) then begin
-      FormSettingsNode := TXMLFormSettingsTYpe(Doc.CreateElement('PatchSettingsForm'));
-      RootNode.AppendChild(FormSettingsNode);
-    end;
+    FormSettingsNode := TXMLFormSettingsTYpe(Doc.CreateElement('PatchSettingsForm'));
+    RootNode.AppendChild(FormSettingsNode);
     FormSettingsNode.PosX := frmPatchSettings.Left;
     FormSettingsNode.PosY := frmPatchSettings.Top;
     FormSettingsNode.SizeX := frmPatchSettings.Width;
     FormSettingsNode.SizeY := frmPatchSettings.Height;
     FormSettingsNode.Visible := frmPatchSettings.Visible;
 
-    FormSettingsNode := TXMLFormSettingsType(RootNode.FindNode('EditorToolsForm'));
-    if not assigned(FormSettingsNode) then begin
-      FormSettingsNode := TXMLFormSettingsTYpe(Doc.CreateElement('EditorToolsForm'));
-      RootNode.AppendChild(FormSettingsNode);
-    end;
+    FormSettingsNode := TXMLFormSettingsTYpe(Doc.CreateElement('EditorToolsForm'));
+    RootNode.AppendChild(FormSettingsNode);
     FormSettingsNode.PosX := frmEditorTools.Left;
     FormSettingsNode.PosY := frmEditorTools.Top;
     FormSettingsNode.SizeX := frmEditorTools.Width;
     FormSettingsNode.SizeY := frmEditorTools.Height;
     FormSettingsNode.Visible := frmEditorTools.Visible;
 
-    FormSettingsNode := TXMLFormSettingsType(RootNode.FindNode('PatchNotesForm'));
-    if not assigned(FormSettingsNode) then begin
-      FormSettingsNode := TXMLFormSettingsTYpe(Doc.CreateElement('PatchNotesForm'));
-      RootNode.AppendChild(FormSettingsNode);
-    end;
+    FormSettingsNode := TXMLFormSettingsTYpe(Doc.CreateElement('PatchNotesForm'));
+    RootNode.AppendChild(FormSettingsNode);
     FormSettingsNode.PosX := frmPatchNotes.Left;
     FormSettingsNode.PosY := frmPatchNotes.Top;
     FormSettingsNode.SizeX := frmPatchNotes.Width;
@@ -1639,6 +1731,28 @@ begin
     end;
 
   UpdateColorSchema;
+end;
+
+procedure TfrmG2Main.SetMidiBoxVisible(aValue: boolean);
+var i : integer;
+
+  procedure SetMidiBoxVisibleWinControl( aWinControl : TWinControl);
+  var j : integer;
+  begin
+    for j := 0 to aWinControl.ControlCount - 1 do begin
+      if aWinControl.Controls[j] is TMidiAwareControl then begin
+        (aWinControl.Controls[j] as TMidiAwareControl).ShowMidiBox := aValue;
+      end else
+        if aWinControl.Controls[j] is TWinControl then
+          SetMidiBoxVisibleWinControl( aWinControl.Controls[j] as TWinControl);
+    end;
+  end;
+
+begin
+  for i := 0 to Application.ComponentCount -1 do begin
+    if Application.Components[i] is TForm then
+      SetMidiBoxVisibleWinControl( Application.Components[i] as TForm);
+  end;
 end;
 
 procedure TfrmG2Main.ShakeCables;
@@ -1678,80 +1792,6 @@ begin
   if assigned(frmPatchSettings) then
     frmPatchSettings.UpdateColorSchema;
 end;
-
-{procedure TfrmG2Main.SetCtrlMidiEnabled( aValue : boolean);
-begin
-  if aValue then begin
-    if FCtrlMidiInput.State = misClosed then
-      FCtrlMidiInput.OpenAndStart;
-    FCtrlMidiEnabled := aValue;
-  end else begin
-    FCtrlMidiEnabled := aValue;
-    if FCtrlMidiInput.State = misOpen then
-      FCtrlMidiInput.StopAndClose;
-  end;
-end;
-
-procedure TfrmG2Main.DoCtrlMidiInput(Sender: TObject);
-var G2 : TG2;
-  	thisEvent : TMyMidiEvent;
-    midistring : string;
-
-  function MidiToString(MidiEvent: TMyMidiEvent): string;
-  var channel, parameter, i : integer;
-  begin
-    if MidiEvent.Sysex = nil then begin
-      channel := CHANNEL_MASK and MidiEvent.MidiMessage;
-      parameter := MidiEvent.MidiMessage - channel;
-      Result := IntToHex(parameter, 2)
-              + IntToHex(MidiEvent.Data1, 2)
-              + IntToHex(MidiEvent.Data2, 2);
-    end else begin
-      channel := CHANNEL_MASK and ord(MidiEvent.Sysex[2]);
-      parameter := ord(MidiEvent.Sysex[5]);
-      Result := IntToHex(ord(MidiEvent.Sysex[0]), 2);
-      for i := 1 to MidiEvent.SysexLength - 1 do
-        Result := Result + IntToHex(ord(MidiEvent.Sysex[i]), 2);
-    end;
-  end;
-
-begin
-  while (FCtrlMidiInput.MessageCount > 0) do begin
-
-    // Get the event as an object
-    thisEvent := FCtrlMidiInput.GetMidiEvent;
-    try
-      if thisEvent.Sysex = nil then begin
-
-        midistring := MidiToString(thisEvent);
-
-        case thisEvent.MidiMessage of
-        143 : begin
-                G2 := SelectedG2;
-                if not assigned(G2) then
-                  exit;
-                G2.SendNoteMessage(thisEvent.Data1, $01);
-              end;
-        144 : begin
-                G2 := SelectedG2;
-                if not assigned(G2) then
-                  exit;
-
-                case thisEvent.Data2 of
-                0 : G2.SendNoteMessage(thisEvent.Data1, $01);
-                else
-                  G2.SendNoteMessage(thisEvent.Data1, $00);
-                end;
-              end;
-        end;
-
-
-      end;
-    finally
-      thisEvent.Free;
-    end;
-  end;
-end;}
 
 procedure TfrmG2Main.UpdateMainFormActions;
 var G2 : TG2;
@@ -1919,6 +1959,27 @@ begin
     end;
   end;
 
+  if assigned(frmPatchManager) and frmPatchManager.Showing then
+    frmPatchManager.UpdateSlot;
+
+  if assigned(frmParameterPages) and frmParameterPages.Visible then
+    frmParameterPages.UpdateControls;
+
+  if assigned(frmPatchSettings) and frmPatchSettings.Visible then
+    frmPatchSettings.UpdateControls;
+
+  if assigned(frmSettings) and frmSettings.Visible then
+    frmSettings.UpdateControls;
+
+  if assigned(frmSynthSettings) and frmSynthSettings.Visible then
+    frmSynthSettings.updateDialog;
+
+  if assigned(frmPerfSettings) and frmPerfSettings.Visible then
+    frmPerfSettings.updateDialog;
+
+  {if assigned(frmPatchManager) and frmPatchManager.Visible then
+    frmPatchManager.TabControl1Change(self);}
+
   if assigned(frmEditorTools) and frmEditorTools.Visible then
     frmEditorTools.UpdateControls;
 
@@ -1957,6 +2018,31 @@ begin
     Result := False;
 end;
 
+function TfrmG2Main.HandleMainKeyDown( var Key: Word; Shift: TShiftState): boolean;
+var G2 : TG2;
+begin
+  Result := False;
+
+  G2 := SelectedG2;
+  if not assigned(G2) then
+    exit;
+
+    case Key of
+      ord('1') : begin SelectVariation( G2.SelectedSlotIndex, 0); Result := True; end;
+      ord('2') : begin SelectVariation( G2.SelectedSlotIndex, 1); Result := True; end;
+      ord('3') : begin SelectVariation( G2.SelectedSlotIndex, 2); Result := True; end;
+      ord('4') : begin SelectVariation( G2.SelectedSlotIndex, 3); Result := True; end;
+      ord('5') : begin SelectVariation( G2.SelectedSlotIndex, 4); Result := True; end;
+      ord('6') : begin SelectVariation( G2.SelectedSlotIndex, 5); Result := True; end;
+      ord('7') : begin SelectVariation( G2.SelectedSlotIndex, 6); Result := True; end;
+      ord('8') : begin SelectVariation( G2.SelectedSlotIndex, 7); Result := True; end;
+      ord('A') : if not(ssShift in Shift) and not(ssAlt in Shift) and not(ssCtrl in Shift) then begin SelectSlot(0); Result := True; end;
+      ord('B') : if not(ssShift in Shift) and not(ssAlt in Shift) and not(ssCtrl in Shift) then begin SelectSlot(1); Result := True; end;
+      ord('C') : if not(ssShift in Shift) and not(ssAlt in Shift) and not(ssCtrl in Shift) then begin SelectSlot(2); Result := True; end;
+      ord('D') : if not(ssShift in Shift) and not(ssAlt in Shift) and not(ssCtrl in Shift) then begin SelectSlot(3); Result := True; end;
+    end;
+end;
+
 procedure TfrmG2Main.FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
 var G2 : TG2;
 begin
@@ -1964,76 +2050,58 @@ begin
   if not assigned(G2) then
     exit;
 
-  case Key of
-    ord('1') : SelectVariation( G2.SelectedSlotIndex, 0);
-    ord('2') : SelectVariation( G2.SelectedSlotIndex, 1);
-    ord('3') : SelectVariation( G2.SelectedSlotIndex, 2);
-    ord('4') : SelectVariation( G2.SelectedSlotIndex, 3);
-    ord('5') : SelectVariation( G2.SelectedSlotIndex, 4);
-    ord('6') : SelectVariation( G2.SelectedSlotIndex, 5);
-    ord('7') : SelectVariation( G2.SelectedSlotIndex, 6);
-    ord('8') : SelectVariation( G2.SelectedSlotIndex, 7);
-    ord('F') : if not(ssShift in Shift) and not(ssAlt in Shift) and not(ssCtrl in Shift) then SelectPatchLocation( ltFX);
-    ord('V') : if not(ssShift in Shift) and not(ssAlt in Shift) and not(ssCtrl in Shift) then SelectPatchLocation( ltVA);
-    ord('A') : if not(ssShift in Shift) and not(ssAlt in Shift) and not(ssCtrl in Shift) then SelectSlot(0);
-    ord('B') : if not(ssShift in Shift) and not(ssAlt in Shift) and not(ssCtrl in Shift) then SelectSlot(1);
-    ord('C') : if not(ssShift in Shift) and not(ssAlt in Shift) and not(ssCtrl in Shift) then SelectSlot(2);
-    ord('D') : if not(ssShift in Shift) and not(ssAlt in Shift) and not(ssCtrl in Shift) then SelectSlot(3);
-    VK_LEFT  : begin
-                 if ssShift in Shift then
-                   G2.SelectedPatchPart.SelectModuleLeft;
-                 if not(ssShift in Shift) then
-                   //G2.SelectedPatchPart.SelectPrevModuleParam;
-                   (G2.SelectedPatch as TG2GraphPatch).SelectPrevModuleControl;
-               end;
-    VK_RIGHT : begin
-                 if ssShift in Shift then
-                   G2.SelectedPatchPart.SelectModuleRight;
-                 if not(ssShift in Shift) then
-                   //G2.SelectedPatchPart.SelectNextModuleParam;
-                   (G2.SelectedPatch as TG2GraphPatch).SelectNextModuleControl;
-               end;
-    VK_UP    : begin
-                 if ssShift in Shift then
-                   G2.SelectedPatchPart.SelectModuleAbove;
-                 if not(ssShift in Shift) and not(ssCtrl in Shift) then
-                   if assigned(G2.SelectedPatchPart.SelectedParam) then
-                     G2.SelectedPatchPart.SelectedParam.IncValue;
-                 if ssCtrl in Shift then
-                   if assigned(G2.SelectedPatchPart.SelectedParam) then
-                     G2.SelectedPatchPart.SelectedParam.IncMorphValue;
-               end;
-    VK_DOWN  : begin
-                 if ssShift in Shift then
-                   G2.SelectedPatchPart.SelectModuleUnder;
-                 if not(ssShift in Shift) and not(ssCtrl in Shift) then
-                   if assigned(G2.SelectedPatchPart.SelectedParam) then
-                     G2.SelectedPatchPart.SelectedParam.DecValue;
-                 if ssCtrl in Shift then
-                   if assigned(G2.SelectedPatchPart.SelectedParam) then
-                     G2.SelectedPatchPart.SelectedParam.DecMorphValue;
-               end;
-  end;
-end;
+  if not HandleMainKeyDown( Key, Shift) then
 
-procedure TfrmG2Main.cbModeClick(Sender: TObject);
-var G2 : TG2;
-begin
-  if FDisableControls then
-    exit;
-
-  G2 := SelectedG2;
-  if not assigned(G2) then
-    exit;
-
-  if cbMode.Checked then
-    G2.SendSetModeMessage(1)  // Performance mode
-  else
-    G2.SendSetModeMessage(0); // Patch mode
-
-  G2.Performance.USBStartInit( True);
-
-  UpdateControls;
+    case Key of
+      {ord('1') : SelectVariation( G2.SelectedSlotIndex, 0);
+      ord('2') : SelectVariation( G2.SelectedSlotIndex, 1);
+      ord('3') : SelectVariation( G2.SelectedSlotIndex, 2);
+      ord('4') : SelectVariation( G2.SelectedSlotIndex, 3);
+      ord('5') : SelectVariation( G2.SelectedSlotIndex, 4);
+      ord('6') : SelectVariation( G2.SelectedSlotIndex, 5);
+      ord('7') : SelectVariation( G2.SelectedSlotIndex, 6);
+      ord('8') : SelectVariation( G2.SelectedSlotIndex, 7);}
+      ord('F') : if not(ssShift in Shift) and not(ssAlt in Shift) and not(ssCtrl in Shift) then SelectPatchLocation( ltFX);
+      ord('V') : if not(ssShift in Shift) and not(ssAlt in Shift) and not(ssCtrl in Shift) then SelectPatchLocation( ltVA);
+      {ord('A') : if not(ssShift in Shift) and not(ssAlt in Shift) and not(ssCtrl in Shift) then SelectSlot(0);
+      ord('B') : if not(ssShift in Shift) and not(ssAlt in Shift) and not(ssCtrl in Shift) then SelectSlot(1);
+      ord('C') : if not(ssShift in Shift) and not(ssAlt in Shift) and not(ssCtrl in Shift) then SelectSlot(2);
+      ord('D') : if not(ssShift in Shift) and not(ssAlt in Shift) and not(ssCtrl in Shift) then SelectSlot(3);}
+      VK_LEFT  : begin
+                   if ssShift in Shift then
+                     G2.SelectedPatchPart.SelectModuleLeft;
+                   if not(ssShift in Shift) then
+                     //G2.SelectedPatchPart.SelectPrevModuleParam;
+                     (G2.SelectedPatch as TG2GraphPatch).SelectPrevModuleControl;
+                 end;
+      VK_RIGHT : begin
+                   if ssShift in Shift then
+                     G2.SelectedPatchPart.SelectModuleRight;
+                   if not(ssShift in Shift) then
+                     //G2.SelectedPatchPart.SelectNextModuleParam;
+                     (G2.SelectedPatch as TG2GraphPatch).SelectNextModuleControl;
+                 end;
+      VK_UP    : begin
+                   if ssShift in Shift then
+                     G2.SelectedPatchPart.SelectModuleAbove;
+                   if not(ssShift in Shift) and not(ssCtrl in Shift) then
+                     if assigned(G2.SelectedPatchPart.SelectedParam) then
+                       G2.SelectedPatchPart.SelectedParam.IncValue;
+                   if ssCtrl in Shift then
+                     if assigned(G2.SelectedPatchPart.SelectedParam) then
+                       G2.SelectedPatchPart.SelectedParam.IncMorphValue;
+                 end;
+      VK_DOWN  : begin
+                   if ssShift in Shift then
+                     G2.SelectedPatchPart.SelectModuleUnder;
+                   if not(ssShift in Shift) and not(ssCtrl in Shift) then
+                     if assigned(G2.SelectedPatchPart.SelectedParam) then
+                       G2.SelectedPatchPart.SelectedParam.DecValue;
+                   if ssCtrl in Shift then
+                     if assigned(G2.SelectedPatchPart.SelectedParam) then
+                       G2.SelectedPatchPart.SelectedParam.DecMorphValue;
+                 end;
+    end;
 end;
 
 procedure TfrmG2Main.GetPatchversion;
@@ -2145,6 +2213,18 @@ begin
   // New patch
   G2.SelectedPatch.Init;
   G2.SelectedSlot.SendSetPatchMessage('No name', G2.SelectedPatch);
+end;
+
+procedure TfrmG2Main.aInitPerfExecute(Sender: TObject);
+var G2 : TG2;
+begin
+  G2 := SelectedG2;
+  if not assigned(G2) then
+    exit;
+
+  // New performance
+  G2.Performance.Init;
+  G2.Performance.USBStartInitPerf;
 end;
 
 procedure TfrmG2Main.aLoadPatchExecute(Sender: TObject);
@@ -2565,6 +2645,33 @@ begin
   end;
 end;
 
+procedure TfrmG2Main.aPatchRenameExecute(Sender: TObject);
+var G2 : TG2;
+begin
+  G2 := SelectedG2;
+  if not assigned(G2) then
+    exit;
+
+  frmEditLabel.eLabel.Text := G2.SelectedPatch.PatchName;
+  if frmEditLabel.ShowModal = mrOk then begin
+    G2.SelectedSlot.SendSetPatchName( frmEditLabel.eLabel.Text);
+  end;
+end;
+
+procedure TfrmG2Main.aPerfRenameExecute(Sender: TObject);
+var G2 : TG2;
+begin
+  G2 := SelectedG2;
+  if not assigned(G2) then
+    exit;
+
+  frmEditLabel.eLabel.Text := G2.Performance.PerformanceName;
+  if frmEditLabel.ShowModal = mrOk then begin
+     G2.Performance.SendSetPerfNameMessage( frmEditLabel.eLabel.Text);
+  end;
+end;
+
+
 // ==== Selection menu =========================================================
 
 procedure TfrmG2Main.SetOnlyTextMenus( aValue : boolean);
@@ -2909,7 +3016,7 @@ begin
     miSelectModule.Caption := 'Select &module, current ' + GetModuleName(Module);
     Param := GetSelectedParam;
     if assigned(Param) then
-      miSelectParameter.Caption := 'Select &parameter, current ' + GetParameterName(Param) + ', value ' + {GetParameterValue(Param)} Param.InfoFunction
+      miSelectParameter.Caption := 'Select &parameter, current ' + GetParameterName(Param) + ', value ' + {GetParameterValue(Param)} Param.InfoFunction( Param.InfoFunctionIndex)
     else
       miSelectParameter.Caption := 'Select &parameter';
     miSelectCable.Caption := 'Select cabl&e';
@@ -3086,7 +3193,7 @@ begin
     Module := G2.SelectedPatchPart.SelectedModuleList[0];
     for i := 0 to Module.ParameterCount - 1 do begin
       Param := Module.Parameter[i];
-      MenuItem := FindOrAddMenuItem( puSelectParam, 'mi' + ConvertToObjectName(Param.ParamName), Param.ParamName + ', value ' + Param.InfoFunction{ + ' (' + IntToStr(Param.GetParameterValue) + ')'});
+      MenuItem := FindOrAddMenuItem( puSelectParam, 'mi' + ConvertToObjectName(Param.ParamName), Param.ParamName + ', value ' + Param.InfoFunction( Param.InfoFunctionIndex));
       MenuItem.Tag := integer(Param);
       MenuItem.OnClick := DoSelectParam;
     end;
@@ -3339,6 +3446,11 @@ begin
   frmParameterPages.Show;
 end;
 
+procedure TfrmG2Main.aPatchBrowserExecute(Sender: TObject);
+begin
+  frmPatchBrowser.Show;
+end;
+
 procedure TfrmG2Main.aPatchManagerExecute(Sender: TObject);
 begin
   frmPatchManager.Show;
@@ -3432,7 +3544,11 @@ begin
         aSubMenuItem.Caption := string(G2.FModuleDefList.ModuleDef[j].ShortName);
         aSubMenuItem.Tag := G2.FModuleDefList.ModuleDef[j].ModuleType;
         aSubMenuItem.ImageIndex := G2.FModuleDefList.ModuleDef[j].ModuleType;
-        aSubMenuItem.OnClick := DoAddModule;
+
+        if aMenuItem.Caption = 'Test' then
+          aSubMenuItem.OnClick := DoAddTestModule
+        else
+          aSubMenuItem.OnClick := DoAddModule;
 
         k := 0;
         while (k<aMenuItem.Count) and (GetPageIndex(aMenuItem.Items[k].Tag) < G2.FModuleDefList.ModuleDef[j].PageIndex) do
@@ -3590,13 +3706,42 @@ begin
   if FAddPoint.Y < 0 then
     FAddPoint.Y := 0;
 
-  G2.SelectedPatch.MessAddModule( G2.SelectedPatch.SelectedLocation, aModuleType, FAddPoint.X div UNITS_COL, FAddPoint.y div UNITS_ROW );
+  G2.SelectedPatch.MessAddModule( G2.SelectedPatch.SelectedLocation, aModuleType, aModuleType, FAddPoint.X div UNITS_COL, FAddPoint.y div UNITS_ROW );
+end;
+
+procedure TfrmG2Main.AddTestModule( aModuleType, aAlternativeModuleType : byte);
+var G2 : TG2;
+begin
+  G2 := SelectedG2;
+  if not assigned(G2) then
+    exit;
+
+  if FAddPoint.X < 0 then
+    FAddPoint.X := 0;
+
+  if FAddPoint.Y < 0 then
+    FAddPoint.Y := 0;
+
+  G2.SelectedPatch.MessAddModule( G2.SelectedPatch.SelectedLocation, aModuleType, aAlternativeModuleType, FAddPoint.X div UNITS_COL, FAddPoint.y div UNITS_ROW );
 end;
 
 procedure TfrmG2Main.DoAddModule( Sender: TObject);
 begin
   with Sender as TMenuItem do
     AddModule( Tag);
+end;
+
+procedure TfrmG2Main.DoAddTestModule( Sender: TObject);
+var ModuleTypeID, AlternativeModuleTypeID : byte;
+begin
+  with Sender as TMenuItem do
+    ModuleTypeID := Tag;
+
+  frmTestModule.eModuleTypeID.Text := IntToStr(ModuleTypeID);
+  if frmTestModule.ShowModal = mrOk then begin
+    AlternativeModuleTypeID := StrToInt(frmTestModule.eModuleTypeID.Text);
+    AddTestModule( ModuleTypeID, AlternativeModuleTypeID);
+  end;
 end;
 
 procedure TfrmG2Main.miModuleAssignKnobsClick(Sender: TObject);
@@ -4101,7 +4246,7 @@ begin
     SynthName := (Sender as TG2).SynthName + ' : ';
 
   case SubCmd of
-  S_LOAD  : Statusbar1.SimpleText := SynthName + 'Loading patch...';
+  S_RETREIVE  : Statusbar1.SimpleText := SynthName + 'Retreiving patch...';
   Q_PATCH : Statusbar1.SimpleText := SynthName + 'Request patch...';
   Q_PATCH_NAME : Statusbar1.SimpleText := SynthName + 'Request patch name...';
   Q_PERF_SETTINGS : Statusbar1.SimpleText := SynthName + 'Request performance settings...';
@@ -4154,11 +4299,22 @@ end;
 procedure TfrmG2Main.G2PatchNameChange(Sender: TObject; SenderID, PatchIndex: Integer; PatchName: AnsiString);
 begin
   FSlotPanel[ PatchIndex].FePatchName.Text := PatchName;
+
+  UpdateControls;
 end;
+
+procedure TfrmG2Main.G2PerfNameChange(Sender: TObject; SenderID: Integer; PerfName : AnsiString);
+begin
+  frmPerfSettings.ePerfName.Text := PerfName;
+  UpdateControls;
+end;
+
 
 procedure TfrmG2Main.G2PatchUpdate(Sender: TObject; SenderID: Integer; PatchIndex: Integer);
 begin
   FSlotPanel[ PatchIndex].UpdateControls;
+
+  UpdateControls;
 end;
 
 procedure TfrmG2Main.G2DeleteModule(Sender: TObject; SenderID: integer; Location: TLocationType; ModuleIndex: integer);
@@ -4167,7 +4323,12 @@ begin
 end;
 
 procedure TfrmG2Main.G2PerfSettingsUpdate(Sender: TObject; SenderID: Integer; PerfMode: Boolean);
+var G2 : TG2;
 begin
+  G2 := SelectedG2;
+  if assigned(G2) then
+    gdMasterClock.Line[0] := IntToStr(G2.Performance.MasterClock);
+
   frmPerfSettings.updateDialog;
   UpdateControls;
 end;
@@ -4260,6 +4421,7 @@ begin
     sbVA.Invalidate;
     sbFX.Invalidate;
   end;
+
   UpdateControls;
 end;
 
@@ -4276,7 +4438,6 @@ begin
   end;
   UpdateControls;
 end;
-
 
 procedure TfrmG2Main.G2AddCable(Sender: TObject; SenderID: integer; Module: TG2FileCable);
 begin
@@ -4315,16 +4476,24 @@ begin
   lbClientsConnected.Caption := IntToStr( G2.GetClientCount);
 end;
 
-
 procedure TfrmG2Main.rbSynthChange(Sender: TObject);
 begin
   SelectG2( rbSynth.Value);
+
+  UpdateControls;
 end;
 
 procedure TfrmG2Main.G2AfterG2Init(Sender: TObject);
 begin
   UpdateControls;
-  frmPatchManager.TabControl1Change(Self);
+  frmPatchBrowser.TabControl1Change(Self);
+  if frmPatchManager.Showing then
+    frmPatchManager.Update;
+end;
+
+procedure TfrmG2Main.G2AfterGetAssignedVoices(Sender: TObject);
+begin
+  UpdateControls;
 end;
 
 procedure TfrmG2Main.G2AfterRetrievePatch(Sender: TObject; SenderID: Integer;  aSlot, aBank, aPatch: Byte);
@@ -4339,6 +4508,8 @@ begin
     G2.Performance.USBStartInit( True)
   else
     G2.Slot[ aSlot].USBStartInit( True);
+
+  UpdateControls;
 end;
 
 procedure TfrmG2Main.G2MidiCCReceive(Sender: TObject; SenderID: Integer; MidiCC: Byte);
@@ -4389,8 +4560,46 @@ begin
   UpdateMainFormActions;
 end;
 
+procedure TfrmG2Main.G2AfterBankList(Sender: TObject; SenderID: Integer);
+begin
+  if frmPatchManager.Showing then
+    frmPatchManager.Update;
+end;
+
+procedure TfrmG2Main.G2AfterStore(Sender: TObject; SenderID: Integer; SlotIndex,
+  BankIndex, PatchIndex : byte);
+begin
+  if frmPatchManager.Showing then
+    frmPatchManager.Update;
+end;
+
+procedure TfrmG2Main.G2AfterClear(Sender: TObject; SenderID: Integer;
+  PatchFileType : TPatchFileType; BankIndex, PatchIndex : byte);
+begin
+  if frmPatchManager.Showing then
+    frmPatchManager.Update;
+end;
+
+procedure TfrmG2Main.G2AfterBankDownload( Sender : TObject; SenderID : integer; PatchFileType : TPatchFileType);
+begin
+  if frmPatchManager.Showing then
+    frmPatchManager.Update;
+end;
+
+procedure TfrmG2Main.G2AfterClearBank(Sender: TObject; SenderID: Integer;
+  PatchFileType: TPatchFileType; BankIndex: byte);
+begin
+  UpdateControls;
+  if frmPatchManager.Showing then
+    frmPatchManager.Update;
+end;
+
+procedure TfrmG2Main.G2MidiClockReceive(Sender : TObject; SenderID : integer; BPM : integer);
+begin
+  gdMasterClock.Line[0] := IntToStr(BPM);
+end;
+
 
 initialization
   Initialized := False;
-
 end.

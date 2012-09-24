@@ -491,7 +491,6 @@ object frmModuleDef: TfrmModuleDef
     USBActive = False
     ProcessLedData = False
     TimerBroadcastLedMessages = 0
-    MidiEnabled = False
     ScrollboxVA = G2GraphScrollBox1
     SelectedSlotIndex = 0
     Left = 56

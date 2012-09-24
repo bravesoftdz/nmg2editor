@@ -1,5 +1,25 @@
 unit g2_database;
 
+//  ////////////////////////////////////////////////////////////////////////////
+//
+//  Copyright (C) 2011 Bruno Verhue
+//
+//  This program is free software; you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation; either version 2 of the License, or
+//  (at your option) any later version.
+//
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//
+//  You should have received a copy of the GNU General Public License
+//  along with this program; if not, write to the Free Software
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+//
+//  ////////////////////////////////////////////////////////////////////////////
+
 interface
 uses
   SysUtils, DOM, XMLRead, XMLWrite;
@@ -199,7 +219,7 @@ type
     property ModuleHelpFile : AnsiString read Get_ModuleHelpFile write Set_ModuleHelpFile;
   end;
 
-  TXMLMidiSettingsType = class(TDOMElement)
+  TXMLMidiDeviceType = class(TDOMElement)
   protected
     function Get_MidiEnabled: boolean;
     procedure Set_MidiEnabled( aValue : boolean);
@@ -213,15 +233,62 @@ type
     property MidiOutDevice : string read Get_MidiOutDevice write Set_MidiOutDevice;
   end;
 
-  TXMLCtrlMidiSettingsType = class(TDOMElement)
+  TXMLCtrlMidiDeviceType = class(TDOMElement)
   protected
     function Get_CtrlMidiEnabled: boolean;
     procedure Set_CtrlMidiEnabled( aValue : boolean);
-    function Get_CtrlMidiInDevice: string;
-    procedure Set_CtrlMidiInDevice( aValue : string);
+    function Get_CtrlMidiDevice: string;
+    procedure Set_CtrlMidiDevice( aValue : string);
   public
     property CtrlMidiEnabled: boolean read Get_CtrlMidiEnabled write Set_CtrlMidiEnabled;
-    property CtrlMidiInDevice : string read Get_CtrlMidiInDevice write Set_CtrlMidiInDevice;
+    property CtrlMidiDevice : string read Get_CtrlMidiDevice write Set_CtrlMidiDevice;
+  end;
+
+  TXMLCtrlMidiDeviceListType = class(TDOMElementList)
+  protected
+    function Get_CtrlMidiDevice(Index: Integer): TXMLCtrlMidiDeviceType;
+  public
+    constructor Create(ANode: TDOMNode); overload;
+    function GetMidiDeviceNodeByName( aName : string): TXMLCtrlMidiDeviceType;
+    property CtrlMidiDevice[Index: Integer]: TXMLCtrlMidiDeviceType read Get_CtrlMidiDevice; default;
+  end;
+
+  TXMLCtrlMidiAssignmentType = class(TDOMElement)
+  protected
+    function Get_ID: integer;
+    procedure Set_ID( aValue : integer);
+    function Get_Channel: byte;
+    procedure Set_Channel( aValue : byte);
+    function Get_Note: byte;
+    procedure Set_Note( aValue : byte);
+    function Get_ControlIndex: byte;
+    procedure Set_ControlIndex( aValue : byte);
+    function Get_CC: byte;
+    procedure Set_CC( aValue : byte);
+    function Get_MinValue: byte;
+    procedure Set_MinValue( aValue : byte);
+    function Get_MaxValue: byte;
+    procedure Set_MaxValue( aValue : byte);
+    function Get_ControlPath: string;
+    procedure Set_ControlPath( aValue : string);
+  public
+    property ID: integer read Get_ID write Set_ID;
+    property Channel: byte read Get_Channel write Set_Channel;
+    property Note: byte read Get_Note write Set_Note;
+    property CC: byte read Get_CC write Set_CC;
+    property MinValue: byte read Get_MinValue write Set_MinValue;
+    property MaxValue: byte read Get_MaxValue write Set_MaxValue;
+    property ControlPath : string read Get_ControlPath write Set_ControlPath;
+    property ControlIndex: byte read Get_ControlIndex write Set_ControlIndex;
+  end;
+
+   TXMLCtrlMidiassignmentListType = class(TDOMElementList)
+  protected
+    function Get_EditorCtrlMidiassignment(Index: Integer): TXMLCtrlMidiAssignmentType;
+  public
+    constructor Create(ANode: TDOMNode); overload;
+    property EditorCtrlMidiassignmente[Index: Integer]: TXMLCtrlMidiAssignmentType
+                            read Get_EditorCtrlMidiassignment; default;
   end;
 
   TXMLEditorSettingsType = class(TDOMElement)
@@ -265,6 +332,14 @@ begin
     Result := 0;
 end;
 
+function GetByte( aValue : string): byte;
+var Code : integer;
+begin
+  val( aValue, Result, Code);
+  if Code <> 0 then
+    Result := 0;
+end;
+
 { TXMLModuleDefListType }
 
 constructor TXMLModuleDefListType.Create(ANode: TDOMNode);
@@ -286,7 +361,6 @@ begin
   else
     Result := '';
 end;
-
 
 { TXMLModuleDefType }
 
@@ -761,7 +835,7 @@ end;
 
 { TXMLMidiSettingsType }
 
-function TXMLMidiSettingsType.Get_MidiEnabled: boolean;
+function TXMLMidiDeviceType.Get_MidiEnabled: boolean;
 begin
   if GetAttribute('MidiEnabled') = '' then
     Result := False
@@ -769,34 +843,59 @@ begin
     Result := StrToBool(GetAttribute('MidiEnabled'));
 end;
 
-function TXMLMidiSettingsType.Get_MidiInDevice: string;
+function TXMLMidiDeviceType.Get_MidiInDevice: string;
 begin
   Result := GetAttribute('MidiInDevice');
 end;
 
-function TXMLMidiSettingsType.Get_MidiOutDevice: string;
+function TXMLMidiDeviceType.Get_MidiOutDevice: string;
 begin
   Result := GetAttribute('MidiOutDevice');
 end;
 
-procedure TXMLMidiSettingsType.Set_MidiEnabled(aValue: boolean);
+procedure TXMLMidiDeviceType.Set_MidiEnabled(aValue: boolean);
 begin
   SetAttribute('MidiEnabled', BoolToStr(aValue));
 end;
 
-procedure TXMLMidiSettingsType.Set_MidiInDevice(aValue: string);
+procedure TXMLMidiDeviceType.Set_MidiInDevice(aValue: string);
 begin
   SetAttribute('MidiInDevice', aValue);
 end;
 
-procedure TXMLMidiSettingsType.Set_MidiOutDevice(aValue: string);
+procedure TXMLMidiDeviceType.Set_MidiOutDevice(aValue: string);
 begin
   SetAttribute('MidiOutDevice', aValue);
 end;
 
-{ TXMLCtrlMidiSettingsType }
+{ TXMLMidiDeviceListType }
 
-function TXMLCtrlMidiSettingsType.Get_CtrlMidiEnabled: boolean;
+constructor TXMLCtrlMidiDeviceListType.Create(ANode: TDOMNode);
+begin
+  inherited Create(aNode, 'CtrlMidiDevice');
+end;
+
+function TXMLCtrlMidiDeviceListType.GetMidiDeviceNodeByName( aName: string): TXMLCtrlMidiDeviceType;
+var i : integer;
+begin
+  i := 0;
+  while (i<Count) and (aName <> CtrlMidiDevice[i].CtrlMidiDevice) do
+    inc(i);
+
+  if (i<Count) then
+    Result := CtrlMidiDevice[i]
+  else
+    Result := nil;
+end;
+
+function TXMLCtrlMidiDeviceListType.Get_CtrlMidiDevice( Index: Integer): TXMLCtrlMidiDeviceType;
+begin
+  Result := TXMLCtrlMidiDeviceType(Item[Index]);
+end;
+
+{ TXMLCtrlMidiDeviceType }
+
+function TXMLCtrlMidiDeviceType.Get_CtrlMidiEnabled: boolean;
 begin
   if GetAttribute('CtrlMidiEnabled') = '' then
     Result := False
@@ -804,19 +903,114 @@ begin
     Result := StrToBool(GetAttribute('CtrlMidiEnabled'));
 end;
 
-procedure TXMLCtrlMidiSettingsType.Set_CtrlMidiEnabled( aValue : boolean);
+procedure TXMLCtrlMidiDeviceType.Set_CtrlMidiEnabled( aValue : boolean);
 begin
   SetAttribute('CtrlMidiEnabled', BoolToStr(aValue));
 end;
 
-function TXMLCtrlMidiSettingsType.Get_CtrlMidiInDevice: string;
+function TXMLCtrlMidiDeviceType.Get_CtrlMidiDevice: string;
 begin
-  Result := GetAttribute('CtrlMidiInDevice');
+  Result := GetAttribute('CtrlMidiDevice');
 end;
 
-procedure TXMLCtrlMidiSettingsType.Set_CtrlMidiInDevice( aValue : string);
+procedure TXMLCtrlMidiDeviceType.Set_CtrlMidiDevice( aValue : string);
 begin
-  SetAttribute('CtrlMidiInDevice', aValue);
+  SetAttribute('CtrlMidiDevice', aValue);
+end;
+
+{ TXMLEditorCtrlMidiassignmentType }
+
+function TXMLCtrlMidiassignmentType.Get_ID: integer;
+begin
+  Result := GetInt(GetAttribute('Channel'));
+end;
+
+procedure TXMLCtrlMidiassignmentType.Set_ID( aValue : integer);
+begin
+  SetAttribute('Channel', IntToStr(aValue));
+end;
+
+function TXMLCtrlMidiassignmentType.Get_Channel: byte;
+begin
+  Result := GetByte(GetAttribute('Channel'));
+end;
+
+procedure TXMLCtrlMidiassignmentType.Set_Channel( aValue : byte);
+begin
+  SetAttribute('Channel', IntToStr(aValue));
+end;
+
+function TXMLCtrlMidiassignmentType.Get_Note: byte;
+begin
+  Result := GetByte(GetAttribute('Note'));
+end;
+
+procedure TXMLCtrlMidiassignmentType.Set_Note( aValue : byte);
+begin
+  SetAttribute('Note', IntToStr(aValue));
+end;
+
+function TXMLCtrlMidiassignmentType.Get_ControlIndex: byte;
+begin
+  Result := GetByte(GetAttribute('ControlIndex'));
+end;
+
+procedure TXMLCtrlMidiassignmentType.Set_ControlIndex( aValue : byte);
+begin
+  SetAttribute('ControlIndex', IntToStr(aValue));
+end;
+
+function TXMLCtrlMidiassignmentType.Get_CC: byte;
+begin
+  Result := GetByte(GetAttribute('CC'));
+end;
+
+procedure TXMLCtrlMidiassignmentType.Set_CC( aValue : byte);
+begin
+  SetAttribute('CC', IntToStr(aValue));
+end;
+
+function TXMLCtrlMidiassignmentType.Get_MinValue: byte;
+begin
+  Result := GetByte(GetAttribute('MinValue'));
+end;
+
+procedure TXMLCtrlMidiassignmentType.Set_MinValue( aValue : byte);
+begin
+  SetAttribute('MinValue', IntToStr(aValue));
+end;
+
+function TXMLCtrlMidiassignmentType.Get_MaxValue: byte;
+begin
+  Result := GetByte(GetAttribute('MaxValue'));
+end;
+
+procedure TXMLCtrlMidiassignmentType.Set_MaxValue( aValue : byte);
+begin
+  SetAttribute('MaxValue', IntToStr(aValue));
+end;
+
+function TXMLCtrlMidiassignmentType.Get_ControlPath: string;
+begin
+  Result := GetAttribute('ControlPath');
+end;
+
+procedure TXMLCtrlMidiassignmentType.Set_ControlPath( aValue : string);
+begin
+  SetAttribute('ControlPath', aValue);
+end;
+
+{ TXMLEditorCtrlMidiassignmentListType }
+
+constructor TXMLCtrlMidiassignmentListType.Create(ANode: TDOMNode);
+begin
+  inherited Create(aNode,'CTRL_MIDI_ASSIGNMENT');
+end;
+
+function TXMLCtrlMidiassignmentListType.Get_EditorCtrlMidiassignment(
+  Index: Integer): TXMLCtrlMidiAssignmentType;
+begin
+  Result := TXMLCtrlMidiAssignmentType(Item[Index]);
 end;
 
 { TXMLEditorSettingsType}
@@ -925,6 +1119,7 @@ procedure TXMLEditorSettingsType.Set_OnlyTextMenus( aValue : boolean);
 begin
   SetAttribute('OnlyTextMenus', BoolToStr(aValue));
 end;
+
 
 
 end.

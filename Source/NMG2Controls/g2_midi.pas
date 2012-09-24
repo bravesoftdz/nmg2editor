@@ -35,44 +35,152 @@ unit g2_midi;
 
 interface
 uses
-  Classes, SysUtils, Controls,
 {$IFNDEF G2_VST}
   MMSystem, MidiType, MidiIn, MidiOut,
-{$IFDEF VER230}
-  System.Contnrs,
-{$ELSE}
-  Contnrs,
 {$ENDIF}
+{$IFDEF VER220}
+  System.Classes, System.SysUtils, System.Controls, System.Contnrs,
+{$ELSE}
+  Classes, SysUtils, Controls, Contnrs,
 {$ENDIF}
   g2_types, g2_file, g2_usb;
 
 const
   CHANNEL_MASK = $f;
+  MAX_CTRL_MIDI_ASSIGNMENTS = 255;
 
 type
+  TMidiDeviceStateChangeEvent = procedure(Sender : TObject) of object;
+
   TMidiAwareControl = class;
+  TMidiEditorAssignmentList = class;
+
+  TMidiDevice = class
+  private
+    FName : string;
+    FOpen : boolean;
+    FAssignment : TMidiDeviceAssignmentType;
+    FOnMidiDeviceStateChange : TMidiDeviceStateChangeEvent;
+
+  protected
+    procedure SetOpen( aValue : Boolean); virtual;
+    procedure SetAssignment( aValue : TMidiDeviceAssignmentType);
+  public
+    constructor Create;
+    destructor Destroy; override;
+
+    property Name : string read FName write FName;
+    property Open : boolean read FOpen write SetOpen;
+    property Assignment : TMidiDeviceAssignmentType read FAssignment write SetAssignment;
+    property OnMidiDeviceStateChange : TMidiDeviceStateChangeEvent read FOnMidiDeviceStateChange write FOnMidiDeviceStateChange;
+  end;
+
+{$IFNDEF G2_VST}
+  TMidiInDevice = class( TMidiDevice)
+  private
+    FMidiInput     : TMidiInput;
+  protected
+
+    procedure SetOpen( Value : Boolean); override;
+  public
+    constructor Create;
+    destructor Destroy; override;
+
+    property MidiInput : TMidiInput read FMidiInput;
+  end;
+
+  TMidiOutDevice = class( TMidiDevice)
+  private
+    FMidiOutput     : TMidiOutput;
+  protected
+    procedure SetOpen( Value : Boolean); override;
+  public
+    constructor Create;
+    destructor Destroy; override;
+
+    property MidiOutput : TMidiOutput read FMidiOutput;
+  end;
+{$ENDIF}
+
+  TMidiDeviceList = class(TObjectList)
+  protected
+    function    GetMidiDevice( aIndex : integer) : TMidiDevice;
+    procedure   SetMidiDevice( aIndex : integer; const aValue : TMidiDevice);
+  public
+    constructor Create( AOwnsObjects: Boolean);
+    destructor  Destroy; override;
+    function    Find( aMidiDevice : TMidiDevice): integer;
+    property    Items[ aIndex : integer]: TMidiDevice read GetMidiDevice write SetMidiDevice; default;
+  end;
+
+
+  TMidiOutputList = class( TObjectList)
+  protected
+    function    GetMidiOutput( aIndex : integer) : TMidiOutput;
+    procedure   SetMidiOutput( aIndex : integer; const aValue : TMidiOutput);
+  public
+    constructor Create( AOwnsObjects: Boolean);
+    destructor  Destroy; override;
+    function    Find( aMidiOutput : TMidiOutput): integer;
+    procedure   SendValue( aMidiMessage, aData1, aData2 : byte);
+
+    property    Items[ aIndex : integer]: TMidiOutput read GetMidiOutput write SetMidiOutput; default;
+  end;
 
   // Midi assignmet to editor UI control
   TMidiEditorAssignment = class
-    FChannel  : byte;
-    FNote     : byte;
-    FCC       : byte;
-    FValue    : byte;
-    FControl  : TMidiAwareControl; // Pointer to UI controls see g2_graph
+  private
+    FChannel        : byte;
+    FNote           : byte; // Note event (on/off)
+    FCC             : byte; // CC value, range of 0..127
+    FControlIndex   : byte; // For indexed controls (radiobuttons/onoff buttons)
+    FMinValue       : byte;
+    FMaxValue       : byte;
+    FMidiOutputList : TMidiOutputList;
+    FControl        : TMidiAwareControl; // Pointer to UI controls see g2_graph
+    FControlPath    : string; // Osc style adressing of the control within the application
+  public
+    constructor Create;
+    destructor Destroy; override;
+
+    procedure SendValue( aValue : byte);
+
+    property Channel : byte read FChannel write FChannel;
+    property Note : byte read FNote write FNote;
+    property ControlIndex : byte read FControlIndex write FControlIndex;
+    property CC : byte read FCC write FCC;
+    property MinValue : byte read FMinValue write FMinValue;
+    property MaxValue : byte read FMaxValue write FMaxValue;
+    property Control : TMidiAwareControl read FControl write FControl;
+    property ControlPath : string read FControlPath write FControlPath;
+    property MidiOutputList : TMidiOutputList read FMidiOutputList write FMidiOutputList;
   end;
 
   TMidiAwareControl = class( TGraphicControl)
   protected
-    FCtrlMidiEnabled : boolean;
-    FMidiEditorAssignment : TMidiEditorAssignment;
+    FIndexedControl : boolean;
+    FMidiEditorAssignmentList : TMidiEditorAssignmentList;
+    FMidiReceiving : boolean;
+    FMidiAware : boolean;
+    FShowMidiBox : boolean;
+    procedure SetShowMidiBox( aValue : boolean);
   public
     constructor Create( AOwner: TComponent); override;
     destructor  Destroy; override;
-    procedure   SetValueByMidi( aValue : byte); virtual;
+    procedure   SetValueByCtrlMidi( aMidiEditorAssignment : TMidiEditorAssignment; aMidiEvent : TMyMidiEvent); virtual;
+    procedure   SendCtrlMidiValue;
+    function    GetParameter : TG2FileParameter; virtual;
+    function    GetValue : byte; virtual;
+    function    GetHighValue : byte; virtual;
+    function    GetLowValue : byte; virtual;
+    function    GetCntrlPath : string;
 
-    property MidiEditorAssignment : TMidiEditorAssignment read FMidiEditorAssignment write FMidiEditorAssignment;
+    property MidiEditorAssignmentList : TMidiEditorAssignmentList read FMidiEditorAssignmentList write FMidiEditorAssignmentList;
+    property MidiReceiving : boolean read FMidiReceiving write FMidiReceiving;
+    property IndexedControl : boolean read FIndexedControl write FIndexedControl;
+    property ShowMidiBox : boolean read FShowMidiBox write SetShowMidiBox;
   published
-    property CtrlMidiEnabled : boolean read FCtrlMidiEnabled write FCtrlMidiEnabled;
+    property MidiAware : boolean read FMidiAware write FMidiAware;
   end;
 
   TMidiEditorAssignmentList = class(TObjectList)
@@ -82,7 +190,11 @@ type
   public
     constructor Create( AOwnsObjects: Boolean);
     destructor  Destroy; override;
-    function    Find( aControl : TMidiAwareControl): TMidiEditorAssignment;
+    function    FindControl( aControl : TMidiAwareControl): TMidiEditorAssignment;
+    function    FindControlNote( aControl : TMidiAwareControl; aChannel, aNote : byte): TMidiEditorAssignment;
+    function    FindControlCC( aControl : TMidiAwareControl; aChannel, aCC : byte): TMidiEditorAssignment;
+    function    FindControlHasCC( aControl : TMidiAwareControl): TMidiEditorAssignment;
+    function    FindControlHasIndex( aControl: TMidiAwareControl; aIndex : byte): TMidiEditorAssignment;
 
     property    Items[ aIndex : integer]: TMidiEditorAssignment read GetMidiEditorAssignment write SetMidiEditorAssignment; default;
   end;
@@ -92,22 +204,26 @@ type
     private
       FMidiEnabled : boolean;
       FSysExStream : TMemoryStream; // Buffer for sysex
+      FMidiInDeviceName : string;
+      FMidiOutDeviceName : string;
 {$IFNDEF G2_VST}
-      FMidiInput     : TMidiInput;
-      FMidiOutput    : TMidiOutput;
+      FMidiInDevice  : TMidiInDevice;
+      FMidiOutDevice : TMidiOutDevice;
       FLastMidiEvent : TMyMidiEvent;
-
+    //protected
+    //  procedure   SetMidiEnabled( aValue : boolean);
     protected
-      procedure   SetMidiEnabled( aValue : boolean);
+      procedure SetMidiInDevice( aValue : TMidiInDevice);
+      procedure SetMidiOutDevice( aValue : TMidiOutDevice);
     public
 {$ENDIF}
       constructor Create( AOwner: TComponent); override;
       destructor  Destroy; override;
 {$IFNDEF G2_VST}
-      procedure   OpenMidi;
-      procedure   CloseMidi;
-      procedure   GetInDevices( sl : TStrings);
-      procedure   GetOutDevices( sl : TStrings);
+      //procedure   OpenMidi;
+      //procedure   CloseMidi;
+      //procedure   GetInDevices( sl : TStrings);
+      //procedure   GetOutDevices( sl : TStrings);
       procedure   ProcessMidiMessage;
       procedure   SysExSend( aSlot: byte);
       procedure   SendMidiShort( aMidiMessage, aData1, aData2: Byte);
@@ -120,12 +236,18 @@ type
       procedure   SysExPerformanceRequest;
       procedure   SysExPatchRequestByFileIndex( aBank, aPatch: byte);
       procedure   SysExPerformanceRequestByFileIndex( aBank, aPerf: byte);
-   published
-      property    MidiEnabled : boolean read FMidiEnabled write SetMidiEnabled;
-      property    MidiInput : TMidiInput read FMidiInput;
-      property    MidiOutput : TMidiOutput read FMidiOutput;
+
+      //property    MidiEnabled : boolean read FMidiEnabled write SetMidiEnabled;
+      property    MidiInDevice : TMidiInDevice read FMidiInDevice write SetMidiInDevice;
+      property    MidiOutDevice : TMidiOutDevice read FMidiOutDevice write SetMidiOutDevice;
+      property    MidiInDeviceName : string read FMidiInDeviceName write FMidiInDeviceName;
+      property    MidiOutDeviceName : string read FMidiOutDeviceName write FMidiOutDeviceName;
 {$ENDIF}
-  end;
+   end;
+
+{$IFNDEF G2_VST}
+procedure InitMidiDevices( MidiInDevices, MidiOutDevices : TMidiDeviceList);
+{$ENDIF}
 
 implementation
 
@@ -135,24 +257,19 @@ begin
 
   FMidiEnabled := False;
 {$IFNDEF G2_VST}
-  FMidiInput := TMidiInput.Create(self);
-  FMidiOutput := TMidiOutput.Create(self);
+  FMidiInDevice := nil;
+  FMidiOutDevice := nil;
+
   FSysExStream := TMemoryStream.Create;
 
-
-  FMidiInput.OnMidiInput := DoMidiInput;
+  //FxMidiInput.OnMidiInput := DoMidiInput;
 {$ENDIF}
 end;
 
 destructor TG2Midi.Destroy;
 begin
 {$IFNDEF G2_VST}
-  CloseMidi;
-
-
   FSYsExStream.Free;
-  FMidiOutput.Free;
-  FMidiInput.Free;
 {$ENDIF}
   inherited;
 end;
@@ -173,6 +290,40 @@ begin
     Result := IntToHex(ord(MidiEvent.Sysex[0]), 2);
     for i := 1 to MidiEvent.SysexLength - 1 do
       Result := Result + IntToHex(ord(MidiEvent.Sysex[i]), 2);
+  end;
+end;
+
+procedure TG2Midi.SetMidiInDevice( aValue : TMidiInDevice);
+begin
+  if aValue <> FMidiInDevice then begin
+    if assigned(FMidiInDevice) then begin
+      if assigned(FMidiInDevice.MidiInput) then
+        FMidiInDevice.MidiInput.OnMidiInput := nil;
+      FMidiInDevice.Open := False;
+      FMidiInDevice.Assignment := mdatNone;
+    end;
+
+    if assigned(aValue) then begin
+      aValue.Assignment := mdatSysEx;
+      FMidiInDeviceName := aValue.FName;
+    end;
+    FMidiInDevice := aValue;
+  end;
+end;
+
+procedure TG2Midi.SetMidiOutDevice( aValue : TMidiOutDevice);
+begin
+  if aValue <> FMidiOutDevice then begin
+    if assigned(FMidiOutDevice) then begin
+      FMidiOutDevice.Open := False;
+      FMidiOutDevice.Assignment := mdatNone;
+    end;
+
+    if assigned(aValue) then begin
+      aValue.Assignment := mdatSysEx;
+      FMidiOutDeviceName := aValue.FName;
+    end;
+    FMidiOutDevice := aValue;
   end;
 end;
 
@@ -278,23 +429,29 @@ end;
 
 procedure TG2Midi.SendMidiLong( aSysex: Pointer; aMsgLength: Word);
 begin
-  with FMidiOutput do begin
+  if not (assigned(FMidiOutDevice) and assigned(FMidiOutDevice.FMidiOutput)) then
+    exit;
+
+  with FMidiOutDevice.MidiOutput do begin
     PutLong( aSysex, aMsgLength);
-    add_log_line( FMidiOutput.ProductName + ' <= ' + 'Sysex', LOGCMD_NUL);
+    add_log_line( ProductName + ' <= ' + 'Sysex', LOGCMD_NUL);
   end;
 end;
 
 procedure TG2Midi.SendMidiShort( aMidiMessage, aData1, aData2: Byte);
 begin
-   with FMidiOutput do begin
-     PutShort( aMidiMessage, aData1, aData2);
-     add_log_line( FMidiOutput.ProductName + ' <= ' + IntToHex( aMidiMessage, 2)
-                                              + ' ' + IntToHex( aData1, 2)
-                                              + ' ' + IntToHex( aData2, 2), LOGCMD_NUL);
+  if not (assigned(FMidiOutDevice) and assigned(FMidiOutDevice.FMidiOutput)) then
+    exit;
+
+  with FMidiOutDevice.MidiOutput do begin
+    PutShort( aMidiMessage, aData1, aData2);
+    add_log_line( ProductName + ' <= ' + IntToHex( aMidiMessage, 2)
+                                       + ' ' + IntToHex( aData1, 2)
+                                       + ' ' + IntToHex( aData2, 2), LOGCMD_NUL);
   end;
 end;
 
-procedure TG2Midi.SetMidiEnabled(aValue: boolean);
+{procedure TG2Midi.SetMidiEnabled(aValue: boolean);
 begin
   if aValue then begin
     if FMidiInput.State = misClosed then
@@ -309,7 +466,7 @@ begin
     if FMidiOutput.State = mosOpen then
       FMidiOutput.Close;
   end;
-end;
+end;}
 
 procedure TG2Midi.SysExSend( aSlot: byte);
 var
@@ -413,7 +570,7 @@ begin
   ProcessMidiMessage;
 end;
 
-procedure TG2Midi.GetInDevices(sl: TStrings);
+{procedure TG2Midi.GetInDevices(sl: TStrings);
 var DevMidiIn : TMidiInput;
     lInCaps: TMidiInCaps;
     i : integer;
@@ -448,7 +605,7 @@ begin
   finally
     DevMidiOut.Free;
   end;
-end;
+end;}
 
 procedure TG2Midi.ProcessMidiMessage;
 var	thisEvent : TMyMidiEvent;
@@ -458,10 +615,13 @@ var	thisEvent : TMyMidiEvent;
     G2FileDataStream : TG2FileDataStream;
     Lines : TStrings;
 begin
-  while (FMidiInput.MessageCount > 0) do begin
+  if not (assigned(FMidiInDevice) and assigned(FMidiInDevice.MidiInput)) then
+    exit;
+
+  while (FMidiInDevice.MidiInput.MessageCount > 0) do begin
 
     { Get the event as an object }
-    thisEvent := FMidiInput.GetMidiEvent;
+    thisEvent := FMidiInDevice.MidiInput.GetMidiEvent;
     try
       if thisEvent.Sysex <> nil then begin
 
@@ -574,7 +734,7 @@ begin
   end;
 end;}
 
-procedure TG2Midi.OpenMidi;
+{procedure TG2Midi.OpenMidi;
 begin
   with FMidiInput do begin
      Open;
@@ -596,6 +756,41 @@ begin
   with FMidiOutput do begin
     Close;
   end;
+end;}
+
+{ TMidiEditorAssignment }
+
+constructor TMidiEditorAssignment.Create;
+begin
+  FChannel        := 0;
+  FNote           := 0;
+  FControlIndex   := 0;
+  FCC             := 0;
+  FMinValue       := 0;
+  FMaxValue       := 0;
+  FControl        := nil;
+  FMidiOutputList := nil;
+  FControlPath    := '';
+end;
+
+destructor TMidiEditorAssignment.Destroy;
+begin
+  inherited;
+end;
+
+procedure TMidiEditorAssignment.SendValue( aValue : byte);
+begin
+  if assigned(FMidiOutputList) then begin
+    if FNote <> 0 then begin
+      if aValue > 0 then
+        FMidiOutputList.SendValue( $90 + FChannel, FNote, aValue)
+      else
+        FMidiOutputList.SendValue( $80 + FChannel, FNote, 0);
+    end else
+      if FCC <> 0 then begin
+        FMidiOutputList.SendValue( $B0 + FChannel, FCC, aValue);
+      end;
+  end;
 end;
 
 { TMidiEditorAssignmentList }
@@ -610,11 +805,64 @@ begin
   inherited;
 end;
 
-function TMidiEditorAssignmentList.Find( aControl: TMidiAwareControl): TMidiEditorAssignment;
+function TMidiEditorAssignmentList.FindControl( aControl: TMidiAwareControl): TMidiEditorAssignment;
 var i : integer;
 begin
   i := 0;
   while (i<Count) and (Items[i].FControl <> aControl) do
+    inc(i);
+
+  if (i<Count) then
+    Result := Items[i]
+  else
+    Result := nil;
+end;
+
+function TMidiEditorAssignmentList.FindControlCC(aControl: TMidiAwareControl;
+  aChannel, aCC: byte): TMidiEditorAssignment;
+var i : integer;
+begin
+  i := 0;
+  while (i<Count) and not((Items[i].FControl = aControl) and (Items[i].FChannel = aChannel) and (Items[i].FCC = aCC)) do
+    inc(i);
+
+  if (i<Count) then
+    Result := Items[i]
+  else
+    Result := nil;
+end;
+
+function TMidiEditorAssignmentList.FindControlHasCC(aControl: TMidiAwareControl): TMidiEditorAssignment;
+var i : integer;
+begin
+  i := 0;
+  while (i<Count) and not((Items[i].FControl = aControl) and (Items[i].FCC <> 0)) do
+    inc(i);
+
+  if (i<Count) then
+    Result := Items[i]
+  else
+    Result := nil;
+end;
+
+function TMidiEditorAssignmentList.FindControlHasIndex( aControl: TMidiAwareControl; aIndex : byte): TMidiEditorAssignment;
+var i : integer;
+begin
+  i := 0;
+  while (i<Count) and not((Items[i].FControl = aControl) and (Items[i].FControlIndex = aIndex)) do
+    inc(i);
+
+  if (i<Count) then
+    Result := Items[i]
+  else
+    Result := nil;
+end;
+
+function TMidiEditorAssignmentList.FindControlNote(aControl: TMidiAwareControl;  aChannel, aNote: byte): TMidiEditorAssignment;
+var i : integer;
+begin
+  i := 0;
+  while (i<Count) and not((Items[i].FControl = aControl) and (Items[i].FChannel = aChannel) and (Items[i].FNote = aNote)) do
     inc(i);
 
   if (i<Count) then
@@ -641,6 +889,11 @@ constructor TMidiAwareControl.Create(AOwner: TComponent);
 begin
   inherited;
 
+  FMidiEditorAssignmentList := nil;
+  FIndexedControl := False;
+  FMidiReceiving := False;
+  FMidiAware := False;
+  FShowMidiBox := False;
 end;
 
 destructor TMidiAwareControl.Destroy;
@@ -649,9 +902,330 @@ begin
   inherited;
 end;
 
-procedure TMidiAwareControl.SetValueByMidi(aValue: byte);
+procedure TMidiAwareControl.SetShowMidiBox(aValue: boolean);
+begin
+  FShowMidiBox := aValue;
+  Invalidate;
+end;
+
+procedure TMidiAwareControl.SetValueByCtrlMidi(aMidiEditorAssignment : TMidiEditorAssignment; aMidiEvent : TMyMidiEvent);
 begin
   // abstract
 end;
+
+function TMidiAwareControl.GetValue: byte;
+begin
+  // abstract
+  Result := 0;
+end;
+
+function TMidiAwareControl.GetHighValue: byte;
+begin
+  // abstract
+  Result := 0;
+end;
+
+function TMidiAwareControl.GetLowValue: byte;
+begin
+  // abstract
+  Result := 0;
+end;
+
+function TMidiAwareControl.GetParameter: TG2FileParameter;
+begin
+  // Abstract
+  Result := nil;
+end;
+
+function TMidiAwareControl.GetCntrlPath : string;
+
+  function GetParentName( aControl : TControl): string;
+  begin
+    if assigned(aControl.Parent) then
+      Result := GetParentName(aControl.Parent) + '/' + aControl.Parent.Name;
+  end;
+
+begin
+  // Recursively construct a path traveling up the parent tree
+  Result := Name;
+
+  Result := GetParentName(self) + '/' + Result;
+end;
+
+procedure TMidiAwareControl.SendCtrlMidiValue;
+var i : integer;
+    CtrlRange : byte;
+    MidiRange : byte;
+    MidiValue : byte;
+begin
+  if FMidiReceiving then
+    exit;
+
+  if assigned(FMidiEditorAssignmentList) then
+    for i := 0 to FMidiEditorAssignmentList.Count - 1 do begin
+      if FMidiEditorAssignmentList[i].FControl = self then begin
+        if FIndexedControl then begin
+          if FMidiEditorAssignmentList[i].FControlIndex = GetValue then begin
+            // Send max value
+            FMidiEditorAssignmentList[i].SendValue( FMidiEditorAssignmentList[i].MaxValue);
+          end else begin
+            // Send min value
+            FMidiEditorAssignmentList[i].SendValue( FMidiEditorAssignmentList[i].MinValue);
+          end;
+        end else begin
+
+          CtrlRange := GetHighValue - GetLowValue;
+          MidiRange := FMidiEditorAssignmentList[i].MaxValue - FMidiEditorAssignmentList[i].MinValue;
+
+          if CtrlRange <> 0 then begin
+            MidiValue := trunc(((GetValue - GetLowValue)/CtrlRange) * MidiRange + FMidiEditorAssignmentList[i].MinValue);
+            FMidiEditorAssignmentList[i].SendValue( MidiValue);
+          end else
+            FMidiEditorAssignmentList[i].SendValue( 0);
+        end;
+      end;
+    end;
+end;
+
+{ TMidiDevice }
+
+constructor TMidiDevice.Create;
+begin
+  FOpen := False;
+  FAssignment := mdatNone;
+end;
+
+destructor TMidiDevice.Destroy;
+begin
+  inherited;
+end;
+
+procedure TMidiDevice.SetOpen( aValue: Boolean);
+begin
+  FOpen := aValue;
+end;
+
+procedure TMidiDevice.SetAssignment( aValue : TMidiDeviceAssignmentType);
+begin
+  if aValue <> FAssignment then begin
+    case aValue of
+    mdatNone :
+      begin
+        FAssignMent := aValue;
+        Open := False;
+      end;
+    mdatSysex,
+    mdatCtrl :
+      if not Open then begin
+        FAssignment := aValue;
+        Open := True;
+        if not Open then
+          FAssignment := mdatNone;
+      end else
+        FAssignment := aValue;
+    end;
+  end;
+end;
+
+{$IFNDEF G2_VST}
+
+{ TMidiInDevice }
+
+constructor TMidiInDevice.Create;
+begin
+  inherited;
+  FMidiInput := TMidiInput.Create(nil);
+end;
+
+destructor TMidiInDevice.Destroy;
+begin
+  FMidiInput.Free;
+  inherited;
+end;
+
+procedure TMidiInDevice.SetOpen(Value: Boolean);
+begin
+  if assigned(FMidiInput) then begin
+    if Value = True then begin
+      if FMidiInput.State = misClosed then begin
+        try
+          FMidiInput.Open;
+          FMidiInput.Start;
+          FOpen := True;
+        except
+          FOpen := False;
+        end;
+      end;
+    end else begin
+      FMidiInput.StopAndClose;
+      FOpen := False;
+    end;
+  end else
+    FOpen := False;
+end;
+
+{ TMidiOutDevice }
+
+constructor TMidiOutDevice.Create;
+begin
+  inherited;
+  FMidiOutput := TMidiOutput.Create(nil);
+end;
+
+destructor TMidiOutDevice.Destroy;
+begin
+  FMidiOutput.Free;
+  inherited;
+end;
+
+procedure TMidiOutDevice.SetOpen(Value: Boolean);
+begin
+  if assigned(FMidiOutput) then begin
+    if Value = True then begin
+      if FMidiOutput.State = mosClosed then begin
+        try
+          FMidiOutput.Open;
+          FOpen := True;
+        except
+          FOpen := False;
+        end;
+      end;
+    end else begin
+      FMidiOutput.Close;
+      FOpen := False;
+    end;
+  end else
+    FOpen := False;
+
+  if assigned(FOnMidiDeviceStateChange) then
+    FOnMidiDeviceStateChange(self);
+end;
+
+{$ENDIF}
+
+{ TMidiDeviceList }
+
+constructor TMidiDeviceList.Create(AOwnsObjects: Boolean);
+begin
+  inherited;
+end;
+
+destructor TMidiDeviceList.Destroy;
+begin
+
+  inherited;
+end;
+
+function TMidiDeviceList.Find(aMidiDevice: TMidiDevice): integer;
+var i : integer;
+begin
+  i := 0;
+  while (i < Count) and not(Items[i] = aMidiDevice) do
+    inc(i);
+
+  if (i < Count) then
+    Result := i
+  else
+    Result := -1;
+end;
+
+function TMidiDeviceList.GetMidiDevice(aIndex: integer): TMidiDevice;
+begin
+  Result := inherited items[aIndex] as TMidiDevice
+end;
+
+procedure TMidiDeviceList.SetMidiDevice(aIndex: integer;
+  const aValue: TMidiDevice);
+begin
+  inherited items[aIndex] := aValue;
+end;
+
+{ TMidiOutputList }
+
+constructor TMidiOutputList.Create(AOwnsObjects: Boolean);
+begin
+  inherited;
+end;
+
+destructor TMidiOutputList.Destroy;
+begin
+  inherited;
+end;
+
+function TMidiOutputList.Find(aMidiOutput: TMidiOutput): integer;
+var i : integer;
+begin
+  i := 0;
+  while (i < Count) and not(Items[i] = aMidiOutput) do
+    inc(i);
+
+  if (i < Count) then
+    Result := i
+  else
+    Result := -1;
+end;
+
+function TMidiOutputList.GetMidiOutput(aIndex: integer): TMidiOutput;
+begin
+  Result := inherited items[aIndex] as TMidiOutput
+end;
+
+procedure TMidiOutputList.SetMidiOutput(aIndex: integer; const aValue: TMidiOutput);
+begin
+  inherited items[aIndex] := aValue;
+end;
+
+procedure TMidiOutputList.SendValue( aMidiMessage, aData1, aData2 : byte);
+var i : integer;
+begin
+  for i := 0 to Count - 1 do
+    if Items[i].State = mosOpen then
+      Items[i].PutShort( aMidiMessage, aData1, aData2);
+end;
+
+{$IFNDEF G2_VST}
+procedure InitMidiDevices( MidiInDevices, MidiOutDevices : TMidiDeviceList);
+var lOutCaps: TMidiOutCaps;
+    lInCaps: TMidiInCaps;
+    i, d : integer;
+    MidiInput : TMidiInput;
+    MidiOutput : TMidiOutput;
+    MidiInDevice : TMidiInDevice;
+    MidiOutDevice : TMidiOutDevice;
+begin
+  MidiInput := TMidiInput.Create(nil);
+  midiOutput := TMidiOutput.Create(nil);
+  try
+    MidiOutDevices.Clear;
+    if midiOutput.NumDevs > 0 then begin
+      for i := 0 To (midiOutput.NumDevs-1) do begin
+        midiOutGetDevCaps(i, @lOutCaps, SizeOf(TMidiOutCaps));
+
+        MidiOutDevice := TMidiOutDevice.Create;
+        MidiOutDevice.Name := lOutCaps.szPname;
+        MidiOutDevice.MidiOutput.DeviceID := i;
+        MidiOutDevices.Add(MidiOutDevice);
+      end;
+    end;
+
+    MidiInDevices.Clear;
+    if MidiInput.NumDevs > 0 then begin
+      for i := 0 To (MidiInput.NumDevs-1) do begin
+        midiInGetDevCaps(i, @lInCaps, SizeOf(TMidiInCaps));
+
+        MidiInDevice := TMidiInDevice.Create;
+        MidiInDevice.Name := lInCaps.szPname;
+        MidiInDevice.MidiInput.DeviceID := i;
+        //TODO !MidiInDevice.MidiInput.OnMidiInput := frmMidiMapping.DoCtrlMidiInput;
+        MidiInDevices.Add(MidiInDevice);
+      end;
+    end;
+
+  finally
+    midiOutput.Free;
+    MidiInput.Free;
+  end;
+end;
+{$ENDIF}
 
 end.

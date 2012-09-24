@@ -3,8 +3,8 @@ object frmSettings: TfrmSettings
   Top = 0
   BorderStyle = bsDialog
   Caption = 'Application settings'
-  ClientHeight = 366
-  ClientWidth = 498
+  ClientHeight = 438
+  ClientWidth = 522
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -22,16 +22,173 @@ object frmSettings: TfrmSettings
   object PageControl1: TPageControl
     Left = 0
     Top = 0
-    Width = 498
-    Height = 303
-    ActivePage = TabSheet4
+    Width = 522
+    Height = 375
+    ActivePage = TabSheet5
     Align = alClient
     TabOrder = 0
+    object TabSheet3: TTabSheet
+      Caption = 'General'
+      ImageIndex = 2
+      object GroupBox1: TGroupBox
+        Left = 12
+        Top = 24
+        Width = 485
+        Height = 145
+        Caption = 'Folders'
+        TabOrder = 0
+        object bSelectPtachRootFolder: TButton
+          Left = 423
+          Top = 23
+          Width = 35
+          Height = 25
+          Caption = '...'
+          TabOrder = 0
+          OnClick = bSelectPtachRootFolderClick
+        end
+        object StaticText12: TStaticText
+          Left = 11
+          Top = 30
+          Width = 85
+          Height = 17
+          Caption = 'Patch root folder'
+          FocusControl = ePatchRootFolder
+          TabOrder = 1
+          TabStop = True
+        end
+        object ePatchRootFolder: DEdit
+          Left = 112
+          Top = 26
+          Width = 301
+          Height = 21
+          TabOrder = 2
+          OnEnter = ePatchRootFolderEnter
+        end
+        object StaticText16: TStaticText
+          Left = 12
+          Top = 60
+          Width = 78
+          Height = 17
+          Caption = 'Module help file'
+          TabOrder = 3
+        end
+        object StaticText17: TStaticText
+          Left = 12
+          Top = 89
+          Width = 66
+          Height = 17
+          Caption = 'g2ools folder'
+          TabOrder = 4
+        end
+        object eModuleHelpFile: TEdit
+          Left = 112
+          Top = 56
+          Width = 301
+          Height = 21
+          TabOrder = 5
+          OnEnter = eModuleHelpFileEnter
+        end
+        object eG2oolsFolder: TEdit
+          Left = 112
+          Top = 85
+          Width = 301
+          Height = 21
+          TabOrder = 6
+          OnEnter = eG2oolsFolderEnter
+        end
+        object bSelectModuleHelpFile: TButton
+          Left = 423
+          Top = 54
+          Width = 35
+          Height = 25
+          Caption = '...'
+          TabOrder = 7
+          OnClick = bSelectModuleHelpFileClick
+        end
+        object bSelectG2oolsFolder: TButton
+          Left = 423
+          Top = 83
+          Width = 35
+          Height = 25
+          Caption = '...'
+          TabOrder = 8
+          OnClick = bSelectG2oolsFolderClick
+        end
+      end
+      object GroupBox2: TGroupBox
+        Left = 12
+        Top = 175
+        Width = 485
+        Height = 82
+        Caption = 'USB Message log'
+        TabOrder = 1
+        object cbLogEnabled: TCheckBox
+          Left = 12
+          Top = 32
+          Width = 97
+          Height = 17
+          Caption = 'Log enabled'
+          TabOrder = 0
+          OnClick = cbLogEnabledClick
+          OnEnter = cbLogEnabledEnter
+        end
+      end
+    end
+    object TabSheet6: TTabSheet
+      Caption = 'Ctrl Midi'
+      ImageIndex = 5
+      object StaticText6: TStaticText
+        Left = 17
+        Top = 21
+        Width = 53
+        Height = 17
+        Caption = 'Ctrl midi in'
+        TabOrder = 0
+        TabStop = True
+      end
+      object bMidiMapping: TButton
+        Left = 17
+        Top = 290
+        Width = 75
+        Height = 25
+        Caption = 'Mapping'
+        TabOrder = 2
+        OnClick = bMidiMappingClick
+      end
+      object StaticText18: TStaticText
+        Left = 17
+        Top = 171
+        Width = 61
+        Height = 17
+        Caption = 'Ctrl midi out'
+        TabOrder = 1
+      end
+      object clbCtrlMidiInDevices: TCheckListBox
+        Left = 104
+        Top = 21
+        Width = 369
+        Height = 144
+        OnClickCheck = clbCtrlMidiInDevicesClickCheck
+        ItemHeight = 13
+        Sorted = True
+        TabOrder = 3
+      end
+      object clbCtrlMidiOutDevices: TCheckListBox
+        Left = 104
+        Top = 171
+        Width = 369
+        Height = 144
+        OnClickCheck = clbCtrlMidiOutDevicesClickCheck
+        ItemHeight = 13
+        Sorted = True
+        TabOrder = 4
+      end
+    end
     object TabSheet1: TTabSheet
       Caption = 'TCP-IP'
       object cbIsServer: TCheckBox
-        Left = 182
-        Top = 22
+        Left = 198
+        Top = 62
         Width = 91
         Height = 17
         Caption = 'Is server'
@@ -40,8 +197,8 @@ object frmSettings: TfrmSettings
         OnEnter = cbIsServerEnter
       end
       object StaticText1: TStaticText
-        Left = 16
-        Top = 57
+        Left = 32
+        Top = 97
         Width = 24
         Height = 17
         Caption = 'Port'
@@ -50,8 +207,8 @@ object frmSettings: TfrmSettings
         TabStop = True
       end
       object StaticText2: TStaticText
-        Left = 16
-        Top = 92
+        Left = 32
+        Top = 132
         Width = 26
         Height = 17
         Caption = 'Host'
@@ -60,18 +217,18 @@ object frmSettings: TfrmSettings
         TabStop = True
       end
       object StaticText3: TStaticText
-        Left = 16
-        Top = 123
-        Width = 148
+        Left = 32
+        Top = 163
+        Width = 137
         Height = 17
-        Caption = 'Timer broadcast led messages'
+        Caption = 'Broadcast leds interval (ms)'
         FocusControl = eTimerBroadcastLedMessages
         TabOrder = 5
         TabStop = True
       end
       object ePort: DEdit
-        Left = 182
-        Top = 53
+        Left = 198
+        Top = 93
         Width = 121
         Height = 21
         NumbersOnly = True
@@ -80,8 +237,8 @@ object frmSettings: TfrmSettings
         OnEnter = ePortEnter
       end
       object eHost: DEdit
-        Left = 182
-        Top = 87
+        Left = 198
+        Top = 127
         Width = 121
         Height = 21
         TabOrder = 4
@@ -89,328 +246,233 @@ object frmSettings: TfrmSettings
         OnEnter = eHostEnter
       end
       object eTimerBroadcastLedMessages: DEdit
-        Left = 182
-        Top = 119
+        Left = 198
+        Top = 159
         Width = 121
         Height = 21
         TabOrder = 6
         Text = '500'
         OnEnter = eTimerBroadcastLedMessagesEnter
       end
+      object Panel4: TPanel
+        Left = 0
+        Top = 0
+        Width = 514
+        Height = 25
+        Align = alTop
+        Caption = 'Panel3'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = [fsBold]
+        ParentFont = False
+        TabOrder = 7
+      end
     end
     object TabSheet4: TTabSheet
       Caption = 'Midi'
       ImageIndex = 3
-      object cbMidiEnabled: TCheckBox
-        Left = 104
-        Top = 16
-        Width = 97
-        Height = 17
-        Caption = 'Midi enabled'
-        TabOrder = 0
-        OnClick = cbMidiEnabledClick
-        OnEnter = cbMidiEnabledEnter
-      end
-      object cbCtrlMidiEnabled: TCheckBox
-        Left = 104
-        Top = 124
-        Width = 97
-        Height = 17
-        Caption = 'Ctrl midi enabled'
-        TabOrder = 5
-        OnClick = cbCtrlMidiEnabledClick
-        OnEnter = cbCtrlMidiEnabledEnter
-      end
+      ExplicitHeight = 322
       object StaticText5: TStaticText
-        Left = 17
-        Top = 92
+        Left = 19
+        Top = 189
         Width = 73
         Height = 17
         Caption = 'Sysex midi out'
-        TabOrder = 3
-        TabStop = True
-      end
-      object StaticText6: TStaticText
-        Left = 17
-        Top = 156
-        Width = 53
-        Height = 17
-        Caption = 'Ctrl midi in'
-        TabOrder = 6
-        TabStop = True
-      end
-      object StaticText4: TStaticText
-        Left = 17
-        Top = 52
-        Width = 65
-        Height = 17
-        Caption = 'Sysex midi in'
         TabOrder = 1
         TabStop = True
       end
-      object cbMidiOutDevices: DCombobox
-        Left = 104
-        Top = 88
-        Width = 261
-        Height = 21
-        TabOrder = 4
-        OnEnter = cbMidiOutDevicesEnter
-        OnSelect = cbMidiOutDevicesSelect
+      object StaticText4: TStaticText
+        Left = 19
+        Top = 39
+        Width = 65
+        Height = 17
+        Caption = 'Sysex midi in'
+        TabOrder = 0
+        TabStop = True
       end
-      object cbCtrlMidiInDevices: DCombobox
+      object clbSysexMidiInDevices: TCheckListBox
         Left = 104
-        Top = 152
-        Width = 261
-        Height = 21
-        TabOrder = 7
-        OnEnter = cbCtrlMidiInDevicesEnter
-        OnSelect = cbCtrlMidiInDevicesSelect
-      end
-      object cbMidiInDevices: DCombobox
-        Left = 104
-        Top = 48
-        Width = 261
-        Height = 21
+        Top = 39
+        Width = 345
+        Height = 144
+        OnClickCheck = clbSysexMidiInDevicesClickCheck
+        ItemHeight = 13
+        Sorted = True
         TabOrder = 2
-        OnEnter = cbMidiInDevicesEnter
-        OnSelect = cbMidiInDevicesSelect
       end
-      object bMidiMapping: TButton
+      object clbSysExMidiOutDevices: TCheckListBox
         Left = 104
-        Top = 179
-        Width = 75
+        Top = 189
+        Width = 345
+        Height = 144
+        OnClickCheck = clbSysExMidiOutDevicesClickCheck
+        ItemHeight = 13
+        Sorted = True
+        TabOrder = 3
+      end
+      object Panel3: TPanel
+        Left = 0
+        Top = 0
+        Width = 514
         Height = 25
-        Caption = 'Mapping'
-        TabOrder = 8
-        OnClick = bMidiMappingClick
+        Align = alTop
+        Caption = 'Panel3'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = [fsBold]
+        ParentFont = False
+        TabOrder = 4
       end
     end
     object TabSheet5: TTabSheet
       Caption = 'Editor'
       ImageIndex = 4
       object cbSlotStripColor: TColorBox
-        Left = 152
-        Top = 80
+        Left = 184
+        Top = 88
         Width = 145
         Height = 22
         Style = [cbStandardColors, cbExtendedColors, cbSystemColors, cbCustomColor, cbCustomColors]
-        TabOrder = 4
+        TabOrder = 3
         OnChange = cbSlotStripColorChange
         OnEnter = cbSlotStripColorEnter
       end
       object cbSlotStripInverseColor: TColorBox
-        Left = 152
-        Top = 108
+        Left = 184
+        Top = 116
         Width = 145
         Height = 22
         Style = [cbStandardColors, cbExtendedColors, cbSystemColors, cbCustomColor, cbCustomColors]
-        TabOrder = 6
+        TabOrder = 5
         OnChange = cbSlotStripInverseColorChange
         OnEnter = cbSlotStripInverseColorEnter
       end
       object cbSlotStripDisabledColor: TColorBox
-        Left = 152
-        Top = 136
+        Left = 184
+        Top = 144
         Width = 145
         Height = 22
         Style = [cbStandardColors, cbExtendedColors, cbSystemColors, cbCustomColor, cbCustomColors]
-        TabOrder = 8
+        TabOrder = 7
         OnChange = cbSlotStripDisabledColorChange
         OnEnter = cbSlotStripDisabledColorEnter
       end
       object cbHighLightColor: TColorBox
-        Left = 152
-        Top = 164
+        Left = 184
+        Top = 172
         Width = 145
         Height = 22
         Style = [cbStandardColors, cbExtendedColors, cbSystemColors, cbCustomColor, cbCustomColors]
-        TabOrder = 10
+        TabOrder = 9
         OnChange = cbHighLightColorChange
         OnEnter = cbHighLightColorEnter
       end
-      object cbLogEnabled: TCheckBox
-        Left = 152
-        Top = 24
-        Width = 97
-        Height = 17
-        Caption = 'Log enabled'
-        TabOrder = 0
-        OnClick = cbLogEnabledClick
-        OnEnter = cbLogEnabledEnter
-      end
       object cbOnlyTextMenus: TCheckBox
-        Left = 152
-        Top = 222
+        Left = 184
+        Top = 230
         Width = 97
         Height = 17
         Caption = 'Only text menus'
-        TabOrder = 13
+        TabOrder = 12
         OnClick = cbOnlyTextMenusClick
         OnEnter = cbOnlyTextMenusEnter
       end
       object StaticText7: TStaticText
-        Left = 16
-        Top = 54
+        Left = 48
+        Top = 62
         Width = 78
         Height = 17
         Caption = 'Cable thickness'
         FocusControl = eCableThickness
-        TabOrder = 1
+        TabOrder = 0
         TabStop = True
       end
       object StaticText8: TStaticText
-        Left = 16
-        Top = 85
+        Left = 48
+        Top = 93
         Width = 72
         Height = 17
         Caption = 'Slot strip color'
         FocusControl = cbSlotStripColor
-        TabOrder = 3
+        TabOrder = 2
         TabStop = True
       end
       object StaticText9: TStaticText
-        Left = 16
-        Top = 113
+        Left = 48
+        Top = 121
         Width = 110
         Height = 17
         Caption = 'Slot strip inverse color'
         FocusControl = cbSlotStripInverseColor
-        TabOrder = 5
+        TabOrder = 4
         TabStop = True
       end
       object StaticText10: TStaticText
-        Left = 16
-        Top = 141
+        Left = 48
+        Top = 149
         Width = 114
         Height = 17
         Caption = 'Slot strip disabled color'
         FocusControl = cbSlotStripDisabledColor
-        TabOrder = 7
+        TabOrder = 6
         TabStop = True
       end
       object StaticText11: TStaticText
-        Left = 16
-        Top = 169
+        Left = 48
+        Top = 177
         Width = 71
         Height = 17
         Caption = 'Highlight color'
         FocusControl = cbHighLightColor
-        TabOrder = 9
+        TabOrder = 8
         TabStop = True
       end
       object eCableThickness: DEdit
-        Left = 152
-        Top = 50
+        Left = 184
+        Top = 58
         Width = 33
         Height = 21
         NumbersOnly = True
-        TabOrder = 2
+        TabOrder = 1
         Text = '2'
         OnEnter = eCableThicknessEnter
       end
       object StaticText15: TStaticText
-        Left = 16
-        Top = 197
+        Left = 48
+        Top = 205
         Width = 47
         Height = 17
         Caption = 'Led color'
-        TabOrder = 11
+        TabOrder = 10
         TabStop = True
       end
       object cbLedColor: TColorBox
-        Left = 152
-        Top = 192
+        Left = 184
+        Top = 200
         Width = 145
         Height = 22
-        TabOrder = 12
+        TabOrder = 11
         OnChange = cbLedColorChange
         OnEnter = cbLedColorEnter
       end
-    end
-    object TabSheet3: TTabSheet
-      Caption = 'Directories'
-      ImageIndex = 2
-      DesignSize = (
-        490
-        275)
-      object bSelectPtachRootFolder: TButton
-        Left = 423
-        Top = 24
-        Width = 35
+      object Panel5: TPanel
+        Left = 0
+        Top = 0
+        Width = 514
         Height = 25
-        Anchors = [akTop, akRight]
-        Caption = '...'
-        TabOrder = 2
-        OnClick = bSelectPtachRootFolderClick
-      end
-      object StaticText12: TStaticText
-        Left = 11
-        Top = 30
-        Width = 85
-        Height = 17
-        Caption = 'Patch root folder'
-        FocusControl = ePatchRootFolder
-        TabOrder = 0
-        TabStop = True
-      end
-      object ePatchRootFolder: DEdit
-        Left = 112
-        Top = 26
-        Width = 301
-        Height = 21
-        Anchors = [akLeft, akTop, akRight]
-        TabOrder = 1
-        OnEnter = ePatchRootFolderEnter
-      end
-      object StaticText16: TStaticText
-        Left = 12
-        Top = 60
-        Width = 78
-        Height = 17
-        Caption = 'Module help file'
-        TabOrder = 3
-      end
-      object StaticText17: TStaticText
-        Left = 12
-        Top = 89
-        Width = 66
-        Height = 17
-        Caption = 'g2ools folder'
-        TabOrder = 6
-      end
-      object eModuleHelpFile: TEdit
-        Left = 112
-        Top = 56
-        Width = 301
-        Height = 21
-        TabOrder = 4
-        OnEnter = eModuleHelpFileEnter
-      end
-      object eG2oolsFolder: TEdit
-        Left = 112
-        Top = 85
-        Width = 301
-        Height = 21
-        TabOrder = 7
-        OnEnter = eG2oolsFolderEnter
-      end
-      object bSelectModuleHelpFile: TButton
-        Left = 423
-        Top = 54
-        Width = 35
-        Height = 25
-        Caption = '...'
-        TabOrder = 5
-        OnClick = bSelectModuleHelpFileClick
-      end
-      object bSelectG2oolsFolder: TButton
-        Left = 423
-        Top = 83
-        Width = 35
-        Height = 25
-        Caption = '...'
-        TabOrder = 8
-        OnClick = bSelectG2oolsFolderClick
+        Align = alTop
+        Caption = 'Panel3'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = [fsBold]
+        ParentFont = False
+        TabOrder = 13
       end
     end
     object TabSheet2: TTabSheet
@@ -420,7 +482,7 @@ object frmSettings: TfrmSettings
       object Panel1: TPanel
         Left = 0
         Top = 0
-        Width = 490
+        Width = 514
         Height = 59
         Align = alTop
         TabOrder = 0
@@ -473,8 +535,8 @@ object frmSettings: TfrmSettings
       object Memo1: TMemo
         Left = 0
         Top = 59
-        Width = 490
-        Height = 216
+        Width = 514
+        Height = 288
         Align = alClient
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
@@ -491,25 +553,21 @@ object frmSettings: TfrmSettings
   end
   object Panel2: TPanel
     Left = 0
-    Top = 303
-    Width = 498
+    Top = 375
+    Width = 522
     Height = 63
     Align = alBottom
     TabOrder = 1
-    object lExplenation: TLabel
-      AlignWithMargins = True
-      Left = 6
-      Top = 6
-      Width = 486
-      Height = 51
-      Margins.Left = 5
-      Margins.Top = 5
-      Margins.Right = 5
-      Margins.Bottom = 5
+    ExplicitTop = 350
+    object lExplenation: TStaticText
+      Left = 1
+      Top = 1
+      Width = 520
+      Height = 61
       Align = alClient
-      WordWrap = True
-      ExplicitWidth = 3
-      ExplicitHeight = 13
+      Alignment = taCenter
+      Caption = 'Application settings'
+      TabOrder = 0
     end
   end
   object IdUDPServer1: TIdUDPServer
@@ -517,10 +575,8 @@ object frmSettings: TfrmSettings
     Bindings = <>
     DefaultPort = 5678
     Left = 392
-    Top = 176
   end
   object OpenDialog1: TOpenDialog
-    Left = 312
-    Top = 176
+    Left = 336
   end
 end

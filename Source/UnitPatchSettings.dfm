@@ -142,6 +142,7 @@ object frmPatchSettings: TfrmPatchSettings
       ParentFont = False
       KnobType = ktSlider
       Orientation = otHorizontal
+      HightlightColor = clAqua
     end
     object kGlideSpeed: TG2GraphKnob
       Left = 401
@@ -162,6 +163,7 @@ object frmPatchSettings: TfrmPatchSettings
       ParentFont = False
       KnobType = ktSlider
       Orientation = otHorizontal
+      HightlightColor = clAqua
     end
     object kVibratoDepth: TG2GraphKnob
       Left = 294
@@ -182,6 +184,7 @@ object frmPatchSettings: TfrmPatchSettings
       ParentFont = False
       KnobType = ktSlider
       Orientation = otHorizontal
+      HightlightColor = clAqua
     end
     object kVibratoRate: TG2GraphKnob
       Left = 294
@@ -202,6 +205,7 @@ object frmPatchSettings: TfrmPatchSettings
       ParentFont = False
       KnobType = ktSlider
       Orientation = otHorizontal
+      HightlightColor = clAqua
     end
     object obArpeggiatorOnOff: TG2GraphButtonRadio
       Left = 152
@@ -420,13 +424,6 @@ object frmPatchSettings: TfrmPatchSettings
       Orientation = otVertical
       ButtonCount = 3
     end
-    object VibratoRate: TLabel
-      Left = 294
-      Top = 114
-      Width = 57
-      Height = 13
-      Caption = 'Vibrato rate'
-    end
     object obArpDir: TG2GraphButtonRadio
       Left = 152
       Top = 77
@@ -454,6 +451,22 @@ object frmPatchSettings: TfrmPatchSettings
       Bevel = False
       Orientation = otHorizontal
       ButtonCount = 4
+    end
+    object G2GraphLabel7: TG2GraphLabel
+      Left = 294
+      Top = 117
+      Width = 49
+      Height = 10
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -9
+      Font.Name = 'Arial'
+      Font.Style = []
+      Value = 0
+      LowValue = 0
+      HighValue = 0
+      ParentFont = False
+      Caption = 'Vibrato rate'
     end
   end
 end

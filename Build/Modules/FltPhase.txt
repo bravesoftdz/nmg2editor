@@ -102,9 +102,8 @@
     XPos:37
     YPos:24
     Width:44
-    MasterRef:0
+    MasterRef:1
     Text Func:39
-    Dependencies:"1"
   #>
   <#Knob
     ID:12
