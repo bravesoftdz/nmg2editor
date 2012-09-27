@@ -13,6 +13,7 @@ type
     procedure FormCreate(Sender: TObject);
     procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure AEdit1Change(Sender: TObject);
+    procedure FormShow(Sender: TObject);
   private
     { Private declarations }
     FDisableControls : boolean;
@@ -60,6 +61,11 @@ begin
     Close;
 end;
 
+procedure TfrmPatchNotes.FormShow(Sender: TObject);
+begin
+  UpdateControls;
+end;
+
 procedure TfrmPatchNotes.LoadIniXML;
 var Doc : TXMLDocument;
     RootNode : TDOMNode;
@@ -93,20 +99,20 @@ procedure TfrmPatchNotes.UpdateControls;
 var G2 : TG2;
     OldSelStart : integer;
 begin
-  exit; // Doesn't work yet, something goes wrong with carriage returns...
+  //exit; // Doesn't work yet, something goes wrong with carriage returns...
 
-{  FDisableControls := True;
+  FDisableControls := True;
   try
     G2 := frmG2Main.SelectedG2;
     if not assigned(G2) then
       exit;
 
-    OldSelStart := DMemo1.SelStart;
-    G2.SelectedPatch.PatchNotes.GetLines( DMemo1.Lines);
-    DMemo1.SelStart := OldSelStart;
+    OldSelStart := Memo1.SelStart;
+    G2.SelectedPatch.PatchNotes.GetLines( Memo1.Lines);
+    Memo1.SelStart := OldSelStart;
   finally
     FDisableControls := False;
-  end;}
+  end;
 
 end;
 

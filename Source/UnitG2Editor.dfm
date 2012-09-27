@@ -1572,7 +1572,7 @@ object frmG2Main: TfrmG2Main
     object aPatchNotes: TAction
       Category = 'View'
       Caption = 'Patch notes'
-      ShortCut = 16462
+      ShortCut = 16458
       OnExecute = aPatchNotesExecute
     end
     object aShowCopyVariation: TAction

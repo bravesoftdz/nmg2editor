@@ -131,12 +131,12 @@ unit UnitG2Editor;
 // patch manager : load, save patch/perf, init perf, load/save bank, rename, variations, slot selection also selectslot, select category
 // Assigned voices red when nil
 // Check box list for sysex midi devices
+// Show/Hide midi aware indicator on controls
 
 // Todo :
 // Move modules
 // External clock show red
 // Edit Midi assignment dialog
-// How/Hide midi aware indicator on controls
 // Download bank, clear rest of bank
 // Added test section in Add module with the hidden modules for trying out if they can be activated.
 // Ini settings patch manager

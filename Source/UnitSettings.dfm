@@ -24,7 +24,7 @@ object frmSettings: TfrmSettings
     Top = 0
     Width = 522
     Height = 375
-    ActivePage = TabSheet5
+    ActivePage = TabSheet3
     Align = alClient
     TabOrder = 0
     object TabSheet3: TTabSheet
@@ -137,6 +137,10 @@ object frmSettings: TfrmSettings
     object TabSheet6: TTabSheet
       Caption = 'Ctrl Midi'
       ImageIndex = 5
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object StaticText6: TStaticText
         Left = 17
         Top = 21
@@ -186,6 +190,10 @@ object frmSettings: TfrmSettings
     end
     object TabSheet1: TTabSheet
       Caption = 'TCP-IP'
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object cbIsServer: TCheckBox
         Left = 198
         Top = 62
@@ -273,6 +281,9 @@ object frmSettings: TfrmSettings
     object TabSheet4: TTabSheet
       Caption = 'Midi'
       ImageIndex = 3
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
       ExplicitHeight = 322
       object StaticText5: TStaticText
         Left = 19
@@ -479,6 +490,10 @@ object frmSettings: TfrmSettings
       Caption = 'OSC'
       ImageIndex = 1
       TabVisible = False
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object Panel1: TPanel
         Left = 0
         Top = 0
@@ -558,7 +573,6 @@ object frmSettings: TfrmSettings
     Height = 63
     Align = alBottom
     TabOrder = 1
-    ExplicitTop = 350
     object lExplenation: TStaticText
       Left = 1
       Top = 1

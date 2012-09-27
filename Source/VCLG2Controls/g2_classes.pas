@@ -449,6 +449,8 @@ begin
   // Disabled sending select slot, so that clients (vst) can have a different slot
   // selected than the editor.
   //USBSelectSlot( aValue);
+
+  // TODO : Move to G2Graph
   for i := 0 to 3 do
     (Slot[i].Patch as TG2Patch).Visible := (i = aValue);
 

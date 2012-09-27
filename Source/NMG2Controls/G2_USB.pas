@@ -411,6 +411,7 @@ type
   protected
     procedure   SetMasterClock( aValue : TBits8); override;
     procedure   SetMasterClockRun( aValue : TBits8); override;
+    procedure   SetSelectedSlotIndex( aValue : TBits2); override;
 
     property    OnNextInitStep : TInitStepEvent read FOnNextInitStep write FOnNextInitStep;
   public
@@ -2643,6 +2644,15 @@ procedure TG2USBPerformance.SetMasterClockRun(aValue: TBits8);
 begin
   inherited;
   SendSetPerfSettingsMessage;
+end;
+
+procedure TG2USBPerformance.SetSelectedSlotIndex(aValue: TBits2);
+begin
+  inherited;
+  if (G2 as TG2USB).IsServer then begin
+    // Only when server, so that clients can have another slot selected
+    SendSelectSlotMessage( aValue);
+  end;
 end;
 
 procedure TG2USBPerformance.SendSelectSlotMessage( aSlot: byte);

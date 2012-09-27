@@ -2485,8 +2485,11 @@ begin
     S_SEL_SLOT :
          begin
            MemStream.Read( aSlot, 1);
-           SetSelectedSlotIndex( aSlot);
+           //SetSelectedSlotIndex( aSlot);
+           InitSelectedSlotIndex( aSlot);
            Result := True;
+           if assigned((G2 as TG2Mess).OnSelectSlot) then
+             (G2 as TG2Mess).OnSelectSlot( self, G2.ID, aSlot);
          end;
     C_PERF_SETTINGS :
          begin

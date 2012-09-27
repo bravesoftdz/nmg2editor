@@ -1315,6 +1315,7 @@ type
     procedure   SetKeyboardRangeEnabled( aValue : TBits8);
   protected
     function    GetSlot( aSlot : byte): TG2FileSlot;
+    procedure   InitSelectedSlotIndex( aValue : TBits2);
     procedure   SetSelectedSlotIndex( aValue : TBits2); virtual;
     procedure   SetMasterClock( aValue : TBits8); virtual;
     procedure   SetMasterClockRun( aValue : TBits8); virtual;
@@ -9319,11 +9320,17 @@ begin
   inherited;
 end;
 
-procedure TG2FilePerformance.SetSelectedSlotIndex( aValue : TBits2);
+procedure TG2FilePerformance.InitSelectedSlotIndex(aValue: TBits2);
 begin
   FSelectedSlot := aValue;
-  if assigned(FG2) and assigned(FG2.FOnSelectSlot) then
-    FG2.FOnSelectSlot( self, FG2.ID, aValue);
+end;
+
+procedure TG2FilePerformance.SetSelectedSlotIndex( aValue : TBits2);
+begin
+  InitSelectedSlotIndex( aValue);
+  //FSelectedSlot := aValue;
+  //if assigned(FG2) and assigned(FG2.FOnSelectSlot) then
+  //  FG2.FOnSelectSlot( self, FG2.ID, aValue);
 end;
 
 {procedure TG2FilePerformance.SetMaxVariations( aValue : Byte);
@@ -10438,8 +10445,13 @@ procedure TG2File.SetLogLevel( aValue : integer);
 begin
   if aValue = 1 then begin
 
-    if not assigned(FLogLines) then
-      FLogLines := TStringList.Create;
+    EnterCriticalSection(FLogLock);
+    try
+      if not assigned(FLogLines) then
+        FLogLines := TStringList.Create;
+    finally
+      LeaveCriticalSection(FLogLock);
+    end;
 
   end else begin
 
@@ -10450,7 +10462,7 @@ begin
       finally
         LeaveCriticalSection(FLogLock);
       end;
-      DeleteCriticalSection(FLogLock);
+      //DeleteCriticalSection(FLogLock);
     end;
 
   end;

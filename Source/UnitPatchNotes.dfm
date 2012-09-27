@@ -14,6 +14,7 @@ object frmPatchNotes: TfrmPatchNotes
   OldCreateOrder = False
   OnCreate = FormCreate
   OnKeyUp = FormKeyUp
+  OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13
   object Memo1: TMemo
