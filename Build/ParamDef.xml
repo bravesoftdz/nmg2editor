@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<ParamDefList xmlns="http://www.yourtargetnamespace.com" version="0.24">
+<ParamDefList xmlns="http://www.yourtargetnamespace.com" version="0.25">
   <ParamDef>
     <Id>0</Id>
     <ParamType>2</ParamType>

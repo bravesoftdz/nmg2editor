@@ -45,7 +45,7 @@ Const
 type
   TListItemMidiEditorAssignment = class(TMidiEditorAssignment)
   public
-    constructor Create;
+    constructor Create( aG2 : TG2Midi);
     destructor Destroy; override;
 
     procedure WriteValues( aListItem : TListItem);
@@ -197,9 +197,12 @@ var Doc : TXMLDocument;
     CtrlMidiAssignmentListNode : TDOMNode;
     CtrlMidiAssignmentList : TXMLCtrlMidiassignmentListType;
     CtrlMidiassignmentNode : TXMLCtrlMidiassignmentType;
+    G2 : TG2Midi;
 begin
   if not FileExists('G2_editor_ini.xml') then
     exit;
+
+  G2 := frmG2Main.FirstG2;
 
   Doc := TXMLDocument.Create;
   try
@@ -217,7 +220,7 @@ begin
             for i := 0 to CtrlMidiAssignmentList.Count - 1 do begin
               CtrlMidiAssignmentNode := CtrlMidiAssignmentList[i];
               if assigned( CtrlMidiassignmentNode) then begin
-                MidiEditorAssignment := TListItemMidiEditorAssignment.Create;
+                MidiEditorAssignment := TListItemMidiEditorAssignment.Create( G2);
                 MidiEditorAssignment.Channel := CtrlMidiassignmentNode.Channel;
                 MidiEditorAssignment.Note := CtrlMidiassignmentNode.Note;
                 MidiEditorAssignment.ControlIndex := CtrlMidiassignmentNode.ControlIndex;
@@ -322,14 +325,17 @@ end;
 procedure TfrmMidiMapping.AddMidiEditorAssignment( aControl: TMidiAwareControl; aMidiChannel, aMidiNote, aMidiCC, aControlIndex: byte);
 var i : integer;
     MidiEditorAssignment : TListItemMidiEditorAssignment;
+    G2 : TG2Midi;
 begin
   if FMidiEditorAssignmentList.Count >= MAX_CTRL_MIDI_ASSIGNMENTS then
     raise Exception.Create('Max number of midi ctrl assignments reached.');
 
+  G2 := frmG2Main.FirstG2;
+
   if aMidiNote <> 0 then begin
     MidiEditorAssignment := FMidiEditorAssignmentList.FindControlNote( aControl, aMidiChannel, aMidiNote) as TListItemMidiEditorAssignment;
     if not assigned(MidiEditorAssignment) then begin
-      MidiEditorAssignment := TListItemMidiEditorAssignment.Create;
+      MidiEditorAssignment := TListItemMidiEditorAssignment.Create(G2);
       with MidiEditorAssignment do begin
         Channel        := aMidiChannel;
         Note           := aMidiNote;
@@ -348,7 +354,7 @@ begin
     if aMidiCC <> 0 then begin
       MidiEditorAssignment := FMidiEditorAssignmentList.FindControlCC( aControl, aMidiChannel, aMidiCC) as TListItemMidiEditorAssignment;
       if not assigned(MidiEditorAssignment) then begin
-        MidiEditorAssignment := TListItemMidiEditorAssignment.Create;
+        MidiEditorAssignment := TListItemMidiEditorAssignment.Create(G2);
         with MidiEditorAssignment do begin
           Channel        := aMidiChannel;
           Note           := aMidiNote;
@@ -601,7 +607,7 @@ end;
 
 { TListItemMidiEditorAssignment }
 
-constructor TListItemMidiEditorAssignment.Create;
+constructor TListItemMidiEditorAssignment.Create( aG2 : TG2Midi);
 begin
   inherited;
 end;

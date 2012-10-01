@@ -118,11 +118,20 @@ type
     procedure   SetModuleParent( aValue: TG2GraphScrollbox);
     procedure   SetScrollboxVA( aValue : TG2GraphScrollbox);
     procedure   SetScrollboxFX( aValue : TG2GraphScrollbox);
+    procedure   Invalidate;
     procedure   G2ProcessWindowsMessages; override;
     function    G2MessageDlg( tekst : string; code : integer): integer; override;
   published
     property    ScrollboxVA : TG2GraphScrollBox read FScrollboxVA write SetScrollboxVA;
     property    scrollboxFX : TG2GraphScrollBox read FScrollboxFX write SetScrollboxFX;
+  end;
+
+  TG2GraphPerformance = class( TG2USBPerformance)
+  protected
+    procedure   InitSelectedSlotIndex( aValue : TBits2); override;
+  public
+    constructor Create( AOwner: TComponent); override;
+    destructor  Destroy; override;
   end;
 
   TG2GraphPanel = class(TPanel)
@@ -1903,6 +1912,15 @@ begin
     Result := nil;
 end;
 
+procedure TG2Graph.Invalidate;
+begin
+  if assigned(FScrollboxVA) then
+    FScrollboxVA.Invalidate;
+
+  if assigned(FScrollboxFX) then
+    FScrollboxFX.Invalidate;
+end;
+
 function TG2Graph.G2MessageDlg(tekst: string; code: integer): integer;
 begin
   case code of
@@ -1914,6 +1932,31 @@ end;
 procedure TG2Graph.G2ProcessWindowsMessages;
 begin
   Application.ProcessMessages;
+end;
+
+// ==== TG2GraphPerformance ====================================================
+
+constructor TG2GraphPerformance.Create(AOwner: TComponent);
+begin
+  inherited;
+
+end;
+
+destructor TG2GraphPerformance.Destroy;
+begin
+  inherited;
+end;
+
+procedure TG2GraphPerformance.InitSelectedSlotIndex(aValue: TBits2);
+var i : integer;
+begin
+  inherited;
+
+  for i := 0 to 3 do
+    (Slot[i].Patch as TG2GraphPatch).Visible := (i = aValue);
+
+  if assigned(G2) then
+    (G2 as TG2Graph).Invalidate;
 end;
 
 // ==== TG2GraphParameter ======================================================

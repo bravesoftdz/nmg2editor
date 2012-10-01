@@ -26,7 +26,7 @@ interface
 uses Windows, Forms, DAudioEffectX, Messages, ExtCtrls,
      Classes, Graphics, StdCtrls, Controls, DVstUtils,
      DVstTemplate, DAEffectX,
-     g2_types, g2_graph, g2_file, g2_usb, g2_classes;
+     g2_types, g2_graph, g2_file, g2_usb, g2_classes, g2_midi;
 
 type
   TPluginEditorWindow = class(TForm)
@@ -218,13 +218,13 @@ begin
     try
       lbStatus.Caption := (Effect as APlugin).GetStatusText;
 
-      eNameA.Text        := (Effect as APlugin).FG2.GetSlot(0).PatchName;
+      eNameA.Text        := (Effect as APlugin).FG2.GetSlot(0).GetPatch.PatchName;
       rbVariationA.Value := (Effect as APlugin).FG2.GetSlot(0).GetPatch.ActiveVariation;
-      eNameB.Text        := (Effect as APlugin).FG2.GetSlot(1).PatchName;
+      eNameB.Text        := (Effect as APlugin).FG2.GetSlot(1).GetPatch.PatchName;
       rbVariationB.Value := (Effect as APlugin).FG2.GetSlot(1).GetPatch.ActiveVariation;
-      eNameC.Text        := (Effect as APlugin).FG2.GetSlot(2).PatchName;
+      eNameC.Text        := (Effect as APlugin).FG2.GetSlot(2).GetPatch.PatchName;
       rbVariationC.Value := (Effect as APlugin).FG2.GetSlot(2).GetPatch.ActiveVariation;
-      eNameD.Text        := (Effect as APlugin).FG2.GetSlot(3).PatchName;
+      eNameD.Text        := (Effect as APlugin).FG2.GetSlot(3).GetPatch.PatchName;
       rbVariationD.Value := (Effect as APlugin).FG2.GetSlot(3).GetPatch.ActiveVariation;
 
       Perf := (Effect as APlugin).FG2.GetPerformance;

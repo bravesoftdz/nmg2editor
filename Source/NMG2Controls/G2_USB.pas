@@ -377,6 +377,10 @@ type
       procedure   SendNoteMessage( aNote : byte; aOnoff : byte);
       procedure   SendGetMasterClockMessage;
       procedure   SendGetAssignedVoicesMessage;
+      procedure   SendRetrieveMessage( aSlot, aBank, aPatch : byte);
+      procedure   SendStoreMessage( aSlot, aBank, aPatch : byte);
+      procedure   SendClearMessage( aPatchFileType : TPatchFileType; aBank, aPatch : byte);
+      procedure   SendClearBankMessage( aPatchFileType : TPatchFileType; aBank, aFromLocation, aToLocation : byte);
       procedure   SendUploadBankMessage( aPatchFileType: TPatchFileType; aBank, aLocation: byte);
       procedure   NextBankUploadMessage( Sender: TObject);
       procedure   SendDownloadPatchBankMessage( aBank, aLocation: byte; aFileName : string);
@@ -433,14 +437,12 @@ type
     procedure   SendGetPerfSettingsMessage;
     procedure   SendUnknown2Message;
     procedure   SendSelectSlotMessage( aSlot: byte);
-    procedure   SendRetrieveMessage( aSlot, aBank, aPatch : byte);
-    procedure   SendStoreMessage( aSlot, aBank, aPatch : byte);
-    procedure   SendClearMessage( aPatchFileType : TPatchFileType; aBank, aPatch : byte);
-    procedure   SendClearBankMessage( aPatchFileType : TPatchFileType; aBank, aFromLocation, aToLocation : byte);
     procedure   SendSetPerformanceMessage( aPerfName : AnsiString; aPerf : TG2FilePerformance);
     procedure   SendSetPerfSettingsMessage;
     procedure   SendSetPerfNameMessage( aPerfName : AnsiString);
     procedure   SendGetGlobalKnobsMessage;
+    procedure   SendSetMasterClockBPMMessage( BPM : byte);
+    procedure   SendSetMasterClockRunMessage( Start : boolean);
   end;
 
   TG2USBSlot = class( TG2MessSlot)
@@ -2512,6 +2514,26 @@ begin
   SendCmdMessage( CreateNoteMessage( aNote, aOnOff));
 end;
 
+procedure TG2USB.SendRetrieveMessage( aSlot, aBank, aPatch : byte);
+begin
+  SendCmdMessage( CreateRetrieveMessage( aSlot, aBank, aPatch));
+end;
+
+procedure TG2USB.SendStoreMessage( aSlot, aBank, aPatch : byte);
+begin
+  SendCmdMessage( CreateStoreMessage( aSlot, aBank, aPatch));
+end;
+
+procedure TG2USB.SendClearBankMessage(aPatchFileType : TPatchFileType; aBank, aFromLocation, aToLocation: byte);
+begin
+  SendCmdMessage( CreateClearBankMessage( aPatchFileType, aBank, aFromLocation, aToLocation));
+end;
+
+procedure TG2USB.SendClearMessage( aPatchFileType : TPatchFileType; aBank, aPatch : byte);
+begin
+  SendCmdMessage( CreateClearMessage( aPatchFileType, aBank, aPatch));
+end;
+
 ////////////////////////////////////////////////////////////////////////////////
 //  TG2USBPerformance
 ////////////////////////////////////////////////////////////////////////////////
@@ -2660,26 +2682,6 @@ begin
   SendCmdMessage( CreateSelectSlotMessage( aSlot));
 end;
 
-procedure TG2USBPerformance.SendRetrieveMessage( aSlot, aBank, aPatch : byte);
-begin
-  SendCmdMessage( CreateRetrieveMessage( aSlot, aBank, aPatch));
-end;
-
-procedure TG2USBPerformance.SendStoreMessage( aSlot, aBank, aPatch : byte);
-begin
-  SendCmdMessage( CreateStoreMessage( aSlot, aBank, aPatch));
-end;
-
-procedure TG2USBPerformance.SendClearBankMessage(aPatchFileType : TPatchFileType; aBank, aFromLocation, aToLocation: byte);
-begin
-  SendCmdMessage( CreateClearBankMessage( aPatchFileType, aBank, aFromLocation, aToLocation));
-end;
-
-procedure TG2USBPerformance.SendClearMessage( aPatchFileType : TPatchFileType; aBank, aPatch : byte);
-begin
-  SendCmdMessage( CreateClearMessage( aPatchFileType, aBank, aPatch));
-end;
-
 procedure TG2USBPerformance.SendSetPerformanceMessage( aPerfName : AnsiString; aPerf : TG2FilePerformance);
 begin
   SendCmdMessage( CreateSetPerformanceMessage( aPerfName, aPerf));
@@ -2688,6 +2690,16 @@ end;
 procedure TG2USBPerformance.SendSetPerfSettingsMessage;
 begin
   SendCmdMessage( CreateSetPerfSettingsMessage);
+end;
+
+procedure TG2USBPerformance.SendSetMasterClockBPMMessage;
+begin
+  SendCmdMessage( CreateSetMasterClockBPMMessage( BPM));
+end;
+
+procedure TG2USBPerformance.SendSetMasterClockRunMessage;
+begin
+  SendCmdMessage( CreateSetMasterClockRunMessage( Start));
 end;
 
 procedure TG2USBPerformance.SendSetPerfNameMessage( aPerfName : AnsiString);

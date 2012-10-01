@@ -32,7 +32,7 @@ object frmG2Main: TfrmG2Main
     ParentBackground = False
     TabOrder = 0
     object rbSynth: TG2GraphButtonRadio
-      Left = 332
+      Left = 362
       Top = 2
       Width = 102
       Height = 17
@@ -77,6 +77,34 @@ object frmG2Main: TfrmG2Main
       LineCount = 1
       TextFunction = 0
       DisplayType = 0
+    end
+    object btClockRun: TG2GraphButtonText
+      Left = 316
+      Top = 3
+      Width = 29
+      Height = 16
+      MidiAware = False
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -9
+      Font.Name = 'Arial'
+      Font.Style = []
+      Color = 13684944
+      Value = 0
+      LowValue = 0
+      HighValue = 1
+      ParentColor = False
+      ParentFont = False
+      OnClick = btClockRunClick
+      ButtonText.Strings = (
+        'Run'
+        'Run')
+      HightlightColor = clAqua
+      BorderColor = clBlack
+      Bevel = False
+      Orientation = otHorizontal
+      ButtonCount = 2
+      ButtonTextType = bttCheck
     end
     object cbOnline: TCheckBox
       Left = 15
@@ -1216,7 +1244,6 @@ object frmG2Main: TfrmG2Main
     end
     object miModuleAssignKnobs: TMenuItem
       Caption = 'Assign'
-      OnClick = miModuleAssignKnobsClick
     end
     object miModuleAssignGlobalKnobs: TMenuItem
       Caption = 'Global assign'

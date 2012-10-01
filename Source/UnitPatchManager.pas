@@ -777,7 +777,7 @@ var G2 : TG2;
 begin
   G2 := frmG2Main.SelectedG2;
   if assigned(G2) then begin
-    G2.Performance.SendRetrieveMessage( aSlotIndex, aBankIndex, aPatchIndex)
+    G2.SendRetrieveMessage( aSlotIndex, aBankIndex, aPatchIndex)
   end;
 end;
 
@@ -799,7 +799,7 @@ var G2 : TG2;
 begin
   G2 := frmG2Main.SelectedG2;
   if assigned(G2) then begin
-    G2.Performance.SendStoreMessage( aSlotIndex, aBankIndex, aPatchIndex)
+    G2.SendStoreMessage( aSlotIndex, aBankIndex, aPatchIndex)
   end;
 end;
 
@@ -811,7 +811,7 @@ begin
   if assigned(G2) then begin
     if G2.BankList.FindFirstLast( aPatchFileType, aBankIndex, FromLocation, ToLocation) then begin
       if MessageDlg('All patches in bank ' + IntToStr(aBankIndex + 1) + ' wil be deleted, sure?', mtWarning,  mbOKCancel, 0) = mrOk then
-        G2.Performance.SendClearBankMessage( aPatchFileType, aBankIndex, FromLocation, ToLocation);
+        G2.SendClearBankMessage( aPatchFileType, aBankIndex, FromLocation, ToLocation);
     end else
       raise Exception.Create('Bank is already empty.');
   end;
@@ -822,7 +822,7 @@ var G2 : TG2;
 begin
   G2 := frmG2Main.SelectedG2;
   if assigned(G2) then begin
-    G2.Performance.SendClearMessage( aPatchFileType, aBankIndex, aPatchIndex)
+    G2.SendClearMessage( aPatchFileType, aBankIndex, aPatchIndex)
   end;
 end;
 

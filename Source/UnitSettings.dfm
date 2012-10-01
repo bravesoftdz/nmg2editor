@@ -137,10 +137,6 @@ object frmSettings: TfrmSettings
     object TabSheet6: TTabSheet
       Caption = 'Ctrl Midi'
       ImageIndex = 5
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object StaticText6: TStaticText
         Left = 17
         Top = 21
@@ -190,10 +186,6 @@ object frmSettings: TfrmSettings
     end
     object TabSheet1: TTabSheet
       Caption = 'TCP-IP'
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object cbIsServer: TCheckBox
         Left = 198
         Top = 62
@@ -279,12 +271,8 @@ object frmSettings: TfrmSettings
       end
     end
     object TabSheet4: TTabSheet
-      Caption = 'Midi'
+      Caption = 'Midi sysex'
       ImageIndex = 3
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 322
       object StaticText5: TStaticText
         Left = 19
         Top = 189
@@ -312,6 +300,7 @@ object frmSettings: TfrmSettings
         ItemHeight = 13
         Sorted = True
         TabOrder = 2
+        OnEnter = clbSysexMidiInDevicesEnter
       end
       object clbSysExMidiOutDevices: TCheckListBox
         Left = 104
@@ -322,6 +311,7 @@ object frmSettings: TfrmSettings
         ItemHeight = 13
         Sorted = True
         TabOrder = 3
+        OnEnter = clbSysExMidiOutDevicesEnter
       end
       object Panel3: TPanel
         Left = 0
@@ -490,10 +480,6 @@ object frmSettings: TfrmSettings
       Caption = 'OSC'
       ImageIndex = 1
       TabVisible = False
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object Panel1: TPanel
         Left = 0
         Top = 0

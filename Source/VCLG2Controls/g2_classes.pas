@@ -75,7 +75,7 @@ type
     procedure   UploadPatch( aFileName : string);
   end;
 
-  TG2Performance = class(TG2USBPerformance)
+  TG2Performance = class(TG2GraphPerformance)
   private
     function    GetSlot( aSlot : byte): TG2Slot;
     function    GetSlotA: TG2Slot;
@@ -84,7 +84,7 @@ type
     function    GetSlotD: TG2Slot;
     function    GetG2 : TG2;
   protected
-    procedure   SetSelectedSlotIndex( aValue : TBits2); override;
+    //procedure   SetSelectedSlotIndex( aValue : TBits2); override;
   public
     constructor Create( AOwner: TComponent); override;
     destructor  Destroy; override;
@@ -441,7 +441,7 @@ begin
   end;
 end;
 
-procedure TG2Performance.SetSelectedSlotIndex(aValue: TBits2);
+{procedure TG2Performance.SetSelectedSlotIndex(aValue: TBits2);
 var i : integer;
 begin
   inherited;
@@ -450,7 +450,6 @@ begin
   // selected than the editor.
   //USBSelectSlot( aValue);
 
-  // TODO : Move to G2Graph
   for i := 0 to 3 do
     (Slot[i].Patch as TG2Patch).Visible := (i = aValue);
 
@@ -462,7 +461,7 @@ begin
 
 //  if assigned((G2 as TG2).OnSelectSlot) then
 //    (G2 as TG2).OnSelectSlot( self, G2.ID, aValue);
-end;
+end;}
 
 ////////////////////////////////////////////////////////////////////////////////
 //  TG2

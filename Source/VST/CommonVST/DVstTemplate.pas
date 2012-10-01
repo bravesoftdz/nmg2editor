@@ -1,6 +1,10 @@
 unit DVstTemplate;
 {$DEFINE FixedBuffer}
+// For the G2 VST No audio processing is used. And when FIXEDBUFFER = False
+// samplebuffers are constantly newly allocated which fragments memory!
 {remove the line above to let the host define the buffer size}
+
+
 
 interface
 uses Windows, DVstUtils, DAEffect, DAEffectX, DDspUtils,
@@ -373,6 +377,7 @@ begin
   end;
  end;
  {$ELSE}
+ // BVE: This fragments memory! can lead no OutOfMemory errors!
  SetLength(OutsTmp, fNumOutputs, sampleFrames);
  SetLength(InsTmp, fNumInputs, sampleFrames);
  for j := 0 to fNumOutputs - 1 do
@@ -414,6 +419,7 @@ begin
   end;
  end;
  {$ELSE}
+ // BVE: This fragments memory! can lead no OutOfMemory errors!
  SetLength(InsTmp, fNumInputs, sampleFrames);
  SetLength(OutsTmp, fNumOutputs, sampleFrames);
  for j := 0 to fNumOutputs - 1 do

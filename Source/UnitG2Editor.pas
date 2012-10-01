@@ -124,6 +124,7 @@ unit UnitG2Editor;
 // Implemented assigned voices message
 // Implemented init perf message sequence
 // Implemented clear bank location message
+// Implement master clock messages
 // prevent echo ctrl midi on radio controls (midi + index)
 // Global point seperator, in stead of from country settings
 // Check box list for ctrl midi devices
@@ -135,7 +136,6 @@ unit UnitG2Editor;
 
 // Todo :
 // Move modules
-// External clock show red
 // Edit Midi assignment dialog
 // Download bank, clear rest of bank
 // Added test section in Add module with the hidden modules for trying out if they can be activated.
@@ -143,7 +143,7 @@ unit UnitG2Editor;
 
 
 // Still todo:
-// Update display of dependend param in param pages
+// Update display of dependent param in param pages
 // PatchSettings: add popup menu for patch parameters
 // Add Slot settings dialog
 // Make dialogs Jaws compatible
@@ -287,6 +287,7 @@ type
     procedure VariationClick(Sender: TObject);
     procedure VariationMouseUp(Sender: TObject; Button: TMouseButton;  Shift: TShiftState; X, Y: Integer);
     procedure VoiceModeChange(Sender: TObject);
+    procedure PatchNameClick(Sender: TObject);
     procedure MorphMouseUp(Sender: TObject; Button: TMouseButton;  Shift: TShiftState; X, Y: Integer);
     procedure SetSlotCaption( aValue : string);
     function  GetSlotCaption: string;
@@ -499,6 +500,7 @@ type
     StaticText2: TStaticText;
     aPatchRename: TAction;
     aPerfRename: TAction;
+    btClockRun: TG2GraphButtonText;
 
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
@@ -518,7 +520,6 @@ type
     procedure ResponseTimerTimer(Sender: TObject);
     procedure Def1Click(Sender: TObject);
     procedure rbSynthChange(Sender: TObject);
-    procedure miModuleAssignKnobsClick(Sender: TObject);
     procedure miSelectClick(Sender: TObject);
     procedure miAddClick(Sender: TObject);
     procedure miEditParamNameClick(Sender: TObject);
@@ -615,7 +616,10 @@ type
     procedure G2AfterClearBank(Sender: TObject; SenderID: Integer; PatchFileType : TPatchFileType; BankIndex : byte);
     procedure G2AfterBankDownload( Sender : TObject; SenderID : integer; PatchFileType : TPatchFileType);
     procedure G2MidiClockReceive(Sender : TObject; SenderID : integer; BPM : integer);
+    procedure G2ClockRunChange( Sender : TObject; SenderID : integer; Status : boolean);
+    procedure G2ClockBPMChange( Sender : TObject; SenderID : integer; BPM : integer);
     procedure G2AfterGetAssignedVoices(Sender : TObject);
+    procedure btClockRunClick(Sender: TObject);
 
   private
     { Private declarations }
@@ -638,12 +642,12 @@ type
 
     procedure AddG2( G2USBDevice : pusb_device);
     function  SelectedG2: TG2;
+    function  FirstG2 : TG2;
     procedure SelectG2( G2Index : integer);
 
     procedure AddModule( aModuleType : byte);
     procedure AddTestModule( aModuleType, aAlternativeModuleType : byte);
     procedure DoAddModule( Sender: TObject);
-    procedure DoAddTestModule( Sender: TObject);
     procedure AssignKnob( Sender: TObject);
     procedure DeAssignKnob( Sender: TObject);
     procedure AssignGlobalKnob( Sender: TObject);
@@ -741,7 +745,7 @@ uses ShellApi, Vcl.HtmlHelpViewer,
   UnitLog, UnitPatchSettings, UnitParameterPages, UnitSeqGrid,
   UnitSynthSettings, UnitPerfSettings, UnitEditLabel, UnitSettings,
   UnitEditorTools, UnitPatchBrowser, UnitModuleDef, UnitPatchNotes,
-  UnitMidiMapping, UnitTestModule, UnitPatchManager;
+  UnitMidiMapping, UnitPatchManager;
 
 {$IFNDEF FPC}
   {$R *.dfm}
@@ -800,9 +804,12 @@ begin
   FlbSlotName.OnClick := frmG2Main.PanelClick;
 
   FePatchName := TEdit.Create(self);
-  FePatchName.ReadOnly := True;
   FePatchName.Parent := self;
   FePatchName.SetBounds( 36, 6, 101, 21);
+  FePatchName.ParentColor := False;
+  FePatchName.Color := clSilver;
+  FePatchName.ReadOnly := True;
+  FePatchName.OnClick := PatchNameClick;
 
   FlbVariation := TG2GraphLabel.Create(self);
   FlbVariation.Parent := self;
@@ -1081,6 +1088,19 @@ begin
   end;
 end;
 
+procedure TSlotPanel.PatchNameClick(Sender: TObject);
+begin
+  if Sender is TEdit then begin
+    frmEditLabel.Left := (Sender as TEdit).ClientToScreen(Point(0, 0)).X;
+    frmEditLabel.Top := (Sender as TEdit).ClientToScreen(Point(0, 0)).Y;
+
+    frmEditLabel.eLabel.Text := FSlot.Patch.PatchName;
+    if frmEditLabel.ShowModal = mrOk then begin
+      FSlot.SendSetPatchName( frmEditLabel.eLabel.Text);
+    end;
+  end;
+end;
+
 procedure TSlotPanel.VoiceModeChange(Sender: TObject);
 var FPatchDescription : TPatchDescription;
 begin
@@ -1241,6 +1261,8 @@ begin
   G2.OnAfterClear := G2AfterClear;
   G2.OnAfterClearBank := G2AfterClearBank;
   G2.OnMidiClockReceive := G2MidiClockReceive;
+  G2.OnClockRunChange := G2ClockRunChange;
+  G2.OnClockBPMChange := G2ClockBPMChange;
   G2.OnAfterBankDownload := G2AfterBankDownload;
   G2.OnAfterGetAssignedVoices := G2AfterGetAssignedVoices;
 
@@ -1260,9 +1282,17 @@ end;
 function TfrmG2Main.SelectedG2: TG2;
 begin
   if FG2Index <> -1 then
-    SelectedG2 := FG2List[FG2Index] as TG2
+    Result := FG2List[FG2Index] as TG2
   else
-    SelectedG2 := nil;
+    Result := nil;
+end;
+
+function TfrmG2Main.FirstG2: TG2;
+begin
+  if FG2List.Count > 0 then
+    Result := FG2List[0] as TG2
+  else
+    Result := nil;
 end;
 
 procedure TfrmG2Main.SelectG2(G2Index: integer);
@@ -1937,6 +1967,13 @@ begin
   if not assigned(G2) then
     exit;
 
+  btClockRun.HightlightColor := G_HighlightColor;
+  btClockRun.InitValue( G2.Performance.MasterClockRun);
+  gdMasterClock.Font.Color := clWhite;
+  gdMasterClock.Line[0] := IntToStr( G2.Performance.MasterClock);
+
+  G2.Invalidate;
+
   for i := 0 to 3 do begin
     if assigned(FSlotPanel[i]) then begin
 
@@ -1958,6 +1995,7 @@ begin
       FSlotPanel[i].UpdateControls;
     end;
   end;
+
 
   if assigned(frmPatchManager) and frmPatchManager.Showing then
     frmPatchManager.UpdateSlot;
@@ -2189,6 +2227,16 @@ begin
   if FDisableControls then exit;
 
   FOldSplitterPos := Splitter1.Height;
+end;
+
+procedure TfrmG2Main.btClockRunClick(Sender: TObject);
+var G2 : TG2;
+begin
+  G2 := SelectedG2;
+  if not assigned(G2) then
+    exit;
+
+  G2.Performance.SendSetMasterClockRunMessage( btClockRun.Value = 1);
 end;
 
 // ==== File menu ==============================================================
@@ -3545,10 +3593,7 @@ begin
         aSubMenuItem.Tag := G2.FModuleDefList.ModuleDef[j].ModuleType;
         aSubMenuItem.ImageIndex := G2.FModuleDefList.ModuleDef[j].ModuleType;
 
-        if aMenuItem.Caption = 'Test' then
-          aSubMenuItem.OnClick := DoAddTestModule
-        else
-          aSubMenuItem.OnClick := DoAddModule;
+        aSubMenuItem.OnClick := DoAddModule;
 
         k := 0;
         while (k<aMenuItem.Count) and (GetPageIndex(aMenuItem.Items[k].Tag) < G2.FModuleDefList.ModuleDef[j].PageIndex) do
@@ -3729,23 +3774,6 @@ procedure TfrmG2Main.DoAddModule( Sender: TObject);
 begin
   with Sender as TMenuItem do
     AddModule( Tag);
-end;
-
-procedure TfrmG2Main.DoAddTestModule( Sender: TObject);
-var ModuleTypeID, AlternativeModuleTypeID : byte;
-begin
-  with Sender as TMenuItem do
-    ModuleTypeID := Tag;
-
-  frmTestModule.eModuleTypeID.Text := IntToStr(ModuleTypeID);
-  if frmTestModule.ShowModal = mrOk then begin
-    AlternativeModuleTypeID := StrToInt(frmTestModule.eModuleTypeID.Text);
-    AddTestModule( ModuleTypeID, AlternativeModuleTypeID);
-  end;
-end;
-
-procedure TfrmG2Main.miModuleAssignKnobsClick(Sender: TObject);
-begin
 end;
 
 // ==== Parameter menu =========================================================
@@ -4595,10 +4623,38 @@ begin
 end;
 
 procedure TfrmG2Main.G2MidiClockReceive(Sender : TObject; SenderID : integer; BPM : integer);
+var G2 : TG2;
+begin
+  G2 := SelectedG2;
+  if assigned(G2) then begin
+
+    if G2.Performance.MasterClockRun = 1 then begin
+      gdMasterClock.Font.Color := clRed;
+      gdMasterClock.Line[0] := IntToStr(BPM);
+    end;
+  end;
+end;
+
+procedure TfrmG2Main.G2ClockBPMChange(Sender: TObject; SenderID, BPM: integer);
 begin
   gdMasterClock.Line[0] := IntToStr(BPM);
 end;
 
+procedure TfrmG2Main.G2ClockRunChange(Sender: TObject; SenderID: integer; Status: boolean);
+var G2 : TG2;
+begin
+  G2 := SelectedG2;
+
+  if Status = False then begin
+    gdMasterClock.Font.Color := clWhite;
+    if assigned(G2) then
+      gdMasterClock.Line[0] := IntToStr(G2.Performance.MasterClock);
+  end;
+  if Status then
+    btClockRun.InitValue(1)
+  else
+    btClockRun.InitValue(0);
+end;
 
 initialization
   Initialized := False;

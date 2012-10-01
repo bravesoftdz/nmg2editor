@@ -25,7 +25,6 @@ uses
   UnitModuleDef in '..\..\Source\UnitModuleDef.pas' {frmModuleDef},
   UnitPatchNotes in '..\..\Source\UnitPatchNotes.pas' {frmPatchNotes},
   UnitMidiMapping in '..\..\Source\UnitMidiMapping.pas' {frmMidiMapping},
-  UnitTestModule in '..\..\Source\UnitTestModule.pas' {frmTestModule},
   UnitPatchManager in '..\..\Source\UnitPatchManager.pas' {frmPatchManager};
 
 {$R *.res}
@@ -51,6 +50,5 @@ begin
   Application.CreateForm(TfrmMidiMapping, frmMidiMapping);
   Application.CreateForm(TfrmSettings, frmSettings);
   Application.CreateForm(TfrmModuleDef, frmModuleDef);
-  Application.CreateForm(TfrmTestModule, frmTestModule);
   Application.Run;
 end.

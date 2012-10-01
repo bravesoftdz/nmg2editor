@@ -40,6 +40,8 @@ uses
 type
   TMidiCCRecieveEvent = procedure(Sender : TObject; SenderID : integer; MidiCC : byte) of Object;
   TMidiClockReceiveEvent = procedure(Sender : TObject; SenderID : integer; BPM : integer) of Object;
+  TClockRunChangeEvent = procedure(Sender : TObject; SenderID : integer; Status : boolean) of Object;
+  TClockBPMChangeEvent = procedure(Sender : TObject; SenderID : integer; BPM : integer) of Object;
   TSelectParamPageEvent = procedure( Sender: TObject; SenderID : integer; ParamPage : integer) of object;
   TPatchUpdateEvent = procedure(Sender: TObject; SenderID : integer; PatchIndex : integer) of object;
   TPatchNameChangeEvent = procedure(Sender: TObject; SenderID : integer; PatchIndex : integer; PatchName : AnsiString) of object;
@@ -159,6 +161,8 @@ uses
 
     FOnMidiCCReceive          : TMidiCCRecieveEvent;
     FOnMidiClockReceive       : TMidiClockReceiveEvent;
+    FOnClockRunChange         : TClockRunChangeEvent;
+    FOnClockBPMChange         : TClockBPMChangeEvent;
     FOnSelectParamPage        : TSelectParamPageEvent;
     FOnPatchUpdate            : TPatchUpdateEvent;
     FOnPatchNameChange        : TPatchNameChangeEvent;
@@ -250,6 +254,10 @@ uses
     function    CreateUploadBankMessage( aPatchFileType : TPatchFileType; aBank : byte; aLocation : byte): TG2SendMessage;
     function    CreateDownloadPatchBankMessage( aBank : byte; aLocation : byte; aPatchName : string; aPatch : TG2FilePatch): TG2SendMessage;
     function    CreateDownloadPerfBankMessage( aBank : byte; aLocation : byte; aPerfName : string; aPerf : TG2FilePerformance): TG2SendMessage;
+    function    CreateRetrieveMessage( aSlot, aBank, aPatch : byte): TG2SendMessage;
+    function    CreateStoreMessage( aSlot, aBank, aPatch : byte): TG2SendMessage;
+    function    CreateClearMessage( aPatchFileType : TPatchFileType; aBank, aPatch : byte): TG2SendMessage;
+    function    CreateClearBankMessage( aPatchFileType : TPatchFileType; aBank, aFromLocation, aToLocation : byte): TG2SendMessage;
 
     property    SynthName : AnsiString read FSynthName write SetSynthName;
     property    PerfMode : TBits1 read FPerfMode write SetPerfMode;
@@ -279,6 +287,8 @@ uses
     property    ErrorMessageNo : integer read FErrorMessageNo write FErrorMessageNo;
     property    OnMidiCCReceive : TMidiCCRecieveEvent read FOnMidiCCReceive write FOnMidiCCReceive;
     property    OnMidiClockReceive : TMidiClockReceiveEvent read FOnMidiClockReceive write FOnMidiClockReceive;
+    property    OnClockRunChange : TClockRunChangeEvent read FOnClockRunChange write FOnClockRunChange;
+    property    OnClockBPMChange : TClockBPMChangeEvent read FOnClockBPMChange write FOnClockBPMChange;
     property    OnSelectParamPage : TSelectParamPageEvent read FOnSelectParamPage write FOnSelectParamPage;
     property    OnPatchUpdate : TPatchUpdateEvent read FOnPatchUpdate write FOnPatchUpdate;
     property    OnPatchNameChange : TPatchNameChangeEvent read FOnPatchNameChange write FOnPatchNameChange;
@@ -313,14 +323,12 @@ uses
     function    CreateGetPerfSettingsMessage: TG2SendMessage;
     function    CreateUnknown2Message: TG2SendMessage;
     function    CreateSelectSlotMessage( aSlot: byte): TG2SendMessage;
-    function    CreateRetrieveMessage( aSlot, aBank, aPatch : byte): TG2SendMessage;
-    function    CreateStoreMessage( aSlot, aBank, aPatch : byte): TG2SendMessage;
-    function    CreateClearMessage( aPatchFileType : TPatchFileType; aBank, aPatch : byte): TG2SendMessage;
-    function    CreateClearBankMessage( aPatchFileType : TPatchFileType; aBank, aFromLocation, aToLocation : byte): TG2SendMessage;
     function    CreateSetPerformanceMessage( aPerfName : AnsiString; aPerf : TG2FilePerformance): TG2SendMessage;
     function    CreateSetPerfSettingsMessage: TG2SendMessage;
     function    CreateSetPerfNameMessage( aPerfName : AnsiString): TG2SendMessage;
     function    CreateGetGlobalKnobsMessage: TG2SendMessage;
+    function    CreateSetMasterClockBPMMessage( BPM : byte): TG2SendMessage;
+    function    CreateSetMasterClockRunMessage( Start : boolean): TG2SendMessage;
   end;
 
   TG2MessSlot = class( TG2FileSlot)
@@ -1683,11 +1691,10 @@ begin
                                     end;
                                   end;
                             R_ASSIGNED_VOICES,
-                            R_MASTER_CLOCK :
+                            R_EXT_MASTER_CLOCK :
                                   begin
                                     MemStream.Position := MemStream.Position - 2;
                                     Result := GetPerformance.ProcessResponseMessage( MemStream, Param)
-
                                   end;
                             R_OK : begin
                                      FLastResponseMessage := R_OK;
@@ -2035,7 +2042,7 @@ end;
 
 function TG2Mess.CreateGetAssignedVoicesMessage: TG2SendMessage;
 begin
-  add_log_line('Get slots enabled', LOGCMD_HDR);
+  add_log_line('Get assigned voices', LOGCMD_HDR);
 
   Result := TG2SendMessage.Create;
   Result.WriteMessage( $01);
@@ -2326,6 +2333,76 @@ begin
   end;
 end;
 
+function TG2Mess.CreateRetrieveMessage( aSlot, aBank, aPatch : byte): TG2SendMessage;
+begin
+  if aSlot = 4 then
+    add_log_line('Retrieve performance, slot ' + IntToStr(aSlot) + ', bank ' + IntToStr(aBank) + ', patch ' + IntToStr(aPatch), LOGCMD_HDR)
+  else
+    add_log_line('Retreve patch, slot ' + IntToStr(aSlot) + ', bank ' + IntToStr(aBank) + ', patch ' + IntToStr(aPatch), LOGCMD_HDR);
+
+  Result := TG2SendMessage.Create;
+  Result.WriteMessage( $01);
+  Result.WriteMessage( CMD_REQ + CMD_SYS );
+  Result.WriteMessage( $41);
+  Result.WriteMessage( S_RETREIVE);
+  Result.WriteMessage( aSlot);
+  Result.WriteMessage( aBank);
+  Result.WriteMessage( aPatch);
+end;
+
+function TG2Mess.CreateStoreMessage( aSlot, aBank, aPatch : byte): TG2SendMessage;
+begin
+  if aSlot = 4 then
+    add_log_line('Save performance, slot ' + IntToStr(aSlot) + ', bank ' + IntToStr(aBank) + ', patch ' + IntToStr(aPatch), LOGCMD_HDR)
+  else
+    add_log_line('Save patch, slot ' + IntToStr(aSlot) + ', bank ' + IntToStr(aBank) + ', patch ' + IntToStr(aPatch), LOGCMD_HDR);
+
+  Result := TG2SendMessage.Create;
+  Result.WriteMessage( $01);
+  Result.WriteMessage( CMD_REQ + CMD_SYS );
+  Result.WriteMessage( $41);
+  Result.WriteMessage( S_STORE);
+  Result.WriteMessage( aSlot);
+  Result.WriteMessage( aBank);
+  Result.WriteMessage( aPatch);
+end;
+
+function TG2Mess.CreateClearBankMessage(aPatchFileType : TPatchFileType; aBank, aFromLocation, aToLocation : byte): TG2SendMessage;
+var i : integer;
+begin
+   add_log_line('Clear bank', LOGCMD_HDR);
+
+  Result := TG2SendMessage.Create;
+  Result.WriteMessage( $01);
+  Result.WriteMessage( CMD_REQ + CMD_SYS );
+  Result.WriteMessage( $41);
+  Result.WriteMessage( S_CLEAR_BANK);
+  Result.WriteMessage( ord(aPatchFileType)); // $00 - patch - $01 - perf
+
+  Result.WriteMessage( aBank);
+  Result.WriteMessage( aFromLocation);
+
+  Result.WriteMessage( aBank);
+  Result.WriteMessage( aToLocation);
+
+  Result.WriteMessage( $00); // Unknown
+end;
+
+function TG2Mess.CreateClearMessage( aPatchFileType : TPatchFileType; aBank, aPatch : byte): TG2SendMessage;
+begin
+  add_log_line('Clear bank location', LOGCMD_HDR);
+
+  Result := TG2SendMessage.Create;
+  Result.WriteMessage( $01);
+  Result.WriteMessage( CMD_REQ + CMD_SYS );
+  Result.WriteMessage( $41);
+  Result.WriteMessage( S_CLEAR);
+  Result.WriteMessage( ord(aPatchFileType)); // $00 - patch - $01 - perf
+  Result.WriteMessage( aBank);
+  Result.WriteMessage( aPatch);
+  Result.WriteMessage( $00); // Unknown
+end;
+
 ////////////////////////////////////////////////////////////////////////////////
 //  TG2MessPerformance
 ////////////////////////////////////////////////////////////////////////////////
@@ -2417,7 +2494,28 @@ begin
                 if assigned((G2 as TG2Mess).FOnMidiCCReceive) then
                   (G2 as TG2Mess).FOnMidiCCReceive( G2, G2.ID, MidiCC);
             end;
-      R_MASTER_CLOCK :
+      S_SET_MASTER_CLOCK :
+            begin
+              MemStream.Read(b, 1); // $FF Unknown
+              MemStream.Read(b, 1); // $00 : Clock run $01 : Clock BPM
+              case b of
+              $00 : begin
+                      MemStream.Read(b, 1); // $00 : Off, $01 : On
+                      MasterClockRun := b;
+                      if assigned(G2) then
+                        if assigned((G2 as TG2Mess).FOnClockRunChange) then
+                          (G2 as TG2Mess).FOnClockRunChange( G2, G2.ID, b=1);
+                    end;
+              $01 : begin
+                      MemStream.Read(b, 1);
+                      MasterClock := b;
+                      if assigned(G2) then
+                        if assigned((G2 as TG2Mess).FOnClockBPMChange) then
+                          (G2 as TG2Mess).FOnClockBPMChange( G2, G2.ID, b);
+                    end;
+              end;
+            end;
+      R_EXT_MASTER_CLOCK :
             begin
               // External clock
               MemStream.Read( b, 1);
@@ -2427,7 +2525,6 @@ begin
 
               if assigned(G2) then
                 if assigned((G2 as TG2Mess).FOnMidiClockReceive) then
-                  // Seems to be value received - 10%
                   (G2 as TG2Mess).FOnMidiClockReceive( G2, G2.ID, hb*256+lb);
             end;
       C_PERF_NAME,
@@ -2644,74 +2741,35 @@ begin
   Result.WriteMessage( aSlot);
 end;
 
-function TG2MessPerformance.CreateRetrieveMessage( aSlot, aBank, aPatch : byte): TG2SendMessage;
+function TG2MessPerformance.CreateSetMasterClockBPMMessage(BPM: byte): TG2SendMessage;
 begin
-  if aSlot = 4 then
-    add_log_line('Retrieve performance, slot ' + IntToStr(aSlot) + ', bank ' + IntToStr(aBank) + ', patch ' + IntToStr(aPatch), LOGCMD_HDR)
+  add_log_line('Set master clock BPM message', LOGCMD_HDR);
+
+  Result := TG2SendMessage.Create;
+  Result.WriteMessage( $01);
+  Result.WriteMessage( CMD_REQ + CMD_SYS );
+  Result.WriteMessage( FPerfVersion);
+  Result.WriteMessage( S_SET_MASTER_CLOCK);
+  Result.WriteMessage( $FF); // Unknown
+  Result.WriteMessage( $01); // $00 Set clock run $01 Set clock BPM
+  Result.WriteMessage( BPM);
+end;
+
+function TG2MessPerformance.CreateSetMasterClockRunMessage(Start: boolean): TG2SendMessage;
+begin
+  add_log_line('Set master clock run message', LOGCMD_HDR);
+
+  Result := TG2SendMessage.Create;
+  Result.WriteMessage( $01);
+  Result.WriteMessage( CMD_REQ + CMD_SYS );
+  Result.WriteMessage( FPerfVersion);
+  Result.WriteMessage( S_SET_MASTER_CLOCK);
+  Result.WriteMessage( $FF); // Unknown
+  Result.WriteMessage( $00); // $00 Set clock run $01 Set clock BPM
+  if Start then
+    Result.WriteMessage( $01)
   else
-    add_log_line('Retreve patch, slot ' + IntToStr(aSlot) + ', bank ' + IntToStr(aBank) + ', patch ' + IntToStr(aPatch), LOGCMD_HDR);
-
-  Result := TG2SendMessage.Create;
-  Result.WriteMessage( $01);
-  Result.WriteMessage( CMD_REQ + CMD_SYS );
-  Result.WriteMessage( $41);
-  Result.WriteMessage( S_RETREIVE);
-  Result.WriteMessage( aSlot);
-  Result.WriteMessage( aBank);
-  Result.WriteMessage( aPatch);
-end;
-
-function TG2MessPerformance.CreateStoreMessage( aSlot, aBank, aPatch : byte): TG2SendMessage;
-begin
-  if aSlot = 4 then
-    add_log_line('Save performance, slot ' + IntToStr(aSlot) + ', bank ' + IntToStr(aBank) + ', patch ' + IntToStr(aPatch), LOGCMD_HDR)
-  else
-    add_log_line('Save patch, slot ' + IntToStr(aSlot) + ', bank ' + IntToStr(aBank) + ', patch ' + IntToStr(aPatch), LOGCMD_HDR);
-
-  Result := TG2SendMessage.Create;
-  Result.WriteMessage( $01);
-  Result.WriteMessage( CMD_REQ + CMD_SYS );
-  Result.WriteMessage( $41);
-  Result.WriteMessage( S_STORE);
-  Result.WriteMessage( aSlot);
-  Result.WriteMessage( aBank);
-  Result.WriteMessage( aPatch);
-end;
-
-function TG2MessPerformance.CreateClearBankMessage(aPatchFileType : TPatchFileType; aBank, aFromLocation, aToLocation : byte): TG2SendMessage;
-var i : integer;
-begin
-   add_log_line('Clear bank', LOGCMD_HDR);
-
-  Result := TG2SendMessage.Create;
-  Result.WriteMessage( $01);
-  Result.WriteMessage( CMD_REQ + CMD_SYS );
-  Result.WriteMessage( $41);
-  Result.WriteMessage( S_CLEAR_BANK);
-  Result.WriteMessage( ord(aPatchFileType)); // $00 - patch - $01 - perf
-
-  Result.WriteMessage( aBank);
-  Result.WriteMessage( aFromLocation);
-
-  Result.WriteMessage( aBank);
-  Result.WriteMessage( aToLocation);
-
-  Result.WriteMessage( $00); // Unknown
-end;
-
-function TG2MessPerformance.CreateClearMessage( aPatchFileType : TPatchFileType; aBank, aPatch : byte): TG2SendMessage;
-begin
-  add_log_line('Clear bank location', LOGCMD_HDR);
-
-  Result := TG2SendMessage.Create;
-  Result.WriteMessage( $01);
-  Result.WriteMessage( CMD_REQ + CMD_SYS );
-  Result.WriteMessage( $41);
-  Result.WriteMessage( S_CLEAR);
-  Result.WriteMessage( ord(aPatchFileType)); // $00 - patch - $01 - perf
-  Result.WriteMessage( aBank);
-  Result.WriteMessage( aPatch);
-  Result.WriteMessage( $00); // Unknown
+    Result.WriteMessage( $00);
 end;
 
 function TG2MessPerformance.CreateSetPerformanceMessage( aPerfName : AnsiString; aPerf : TG2FilePerformance): TG2SendMessage;

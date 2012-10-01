@@ -144,9 +144,6 @@ type
     procedure ePortEnter(Sender: TObject);
     procedure eHostEnter(Sender: TObject);
     procedure eTimerBroadcastLedMessagesEnter(Sender: TObject);
-    procedure cbMidiEnabledEnter(Sender: TObject);
-    procedure cbMidiInDevicesEnter(Sender: TObject);
-    procedure cbMidiOutDevicesEnter(Sender: TObject);
     procedure cbCtrlMidiEnabledEnter(Sender: TObject);
     procedure cbCtrlMidiInDevicesEnter(Sender: TObject);
     procedure cbLogEnabledEnter(Sender: TObject);
@@ -169,6 +166,8 @@ type
     procedure clbCtrlMidiInDevicesClickCheck(Sender: TObject);
     procedure clbSysexMidiInDevicesClickCheck(Sender: TObject);
     procedure clbSysExMidiOutDevicesClickCheck(Sender: TObject);
+    procedure clbSysexMidiInDevicesEnter(Sender: TObject);
+    procedure clbSysExMidiOutDevicesEnter(Sender: TObject);
   private
     { Private declarations }
     FDisableControls : boolean;
@@ -884,29 +883,24 @@ end;
 //  Help
 ////////////////////////////////////////////////////////////////////////////////
 
-procedure TfrmSettings.cbMidiEnabledEnter(Sender: TObject);
-begin
-  lExplenation.Caption := EXPLENATIONS[4];
-end;
-
 procedure TfrmSettings.cbCtrlMidiEnabledEnter(Sender: TObject);
 begin
   lExplenation.Caption := EXPLENATIONS[7];
 end;
 
-procedure TfrmSettings.cbMidiInDevicesEnter(Sender: TObject);
+procedure TfrmSettings.clbSysexMidiInDevicesEnter(Sender: TObject);
 begin
   lExplenation.Caption := EXPLENATIONS[5];
+end;
+
+procedure TfrmSettings.clbSysExMidiOutDevicesEnter(Sender: TObject);
+begin
+  lExplenation.Caption := EXPLENATIONS[6];
 end;
 
 procedure TfrmSettings.cbCtrlMidiInDevicesEnter(Sender: TObject);
 begin
   lExplenation.Caption := EXPLENATIONS[8];
-end;
-
-procedure TfrmSettings.cbMidiOutDevicesEnter(Sender: TObject);
-begin
-  lExplenation.Caption := EXPLENATIONS[6];
 end;
 
 procedure TfrmSettings.cbCtrlMidiOutDevicesEnter(Sender: TObject);

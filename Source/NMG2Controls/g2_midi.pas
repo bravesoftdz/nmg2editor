@@ -35,8 +35,9 @@ unit g2_midi;
 
 interface
 uses
+  MidiType,
 {$IFNDEF G2_VST}
-  MMSystem, MidiType, MidiIn, MidiOut,
+  MMSystem, MidiIn, MidiOut,
 {$ENDIF}
 {$IFDEF VER220}
   System.Classes, System.SysUtils, System.Controls, System.Contnrs,
@@ -52,9 +53,11 @@ const
 type
   TMidiDeviceStateChangeEvent = procedure(Sender : TObject) of object;
 
+  TG2Midi = class;
   TMidiAwareControl = class;
   TMidiEditorAssignmentList = class;
 
+{$IFNDEF G2_VST}
   TMidiDevice = class
   private
     FName : string;
@@ -75,7 +78,6 @@ type
     property OnMidiDeviceStateChange : TMidiDeviceStateChangeEvent read FOnMidiDeviceStateChange write FOnMidiDeviceStateChange;
   end;
 
-{$IFNDEF G2_VST}
   TMidiInDevice = class( TMidiDevice)
   private
     FMidiInput     : TMidiInput;
@@ -100,7 +102,6 @@ type
 
     property MidiOutput : TMidiOutput read FMidiOutput;
   end;
-{$ENDIF}
 
   TMidiDeviceList = class(TObjectList)
   protected
@@ -126,6 +127,7 @@ type
 
     property    Items[ aIndex : integer]: TMidiOutput read GetMidiOutput write SetMidiOutput; default;
   end;
+{$ENDIF}
 
   // Midi assignmet to editor UI control
   TMidiEditorAssignment = class
@@ -136,13 +138,17 @@ type
     FControlIndex   : byte; // For indexed controls (radiobuttons/onoff buttons)
     FMinValue       : byte;
     FMaxValue       : byte;
+{$IFNDEF G2_VST}
     FMidiOutputList : TMidiOutputList;
+{$ENDIF}
     FControl        : TMidiAwareControl; // Pointer to UI controls see g2_graph
     FControlPath    : string; // Osc style adressing of the control within the application
+    FG2             : TG2Midi; // To access log
   public
-    constructor Create;
+    constructor Create( aG2 : TG2Midi);
     destructor Destroy; override;
 
+    procedure WriteLog( aMessage, aData1, aData2 : byte);
     procedure SendValue( aValue : byte);
 
     property Channel : byte read FChannel write FChannel;
@@ -153,9 +159,27 @@ type
     property MaxValue : byte read FMaxValue write FMaxValue;
     property Control : TMidiAwareControl read FControl write FControl;
     property ControlPath : string read FControlPath write FControlPath;
+{$IFNDEF G2_VST}
     property MidiOutputList : TMidiOutputList read FMidiOutputList write FMidiOutputList;
+{$ENDIF}
   end;
 
+  TMidiEditorAssignmentList = class(TObjectList)
+  protected
+    function    GetMidiEditorAssignment( aIndex : integer) : TMidiEditorAssignment;
+    procedure   SetMidiEditorAssignment( aIndex : integer; const aValue : TMidiEditorAssignment);
+  public
+    constructor Create( AOwnsObjects: Boolean);
+    destructor  Destroy; override;
+    function    FindControl( aControl : TMidiAwareControl): TMidiEditorAssignment;
+    function    FindControlNote( aControl : TMidiAwareControl; aChannel, aNote : byte): TMidiEditorAssignment;
+    function    FindControlCC( aControl : TMidiAwareControl; aChannel, aCC : byte): TMidiEditorAssignment;
+    function    FindControlHasCC( aControl : TMidiAwareControl): TMidiEditorAssignment;
+    function    FindControlHasIndex( aControl: TMidiAwareControl; aIndex : byte): TMidiEditorAssignment;
+
+    property    Items[ aIndex : integer]: TMidiEditorAssignment read GetMidiEditorAssignment write SetMidiEditorAssignment; default;
+  end;
+
   TMidiAwareControl = class( TGraphicControl)
   protected
     FIndexedControl : boolean;
@@ -183,21 +207,6 @@ type
     property MidiAware : boolean read FMidiAware write FMidiAware;
   end;
 
-  TMidiEditorAssignmentList = class(TObjectList)
-  protected
-    function    GetMidiEditorAssignment( aIndex : integer) : TMidiEditorAssignment;
-    procedure   SetMidiEditorAssignment( aIndex : integer; const aValue : TMidiEditorAssignment);
-  public
-    constructor Create( AOwnsObjects: Boolean);
-    destructor  Destroy; override;
-    function    FindControl( aControl : TMidiAwareControl): TMidiEditorAssignment;
-    function    FindControlNote( aControl : TMidiAwareControl; aChannel, aNote : byte): TMidiEditorAssignment;
-    function    FindControlCC( aControl : TMidiAwareControl; aChannel, aCC : byte): TMidiEditorAssignment;
-    function    FindControlHasCC( aControl : TMidiAwareControl): TMidiEditorAssignment;
-    function    FindControlHasIndex( aControl: TMidiAwareControl; aIndex : byte): TMidiEditorAssignment;
-
-    property    Items[ aIndex : integer]: TMidiEditorAssignment read GetMidiEditorAssignment write SetMidiEditorAssignment; default;
-  end;
 
   // Midi functionality for G2 class
   TG2Midi = class( TG2USB)
@@ -758,9 +767,11 @@ begin
   end;
 end;}
 
+{$ENDIF}
+
 { TMidiEditorAssignment }
 
-constructor TMidiEditorAssignment.Create;
+constructor TMidiEditorAssignment.Create( aG2 : TG2Midi);
 begin
   FChannel        := 0;
   FNote           := 0;
@@ -769,8 +780,11 @@ begin
   FMinValue       := 0;
   FMaxValue       := 0;
   FControl        := nil;
+{$IFNDEF G2_VST}
   FMidiOutputList := nil;
+{$ENDIF}
   FControlPath    := '';
+  FG2 := aG2;
 end;
 
 destructor TMidiEditorAssignment.Destroy;
@@ -780,17 +794,29 @@ end;
 
 procedure TMidiEditorAssignment.SendValue( aValue : byte);
 begin
+{$IFNDEF G2_VST}
   if assigned(FMidiOutputList) then begin
     if FNote <> 0 then begin
-      if aValue > 0 then
-        FMidiOutputList.SendValue( $90 + FChannel, FNote, aValue)
-      else
+      if aValue > 0 then begin
+        FMidiOutputList.SendValue( $90 + FChannel, FNote, aValue);
+        WriteLog( $90 + FChannel, FNote, aValue);
+      end else begin
         FMidiOutputList.SendValue( $80 + FChannel, FNote, 0);
+        WriteLog( $80 + FChannel, FNote, 0);
+      end;
     end else
       if FCC <> 0 then begin
         FMidiOutputList.SendValue( $B0 + FChannel, FCC, aValue);
+        WriteLog( $B0 + FChannel, FCC, aValue);
       end;
   end;
+{$ENDIF}
+end;
+
+procedure TMidiEditorAssignment.WriteLog(aMessage, aData1, aData2: byte);
+begin
+  if assigned(FG2) then
+    FG2.add_log_line('Write midi out : ' + IntToHex(aMessage, 2) + ' ' + IntToHex(aData1,2) + ' ' + IntToHex(aData2,2), LOGCMD_NUL);
 end;
 
 { TMidiEditorAssignmentList }
@@ -880,8 +906,6 @@ procedure TMidiEditorAssignmentList.SetMidiEditorAssignment(aIndex: integer; con
 begin
   inherited items[aIndex] := aValue;
 end;
-
-{$ENDIF}
 
 { TMidiAwareControl }
 
@@ -987,6 +1011,8 @@ begin
     end;
 end;
 
+{$IFNDEF G2_VST}
+
 { TMidiDevice }
 
 constructor TMidiDevice.Create;
@@ -1027,7 +1053,6 @@ begin
   end;
 end;
 
-{$IFNDEF G2_VST}
 
 { TMidiInDevice }
 
@@ -1100,8 +1125,6 @@ begin
   if assigned(FOnMidiDeviceStateChange) then
     FOnMidiDeviceStateChange(self);
 end;
-
-{$ENDIF}
 
 { TMidiDeviceList }
 
@@ -1183,7 +1206,6 @@ begin
       Items[i].PutShort( aMidiMessage, aData1, aData2);
 end;
 
-{$IFNDEF G2_VST}
 procedure InitMidiDevices( MidiInDevices, MidiOutDevices : TMidiDeviceList);
 var lOutCaps: TMidiOutCaps;
     lInCaps: TMidiInCaps;

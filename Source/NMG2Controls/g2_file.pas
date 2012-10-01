@@ -1028,7 +1028,7 @@ type
     procedure   SortLeds; virtual;
 
     property    PatchName : AnsiString read GetPatchName write SetPatchName;
-    property    ActiveVariation : byte read GetActiveVariation; // TODO
+    property    ActiveVariation : byte read GetActiveVariation; // TODO Don't remember what....
     property    Variation : byte read GetVariation write SetVariation;
     property    SelectedMorphIndex : integer read FSelectedMorphIndex write SetSelectedMorphIndex;
 
@@ -1315,7 +1315,7 @@ type
     procedure   SetKeyboardRangeEnabled( aValue : TBits8);
   protected
     function    GetSlot( aSlot : byte): TG2FileSlot;
-    procedure   InitSelectedSlotIndex( aValue : TBits2);
+    procedure   InitSelectedSlotIndex( aValue : TBits2); virtual;
     procedure   SetSelectedSlotIndex( aValue : TBits2); virtual;
     procedure   SetMasterClock( aValue : TBits8); virtual;
     procedure   SetMasterClockRun( aValue : TBits8); virtual;
@@ -8072,6 +8072,34 @@ begin
           else
             Result := IntToStr( aValue);
         end;
+  122 : begin // logic Pulse/Delay Range
+         if assigned(Module) and (Length(FTextDependencies)=2) then begin
+           t := PULSE_DELAY_RANGE[ aValue];
+           iValue1 := GetTextDependendParamValue(1);
+           case iValue1 of
+           0 : begin // Sub
+                 t := t/100;
+                 if t < 1000 then
+                   Result := G2FloatToStrFixed( t, 4) + 'm'
+                 else
+                   Result := G2FloatToStrFixed( t / 1000, 4) + 's';
+               end;
+           1 : begin // Lo
+                 t := t/10;
+                 if t < 1000 then
+                   Result := G2FloatToStrFixed( t, 4) + 'm'
+                 else
+                   Result := G2FloatToStrFixed( t / 1000, 4) + 's';
+               end;
+           2 : begin // Hi
+                 if t < 1000 then
+                   Result := G2FloatToStrFixed( t, 4) + 'm'
+                 else
+                   Result := G2FloatToStrFixed( t / 1000, 4) + 's';
+               end;
+           end;
+         end;
+       end;
   123 : begin // Flt Freq
           FreqCourse := aValue;
           Exponent := (FreqCourse - 60) / 12;
@@ -8084,7 +8112,8 @@ begin
             Result := G2FloatToStrFixed( Freq, 5) + 'Hz'
         end;
   124 : begin // Flt Resonance
-          Result := IntToStr(aValue); // TODO
+          t := FILTER_RESONANCE[ aValue];
+          Result := G2FloatToStrFixed( t, 4);
         end;
   125 : begin // Osc FM Mod
           case aValue of
@@ -8106,7 +8135,21 @@ begin
           Result := IntToStr(trunc(1 + 97.0 * aValue / 127)) + '%';
         end;
   129 : begin // EnvFollow Attack
-
+          t := ENV_FOLLOW_ATTACK[ aValue];
+          if t = 0 then
+            Result := 'Fast'
+          else
+            if t < 1000 then
+              Result := G2FloatToStrFixed( t, 4) + 'm'
+            else
+              Result := G2FloatToStrFixed( t/1000, 4) + 's';
+        end;
+  130 : begin //EnvFollow release
+          t := ENV_FOLLOW_RELEASE[ aValue];
+          if t < 1000 then
+            Result := G2FloatToStrFixed( t, 4) + 'm'
+          else
+            Result := G2FloatToStrFixed( t/1000, 4) + 's';
         end;
   132 : begin // Key Quant, Range
           TempValue := aValue;
@@ -8141,6 +8184,25 @@ begin
           case aValue of
           0 : Result := 'AD';
           1 : Result := 'AR';
+          end;
+        end;
+  142 : begin // Freq Shift
+          if assigned(Module) and (Length(FTextDependencies)=2) then begin
+            iValue1 := GetTextDependendParamValue(1);
+            case iValue1 of
+            0 : begin // Sub
+                  t := FREQ_SHIFT_SUB[ aValue];
+                  Result := G2FloatToStr( t, 5) + 'Hz';
+                end;
+            1 : begin // Lo
+                  t := FREQ_SHIFT_LO[ aValue];
+                  Result := G2FloatToStr( t, 5) + 'Hz';
+                end;
+            2 : begin // High
+                  t := FREQ_SHIFT_HI[ aValue];
+                  Result := G2FloatToStr( t, 5) + 'Hz';
+                end;
+            end;
           end;
         end;
   144 : begin // Dly Time/Clk
@@ -8201,6 +8263,20 @@ begin
           0 : Result := 'Log';
           1 : Result := 'Lin';
           end;
+        end;
+  159 : begin // NoiseGate Attack
+          t := NOISE_GATE_ATTACK[ aValue];
+          if t < 1000 then
+            Result := G2FloatToStrFixed( t, 4) + 'm'
+          else
+            Result := G2FloatToStrFixed( t/1000, 4) + 's';
+        end;
+  160 : begin // NoiseGate Release
+          t := NOISE_GATE_RELEASE[ aValue];
+          if t < 1000 then
+            Result := G2FloatToStrFixed( t, 4) + 'm'
+          else
+            Result := G2FloatToStrFixed( t/1000, 4) + 's';
         end;
   163 : begin // LFO, phase
           Result := IntToStr(round(aValue / 128 * 360));
@@ -8490,17 +8566,21 @@ begin
           end;
         end;
   215 : begin // Flanger Rate
-          // TODO
           //Result := G2FloatToStr(440 * power(2, ((298.210634 - aValue) / -32.64072819)), 4) + 'Hz';
-          Result := IntToStr( aValue);
+          t := FLANGER_RATE[ aValue];
+          Result := G2FloatToStrFixed(t, 4) + 'Hz';
         end;
   216 : begin // Phaser Freq
-          // TODO
           //Result := G2FloatToStr(440 * power(2, ((298.210634 - aValue) / -32.64072819)), 4) + 'Hz';
-          Result := IntToStr( aValue);
+          t := PHASER_FREQ[ aValue];
+          Result := G2FloatToStrFixed(t, 4) + 'Hz';
         end;
-  217  : begin // Glide time  TODO
-           Result := IntToStr( aValue);
+  217  : begin // Glide time
+           t := GLIDE_TIME[ aValue];
+           if t < 1000 then
+             Result := G2FloatToStrFixed(t, 4) + 'm'
+           else
+             Result := G2FloatToStrFixed(t/1000, 4) + 's';
          end;
   218 : begin // DrumSynth NoiseFltMode
           case aValue of
@@ -8509,13 +8589,17 @@ begin
           2 : Result := 'HP';
           end;
         end;
-  220 : begin // Pitch track
-          Result := IntToStr(aValue); // TODO
+  220 : begin // Pitch track and Noise gate threshhold
+          t := NOISEGATE_PITCHTRACK_THRESHHOLD[ aValue];
+          if aValue = 0 then
+            Result := 'Inf.'
+          else
+            Result := G2FloatToStr(t, 4) + 'dB';
         end;
   500 : begin // SeqCtrl (Not found in original moduledef)
           if assigned(Module) then begin
             TempValue := aValue;
-            Param := MOdule.Parameter[ 33];
+            Param := Module.Parameter[ 33];
             if assigned(Param) then begin // Polarity
               case Param.GetParameterValue of
               0 : Result := IntToStr( TempValue - 64);
@@ -8594,8 +8678,12 @@ begin
           2 : Result := 'Wheel';
           end;
         end;
-  511 : begin // Glide Speed TODO
-          Result := IntToStr(aValue);
+  511 : begin // Glide Speed
+          t := PATCH_SETTINGS_GLIDE[ aValue];
+          if t < 1000 then
+            Result := G2FloatToStrFixed( t, 3) + 'm'
+          else
+            Result := G2FloatToStrFixed( t/1000, 4) + 's';
         end;
   512 : begin // Glide Type
           case aValue of
@@ -8613,8 +8701,9 @@ begin
           1 : Result := 'On';
           end;
         end;
-  515 : begin // Volume TODO
-          Result := IntToStr(aValue);
+  515 : begin // Volume
+          t := PATCH_SETTINGS_VOLUME[ aValue];
+          Result := G2FloatToStr(t, 3) + ' dB';
         end;
   516 : begin // Mute On/Off
           case aValue of
@@ -8704,6 +8793,9 @@ end;
 // Patch Volume
 // Patch Glide
 
+// Pitch track
+// Filter Resonance
+
 
 function TG2FileParameter.TextFunction: string;
 var aValue : byte;
@@ -8730,9 +8822,36 @@ begin
   17 : begin // NoteZone SendTrans
          Result := InfoFunction( 17);
        end;
-  27   : begin // OscShpB, shape Mod
-           Result := InfoFunction( 126);
-         end;
+  27 : begin // OscShpB, shape Mod
+         Result := InfoFunction( 126);
+       end;
+  122 : begin // logic Pulse/Delay Range
+         Result := InfoFunction( 122);
+         {if assigned(Module) and (Length(FTextDependencies)=2) then begin
+           Temp := PULSE_DELAY_RANGE[ aValue];
+           iValue1 := GetTextDependendParamValue(1);
+           case iValue1 of
+           0 : begin // Sub
+                 if Temp < 100000 then
+                   Result := G2FloatToStrFixed( Temp / 100, 4) + 'm'
+                 else
+                   Result := G2FloatToStrFixed( Temp / 100000, 4) + 's';
+               end;
+           1 : begin // Lo
+                 if Temp < 100000 then
+                   Result := G2FloatToStrFixed( Temp / 10, 4) + 'm'
+                 else
+                   Result := G2FloatToStrFixed( Temp / 10000, 4) + 's';
+               end;
+           2 : begin // Hi
+                 if Temp < 100000 then
+                   Result := G2FloatToStrFixed( Temp / 1, 4) + 'm'
+                 else
+                   Result := G2FloatToStrFixed( Temp / 1000, 4) + 's';
+               end;
+           end;
+         end;}
+       end;
   39 : begin // FltPhase Freq
          Result := InfoFunction( 39);
        end;
@@ -8765,7 +8884,42 @@ begin
                    Result := G2FloatToStr(0.0159 * power(2, aValue / 12), 4) + 'Hz';
              2 : Result := G2FloatToStr(0.2555 * power(2, aValue / 12), 4) + 'Hz';
              3 : Result := G2BPM( aValue);
-             4 :; // Clock TODO
+             4 : begin; // Clock
+                   case aValue of
+                   0..3 : Result := '64/1';
+                   4..7 : Result := '48/1';
+                   8..11 : Result := '32/1';
+                   12..15 : Result := '24/1';
+                   16..19 : Result := '16/1';
+                   20..23 : Result := '12/1';
+                   24..27 : Result := '8/1';
+                   28..31 : Result := '6/1';
+                   32..35 : Result := '4/1';
+                   36..39 : Result := '3/1';
+                   40..43 : Result := '2/1';
+                   44..47 : Result := '1/1D';
+                   48..51 : Result := '1/1';
+                   52..55 : Result := '1/2D';
+                   56..59 : Result := '1/1T';
+                   60..63 : Result := '1/2';
+                   64..67 : Result := '1/4D';
+                   68..71 : Result := '1/2T';
+                   72..75 : Result := '1/4';
+                   76..79 : Result := '1/8D';
+                   80..83 : Result := '1/4T';
+                   84..87 : Result := '1/8';
+                   88..91 : Result := '1/16D';
+                   92..95 : Result := '1/8T';
+                   96..99 : Result := '1/16';
+                   100..103 : Result := '1/32D';
+                   104..107 : Result := '1/16T';
+                   108..111 : Result := '1/32';
+                   112..115 : Result := '1/64D';
+                   116..119 : Result := '1/32T';
+                   120..123 : Result := '1/64';
+                   124..127 : Result := '1/64T';
+                   end;
+                 end;
              end;
            end;
          end;
@@ -8825,8 +8979,8 @@ begin
             Result := DelayDispValue(0, iValue1, aValue);
           end;
         end;
-  142 : begin // Freq Shift Freq TODO
-         Result := IntToStr( aValue);
+  142 : begin // Freq Shift Freq
+          Result := InfoFunction( 142);
         end;
   143 : begin // Dly time
           if assigned(Module) and (Length(FTextDependencies)=3) then begin
@@ -8897,7 +9051,7 @@ begin
             Result := FreqDispValue( 4, FreqCourse, FreqFine);
           end;
         end;
-  217 : begin // Glide time, don't know:  TODO
+  217 : begin // Glide time
           Result := InfoFunction( 217);
         end;
   // For VST:
@@ -9383,6 +9537,7 @@ end;
 
 procedure TG2FilePerformance.Read( aChunk : TPatchChunk);
 var einde : boolean;
+    b : byte;
     i, PatchCount : integer;
 begin
   // FUnknown              : TBits8;
@@ -9403,7 +9558,8 @@ begin
         begin // performance description
           FUnknown[3]           := aChunk.ReadBits( 8);
           FUnknown[4]           := aChunk.ReadBits( 4);
-          FSelectedSlot         := aChunk.ReadBits( 2);
+          b                     := aChunk.ReadBits( 2);
+          InitSelectedSlotIndex(b);
           FUnknown[5]           := aChunk.ReadBits( 2);
 
           FKeyboardRangeEnabled := aChunk.ReadBits( 8);

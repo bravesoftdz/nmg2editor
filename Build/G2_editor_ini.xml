@@ -2,7 +2,7 @@
 <G2_Editor_settings>
   <G2_Synth_1>
     <Editor_settings LedColor="65280" LogEnabled="False" OnlyTextMenus="False" CableThickness="2" HighlightColor="16776960" SlotStripColor="4341694" SlotStripInverseColor="5447424" SlotStripDisabledColor="13684944"/>
-    <TCP_settings IP="127.0.0.1" Port="2501" IsServer="True" TimerBroadcastLedMessages="0"/>
+    <TCP_settings IP="127.0.0.1" Port="2501" IsServer="True" TimerBroadcastLedMessages="500"/>
     <MIDI_settings MidiInDevice="2- MIDISPORT 4x4 In C" MidiOutDevice="2- MIDISPORT 4x4 Out C"/>
   </G2_Synth_1>
   <CTRL_MIDI_in_device_list>
@@ -17,7 +17,6 @@
     <CTRL_MIDI_ASSIGNMENT CC="44" Note="0" Channel="0" MaxValue="127" MinValue="0" ControlPath="/frmParameterPages/skP5" ControlIndex="0"/>
     <CTRL_MIDI_ASSIGNMENT CC="45" Note="0" Channel="0" MaxValue="127" MinValue="0" ControlPath="/frmParameterPages/skP6" ControlIndex="0"/>
     <CTRL_MIDI_ASSIGNMENT CC="46" Note="0" Channel="0" MaxValue="127" MinValue="0" ControlPath="/frmParameterPages/skP7" ControlIndex="0"/>
-    <CTRL_MIDI_ASSIGNMENT CC="47" Note="0" Channel="0" MaxValue="127" MinValue="0" ControlPath="/frmParameterPages/skP8" ControlIndex="0"/>
     <CTRL_MIDI_ASSIGNMENT CC="40" Note="0" Channel="0" MaxValue="127" MinValue="0" ControlPath="/frmParameterPages/skP1" ControlIndex="0"/>
     <CTRL_MIDI_ASSIGNMENT CC="41" Note="0" Channel="0" MaxValue="127" MinValue="0" ControlPath="/frmParameterPages/skP2" ControlIndex="0"/>
     <CTRL_MIDI_ASSIGNMENT CC="49" Note="0" Channel="0" MaxValue="127" MinValue="0" ControlPath="/frmParameterPages/bfP2" ControlIndex="0"/>
@@ -56,13 +55,13 @@
     <CTRL_MIDI_ASSIGNMENT CC="38" Note="0" Channel="0" MaxValue="127" MinValue="0" ControlPath="/frmParameterPages/pBottom/rbParamColumn" ControlIndex="1"/>
     <CTRL_MIDI_ASSIGNMENT CC="39" Note="0" Channel="0" MaxValue="127" MinValue="0" ControlPath="/frmParameterPages/pBottom/rbParamColumn" ControlIndex="2"/>
   </CTRL_MIDI_ASSIGNMENT_LIST>
-  <MainForm PosX="24" PosY="0" SizeX="1459" SizeY="1010" Visible="True"/>
-  <DirectorySettings G2oolsFolder="" ModuleHelpFile=""/>
-  <PatchManagerSettings BaseFolder="" SelectedTab="3" ExternalSortCol="0" InternalSortCol="1"/>
-  <PatchBrowserForm PosX="200" PosY="200" SizeX="546" SizeY="438" Visible="False"/>
-  <PatchManagerForm PosX="527" PosY="192" SizeX="806" SizeY="710" Visible="False"/>
-  <SettingsForm PosX="705" PosY="360" SizeX="528" SizeY="466" Visible="False"/>
-  <ParameterPagesForm PosX="988" PosY="197" SizeX="575" SizeY="180" Visible="False"/>
+  <MainForm PosX="447" PosY="35" SizeX="1094" SizeY="690" Visible="True"/>
+  <DirectorySettings G2oolsFolder="C:\Users\Bruno\Downloads\g2ools_15_190\g2ools-1.5\build" ModuleHelpFile="C:\Program Files (x86)\Clavia\Nord Modular G2 v1.62\Nord Modular G2 Editor v1.62.chm"/>
+  <PatchManagerSettings BaseFolder="C:\Users\Bruno\Documents\Nord Modular Patches\G2 Patches\Bruno" SelectedTab="3" ExternalSortCol="0" InternalSortCol="1"/>
+  <PatchBrowserForm PosX="225" PosY="225" SizeX="546" SizeY="438" Visible="False"/>
+  <PatchManagerForm PosX="1089" PosY="29" SizeX="579" SizeY="851" Visible="False"/>
+  <SettingsForm PosX="131" PosY="208" SizeX="528" SizeY="466" Visible="False"/>
+  <ParameterPagesForm PosX="602" PosY="63" SizeX="575" SizeY="180" Visible="False"/>
   <PatchSettingsForm PosX="392" PosY="575" SizeX="608" SizeY="185" Visible="False"/>
   <EditorToolsForm PosX="188" PosY="535" SizeX="151" SizeY="261" Visible="False"/>
   <PatchNotesForm PosX="22" PosY="29" SizeX="611" SizeY="514" Visible="False"/>

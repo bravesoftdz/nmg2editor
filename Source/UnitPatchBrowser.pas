@@ -322,9 +322,9 @@ begin
   G2 := frmG2Main.SelectedG2;
   if assigned(G2) then begin
     if BankItem.PatchFileType = pftPerf then
-      G2.Performance.SendRetrieveMessage( 4, BankItem.Bank, BankItem.Patch)
+      G2.SendRetrieveMessage( 4, BankItem.Bank, BankItem.Patch)
     else
-      G2.Performance.SendRetrieveMessage( G2.SelectedSlotIndex, BankItem.Bank, BankItem.Patch);
+      G2.SendRetrieveMessage( G2.SelectedSlotIndex, BankItem.Bank, BankItem.Patch);
   end;
   frmG2Main.SetFocus;
 end;
