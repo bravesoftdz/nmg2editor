@@ -144,12 +144,14 @@
 			<DelphiCompile Include="$(MainSource)">
 				<MainSource>MainSource</MainSource>
 			</DelphiCompile>
-			<DCCReference Include="..\..\Source\NMG2Controls\g2_file.pas"/>
-			<DCCReference Include="..\..\Source\VCLG2Controls\g2_classes.pas"/>
-			<DCCReference Include="..\..\Source\NMG2Controls\g2_types.pas"/>
-			<DCCReference Include="..\..\Source\VCLG2Controls\g2_graph.pas"/>
-			<DCCReference Include="..\..\Source\NMG2Controls\g2_usb.pas"/>
 			<DCCReference Include="..\..\Source\NMG2Controls\g2_database.pas"/>
+			<DCCReference Include="..\..\Source\NMG2Controls\g2_types.pas"/>
+			<DCCReference Include="..\..\Source\NMG2Controls\g2_file.pas"/>
+			<DCCReference Include="..\..\Source\NMG2Controls\g2_mess.pas"/>
+			<DCCReference Include="..\..\Source\NMG2Controls\g2_usb.pas"/>
+			<DCCReference Include="..\..\Source\NMG2Controls\g2_midi.pas"/>
+			<DCCReference Include="..\..\Source\VCLG2Controls\g2_graph.pas"/>
+			<DCCReference Include="..\..\Source\VCLG2Controls\g2_classes.pas"/>
 			<DCCReference Include="..\..\Source\UnitG2Editor.pas">
 				<Form>frmG2Main</Form>
 			</DCCReference>
@@ -181,12 +183,10 @@
 			<DCCReference Include="..\..\Source\UnitEditorTools.pas">
 				<Form>frmEditorTools</Form>
 			</DCCReference>
-			<DCCReference Include="..\..\Source\NMG2Controls\g2_midi.pas"/>
 			<DCCReference Include="..\..\Source\UnitPatchBrowser.pas">
 				<Form>frmPatchBrowser</Form>
 				<FormType>dfm</FormType>
 			</DCCReference>
-			<DCCReference Include="..\..\Source\NMG2Controls\g2_mess.pas"/>
 			<DCCReference Include="..\..\Source\UnitModuleDef.pas">
 				<Form>frmModuleDef</Form>
 				<FormType>dfm</FormType>

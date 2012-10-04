@@ -1,0 +1,149 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html><head><meta content="text/html; charset=ISO-8859-1" http-equiv="content-type"><title>NMG2 Open source editor help</title></head>
+<body><h1>NMG2 Open source editor help</h1><br>If
+you're reading this help, you probably familiar with the Nord Modular
+G2 system, if not, here is a very brief description, you can find a lot more info floating about on internet.<br><br>In the G2 system the editor is used to make patches in
+the style of modular synthesizer, so by adding modules, oscilators,
+filters etc. and connecting them by cables. Only with the G2 this
+is&nbsp;all done in software. You can download the patch using USB to the hardware part of the system: the G2
+synthesizer.<br><br>Clavia (today Nord
+Keyboards) discontinued the G2 in 2009, I don't know the reason,
+probably the G2 didn't generate enough revenue. Personally I can
+understand that, if you are running a commercial company, your products
+should generate revenue otherwise there is no reason to continue.<br><br>However there are a lot of people who wish Clavia had developed
+the G2 system further, but today Nord keyboards seems to have chosen another road.<br><br>What
+I personally like
+about the G2 is that it's a great system to learn about sound
+synthesis and at the same time it's a high quality instrument. By doing
+this project I got to know my G2 a&nbsp;better and also learned a lot
+of new things in software developement, that's what this project is all
+about for me, a learning experience.<br><br>Apart
+from that, the goal of the project is to deliver an editor that has all
+the important functions of the original editor, but also something that
+can be developed further by anyone who is able and willing to do so.
+Maybe, by some creative thinking some new functionality can be squeezed
+out of the G2 system, and in any case, by studying and documenting it
+in open source code, it's lifespan of the G2 system is extended.<br><br><h2>Intended public</h2>The
+project is still in it's "Beta testing" stage, which means that is not
+a finished application. You might run into bugs and installation
+involves a bit more than clicking through an installer. So if your not
+an experienced Windows user, I would advice to wait untill the
+application is a bit further in its developement, because you at least
+have to know what a dll is and what a driver is and where these files
+belong on a Windows system.<br><br>Otherwise, if you are an
+expericenced Windows&nbsp;user and you own a G2 please try this editor
+and let me know what your experiences are, because that's the whole
+point of beta testing!<br><h2>Requirements</h2>For the moment there is only a Windows version. It should work on XP, Vista and Windows 7. <br><h2>Installation</h2>At
+the moment there is no installer so installation involves downloading a
+couple of packages, unzipping and copying some files to the appropriate
+folders. It isn't very dificult, I'll descripe the necessary steps in
+this section.<br>The two packages you need are:<br><br>- Libusb-win32, you can download the latest version here:&nbsp;<a href="http://sourceforge.net/projects/libusb-win32/files/libusb-win32-releases/">http://sourceforge.net/projects/libusb-win32/files/libusb-win32-releases/</a><br>- nmg2_editor_bin_0.xx.zip, which you can download here: <a href="http://sourceforge.net/projects/nmg2editor/files/">http://sourceforge.net/projects/nmg2editor/files/</a><br><br>(If you want the version of the editor including all source code, you should download the nmg2_editor_srce.zip)<br><br>The
+libusb-win32 package contains the libusb-win32 open source generic usb
+driver. It has a very usefull feature for this project, the
+"filter-driver" option, which allowes you to use both&nbsp;the original
+Clavia editor and the open source editor. The only limitation is that
+you can not run both editors at the same time.<br><br>So, first of all,
+you have to intall the Clavia USB driver, and the Clavia editor, if you
+haven't already done that. (By the way, if you have troubles installing
+the Clavia USB driver like I had, try installing it in Windows "Safe
+mode").<br><br>Next, download and unzip the Libusb-win32 package. Go to
+the "bin" folder, there you will find a text file with installation
+instructions.<br><br><img style="width: 668px; height: 271px;" alt="" src="Img/Install_libusb_1.jpg"><br>There
+is also a "inf-wizard.exe" file in de bin folder, that file we are not
+going to use, because when you install the inf-version of libusb, it
+will replace the Clavia USB driver and you won't be able to use the
+original editor anymore (unless you uninstall everything and re-install
+the Clavia USB driver).<br><br>So read the "libusb-win32-bin-README.txt". To give you an example, I have an amd64 system, so I had to do 3 things:<br><br>- Copy and rename x86\libusb0_x86.dll to Windows\syswow64\libusb0.dll<br>- Copy amd64\libusb0.sys to Windows\system32\drivers\libusb0.sys<br>- Copy amd64\libusb0.dll to Windows\system32\libusb0.dll<br><br>Probably best to restart your computer at this point.<br><br>Next, go to the appropriate subfolder of your system. There you will find the "install-filter-win.exe".<br><br><img style="width: 530px; height: 293px;" alt="" src="Img/Install_libusb_2.jpg"><br>At
+this point you have to connect and switch on your G2, so the driver
+will be visible in the wizard. Then you can
+start&nbsp;"install-filter-win.exe".<br><br><img style="width: 482px; height: 363px;" alt="" src="Img/Install_libusb_3.jpg"><br><br>Choose "install a device filer", then "Next".<br><br><img style="width: 482px; height: 363px;" alt="" src="Img/Install_libusb_4.jpg"><br><br>Select the Clavia USB driver from the list, then "Install".<br><br><img style="width: 478px; height: 171px;" alt="" src="Img/Install_libusb_5.jpg"><br><br>Install succesfulll, press "Ok".<br><br><img style="width: 481px; height: 363px;" alt="" src="Img/Install_libusb_6.jpg"><br><br>Back in the select USB Device window, press "Cancel", or if you have multiple G2's install it on the other one also.<br><br>That's
+the Libusb-win32 installed. Next download and unzip
+nmg2_editor_bin_0.xx.zip. You'll find these files in the folder. You
+should be able to run the G2_editor_D2011.exe directly from the folder.
+Just to make sure, you could restart your computer and the G2.<br><br><img style="width: 654px; height: 243px;" alt="" src="Img/Install_nmg2_editor_1.jpg"><br>As
+you start the open source editor, you will probably get a Windows
+firewall warning like this (this one is in Dutch, but your window will
+look similar):<br><br><img style="width: 538px; height: 384px;" alt="" src="Img/Install_nmg2_editor_2.jpg"><br><br>Don't
+worry that it's trying to install virusses or anything. Windows gives
+this warning because it detects that the application opens a TCP-IP
+port. The editor has a TCP-IP port so it can communicate with the
+G2-VST. So you can allow the program access through the firewall.<br><br>After allowing the editor access, it should start and look something like this:<br><br><img style="width: 1084px; height: 702px;" alt="" src="Img/Install_nmg2_editor_3.jpg"><br><br>Feature list<br><br><table style="width: 875px; height: 2465px;" border="1" cellpadding="2" cellspacing="2">
+<tbody><tr><td></td><td style="text-align: center;">Clavia editor</td><td style="text-align: center;">Open source editor</td><td>Differences OS editor</td></tr><tr><td>Runs on Windows</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td></td></tr><tr><td>Runs on Max </td><td style="text-align: center;">X</td><td style="text-align: center;">-</td><td></td></tr><tr><td>Runs on Linux</td><td style="text-align: center;">-</td><td style="text-align: center;">-</td><td></td></tr><tr><td>Main screen</td><td style="text-align: center;"></td><td style="text-align: center;"></td><td></td></tr><tr><td>Toolbar</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td>Seperate Synth toolbar and slot toolbars</td></tr>
+<tr><td>Perf: (name)</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td>On patch manager window</td></tr>
+<tr><td>Master Clock</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td>On Synth toolbar</td></tr>
+<tr><td>Slot buttons</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td>Click on slot toolbar</td></tr>
+<tr><td>Connection indicators</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td>On Synth toolbar</td></tr>
+<tr><td>Perf</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td>On patch manager window</td></tr>
+<tr><td>New</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td>File menu</td></tr>
+<tr><td>Init 1&amp;2</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td>File menu</td></tr>
+<tr><td>Module Group selectors</td><td style="text-align: center;">X</td><td style="text-align: center;">-</td><td>Right click patch window to add modules, or "Add" menu</td></tr>
+<tr><td>Module Icons</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td>On add module popup</td></tr>
+<tr><td>Patch Load, Cycles and Memory</td><td style="text-align: center;">X</td><td style="text-align: center;">-</td><td></td></tr>
+<tr><td>Undo &amp; Redo</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td>Only undo</td></tr>
+<tr><td>Color</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td>On Editor tools window</td></tr>
+<tr><td>Morph groups</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td></td></tr>
+<tr><td>Patch Name</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td></td></tr>
+<tr><td>Category</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td>On patch manager window</td></tr>
+<tr><td>Voice Mode</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td></td></tr>
+<tr><td>Variation</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td></td></tr>
+<tr><td>Var Init</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td></td></tr>
+<tr><td>Patch Level</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td></td></tr>
+<tr><td>Visible cables</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td>On Editor tools window</td></tr>
+<tr><td>Hide all cables</td><td style="text-align: center;">X</td><td style="text-align: center;">-</td><td></td></tr>
+<tr><td>Shake cables</td><td style="text-align: center;">X</td><td style="text-align: center;">-</td><td></td></tr>
+<tr><td>Patch window split bar</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td>Position isn't updated yet when switching slots</td></tr>
+<tr><td><br></td><td style="text-align: center;"></td><td style="text-align: center;"></td><td></td></tr>
+<tr><td><br></td><td style="text-align: center;"></td><td style="text-align: center;"></td><td></td></tr>
+<tr><td>Patch window popup</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td>Not complete yet</td></tr>
+<tr><td>Module popup</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td></td></tr>
+<tr><td>Parameter popup</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td></td></tr>
+<tr><td>Cable popup</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td></td></tr>
+<tr><td><br></td><td style="text-align: center;"></td><td style="text-align: center;"></td><td></td></tr>
+<tr><td>Create a new empty Patch window</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td></td></tr>
+<tr><td>Add modules to a Patch</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td></td></tr>
+<tr><td>Rename a module</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td></td></tr>
+<tr><td>Move a module</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td></td></tr>
+<tr><td>Delete a module</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td></td></tr>
+<tr><td>Replace a module</td><td style="text-align: center;">X</td><td style="text-align: center;">-</td><td></td></tr>
+<tr><td>Coloring a module</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td></td></tr>
+<tr><td>Connecting modules</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td></td></tr>
+<tr><td>Edit module parameters in a Patch</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td></td></tr>
+<tr><td>Voice Area and FX Area</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td></td></tr>
+<tr><td>Download a Patch to the synthesizer</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td>Patch manager window</td></tr>
+<tr><td>Store a Patch</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td>Patch manager window</td></tr>
+<tr><td>Delete a Patch</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td>Patch manager window</td></tr>
+<tr><td>Creating Patch parameter Variations</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td></td></tr>
+<tr><td>Save a Variation</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td></td></tr>
+<tr><td>Copy a Variation</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td></td></tr>
+<tr><td>Variation Init</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td></td></tr>
+<tr><td>midi control of Variations</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td>CC#70</td></tr>
+<tr><td>Knobs and controllers</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td></td></tr>
+<tr><td>The Parameter Pages window</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td></td></tr>
+<tr><td>Assign a parameter to a knob</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td></td></tr>
+<tr><td>Assign all module parameters to a set of knobs</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td></td></tr>
+<tr><td>Parameter overview window</td><td style="text-align: center;">X</td><td style="text-align: center;">-</td><td></td></tr><tr><td>midi controllers</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td></td></tr><tr><td>Auto assign midi controllers</td><td style="text-align: center;">X</td><td style="text-align: center;">-</td><td></td></tr>
+<tr><td>Morph groups</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td></td></tr>
+<tr><td>Assign parameters to a Morph group</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td></td></tr>
+<tr><td>Deassign parameters from a Morph group</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td></td></tr>
+<tr><td>Edit parameters in a Morph group</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td></td></tr>
+<tr><td>Copy a Morph group to another source</td><td style="text-align: center;">X</td><td style="text-align: center;">-</td><td></td></tr>
+<tr><td>Morph groups in separate Variations</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td></td></tr>
+<tr><td>Keyboard Morph and Pitch Stick morph</td><td style="text-align: center;">X</td><td style="text-align: center;"></td><td></td></tr>
+<tr><td>The Editor and Performances</td><td style="text-align: center;"></td><td style="text-align: center;"></td><td></td></tr>
+<tr><td>Performance mode and Patch mode</td><td style="text-align: center;"></td><td style="text-align: center;"></td><td></td></tr>
+<tr><td>Uploading a Performance to the Editor</td><td style="text-align: center;"></td><td style="text-align: center;"></td><td></td></tr>
+<tr><td>Creating a Performance in the Editor</td><td style="text-align: center;"></td><td style="text-align: center;"></td><td></td></tr>
+<tr><td>Keyboard Split (Keyboard Range)</td><td style="text-align: center;"></td><td style="text-align: center;"></td><td></td></tr>
+<tr><td>Keyboard range and G2 panel split function</td><td style="text-align: center;"></td><td style="text-align: center;"></td><td></td></tr>
+<tr><td>Combining Split and Layer</td><td style="text-align: center;"></td><td style="text-align: center;"></td><td></td></tr>
+<tr><td>The Global Parameter Pages</td><td style="text-align: center;"></td><td style="text-align: center;"></td><td></td></tr>
+<tr><td>Storing a Performance</td><td style="text-align: center;"></td><td style="text-align: center;"></td><td></td></tr>
+<tr><td>Storing in the synth</td><td style="text-align: center;"></td><td style="text-align: center;"></td><td></td></tr>
+<tr><td>Saving on the computer</td><td style="text-align: center;"></td><td style="text-align: center;"></td><td></td></tr>
+<tr><td>Renaming single Patches in Performances</td><td style="text-align: center;"></td><td style="text-align: center;"></td><td></td></tr>
+<tr><td>Extracting Patches from a Performance</td><td style="text-align: center;"></td><td style="text-align: center;"></td><td></td></tr>
+<tr><td>Extract a Patch and store it in the synth</td><td style="text-align: center;"></td><td style="text-align: center;"></td><td></td></tr>
+<tr><td>Extract a Patch and save it on the computer</td><td style="text-align: center;"></td><td style="text-align: center;"></td><td></td></tr>
+<tr><td>Deleting Performances in the synth</td><td style="text-align: center;"></td><td style="text-align: center;"></td><td></td></tr>
+<tr><td>Exiting Performance Mode</td><td style="text-align: center;"></td><td style="text-align: center;"></td><td></td></tr>
+</tbody></table><br><br><br><br><br><br>Application layout<br><br>Application Menu<br><br><br>Apllication settings<br><br><br>The driver and resonator modules<br><br>NMG2 VST<br><br><br>The source forge site<br><br>Application developement<br><br><br><br><br><br><br><br><br><br><br><br></body></html>

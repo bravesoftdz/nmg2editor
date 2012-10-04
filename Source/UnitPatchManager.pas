@@ -35,8 +35,8 @@ uses
   Forms, Dialogs, StdCtrls, ActnList,  ExtCtrls, ComCtrls, Tabs,
   ActnMan, Controls, Menus, Grids,
 {$ENDIF}
-  g2_types, g2_database, g2_file, graph_util_vcl, Keyboard, g2_midi, g2_graph,
-  g2_classes, DOM, XMLRead, XMLWrite, JawsCtrls;
+  g2_types, g2_database, g2_file, graph_util_vcl, MusicalKeyboard, g2_midi,
+  g2_graph, g2_classes, DOM, XMLRead, XMLWrite, JawsCtrls;
 
 const
   MAXBUFFER = 4096;

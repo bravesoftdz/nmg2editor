@@ -1119,7 +1119,7 @@ object frmG2Main: TfrmG2Main
       end
     end
     object Comm1: TMenuItem
-      Caption = 'Midi'
+      Caption = 'Sysex'
       object Mididump1: TMenuItem
         Action = aMidiDump
       end
