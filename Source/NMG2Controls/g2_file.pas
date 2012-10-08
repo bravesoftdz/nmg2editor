@@ -819,9 +819,12 @@ type
     destructor  Destroy; override;
     procedure   SetLines( aLines : TStrings);
     procedure   GetLines( aLines : TStrings);
+    function    GetText: string;
     procedure   Init;
     procedure   Read( aChunk : TPatchChunk);
     procedure   Write( aChunk : TPatchChunk);
+
+    property Text : string read GetText;
   end;
 
   TG2FilePatchPart = class( TComponent)
@@ -2190,7 +2193,7 @@ var i : integer;
 begin
   Result := 0;
   for i := 0 to Count - 1 do
-    if Items[i].TypeID > aModuleType then
+    if Items[i].TypeID = aModuleType then
       Result := Result + 1;
 end;
 
@@ -4759,6 +4762,16 @@ begin
   aChunk.FWriteBuffer.Write(FText[0], Length(FText));
 end;
 
+function TPatchNotes.GetText: string;
+var i : integer;
+begin
+  Result := '';
+  for i := 0 to Length(FText) - 1 do begin
+    Result := Result + WideChar(FText[i]);
+  end;
+end;
+
+
 ////////////////////////////////////////////////////////////////////////////////
 //  TG2FilePatchPart
 ////////////////////////////////////////////////////////////////////////////////
@@ -5405,6 +5418,7 @@ begin
   repeat
     if not ReadChunk( aChunk) then begin
       einde := True;
+
       raise Exception.Create('Error parsing patch data.');
     end else
       if aChunk.FId = C_PATCH_NOTES then

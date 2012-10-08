@@ -44,7 +44,7 @@ type
     aReadDir: TAction;
     aSearch: TAction;
     aLoadPatch: TAction;
-    TabControl1: TTabControl;
+    tcSource: TTabControl;
     aShowPerfs: TAction;
     aShowPatches: TAction;
     aRestore: TAction;
@@ -54,43 +54,55 @@ type
     lvExternalPatch: DListView;
     lvExternalPerf: DListView;
     puBank: TPopupMenu;
+    Panel1: TPanel;
+    cbParsePatches: TCheckBox;
+    cbFilterModules: TCheckBox;
+    bSelectModules: TButton;
+    StaticText1: TStaticText;
+    stPatchesFound: TStaticText;
     procedure aReadDirExecute(Sender: TObject);
-    procedure aSearchExecute(Sender: TObject);
     procedure aLoadPatchExecute(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure lvExternalPatchColumnClick(Sender: TObject; Column: TListColumn);
     procedure lvExternalCompare(Sender: TObject; Item1, Item2: TListItem;
       Data: Integer; var Compare: Integer);
-    procedure lvExternalPatchKeyUp(Sender: TObject; var Key: Word;
-      Shift: TShiftState);
     procedure aShowPerfsExecute(Sender: TObject);
     procedure aShowPatchesExecute(Sender: TObject);
-    procedure TabControl1Change(Sender: TObject);
+    procedure tcSourceChange(Sender: TObject);
     procedure lvInternalColumnClick(Sender: TObject; Column: TListColumn);
     procedure lvInternalCompare(Sender: TObject; Item1, Item2: TListItem;
       Data: Integer; var Compare: Integer);
     procedure aRestoreExecute(Sender: TObject);
-    procedure lvInternalKeyUp(Sender: TObject; var Key: Word;
-      Shift: TShiftState);
     procedure FormCreate(Sender: TObject);
-    procedure lvExternalPerfKeyUp(Sender: TObject; var Key: Word;
-      Shift: TShiftState);
     procedure lvExternalPerfColumnClick(Sender: TObject; Column: TListColumn);
     procedure aLoadPerfExecute(Sender: TObject);
-    procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure cbParsePatchesClick(Sender: TObject);
+    procedure bSelectModulesClick(Sender: TObject);
+    procedure lvExternalPerfKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure lvExternalPatchKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure lvInternalKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
   private
     { Private declarations }
+    FParsePatches : boolean;
+    procedure SetParsePatches( aValue : boolean);
   public
     { Public declarations }
     FSearchThread : TSearchThread;
     FExternalSortCol : integer;
+    FExternalSortDir : integer;
     FInternalSortCol : integer;
+    FInternalSortDir : integer;
+    function  GetRelativePath( aPath : string): string;
     procedure AddFile( Path, Filename: string; Datum : TDateTime);
     procedure AddSlot( BankItem : TBankItem);
-    //procedure ShowFile(path, filename: string);
     procedure OnSearchThreadTerminate(Sender: TObject);
-    //procedure OpenFile;
     procedure LoadIniXML;
+
+    property ParsePatches : boolean read FParsePatches write SetParsePatches;
   end;
 
 var
@@ -100,132 +112,11 @@ implementation
 
 {$R *.dfm}
 
-uses UnitG2Editor, UnitSettings;
+uses UnitG2Editor, UnitSettings, UnitPatchBrowserFilterModules;
 
 { TSearchThread }
 
-function FindFirstOccurance(content: string; var index2: integer; b : char): boolean;
-begin
-  while (index2 <= Length(Content)) and (UpperCase(content[index2]) <> UpperCase(b)) do
-    inc(index2);
-  result := (index2 <= Length(Content));
-end;
-
-function FindNextOccurrance(content, sText: string; index1: integer; index2: integer): boolean;
-begin
-  if index1 > length(sText) then
-  // end of text mask, return a match
-    result := true
-  else
-    if sText[index1] = '*' then
-    begin
-    // if nothing follows the *, we are at the end of the text mask
-      if index1+1 <= Length(sText) then
-      begin
-      // skip the buffer until the rest of the mask is matched
-        if FindFirstOccurance(content, index2, sText[index1+1]) then
-          result := FindNextOccurrance(content, sText, index1+1, index2)
-        else
-        // no match of the rest of the mask has been found, return false
-          result := false;
-      end
-      else
-      // return a match
-        result := true;
-    end
-    else
-    begin
-    // perform a mask-buffer byte comparison
-      if UpperCase(content[index2]) = UpperCase(sText[index1]) then
-      // if equal, test the next byte
-        result := FindNextOccurrance(content, sText, index1+1, index2+1)
-      else
-      // if not equal, return false
-        result := false;
-    end;
-end;
-
-function Match(content, sText: string): integer;
-var i : integer;
-    found : boolean;
-begin
-  found := false;
-  if sText = '' then begin
-    result := -1;
-    exit;
-  end;
-
-  i := 1;
-  while sText[1] = '*' do
-   sText := copy(sText, 2, length(sText)-1);
-
-  while not(found) and FindFirstOccurance(content, i, sText[1]) do
-  begin
-    if FindNextOccurrance(content, sText, 1, i) then
-      found := true
-    else
-      inc(i);
-  end;
-
-  if found then
-    result := i
-  else
-    result := -1;
-end;
-
-
 procedure TSearchThread.Execute;
-
-  {procedure SearchFile(filename : string);
-  var buffer : array[0..MAXBUFFER-1] of char;
-      FileStream : TFileStream;
-      BytesToRead, BytesRead, offset, pos : integer;
-      i, l : integer;
-      s : string;
-  begin
-    FileStream := TFileStream.Create(filename, fmOpenRead);
-    try
-      BytesToRead := MAXBUFFER div 2;
-
-      offset := 0;
-      pos := 0;
-      BytesRead := 0;
-
-      // Buffer legen
-      for i := 0 to MAXBUFFER - 1 do
-        buffer[i] := #0;
-
-      repeat
-        // Copieer 2e helft naar 1e helft
-        for i := 0 to BytesToRead - 1 do
-          buffer[i] := buffer[BytesToRead + i];
-
-        // Lees in 2e helft van buffer
-        BytesRead := FileStream.Read(buffer[BytesToRead], BytesToRead);
-
-        l := Length(FSearch);
-        // Komt de tekst voor?
-        s := '';
-        for i := BytesToRead - l to MAXBUFFER - 1 do begin
-          if Length(s) < l then
-            s := s + buffer[i]
-          else begin
-            s := copy(s, 2, l - 1) + buffer[i];
-            if UpperCase(s) = UpperCase(FSearch) then begin
-              FPos := offset + (i - BytesToRead) - l + 1;
-              Synchronize(AddFile);
-            end;
-          end;
-        end;
-
-        offset := offset + BytesRead;
-
-      until BytesRead < BytesToRead;
-
-    finally
-      FileStream.Free;
-    end;
-  end;}
 
   procedure SearchDir(path : string);
   var sr : TSearchRec;
@@ -236,10 +127,6 @@ procedure TSearchThread.Execute;
         FCurrSr := sr;
         if (sr.Attr and faDirectory) = 0 then begin
           // Geen subdirectory
-          {if Match(sr.Name, FMask)<>-1 then begin
-            Synchronize(ShowFile);
-            SearchFile(path + sr.Name);
-          end;}
           Synchronize(AddFile);
         end else begin
           // subdirectory
@@ -259,13 +146,15 @@ end;
 
 procedure TfrmPatchBrowser.OnSearchThreadTerminate(Sender: TObject);
 begin
+  cbParsePatches.Enabled := True;
+  cbFilterModules.Enabled := True;
+  bSelectModules.Enabled := True;
   FSearchThread := nil;
 end;
 
 procedure TSearchThread.AddFile;
 var sr : TSearchRec;
 begin
-  //if frmPatchManager.TabControl1.TabIndex = 0 then
   {$IFDEF G2_VER200_up}
     // Don't know exactly in what version this was changed
     frmPatchBrowser.AddFile(FCurrPath, FCurrSr.Name, FCurrSr.TimeStamp);
@@ -274,26 +163,178 @@ begin
   {$ENDIF}
 end;
 
-procedure TfrmPatchBrowser.aSearchExecute(Sender: TObject);
+
+{ frmPatchBrowser }
+
+procedure TfrmPatchBrowser.FormCreate(Sender: TObject);
 begin
-  {if Length(ePath.Text)> 2 then begin
+  LoadIniXML;
+  FParsePatches := False;
+  FExternalSortDir := 0;
+  FInternalSortDir := 0;
+end;
 
-    ListView1.Clear;
+procedure TfrmPatchBrowser.FormKeyDown(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+  if Key = VK_ESCAPE  then
+    Close;
+end;
 
-    if ePath.Text[Length(ePath.Text)] <> '\'  then
-      ePath.Text := ePath.Text + '\';
+procedure TfrmPatchBrowser.FormShow(Sender: TObject);
+begin
+  tcSourceChange(Self);
+end;
 
-    SearchThread := TSearchThread.Create(True);
-    SearchThread.FPath := ePath.Text;
-    SearchThread.FSearch := eSearch.Text;
-    SearchThread.FMask := eMask.Text;
-    SearchThread.OnTerminate := OnSearchThreadTerminate;
-    SearchThread.FreeOnTerminate := True;
-    SearchThread.Resume;
-    aSearchStart.Enabled := False;
-    aSearchStop.Enabled := True;
-    Invalidate;
-  end;}
+procedure TfrmPatchBrowser.LoadIniXML;
+var Doc : TXMLDocument;
+    RootNode : TDOMNode;
+    PatchManagerSettingsNode : TXMLPatchManagerSettingsType;
+    FormSettingsNode : TXMLFormSettingsType;
+    G2 : TG2;
+begin
+  if not FileExists('G2_editor_ini.xml') then
+    exit;
+
+  Doc := TXMLDocument.Create;
+  try
+    ReadXMLFile( Doc, 'G2_editor_ini.xml');
+
+    RootNode := Doc.FindNode('G2_Editor_settings');
+    if assigned(RootNode) then begin
+
+      PatchManagerSettingsNode := TXMLPatchManagerSettingsType(RootNode.FindNode('PatchManagerSettings'));
+      if assigned(PatchManagerSettingsNode) then begin
+        FExternalSortCol := PatchManagerSettingsNode.ExternalSortCol;
+        FInternalSortCol := PatchManagerSettingsNode.InternalSortCol;
+        if PatchManagerSettingsNode.SelectedTab < tcSource.Tabs.Count then
+          tcSource.TabIndex := PatchManagerSettingsNode.SelectedTab;
+      end;
+
+      FormSettingsNode := TXMLFormSettingsType(RootNode.FindNode('PatcBrowserForm'));
+      if assigned(FormSettingsNode) then begin
+        SetFormPosition( self,
+                         FormSettingsNode.PosX,
+                         FormSettingsNode.PosY,
+                         FormSettingsNode.SizeX,
+                         FormSettingsNode.SizeY);
+        Visible := FormSettingsNode.Visible;
+      end;
+    end;
+
+  finally
+    Doc.Free;
+  end;
+end;
+
+procedure TfrmPatchBrowser.bSelectModulesClick(Sender: TObject);
+begin
+  if frmPatchBrowserModuleFilter.ShowModal = mrOk then begin
+    frmPatchBrowserModuleFilter.UpdateSelectedModules;
+    cbFilterModules.Checked := True;
+    if not cbParsePatches.Checked then
+      cbParsePatches.Checked := True
+    else
+      tcSourceChange( self);
+  end else
+    cbFilterModules.Checked := False;
+end;
+
+procedure TfrmPatchBrowser.cbParsePatchesClick(Sender: TObject);
+begin
+  ParsePatches := cbParsePatches.Checked;
+  tcSourceChange( self);
+end;
+
+procedure TfrmPatchBrowser.lvExternalPatchColumnClick(Sender: TObject; Column: TListColumn);
+begin
+  if FExternalSortCol = Column.Index then begin
+    FExternalSortDir := 1 - FExternalSortDir;
+    lvExternalPatch.AlphaSort;
+  end else begin
+    FExternalSortDir := 0;
+    FExternalSortCol := Column.Index;
+    lvExternalPatch.AlphaSort;
+  end;
+end;
+
+procedure TfrmPatchBrowser.lvExternalPerfColumnClick(Sender: TObject; Column: TListColumn);
+begin
+  if FExternalSortCol = Column.Index then begin
+    FExternalSortDir := 1 - FExternalSortDir;
+    lvExternalPerf.AlphaSort;
+  end else begin
+    FExternalSortDir := 0;
+    FExternalSortCol := Column.Index;
+    lvExternalPerf.AlphaSort;
+  end;
+end;
+
+procedure TfrmPatchBrowser.lvInternalColumnClick(Sender: TObject; Column: TListColumn);
+begin
+  if FInternalSortCol = Column.Index then begin
+    FInternalSortDir := 1 - FInternalSortDir;
+    lvInternal.AlphaSort;
+  end else begin
+    FInternalSortDir := 0;
+    FInternalSortCol := Column.Index;
+    lvInternal.AlphaSort;
+  end;
+end;
+
+procedure TfrmPatchBrowser.lvExternalPatchKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  if Key = VK_RETURN then
+    aLoadPatchExecute(self);
+end;
+
+procedure TfrmPatchBrowser.lvExternalPerfKeyDown(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+  if Key = VK_RETURN then
+    aLoadPerfExecute(self);
+end;
+
+procedure TfrmPatchBrowser.lvInternalKeyDown(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+  if Key = VK_RETURN then
+    aRestoreExecute(self);
+end;
+
+procedure TfrmPatchBrowser.tcSourceChange(Sender: TObject);
+begin
+  if assigned(FSearchThread) then
+    FSearchThread.Terminate;
+
+  case tcSource.TabIndex of
+  0 : begin
+        lvInternal.Visible := False;
+        lvExternalPatch.Visible := False;
+        lvExternalPerf.Visible := True;
+        lvExternalPerf.Align := alClient;
+
+        cbParsePatches.Checked := False;
+        aReadDirExecute(self);
+      end;
+  1 : begin
+        lvInternal.Visible := False;
+        lvExternalPerf.Visible := False;
+        lvExternalPatch.Visible := True;
+        lvExternalPatch.Align := alClient;
+
+        aReadDirExecute(self);
+      end;
+  2 : begin
+        cbParsePatches.Checked := False;
+        aShowPerfsExecute(self);
+      end;
+  3 : begin
+        cbParsePatches.Checked := False;
+        aShowPatchesExecute(self);
+      end;
+  end;
 end;
 
 procedure TfrmPatchBrowser.aLoadPatchExecute(Sender: TObject);
@@ -301,7 +342,7 @@ var G2 : TG2;
 begin
   G2 := frmG2Main.SelectedG2;
   if assigned(G2) then
-    G2.LoadFileStream( lvExternalPatch.Selected.SubItems[1] + lvExternalPatch.Selected.Caption);
+    G2.LoadFileStream( frmSettings.ePatchRootFolder.Text + lvExternalPatch.Selected.SubItems[1] + lvExternalPatch.Selected.Caption);
   frmG2Main.SetFocus;
 end;
 
@@ -310,7 +351,7 @@ var G2 : TG2;
 begin
   G2 := frmG2Main.SelectedG2;
   if assigned(G2) then
-    G2.LoadFileStream( lvExternalPerf.Selected.SubItems[1] + lvExternalPerf.Selected.Caption);
+    G2.LoadFileStream( frmSettings.ePatchRootFolder.Text + lvExternalPerf.Selected.SubItems[1] + lvExternalPerf.Selected.Caption);
   frmG2Main.SetFocus;
 end;
 
@@ -333,6 +374,7 @@ procedure TfrmPatchBrowser.aReadDirExecute(Sender: TObject);
 begin
   lvExternalPatch.Items.Clear;
   lvExternalPerf.Items.Clear;
+  stPatchesFound.Caption := IntToStr(0);
 
   if Length(frmSettings.ePatchRootFolder.Text)> 2 then begin
     if frmSettings.ePatchRootFolder.Text[Length(frmSettings.ePatchRootFolder.Text)] <> '\'  then
@@ -342,6 +384,11 @@ begin
     FSearchThread.FPath := frmSettings.ePatchRootFolder.Text;
     FSearchThread.OnTerminate := OnSearchThreadTerminate;
     FSearchThread.FreeOnTerminate := True;
+
+    cbParsePatches.Enabled := False;
+    cbFilterModules.Enabled := False;
+    bSelectModules.Enabled := False;
+
 {$IFDEF G2_VER200_up}
     FSearchThread.Start;
 {$ELSE}
@@ -382,7 +429,6 @@ begin
       end;
     end else begin
       // No usb, just fill the list with bank and slot no's
-
     end;
   end;
   lvInternal.AlphaSort;
@@ -413,117 +459,49 @@ begin
   lvInternal.AlphaSort;
 end;
 
-procedure TfrmPatchBrowser.FormCreate(Sender: TObject);
-begin
-  LoadIniXML;
-end;
-
-procedure TfrmPatchBrowser.FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
-begin
-  if Key = VK_ESCAPE  then
-    Close;
-end;
-
-procedure TfrmPatchBrowser.FormShow(Sender: TObject);
-begin
-  TabControl1Change(Self);
-end;
-
-procedure TfrmPatchBrowser.LoadIniXML;
-var Doc : TXMLDocument;
-    RootNode : TDOMNode;
-    PatchManagerSettingsNode : TXMLPatchManagerSettingsType;
-    FormSettingsNode : TXMLFormSettingsType;
-begin
-  if not FileExists('G2_editor_ini.xml') then
-    exit;
-
-  Doc := TXMLDocument.Create;
-  try
-    ReadXMLFile( Doc, 'G2_editor_ini.xml');
-
-    RootNode := Doc.FindNode('G2_Editor_settings');
-    if assigned(RootNode) then begin
-
-      PatchManagerSettingsNode := TXMLPatchManagerSettingsType(RootNode.FindNode('PatchManagerSettings'));
-      if assigned(PatchManagerSettingsNode) then begin
-        FExternalSortCol := PatchManagerSettingsNode.ExternalSortCol;
-        FInternalSortCol := PatchManagerSettingsNode.InternalSortCol;
-        if PatchManagerSettingsNode.SelectedTab < TabControl1.Tabs.Count then
-          TabControl1.TabIndex := PatchManagerSettingsNode.SelectedTab;
-      end;
-
-      FormSettingsNode := TXMLFormSettingsType(RootNode.FindNode('PatcBrowserForm'));
-      if assigned(FormSettingsNode) then begin
-        SetFormPosition( self,
-                         FormSettingsNode.PosX,
-                         FormSettingsNode.PosY,
-                         FormSettingsNode.SizeX,
-                         FormSettingsNode.SizeY);
-        Visible := FormSettingsNode.Visible;
-      end;
-    end;
-  finally
-    Doc.Free;
-  end;
-end;
-
-procedure TfrmPatchBrowser.lvExternalPatchColumnClick(Sender: TObject; Column: TListColumn);
-begin
-  FExternalSortCol := Column.Index;
-  lvExternalPatch.AlphaSort;
-end;
-
-procedure TfrmPatchBrowser.lvExternalPerfColumnClick(Sender: TObject; Column: TListColumn);
-begin
-  FExternalSortCol := Column.Index;
-  lvExternalPerf.AlphaSort;
-end;
-
 procedure TfrmPatchBrowser.lvExternalCompare(Sender: TObject; Item1, Item2: TListItem; Data: Integer; var Compare: Integer);
 var intItem1,
     intItem2: string;
 begin
    case FExternalSortCol of
-   1 : begin
-         intItem1 := Uppercase(Item1.SubItems[0]);
-         intItem2 := Uppercase(Item2.SubItems[0]);
+   0 : begin
+         intItem1 := Uppercase(Item1.Caption);
+         intItem2 := Uppercase(Item2.Caption);
        end;
-   2 : begin
-         intItem1 := Uppercase(Item1.SubItems[1]);
-         intItem2 := Uppercase(Item2.SubItems[1]);
-       end;
-   else begin
-       intItem1 := Uppercase(Item1.Caption);
-       intItem2 := Uppercase(Item2.Caption);
+     else begin
+       if FExternalSortCol - 1 < Item1.SubItems.Count then
+         intItem1 := Uppercase(Item1.SubItems[FExternalSortCol - 1])
+       else
+         intItem1 := '';
+
+       if FExternalSortCol - 1 < Item2.SubItems.Count then
+         intItem2 := Uppercase(Item2.SubItems[FExternalSortCol - 1])
+       else
+         intItem2 := '';
      end;
    end;
 
-   if intItem1 < intItem2 then
-     Compare := -1
-   else
-   if intItem1 > intItem2 then
-     Compare := 1
-   else // intItem1 = intItem2
-     Compare := 0;
-end;
+   if FExternalSortDir = 0 then begin
 
-procedure TfrmPatchBrowser.lvExternalPatchKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
-begin
-  if Key = VK_RETURN then
-    aLoadPatchExecute(self);
-end;
+     if intItem1 < intItem2 then
+       Compare := -1
+     else
+     if intItem1 > intItem2 then
+       Compare := 1
+     else // intItem1 = intItem2
+       Compare := 0;
 
-procedure TfrmPatchBrowser.lvExternalPerfKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
-begin
-  if Key = VK_RETURN then
-    aLoadPerfExecute(self);
-end;
+   end else begin
 
-procedure TfrmPatchBrowser.lvInternalColumnClick(Sender: TObject; Column: TListColumn);
-begin
-  FInternalSortCol := Column.Index;
-  lvInternal.AlphaSort;
+     if intItem1 < intItem2 then
+       Compare := 1
+     else
+     if intItem1 > intItem2 then
+       Compare := -1
+     else // intItem1 = intItem2
+       Compare := 0;
+
+   end;
 end;
 
 procedure TfrmPatchBrowser.lvInternalCompare(Sender: TObject; Item1, Item2: TListItem; Data: Integer; var Compare: Integer);
@@ -546,70 +524,155 @@ begin
      end;
    end;
 
-   if intItem1 < intItem2 then
-     Compare := -1
-   else
-   if intItem1 > intItem2 then
-     Compare := 1
-   else // intItem1 = intItem2
-     Compare := 0;
+   if FInternalSortDir = 0 then begin
+
+     if intItem1 < intItem2 then
+       Compare := -1
+     else
+     if intItem1 > intItem2 then
+       Compare := 1
+     else // intItem1 = intItem2
+       Compare := 0;
+
+   end else begin
+
+     if intItem1 < intItem2 then
+       Compare := 1
+     else
+     if intItem1 > intItem2 then
+       Compare := -1
+     else // intItem1 = intItem2
+       Compare := 0;
+
+   end;
 end;
 
-procedure TfrmPatchBrowser.lvInternalKeyUp(Sender: TObject; var Key: Word;
-  Shift: TShiftState);
+procedure TfrmPatchBrowser.SetParsePatches( aValue : boolean);
+var ListColumn : TListColumn;
+    G2 : TG2;
 begin
-  if Key = VK_RETURN then
-    aRestoreExecute(self);
-end;
+  if aValue <> FParsePatches then begin
+    FParsePatches := aValue;
 
-procedure TfrmPatchBrowser.TabControl1Change(Sender: TObject);
-begin
-  if assigned(FSearchThread) then
-    FSearchThread.Terminate;
+    lvExternalPatch.Columns.Clear;
+    ListColumn := lvExternalPatch.Columns.Add;
+    ListColumn.Caption := 'Patch file';
+    ListColumn.Width := 150;
+    ListColumn := lvExternalPatch.Columns.Add;
+    ListColumn.Caption := 'Date';
+    ListColumn.Width := 80;
+    ListColumn := lvExternalPatch.Columns.Add;
+    ListColumn.Caption := 'Path';
+    ListColumn.Width := 80;
 
-  case TabControl1.TabIndex of
-  0 : begin
-        lvInternal.Visible := False;
-        lvExternalPatch.Visible := False;
-        lvExternalPerf.Visible := True;
-        lvExternalPerf.Align := alClient;
+    if FParsePatches then begin
+      ListColumn := lvExternalPatch.Columns.Add;
+      ListColumn.Caption := 'ParseMsg';
+      ListColumn.Width := 50;
 
-        aReadDirExecute(self);
-      end;
-  1 : begin
-        lvInternal.Visible := False;
-        lvExternalPerf.Visible := False;
-        lvExternalPatch.Visible := True;
-        lvExternalPatch.Align := alClient;
+      ListColumn := lvExternalPatch.Columns.Add;
+      ListColumn.Caption := 'Version';
+      ListColumn.Width := 30;
 
-        aReadDirExecute(self);
-      end;
-  2 : begin
+      ListColumn := lvExternalPatch.Columns.Add;
+      ListColumn.Caption := 'Category';
+      ListColumn.Width := 50;
 
-        aShowPerfsExecute(self);
-      end;
-  3 : begin
-
-        aShowPatchesExecute(self);
-      end;
+      ListColumn := lvExternalPatch.Columns.Add;
+      ListColumn.Caption := 'Patch notes';
+      ListColumn.Width := 100;
+    end;
   end;
+end;
+
+function TfrmPatchBrowser.GetRelativePath( aPath : string): string;
+var rpl : integer;
+begin
+  // Relative to root path
+  rpl := Length(frmSettings.ePatchRootFolder.Text);
+  Result := copy( aPath, rpl + 1, Length( aPath) - (rpl));
 end;
 
 procedure TfrmPatchBrowser.AddFile(path, filename: string; datum : TDateTime);
 var ListItem : TListItem;
+    ListColumn : TListColumn;
     ext : string;
+    Patch : TG2FilePatch;
+    FileStream : TFileStream;
+    l, m, i, Count : integer;
+    AddPatch : boolean;
+    Module : TG2FileModule;
 begin
   ListItem := nil;
   ext := ExtractFileExt(filename);
-  if lowercase(ext) = '.pch2' then
-    ListItem := lvExternalPatch.Items.Add
-  else
-    if lowercase(ext) = '.prf2' then
+  if lowercase(ext) = '.pch2' then begin
+
+    if FParsePatches then begin
+      FileStream := TFileStream.Create( path + filename, fmOpenRead);
+      Patch := TG2FilePatch.Create(nil);
+      try
+        try
+          Patch.LoadFromFile( FileStream, nil);
+
+          if cbFilterModules.Checked then begin
+
+            AddPatch := True;
+
+            for i := 0 to frmPatchBrowserModuleFilter.FSelectedModules.Count - 1 do begin
+
+              Count := Patch.PatchPart[0].GetNoOffModuleType(integer(frmPatchBrowserModuleFilter.FSelectedModules.Objects[i]))
+                     + Patch.PatchPart[1].GetNoOffModuleType(integer(frmPatchBrowserModuleFilter.FSelectedModules.Objects[i]));
+
+              if Count = 0 then
+                AddPatch := False;
+            end;
+          end else
+            AddPatch := True;
+
+          if AddPatch then begin
+            ListItem := lvExternalPatch.Items.Add;
+            ListItem.Caption := filename;
+            ListItem.SubItems.Add( FormatDateTime('yyyy/mm/dd hh:nn:ss', datum));
+            ListItem.SubItems.Add( GetRelativePath(path));
+            ListItem.SubItems.Add( ''); // ParseMsg
+            ListItem.SubItems.Add( IntToStr( Patch.PatchVersion));
+            ListItem.SubItems.Add( CATEGORIES[ Patch.PatchDescription.Categorie]);
+            ListItem.SubItems.Add( Patch.PatchNotes.Text );
+          end;
+
+          except on E:Exception do begin
+            ListItem := lvExternalPatch.Items.Add;
+            ListItem.Caption := filename;
+            ListItem.SubItems.Add( FormatDateTime('yyyy/mm/dd hh:nn:ss', datum));
+            ListItem.SubItems.Add( GetRelativePath(path));
+            ListItem.SubItems.Add( E.Message); // ParseMsg
+            ListItem.SubItems.Add( IntToStr( Patch.PatchVersion));
+          end;
+        end;
+
+      finally
+        Patch.Free;
+        FileStream.Free;
+      end;
+    end else begin
+      ListItem := lvExternalPatch.Items.Add;
+      if assigned(ListItem) then begin
+        ListItem.Caption := filename;
+        ListItem.SubItems.Add( FormatDateTime('yyyy/mm/dd hh:nn:ss', datum));
+        ListItem.SubItems.Add( GetRelativePath(path));
+      end;
+    end;
+    stPatchesFound.Caption := IntToStr(lvExternalPatch.Items.Count);
+  end else begin
+    if lowercase(ext) = '.prf2' then begin
       ListItem := lvExternalPerf.Items.Add;
-  if assigned(ListItem) then begin
-    ListItem.Caption := filename;
-    ListItem.SubItems.Add(DateTimeToStr(datum));
-    ListItem.SubItems.Add(path);
+      if assigned(ListItem) then begin
+        ListItem.Caption := filename;
+        ListItem.SubItems.Add( FormatDateTime('yyyy/mm/dd hh:nn:ss', datum));
+        ListItem.SubItems.Add( GetRelativePath( path));
+      end;
+      stPatchesFound.Caption := IntToStr(lvExternalPerf.Items.Count);
+    end;
   end;
 end;
 

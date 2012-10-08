@@ -45,8 +45,8 @@ const
 { 4}       'Midi enabled : Check to enable the midi ports of the editor to send and receive sysex messages. With tis you can upload and download patches to and from the G2 synth using sysex.',
 { 5}       'Sysex midi in : The midi port to receive sysex messages into the editor.',
 { 6}       'Sysex midi out : The midi port to send sysex messages.',
-{ 7}       'Ctrl midi enabled : Check to enable controller midi messages for the editor. With this you can connect editor controls to a midi controller to indirectly control G2 parameters.',
-{ 8}       'Ctrl midi in : The midi port to recieve controller midi messages for the editor.',
+{ 7}       'Ctrl midi out : The midi out port to send controller midi messages from the editor to the controller.',
+{ 8}       'Ctrl midi in : The midi in port to recieve controller midi messages for the editor.',
 { 9}       'Log enabled : Check to enable the log. Please note: this will slowdown the loading of patches.',
 {10}       'Cable thickness : Enter a number to control the cable thickness in the patch windows.',
 {11}       'Slot strip color : Select a color for the slot strips.',
@@ -55,7 +55,7 @@ const
 {14}       'Highlight color : Select a color for the module controls that are highlighted.',
 {15}       'Led color : Select a color for the leds.',
 {16}       'Only text menus : For use with JAWS (screenreading software for visualy disabled users) this should be checked, otherwise JAWS will not read out the menu options',
-{17}       'Patch root folder : Set the root folder of your g2 patch library on disk for use in the patch manager.',
+{17}       'Patch root folder : Set the root folder of your g2 patch library on disk for use in the patch browser.',
 {18}       'Module help file : Set to "Nord Modular G2 Editor v1.62.chm".',
 {19}       'G2ools folder : Set to the folder containing the g2ools executables.',
 {20}       'Ctrl midi out : The midi port to send controller midi messages from the editor (parameter feedback).');
@@ -168,6 +168,8 @@ type
     procedure clbSysExMidiOutDevicesClickCheck(Sender: TObject);
     procedure clbSysexMidiInDevicesEnter(Sender: TObject);
     procedure clbSysExMidiOutDevicesEnter(Sender: TObject);
+    procedure clbCtrlMidiInDevicesEnter(Sender: TObject);
+    procedure clbCtrlMidiOutDevicesEnter(Sender: TObject);
   private
     { Private declarations }
     FDisableControls : boolean;
@@ -982,6 +984,18 @@ procedure TfrmSettings.cbOnlyTextMenusEnter(Sender: TObject);
 begin
   lExplenation.Caption := EXPLENATIONS[16];
 end;
+
+procedure TfrmSettings.clbCtrlMidiInDevicesEnter(Sender: TObject);
+begin
+  lExplenation.Caption := EXPLENATIONS[8];
+end;
+
+procedure TfrmSettings.clbCtrlMidiOutDevicesEnter(Sender: TObject);
+begin
+  lExplenation.Caption := EXPLENATIONS[7];
+end;
+
+
 
 ////////////////////////////////////////////////////////////////////////////////
 // OSC interface, someting for later...

@@ -1010,18 +1010,18 @@ begin
     aCanvas.Font.Size := 6;
     if assigned(aMidiEditorAssignment) then begin
       if aMidiEditorAssignment.Note > 0 then begin
-        aCanvas.Brush.Color := clWhite;
+        aCanvas.Brush.Color := CL_MIDI_AWARE_BOX;
         aCanvas.FillRect( aRect);
         TextCenter( aCanvas, aRect, 'N' + IntToStr(aMidiEditorAssignment.Note));
       end;
       if aMidiEditorAssignment.CC > 0 then begin
-        aCanvas.Brush.Color := clWhite;
+        aCanvas.Brush.Color := CL_MIDI_AWARE_BOX;
         aCanvas.FillRect( aRect);
         TextCenter( aCanvas, aRect, 'C' + IntToStr(aMidiEditorAssignment.CC));
       end;
     end else begin
       // Just draw empty box
-      aCanvas.Brush.Color := clWhite;
+      aCanvas.Brush.Color := CL_MIDI_AWARE_BOX;
       aCanvas.FillRect( aRect);
     end;
   finally

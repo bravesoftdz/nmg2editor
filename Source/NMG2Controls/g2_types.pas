@@ -69,6 +69,8 @@ const
   XCL_CLAVIA_RED         = $005A5692;//$006550DC;//$001620D1;
   XCL_CLAVIA_BLUE        = $00531F00;
 
+  CL_MIDI_AWARE_BOX      = $00BBBBFF;
+
   // Module dimensions
   UNITS_COL = 255;
   UNITS_ROW = 15;

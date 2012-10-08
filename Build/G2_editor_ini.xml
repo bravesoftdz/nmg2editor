@@ -17,7 +17,6 @@
     <CTRL_MIDI_ASSIGNMENT CC="44" Note="0" Channel="0" MaxValue="127" MinValue="0" ControlPath="/frmParameterPages/skP5" ControlIndex="0"/>
     <CTRL_MIDI_ASSIGNMENT CC="45" Note="0" Channel="0" MaxValue="127" MinValue="0" ControlPath="/frmParameterPages/skP6" ControlIndex="0"/>
     <CTRL_MIDI_ASSIGNMENT CC="46" Note="0" Channel="0" MaxValue="127" MinValue="0" ControlPath="/frmParameterPages/skP7" ControlIndex="0"/>
-    <CTRL_MIDI_ASSIGNMENT CC="40" Note="0" Channel="0" MaxValue="127" MinValue="0" ControlPath="/frmParameterPages/skP1" ControlIndex="0"/>
     <CTRL_MIDI_ASSIGNMENT CC="41" Note="0" Channel="0" MaxValue="127" MinValue="0" ControlPath="/frmParameterPages/skP2" ControlIndex="0"/>
     <CTRL_MIDI_ASSIGNMENT CC="49" Note="0" Channel="0" MaxValue="127" MinValue="0" ControlPath="/frmParameterPages/bfP2" ControlIndex="0"/>
     <CTRL_MIDI_ASSIGNMENT CC="50" Note="0" Channel="0" MaxValue="127" MinValue="0" ControlPath="/frmParameterPages/bfP3" ControlIndex="0"/>
@@ -54,14 +53,16 @@
     <CTRL_MIDI_ASSIGNMENT CC="37" Note="0" Channel="0" MaxValue="127" MinValue="0" ControlPath="/frmParameterPages/pBottom/rbParamColumn" ControlIndex="0"/>
     <CTRL_MIDI_ASSIGNMENT CC="38" Note="0" Channel="0" MaxValue="127" MinValue="0" ControlPath="/frmParameterPages/pBottom/rbParamColumn" ControlIndex="1"/>
     <CTRL_MIDI_ASSIGNMENT CC="39" Note="0" Channel="0" MaxValue="127" MinValue="0" ControlPath="/frmParameterPages/pBottom/rbParamColumn" ControlIndex="2"/>
+    <CTRL_MIDI_ASSIGNMENT CC="40" Note="0" Channel="0" MaxValue="127" MinValue="0" ControlPath="/frmParameterPages/skP1" ControlIndex="0"/>
+    <CTRL_MIDI_ASSIGNMENT CC="47" Note="0" Channel="0" MaxValue="127" MinValue="0" ControlPath="/frmParameterPages/skP8" ControlIndex="0"/>
   </CTRL_MIDI_ASSIGNMENT_LIST>
-  <MainForm PosX="58" PosY="69" SizeX="1084" SizeY="702" Visible="True"/>
+  <MainForm PosX="906" PosY="12" SizeX="784" SizeY="960" Visible="True"/>
   <DirectorySettings G2oolsFolder="C:\Users\Bruno\Downloads\g2ools_15_190\g2ools-1.5\" ModuleHelpFile="C:\Program Files (x86)\Clavia\Nord Modular G2 v1.62\Nord Modular G2 Editor v1.62.chm"/>
-  <PatchManagerSettings BaseFolder="C:\Users\Bruno\Documents\Nord Modular Patches\G2 Patches\Bruno" SelectedTab="3" ExternalSortCol="0" InternalSortCol="1"/>
-  <PatchBrowserForm PosX="100" PosY="100" SizeX="546" SizeY="438" Visible="False"/>
-  <PatchManagerForm PosX="908" PosY="347" SizeX="719" SizeY="656" Visible="True"/>
-  <SettingsForm PosX="131" PosY="208" SizeX="528" SizeY="466" Visible="False"/>
-  <ParameterPagesForm PosX="978" PosY="154" SizeX="575" SizeY="180" Visible="True"/>
+  <PatchManagerSettings BaseFolder="C:\Users\Bruno\Documents\Nord Modular Patches\G2 Patches\" SelectedTab="1" ExternalSortCol="0" InternalSortCol="0"/>
+  <PatchBrowserForm PosX="1060" PosY="358" SizeX="546" SizeY="438" Visible="False"/>
+  <PatchManagerForm PosX="945" PosY="215" SizeX="648" SizeY="656" Visible="False"/>
+  <SettingsForm PosX="1063" PosY="333" SizeX="528" SizeY="466" Visible="False"/>
+  <ParameterPagesForm PosX="1051" PosY="675" SizeX="575" SizeY="180" Visible="False"/>
   <PatchSettingsForm PosX="392" PosY="575" SizeX="608" SizeY="185" Visible="False"/>
   <EditorToolsForm PosX="188" PosY="535" SizeX="151" SizeY="261" Visible="False"/>
   <PatchNotesForm PosX="22" PosY="29" SizeX="611" SizeY="514" Visible="False"/>

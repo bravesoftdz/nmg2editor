@@ -1090,6 +1090,9 @@ object frmG2Main: TfrmG2Main
       object Patchmanager1: TMenuItem
         Action = aPatchManager
       end
+      object Patchbrowser1: TMenuItem
+        Action = aPatchBrowser
+      end
       object N22: TMenuItem
         Caption = '-'
       end
@@ -1389,7 +1392,7 @@ object frmG2Main: TfrmG2Main
     object aPatchManager: TAction
       Category = 'View'
       Caption = 'Patch manager'
-      ShortCut = 16450
+      ShortCut = 16461
       OnExecute = aPatchManagerExecute
     end
     object aParameterPages: TAction
@@ -1626,6 +1629,7 @@ object frmG2Main: TfrmG2Main
     object aPatchBrowser: TAction
       Category = 'View'
       Caption = 'Patch browser'
+      ShortCut = 16450
       OnExecute = aPatchBrowserExecute
     end
     object aInitPerf: TAction

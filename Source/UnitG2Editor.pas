@@ -501,6 +501,7 @@ type
     aPatchRename: TAction;
     aPerfRename: TAction;
     btClockRun: TG2GraphButtonText;
+    Patchbrowser1: TMenuItem;
 
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
@@ -745,7 +746,7 @@ uses ShellApi, Vcl.HtmlHelpViewer,
   UnitLog, UnitPatchSettings, UnitParameterPages, UnitSeqGrid,
   UnitSynthSettings, UnitPerfSettings, UnitEditLabel, UnitSettings,
   UnitEditorTools, UnitPatchBrowser, UnitModuleDef, UnitPatchNotes,
-  UnitMidiMapping, UnitPatchManager;
+  UnitMidiMapping, UnitPatchManager, UnitPatchBrowserFilterModules;
 
 {$IFNDEF FPC}
   {$R *.dfm}
@@ -1378,6 +1379,10 @@ begin
     if G2.FParamDefList.FileVersion <> NMG2_VERSION then
       ShowMessage( 'Warning, ParamDef.xml version differs from application.');
 
+    G2 := frmG2Main.SelectedG2;
+    if assigned(G2) then
+      frmPatchBrowserModuleFilter.UpdateModules(G2.FModuleDefList);
+
     G2.USBActive := True;
   end;
 
@@ -1597,21 +1602,12 @@ begin
 
       MidiSettingsNode := TXMLMidiDeviceType( Doc.CreateElement('MIDI_settings'));
       SynthNode.AppendChild( MidiSettingsNode);
-      //MidiSettingsNode.MidiEnabled := G2.MidiEnabled;
       MidiSettingsNode.MidiInDevice := G2.MidiInDeviceName;
       MidiSettingsNode.MidiOutDevice := G2.MidiOutDeviceName;
     end;
 
     CtrlMidiDeviceListNode := Doc.CreateElement('CTRL_MIDI_in_device_list');
     RootNode.AppendChild( CtrlMidiDeviceListNode);
-    {for i := 0 to frmSettings.lvCtrlMidiIn.Items.Count - 1 do begin
-      if frmSettings.lvCtrlMidiIn.Items[i].Checked then begin
-        CtrlMidiDeviceNode := TXMLCtrlMidiDeviceType( Doc.CreateElement('CtrlMidiDevice'));
-        CtrlMidiDeviceListNode.AppendChild( CtrlMidiDeviceNode);
-        CtrlMidiDeviceNode.CtrlMidiDevice := frmSettings.lvCtrlMidiIn.Items[i].Caption;
-        CtrlMidiDeviceNode.CtrlMidiEnabled := True;
-      end;
-    end;}
     for i := 0 to frmSettings.clbCtrlMidiInDevices.Items.Count - 1 do begin
       if frmSettings.clbCtrlMidiInDevices.Checked[i] then begin
         CtrlMidiDeviceNode := TXMLCtrlMidiDeviceType( Doc.CreateElement('CtrlMidiDevice'));
@@ -1623,14 +1619,6 @@ begin
 
     CtrlMidiDeviceListNode := Doc.CreateElement('CTRL_MIDI_out_device_list');
     RootNode.AppendChild( CtrlMidiDeviceListNode);
-    {for i := 0 to frmSettings.lvCtrlMidiOut.Items.Count - 1 do begin
-      if frmSettings.lvCtrlMidiOut.Items[i].Checked then begin
-        CtrlMidiDeviceNode := TXMLCtrlMidiDeviceType( Doc.CreateElement('CtrlMidiDevice'));
-        CtrlMidiDeviceListNode.AppendChild( CtrlMidiDeviceNode);
-        CtrlMidiDeviceNode.CtrlMidiDevice := frmSettings.lvCtrlMidiOut.Items[i].Caption;
-        CtrlMidiDeviceNode.CtrlMidiEnabled := True;
-      end;
-    end;}
     for i := 0 to frmSettings.clbCtrlMidiOutDevices.Items.Count - 1 do begin
       if frmSettings.clbCtrlMidiOutDevices.Checked[i] then begin
         CtrlMidiDeviceNode := TXMLCtrlMidiDeviceType( Doc.CreateElement('CtrlMidiDevice'));
@@ -1668,10 +1656,11 @@ begin
     DirSettingsNode.G2oolsFolder := AnsiString(frmSettings.eG2oolsFolder.Text);
     DirSettingsNode.ModuleHelpFile := AnsiString(frmSettings.eModuleHelpFile.Text);
 
+    // TODO
     PatchManagerSettingsNode := TXMLPatchManagerSettingsType(Doc.CreateElement('PatchManagerSettings'));
     RootNode.AppendChild(PatchManagerSettingsNode);
     PatchManagerSettingsNode.BaseFolder := AnsiString(frmSettings.ePatchRootFolder.Text);
-    PatchManagerSettingsNode.SelectedTab := frmPatchBrowser.TabControl1.TabIndex;
+    PatchManagerSettingsNode.SelectedTab := frmPatchBrowser.tcSource.TabIndex;
     PatchManagerSettingsNode.ExternalSortCol := frmPatchBrowser.FExternalSortCol;
     PatchManagerSettingsNode.InternalSortCol := frmPatchBrowser.FInternalSortCol;
 
@@ -1681,7 +1670,7 @@ begin
     FormSettingsNode.PosY := frmPatchBrowser.Top;
     FormSettingsNode.SizeX := frmPatchBrowser.Width;
     FormSettingsNode.SizeY := frmPatchBrowser.Height;
-    FormSettingsNode.Visible := frmPatchBrowser.Visible;
+    FormSettingsNode.Visible := False; //frmPatchBrowser.Visible;
 
     FormSettingsNode := TXMLFormSettingsTYpe(Doc.CreateElement('PatchManagerForm'));
     RootNode.AppendChild(FormSettingsNode);
@@ -2091,20 +2080,8 @@ begin
   if not HandleMainKeyDown( Key, Shift) then
 
     case Key of
-      {ord('1') : SelectVariation( G2.SelectedSlotIndex, 0);
-      ord('2') : SelectVariation( G2.SelectedSlotIndex, 1);
-      ord('3') : SelectVariation( G2.SelectedSlotIndex, 2);
-      ord('4') : SelectVariation( G2.SelectedSlotIndex, 3);
-      ord('5') : SelectVariation( G2.SelectedSlotIndex, 4);
-      ord('6') : SelectVariation( G2.SelectedSlotIndex, 5);
-      ord('7') : SelectVariation( G2.SelectedSlotIndex, 6);
-      ord('8') : SelectVariation( G2.SelectedSlotIndex, 7);}
       ord('F') : if not(ssShift in Shift) and not(ssAlt in Shift) and not(ssCtrl in Shift) then SelectPatchLocation( ltFX);
       ord('V') : if not(ssShift in Shift) and not(ssAlt in Shift) and not(ssCtrl in Shift) then SelectPatchLocation( ltVA);
-      {ord('A') : if not(ssShift in Shift) and not(ssAlt in Shift) and not(ssCtrl in Shift) then SelectSlot(0);
-      ord('B') : if not(ssShift in Shift) and not(ssAlt in Shift) and not(ssCtrl in Shift) then SelectSlot(1);
-      ord('C') : if not(ssShift in Shift) and not(ssAlt in Shift) and not(ssCtrl in Shift) then SelectSlot(2);
-      ord('D') : if not(ssShift in Shift) and not(ssAlt in Shift) and not(ssCtrl in Shift) then SelectSlot(3);}
       VK_LEFT  : begin
                    if ssShift in Shift then
                      G2.SelectedPatchPart.SelectModuleLeft;
@@ -4514,7 +4491,7 @@ end;
 procedure TfrmG2Main.G2AfterG2Init(Sender: TObject);
 begin
   UpdateControls;
-  frmPatchBrowser.TabControl1Change(Self);
+  frmPatchBrowser.tcSourceChange(Self);
   if frmPatchManager.Showing then
     frmPatchManager.Update;
 end;

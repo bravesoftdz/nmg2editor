@@ -25,7 +25,8 @@ uses
   UnitModuleDef in '..\..\Source\UnitModuleDef.pas' {frmModuleDef},
   UnitPatchNotes in '..\..\Source\UnitPatchNotes.pas' {frmPatchNotes},
   UnitMidiMapping in '..\..\Source\UnitMidiMapping.pas' {frmMidiMapping},
-  UnitPatchManager in '..\..\Source\UnitPatchManager.pas' {frmPatchManager};
+  UnitPatchManager in '..\..\Source\UnitPatchManager.pas' {frmPatchManager},
+  UnitPatchBrowserFilterModules in '..\..\Source\UnitPatchBrowserFilterModules.pas' {frmPatchBrowserModuleFilter};
 
 {$R *.res}
 
@@ -44,6 +45,7 @@ begin
   Application.CreateForm(TfrmPerfSettings, frmPerfSettings);
   Application.CreateForm(TfrmEditLabel, frmEditLabel);
   Application.CreateForm(TfrmEditorTools, frmEditorTools);
+  Application.CreateForm(TfrmPatchBrowserModuleFilter, frmPatchBrowserModuleFilter);
   Application.CreateForm(TfrmPatchBrowser, frmPatchBrowser);
   Application.CreateForm(TfrmPatchManager, frmPatchManager);
   Application.CreateForm(TfrmPatchNotes, frmPatchNotes);
