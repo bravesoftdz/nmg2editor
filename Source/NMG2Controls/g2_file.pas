@@ -1016,7 +1016,7 @@ type
 
     procedure   UnselectModules( aLocation : TLocationType);
 
-    function    MessAddModule( aLocation : TLocationType; aModuleTypeID, aAlternativeModuleTypeID, aCol, aRow: byte): boolean; virtual;
+    function    MessAddModule( aLocation : TLocationType; aModuleTypeID, aCol, aRow: byte): boolean; virtual;
     function    MessCopyModules( aSrcePatch : TG2FilePatchPart; aFromLocation, aToLocation : TLocationType): boolean; virtual;
     // Abstract functions
     function    MessAddConnection( aLocation : TLocationType; aFromConnection, aToConnection : TG2FileConnector): boolean; virtual;
@@ -1051,6 +1051,8 @@ type
     property    KnobList : TKnobList read FKnobList;
     property    PatchDescription : TPatchDescription read FPatchDescription;
     property    PatchNotes : TPatchNotes read FPatchNotes;
+    property    CurrentNote : TCurrentNote read FCurrentNote;
+
     property    SelectedLocation : TLocationType read FSelectedLocation write SetSelectedLocation;
 
     property    G2 : TG2File read FG2 write SetG2;
@@ -6488,7 +6490,7 @@ begin
   end;
 end;}
 
-function TG2FilePatch.MessAddModule( aLocation : TLocationType; aModuleTypeID, aAlternativeModuleTypeID, aCol, aRow: byte): boolean;
+function TG2FilePatch.MessAddModule( aLocation : TLocationType; aModuleTypeID, aCol, aRow: byte): boolean;
 begin
   Result := False;
   UnselectModules( ltVA);
@@ -10045,6 +10047,7 @@ var MData, i, SlotIndex, Offs : integer;
     CurrentBlock : integer;
     BitWriter    : TBitWriter;
     Line         : string;
+    DeviceID     : byte;
 begin
   BlockCount     := 0;
   CurrentBlock   := 0;
@@ -10060,7 +10063,8 @@ begin
       FChecksum := 0;
       ParseMidiConst( aStream, $f0);            // Start sysex
       ParseMidiConst( aStream, $33);            // Clavia
-      ParseMidiConst( aStream, $7f);            // ?
+      //ParseMidiConst( aStream, $7f);            // ?
+      DeviceID := ParseMidiSeptet( aStream);
       ParseMidiConst( aStream, $0a);            // G2
 
       b := ParseMidiSeptet( aStream);

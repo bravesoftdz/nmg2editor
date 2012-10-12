@@ -306,7 +306,7 @@ const
                                          'User1',
                                          'User2');
 
-  MODULECATEGORIES : array[0..16] of string =('In/Out',
+  MODULECATEGORIES : array[0..15] of string =('In/Out',
                                               'Note',
                                               'Osc',
                                               'LFO',
@@ -321,8 +321,7 @@ const
                                               'Switch',
                                               'Logic',
                                               'Seq',
-                                              'MIDI',
-                                              'Test');
+                                              'MIDI');
 
   ENV_TIMES : array[0..127] of single =
                 (0.0005, 0.0006, 0.0007, 0.0009, 0.0011, 0.0013, 0.0015, 0.0018,

@@ -398,7 +398,7 @@ uses
     function    FindCable( Location : TLocationType; FromModule : byte; FromConnector : byte; ToModule : byte; ToConnector : byte): TG2FileCable;
 
     procedure   AddReplaceModulesMessages( SendMessage : TG2SendMessage; aModulesToReplaceList, aModulesMovedList : TModuleList);
-    procedure   AddNewModuleMessage( SendMessage : TG2SendMessage; aLocation : TLocationType; aNewModuleIndex, aModuleTypeID, aAlternativeModuleTypeID, aCol, aRow: byte);
+    procedure   AddNewModuleMessage( SendMessage : TG2SendMessage; aLocation : TLocationType; aNewModuleIndex, aModuleTypeID, aCol, aRow: byte);
     procedure   AddCopyModuleMessage( SendMessage : TG2SendMessage; aLocation : TLocationType; aModule : TG2FileModule);
     procedure   AddCopyModuleParametersMessage( SendMessage : TG2SendMessage; aLocation : TLocationType; aModule : TG2FileModule);
     procedure   AddCopyModuleParamLabelsMessage( SendMessage : TG2SendMessage; aLocation: TLocationType; aModule : TG2FileModule);
@@ -434,7 +434,7 @@ uses
     function    CreatePatchMessage: TG2SendMessage;
     procedure   ResetUprateValues( aLocation : TLocationType);
     procedure   CheckUprateChange( aStream: TG2SendMessage; aUprateValue : Byte; aToConnector : TG2FileConnector; aToModule : TG2FileModule);
-    function    CreateAddNewModuleMessage( aLocation : TLocationType; aNewModuleIndex, aModuleTypeID, aAlternativeModuleTypeID, aCol, aRow: byte): TG2SendMessage;
+    function    CreateAddNewModuleMessage( aLocation : TLocationType; aNewModuleIndex, aModuleTypeID, aCol, aRow: byte): TG2SendMessage;
     function    CreateCopyModulesMessage( aSrcePatch : TG2FilePatchPart; aFromLocation, aToLocation : TLocationType; RenumberModules : boolean): TG2SendMessage;
     function    CreateMoveModulesMessage( aLocation : TLocationType): TG2SendMessage;
     function    CreateSetModuleColorMessage( aLocation: TLocationType; aModuleIndex, aColor : byte): TG2SendMessage;
@@ -1034,7 +1034,6 @@ begin
   Chunk := TPatchChunk.Create(Result);
   try
     GetPerformance.WriteSettings(Chunk);
-    //GetPerformance.Write(Chunk, 10);
   finally
     Chunk.Free;
   end;
@@ -1057,7 +1056,6 @@ begin
   Result.WriteMessage( $01);
   Result.WriteMessage( CMD_SYS);
   Result.WriteMessage( GetPerformance.FPerfVersion);
-  //Result.WriteMessage( MESS_KNOBS_GLOBAL);
 
   Chunk := TPatchChunk.Create(Result);
   try
@@ -1091,26 +1089,43 @@ begin
   Result.WriteMessage( SlotIndex + $08);
   Result.WriteMessage( FPatchVersion);
   Result.WriteMessage( S_PATCH_NAME);
+  Result.WriteClaviaString( PatchName);
 end;
 
 function TG2MessSlot.CreateCurrentNoteResponseMessage: TG2ResponseMessage;
+var Chunk : TPatchChunk;
 begin
   Result := TG2ResponseMessage.Create;
   Result.WriteMessage( $01);
   Result.WriteMessage( SlotIndex + $08);
   Result.WriteMessage( FPatchVersion);
-  Result.WriteMessage( $69);
-  // TODO Send rest of message
+  //Result.WriteMessage( $69);
+
+  Chunk := TPatchChunk.Create(Result);
+  try
+    GetPatch.CurrentNote.Write(Chunk);
+    Chunk.WriteChunk( C_CURRENT_NOTE_2);
+  finally
+    Chunk.Free;
+  end;
 end;
 
 function TG2MessSlot.CreatePatchTextResponseMessage: TG2ResponseMessage;
+var Chunk : TPatchChunk;
 begin
   Result := TG2ResponseMessage.Create;
   Result.WriteMessage( $01);
   Result.WriteMessage( SlotIndex + $08);
   Result.WriteMessage( FPatchVersion);
-  Result.WriteMessage( $6f);
-  // TODO Send rest of message
+  //Result.WriteMessage( $6f);
+
+  Chunk := TPatchChunk.Create(Result);
+  try
+    GetPatch.PatchNotes.Write(Chunk);
+    Chunk.WriteChunk(C_PATCH_NOTES);
+  finally
+    Chunk.Free;
+  end;
 end;
 
 function TG2MessSlot.CreateResourcesUsedResponseMessage( aLocation : TLocationType): TG2ResponseMessage;
@@ -4330,7 +4345,7 @@ begin
 end;
 
 procedure TG2MessPatch.AddNewModuleMessage( SendMessage : TG2SendMessage; aLocation : TLocationType;
-  aNewModuleIndex, aModuleTypeID, aAlternativeModuleTypeID, aCol, aRow: byte);
+  aNewModuleIndex, aModuleTypeID, aCol, aRow: byte);
 var Chunk : TPatchChunk;
     BitWriter : TBitWriter;
     MemStream : TG2Message;
@@ -4388,7 +4403,7 @@ begin
     Chunk := TPatchChunk.Create( MemStream);
     try
       Chunk.WriteBits( S_ADD_MODULE,     8);
-      Chunk.WriteBits( aAlternativeModuleTypeID, 8);
+      Chunk.WriteBits( aModuleTypeID, 8);
       Chunk.WriteBits( ord(aLocation),   8);
       Chunk.WriteBits( aNewModuleIndex,  8);
       Chunk.WriteBits( aCol,             8);
@@ -4861,11 +4876,11 @@ begin
 end;
 
 function TG2MessPatch.CreateAddNewModuleMessage( aLocation : TLocationType; aNewModuleIndex, aModuleTypeID,
-  aAlternativeModuleTypeID, aCol, aRow: byte): TG2SendMessage;
+  aCol, aRow: byte): TG2SendMessage;
 begin
   Result := CreatePatchMessage;
   // todo : add module move messages for other modules to prevent overlap
-  AddNewModuleMessage( Result, aLocation, aNewModuleIndex, aModuleTypeID, aAlternativeModuleTypeID, aCol, aRow);
+  AddNewModuleMessage( Result, aLocation, aNewModuleIndex, aModuleTypeID, aCol, aRow);
 end;
 
 function TG2MessPatch.CreateCopyModulesMessage( aSrcePatch : TG2FilePatchPart; aFromLocation, aToLocation : TLocationType; RenumberModules : boolean): TG2SendMessage;

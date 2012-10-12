@@ -124,6 +124,7 @@ type
     cbLogEnabled: TCheckBox;
     Panel4: TPanel;
     Panel5: TPanel;
+    bCreateG2VSTIni: TButton;
     procedure Button2Click(Sender: TObject);
     procedure IdUDPServer1Status(ASender: TObject; const AStatus: TIdStatus;
       const AStatusText: string);
@@ -170,6 +171,7 @@ type
     procedure clbSysExMidiOutDevicesEnter(Sender: TObject);
     procedure clbCtrlMidiInDevicesEnter(Sender: TObject);
     procedure clbCtrlMidiOutDevicesEnter(Sender: TObject);
+    procedure bCreateG2VSTIniClick(Sender: TObject);
   private
     { Private declarations }
     FDisableControls : boolean;
@@ -283,7 +285,7 @@ procedure TfrmSettings.LoadIniXML;
 var Doc : TXMLDocument;
     RootNode, SynthNode : TDOMNode;
     mi, mo : integer;
-    PatchManagerSettingsNode : TXMLPatchManagerSettingsType;
+    PatchBrowserSettingsNode : TXMLPatchBrowserSettingsType;
     DirSettingsNode : TXMLDirectorySettingsType;
     MidiSettingsNode : TXMLMidiDeviceType;
     CtrlMidiDeviceListNode : TDOMNode;
@@ -391,9 +393,9 @@ begin
         eModuleHelpFile.Text := String(DirSettingsNode.ModuleHelpFile);
       end;
 
-      PatchManagerSettingsNode := TXMLPatchManagerSettingsType(RootNode.FindNode('PatchManagerSettings'));
-      if assigned(PatchManagerSettingsNode) then begin
-        ePatchRootFolder.Text := String(PatchManagerSettingsNode.BaseFolder);
+      PatchBrowserSettingsNode := TXMLPatchBrowserSettingsType(RootNode.FindNode('PatchBrowserSettings'));
+      if assigned(PatchBrowserSettingsNode) then begin
+        ePatchRootFolder.Text := String(PatchBrowserSettingsNode.BaseFolder);
       end;
 
       FormSettingsNode := TXMLFormSettingsType(RootNode.FindNode('SettingsForm'));
@@ -785,6 +787,31 @@ begin
   ApplySysexMidiDevices;
 end;
 
+procedure TfrmSettings.bCreateG2VSTIniClick(Sender: TObject);
+var Doc : TXMLDocument;
+    RootNode : TDOMNode;
+    VSTTCPSettingsNode : TXMLVSTTCPSettingsType;
+    G2 : TG2;
+begin
+  G2 := frmG2Main.SelectedG2;
+  if not assigned(G2) then
+    exit;
+
+  Doc := TXMLDocument.Create;
+  try
+    RootNode := Doc.CreateElement('G2_VST_settings');
+    Doc.AppendChild(RootNode);
+
+    VSTTCPSettingsNode := TXMLVSTTCPSettingsType( Doc.CreateElement('TCP_settings'));
+    RootNode.AppendChild(VSTTCPSettingsNode);
+    VSTTCPSettingsNode.IP := G2.Host;
+    VSTTCPSettingsNode.Port := G2.Port;
+
+    WriteXMLFile( Doc, 'G2_VST_ini.xml');
+  finally
+    Doc.Free;
+  end;
+end;
 
 procedure TfrmSettings.bMidiMappingClick(Sender: TObject);
 begin
@@ -800,7 +827,6 @@ end;
 ////////////////////////////////////////////////////////////////////////////////
 
 procedure TfrmSettings.cbOnlyTextMenusClick(Sender: TObject);
-var G2 : TG2;
 begin
   if FDisableControls then
     exit;

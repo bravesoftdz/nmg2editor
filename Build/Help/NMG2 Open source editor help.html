@@ -1,183 +1,820 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
-<html><head><meta content="text/html; charset=ISO-8859-1" http-equiv="content-type"><title>NMG2 Open source editor help</title></head>
-<body><h1>NMG2 Open source editor help</h1><br>If
+<html><head>
+<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1"><title>NMG2 Open source editor help</title></head>
+<body>
+<h1><a class="mozTocH1" name="mozTocId221603"></a>NMG2
+Open source editor help</h1>
+<br>
+<ol id="mozToc"><!--mozToc h1 1 h2 2 h3 3 h4 4 h5 5 h6 6--><li><a href="#mozTocId221603">NMG2
+Open source editor help</a><ol><li><a href="#mozTocId422747">Introduction</a></li><li><a href="#mozTocId871236">Intended
+public</a></li><li><a href="#mozTocId136935">Requirements</a></li><li><a href="#mozTocId861741">Installation</a><ol><li><a href="#mozTocId298188">Step
+one : installing Libusb-win32</a></li><li><a href="#mozTocId451707">Step
+two : installing the NMG2 OS Editor</a></li></ol></li><li><a href="#mozTocId212032">Feature
+list comparison</a></li><li><a href="#mozTocId721952">Additional
+functionality</a></li><li><a href="#mozTocId157181">Midi
+control of editor functions</a><ol><li><a href="#mozTocId592500">Ctrl midi ports</a></li><li><a href="#mozTocId452168">Assigning midi control to knobs &nbsp;and buttons</a></li><li><a href="#mozTocId383003">BCR
+settings</a></li></ol></li><li><a href="#mozTocId149759">Patch
+manager</a><ol><li><a href="#mozTocId450697">Upload bank to disk</a></li><li><a href="#mozTocId182571">Download bank to G2</a></li></ol></li><li><a href="#mozTocId978001">Patch
+browser</a></li><li><a href="#mozTocId363909">G2
+VST</a><ol><li><a href="#mozTocId976409">Installation
+of the VST</a></li><li><a href="#mozTocId882961">Setup
+of the VST and editor</a></li><li><a href="#mozTocId885397">G2
+VST functionality</a></li></ol></li><li><a href="#mozTocId413619">Remote
+control</a><ol><li><a href="#mozTocId420075">Setup
+of the server editor</a></li><li><a href="#mozTocId151692">Setup
+of the client editor</a></li></ol></li><li><a href="#mozTocId604559">System
+exclusive operation</a></li><li><a href="#mozTocId189459">Extra
+modules: driver and resonator</a></li><li><a href="#mozTocId453035">Shortcut keys and JAWS compatibility</a><ol><li><a href="#mozTocId40639">Application layout</a></li><li><a href="#mozTocId271333">Shortcut keys and menu's</a></li><li><a href="#mozTocId83568">Example patching using only menu's and shortcut keys </a></li></ol></li></ol></li></ol>
+<br>
+<h2><a class="mozTocH2" name="mozTocId422747"></a>Introduction</h2>
+<br>
+If
 you're reading this help, you probably familiar with the Nord Modular
-G2 system, if not, here is a very brief description, you can find a lot more info floating about on internet.<br><br>In the G2 system the editor is used to make patches in
+G2 system, if not, here is a very brief description, you can find a lot
+more info floating about on internet.<br>
+<br>
+In the G2 system the editor is used to make patches in
 the style of modular synthesizer, so by adding modules, oscilators,
 filters etc. and connecting them by cables. Only with the G2 this
-is&nbsp;all done in software. You can download the patch using USB to the hardware part of the system: the G2
-synthesizer.<br><br>Clavia (today Nord
+is&nbsp;all done in software. You can download the patch using USB
+to the hardware part of the system: the G2
+synthesizer.<br>
+<br>
+Clavia (today Nord
 Keyboards) discontinued the G2 in 2009, I don't know the reason,
 probably the G2 didn't generate enough revenue. Personally I can
 understand that, if you are running a commercial company, your products
-should generate revenue otherwise there is no reason to continue.<br><br>However there are a lot of people who wish Clavia had developed
-the G2 system further, but today Nord keyboards seems to have chosen another road.<br><br>What
+should generate revenue otherwise there is no reason to continue.<br>
+<br>
+However there are a lot of people who wish Clavia had developed
+the G2 system further, but today Nord keyboards seems to have chosen
+another road.<br>
+<br>
+What
 I personally like
 about the G2 is that it's a great system to learn about sound
 synthesis and at the same time it's a high quality instrument. By doing
-this project I got to know my G2 a&nbsp;better and also learned a lot
+this project I got to know my G2 a&nbsp;better and also learned a
+lot
 of new things in software developement, that's what this project is all
-about for me, a learning experience.<br><br>Apart
+about for me, a learning experience.<br>
+<br>
+Apart
 from that, the goal of the project is to deliver an editor that has all
 the important functions of the original editor, but also something that
 can be developed further by anyone who is able and willing to do so.
 Maybe, by some creative thinking some new functionality can be squeezed
 out of the G2 system, and in any case, by studying and documenting it
-in open source code, it's lifespan of the G2 system is extended.<br><br><h2>Intended public</h2>The
+in open source code, it's lifespan of the G2 system is extended.<br>
+<br>
+<h2><a class="mozTocH2" name="mozTocId871236"></a>Intended
+public</h2>
+The
 project is still in it's "Beta testing" stage, which means that is not
 a finished application. You might run into bugs and installation
 involves a bit more than clicking through an installer. So if your not
 an experienced Windows user, I would advice to wait untill the
 application is a bit further in its developement, because you at least
 have to know what a dll is and what a driver is and where these files
-belong on a Windows system.<br><br>Otherwise, if you are an
-expericenced Windows&nbsp;user and you own a G2 please try this editor
+belong on a Windows system.<br>
+<br>
+Otherwise, if you are an
+expericenced Windows&nbsp;user and you own a G2 please try this
+editor
 and let me know what your experiences are, because that's the whole
-point of beta testing!<br><h2>Requirements</h2>For the moment there is only a Windows version. It should work on XP, Vista and Windows 7. <br><h2>Installation</h2>At
+point of beta testing!<br><br>
+<h2><a class="mozTocH2" name="mozTocId136935"></a>Requirements</h2>
+For the moment there is only a Windows version. It should work on XP,
+Vista and Windows 7. <br><br>
+<h2><a class="mozTocH2" name="mozTocId861741"></a>Installation</h2>
+At
 the moment there is no installer so installation involves downloading a
 couple of packages, unzipping and copying some files to the appropriate
 folders. It isn't very dificult, I'll descripe the necessary steps in
-this section.<br>The two packages you need are:<br><br>- Libusb-win32, you can download the latest version here:&nbsp;<a href="http://sourceforge.net/projects/libusb-win32/files/libusb-win32-releases/">http://sourceforge.net/projects/libusb-win32/files/libusb-win32-releases/</a><br>- nmg2_editor_bin_0.xx.zip, which you can download here: <a href="http://sourceforge.net/projects/nmg2editor/files/">http://sourceforge.net/projects/nmg2editor/files/</a><br><br>(If you want the version of the editor including all source code, you should download the nmg2_editor_srce.zip)<br><br>The
+this section.<br>
+The two packages you need are:<br>
+<br>
+- Libusb-win32, you can download the latest version here:&nbsp;<a href="http://sourceforge.net/projects/libusb-win32/files/libusb-win32-releases/">http://sourceforge.net/projects/libusb-win32/files/libusb-win32-releases/</a><br>
+- nmg2_editor_bin_0.xx.zip, which you can download here: <a href="http://sourceforge.net/projects/nmg2editor/files/">http://sourceforge.net/projects/nmg2editor/files/</a><br>
+<br>
+(If you want the version of the editor including all source code, you
+should download the nmg2_editor_srce.zip)<br>
+<br>
+<table style="text-align: left; width: 100%;" border="1" cellpadding="2" cellspacing="2">
+<tbody>
+<tr>
+<td>For full functionality of the editor you need to
+install Libusb-win32, but you can aslo&nbsp;install <span style="font-style: italic;">only</span>
+the editor. In that case you can skip step one and go directly to step
+two. The editor without the usb functionality lets you load/save
+patches, edit patches, convert them to another format (fxp, sysex),
+analyze them in the log window, or upload/download them to the G2 using
+sysex.<br>
+</td>
+</tr>
+</tbody>
+</table>
+<br>
+<h3><a class="mozTocH3" name="mozTocId298188"></a>Step
+one : installing Libusb-win32</h3>
+The
 libusb-win32 package contains the libusb-win32 open source generic usb
 driver. It has a very usefull feature for this project, the
-"filter-driver" option, which allowes you to use both&nbsp;the original
+"filter-driver" option, which allowes you to use both&nbsp;the
+original
 Clavia editor and the open source editor. The only limitation is that
-you can not run both editors at the same time.<br><br>So, first of all,
+you can not run both editors at the same time.<br>
+<br>
+So, first of all,
 you have to intall the Clavia USB driver, and the Clavia editor, if you
 haven't already done that. (By the way, if you have troubles installing
 the Clavia USB driver like I had, try installing it in Windows "Safe
-mode").<br><br>Next, download and unzip the Libusb-win32 package. Go to
+mode").<br>
+<br>
+Next, download and unzip the Libusb-win32 package. Go to
 the "bin" folder, there you will find a text file with installation
-instructions.<br><br><img style="width: 668px; height: 271px;" alt="" src="Img/Install_libusb_1.jpg"><br>There
+instructions.<br>
+<br>
+<img style="width: 668px; height: 271px;" alt="" src="Img/Install_libusb_1.jpg"><br>
+There
 is also a "inf-wizard.exe" file in de bin folder, that file we are not
 going to use, because when you install the inf-version of libusb, it
 will replace the Clavia USB driver and you won't be able to use the
 original editor anymore (unless you uninstall everything and re-install
-the Clavia USB driver).<br><br>So read the "libusb-win32-bin-README.txt". To give you an example, I have an amd64 system, so I had to do 3 things:<br><br>- Copy and rename x86\libusb0_x86.dll to Windows\syswow64\libusb0.dll<br>- Copy amd64\libusb0.sys to Windows\system32\drivers\libusb0.sys<br>- Copy amd64\libusb0.dll to Windows\system32\libusb0.dll<br><br>Probably best to restart your computer at this point.<br><br>Next, go to the appropriate subfolder of your system. There you will find the "install-filter-win.exe".<br><br><img style="width: 530px; height: 293px;" alt="" src="Img/Install_libusb_2.jpg"><br>At
+the Clavia USB driver).<br>
+<br>
+So read the "libusb-win32-bin-README.txt". To give you an example, I
+have an amd64 system, so I had to do 3 things:<br>
+<br>
+- Copy and rename x86\libusb0_x86.dll to Windows\syswow64\libusb0.dll<br>
+- Copy amd64\libusb0.sys to Windows\system32\drivers\libusb0.sys<br>
+- Copy amd64\libusb0.dll to Windows\system32\libusb0.dll<br>
+<br>
+Probably best to restart your computer at this point.<br>
+<br>
+Next, go to the appropriate subfolder of your system. There you will
+find the "install-filter-win.exe".<br>
+<br>
+<img style="width: 530px; height: 293px;" alt="" src="Img/Install_libusb_2.jpg"><br>
+At
 this point you have to connect and switch on your G2, so the driver
 will be visible in the wizard. Then you can
-start&nbsp;"install-filter-win.exe".<br><br><img style="width: 482px; height: 363px;" alt="" src="Img/Install_libusb_3.jpg"><br><br>Choose "install a device filer", then "Next".<br><br><img style="width: 482px; height: 363px;" alt="" src="Img/Install_libusb_4.jpg"><br><br>Select the Clavia USB driver from the list, then "Install".<br><br><img style="width: 478px; height: 171px;" alt="" src="Img/Install_libusb_5.jpg"><br><br>Install succesfulll, press "Ok".<br><br><img style="width: 481px; height: 363px;" alt="" src="Img/Install_libusb_6.jpg"><br><br>Back in the select USB Device window, press "Cancel", or if you have multiple G2's install it on the other one also.<br><br>That's
+start&nbsp;"install-filter-win.exe".<br>
+<br>
+<img style="width: 482px; height: 363px;" alt="" src="Img/Install_libusb_3.jpg"><br>
+<br>
+Choose "install a device filer", then "Next".<br>
+<br>
+<img style="width: 482px; height: 363px;" alt="" src="Img/Install_libusb_4.jpg"><br>
+<br>
+Select the Clavia USB driver from the list, then "Install".<br>
+<br>
+<img style="width: 478px; height: 171px;" alt="" src="Img/Install_libusb_5.jpg"><br>
+<br>
+Install succesfulll, press "Ok".<br>
+<br>
+<img style="width: 481px; height: 363px;" alt="" src="Img/Install_libusb_6.jpg"><br>
+<br>
+Back in the select USB Device window, press "Cancel", or if you have
+multiple G2's install it on the other one also.<br>
+<h3><a class="mozTocH3" name="mozTocId451707"></a>Step
+two : installing the NMG2 OS Editor</h3>
+That's
 the Libusb-win32 installed. Next download and unzip
 nmg2_editor_bin_0.xx.zip. You'll find these files in the folder. You
 should be able to run the G2_editor_D2011.exe directly from the folder.
-Just to make sure, you could restart your computer and the G2.<br><br><img style="width: 654px; height: 243px;" alt="" src="Img/Install_nmg2_editor_1.jpg"><br>As
+Just to make sure, you could restart your computer and the G2.<br>
+<br>
+<img style="width: 654px; height: 243px;" alt="" src="Img/Install_nmg2_editor_1.jpg"><br>
+As
 you start the open source editor, you will probably get a Windows
 firewall warning like this (this one is in Dutch, but your window will
-look similar):<br><br><img style="width: 538px; height: 384px;" alt="" src="Img/Install_nmg2_editor_2.jpg"><br><br>Don't
+look similar):<br>
+<br>
+<img style="width: 538px; height: 384px;" alt="" src="Img/Install_nmg2_editor_2.jpg"><br>
+<br>
+Don't
 worry that it's trying to install virusses or anything. Windows gives
 this warning because it detects that the application opens a TCP-IP
 port. The editor has a TCP-IP port so it can communicate with the
-G2-VST. So you can allow the program access through the firewall.<br><br>After allowing the editor access, it should start and look something like this:<br><br><img style="width: 1084px; height: 702px;" alt="" src="Img/Install_nmg2_editor_3.jpg"><br><br><h2>Feature list</h2><br><table style="width: 875px; height: 2465px;" border="1" cellpadding="2" cellspacing="2">
-<tbody><tr><td></td><td style="text-align: center;">Clavia editor</td><td style="text-align: center;">Open source editor</td><td>Differences OS editor</td></tr><tr><td>Runs on Windows</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td></td></tr><tr><td>Runs on Max </td><td style="text-align: center;">X</td><td style="text-align: center;">-</td><td></td></tr><tr><td>Runs on Linux</td><td style="text-align: center;">-</td><td style="text-align: center;">-</td><td></td></tr><tr><td>Main screen</td><td style="text-align: center;"></td><td style="text-align: center;"></td><td></td></tr><tr><td>Toolbar</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td>Seperate Synth toolbar and slot toolbars</td></tr>
-<tr><td>Perf: (name)</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td>On patch manager window</td></tr>
-<tr><td>Master Clock</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td>On Synth toolbar</td></tr>
-<tr><td>Slot buttons</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td>Click on slot toolbar</td></tr>
-<tr><td>Connection indicators</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td>On Synth toolbar</td></tr>
-<tr><td>Perf</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td>On patch manager window</td></tr>
-<tr><td>New</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td>File menu</td></tr>
-<tr><td>Init 1&amp;2</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td>File menu</td></tr>
-<tr><td>Module Group selectors</td><td style="text-align: center;">X</td><td style="text-align: center;">-</td><td>Right click patch window to add modules, or "Add" menu</td></tr>
-<tr><td>Module Icons</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td>On add module popup</td></tr>
-<tr><td>Patch Load, Cycles and Memory</td><td style="text-align: center;">X</td><td style="text-align: center;">-</td><td></td></tr>
-<tr><td>Undo &amp; Redo</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td>Only undo</td></tr>
-<tr><td>Color</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td>On Editor tools window</td></tr>
-<tr><td>Morph groups</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td></td></tr>
-<tr><td>Patch Name</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td></td></tr>
-<tr><td>Category</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td>On patch manager window</td></tr>
-<tr><td>Voice Mode</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td></td></tr>
-<tr><td>Variation</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td></td></tr>
-<tr><td>Var Init</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td></td></tr>
-<tr><td>Patch Level</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td></td></tr>
-<tr><td>Visible cables</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td>On Editor tools window</td></tr>
-<tr><td>Hide all cables</td><td style="text-align: center;">X</td><td style="text-align: center;">-</td><td></td></tr>
-<tr><td>Shake cables</td><td style="text-align: center;">X</td><td style="text-align: center;">-</td><td></td></tr>
-<tr><td>Patch window split bar</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td>Position isn't updated yet when switching slots</td></tr>
-<tr><td><br></td><td style="text-align: center;"></td><td style="text-align: center;"></td><td></td></tr>
-<tr><td><br></td><td style="text-align: center;"></td><td style="text-align: center;"></td><td></td></tr>
-<tr><td>Patch window popup</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td>Not complete yet</td></tr>
-<tr><td>Module popup</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td></td></tr>
-<tr><td>Parameter popup</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td></td></tr>
-<tr><td>Cable popup</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td></td></tr>
-<tr><td><br></td><td style="text-align: center;"></td><td style="text-align: center;"></td><td></td></tr>
-<tr><td>Create a new empty Patch window</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td></td></tr>
-<tr><td>Add modules to a Patch</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td></td></tr>
-<tr><td>Rename a module</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td></td></tr>
-<tr><td>Move a module</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td></td></tr>
-<tr><td>Delete a module</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td></td></tr>
-<tr><td>Replace a module</td><td style="text-align: center;">X</td><td style="text-align: center;">-</td><td></td></tr>
-<tr><td>Coloring a module</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td></td></tr>
-<tr><td>Connecting modules</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td></td></tr>
-<tr><td>Edit module parameters in a Patch</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td></td></tr>
-<tr><td>Voice Area and FX Area</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td></td></tr>
-<tr><td>Download a Patch to the synthesizer</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td>Patch manager window</td></tr>
-<tr><td>Store a Patch</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td>Patch manager window</td></tr>
-<tr><td>Delete a Patch</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td>Patch manager window</td></tr>
-<tr><td>Creating Patch parameter Variations</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td></td></tr>
-<tr><td>Save a Variation</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td></td></tr>
-<tr><td>Copy a Variation</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td></td></tr>
-<tr><td>Variation Init</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td></td></tr>
-<tr><td>midi control of Variations</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td>CC#70</td></tr>
-<tr><td>Knobs and controllers</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td></td></tr>
-<tr><td>The Parameter Pages window</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td></td></tr>
-<tr><td>Assign a parameter to a knob</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td></td></tr>
-<tr><td>Assign all module parameters to a set of knobs</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td></td></tr>
-<tr><td>Parameter overview window</td><td style="text-align: center;">X</td><td style="text-align: center;">-</td><td></td></tr><tr><td>midi controllers</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td></td></tr><tr><td>Auto assign midi controllers</td><td style="text-align: center;">X</td><td style="text-align: center;">-</td><td></td></tr>
-<tr><td>Morph groups</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td></td></tr>
-<tr><td>Assign parameters to a Morph group</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td></td></tr>
-<tr><td>Deassign parameters from a Morph group</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td></td></tr>
-<tr><td>Edit parameters in a Morph group</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td></td></tr>
-<tr><td>Copy a Morph group to another source</td><td style="text-align: center;">X</td><td style="text-align: center;">-</td><td></td></tr>
-<tr><td>Morph groups in separate Variations</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td></td></tr>
-<tr><td>Keyboard Morph and Pitch Stick morph</td><td style="text-align: center;">X</td><td style="text-align: center;"></td><td></td></tr>
-<tr><td>The Editor and Performances</td><td style="text-align: center;"></td><td style="text-align: center;"></td><td></td></tr>
-<tr><td>Performance mode and Patch mode</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td></td></tr>
-<tr><td>Uploading a Performance to the Editor</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td></td></tr>
-<tr><td>Creating a Performance in the Editor</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td></td></tr>
-<tr><td>Keyboard Split (Keyboard Range)</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td></td></tr>
-<tr><td>Keyboard range and G2 panel split function</td><td style="text-align: center;"></td><td style="text-align: center;"></td><td></td></tr>
-<tr><td>Combining Split and Layer</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td></td></tr>
-<tr><td>The Global Parameter Pages</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td></td></tr>
-<tr><td>Storing a Performance</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td></td></tr>
-<tr><td>Storing in the synth</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td></td></tr>
-<tr><td>Saving on the computer</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td></td></tr>
-<tr><td>Renaming single Patches in Performances</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td></td></tr>
-<tr><td>Extracting Patches from a Performance</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td></td></tr>
-<tr><td>Extract a Patch and store it in the synth</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td></td></tr>
-<tr><td>Extract a Patch and save it on the computer</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td></td></tr>
-<tr><td>Deleting Performances in the synth</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td></td></tr>
-<tr><td>Exiting Performance Mode</td><td style="text-align: center;">X</td><td style="text-align: center;">X</td><td></td></tr><tr><td></td><td></td><td></td><td></td></tr><tr><td>Patch mutator</td><td style="text-align: center;">X</td><td style="text-align: center;"></td><td></td></tr><tr><td>Patch adjuster</td><td style="text-align: center;">X</td><td style="text-align: center;"></td><td></td></tr>
-</tbody></table><br><h2>Application settings<br></h2><h2><br></h2><br><h2>Midi control of editor functions</h2>The G2
+G2-VST. So you can allow the program access through the firewall.<br>
+<br>
+After allowing the editor access, it should start and look something
+like this:<br>
+<br>
+<img style="width: 1084px; height: 702px;" alt="" src="Img/Install_nmg2_editor_3.jpg"><br>
+<br>
+<h2><a class="mozTocH2" name="mozTocId212032"></a>Feature
+list comparison</h2>
+This
+feature list is an extraction of the Clavia G2 manual. I've indicated
+with an X which functionality is already implemented in the OS editor.
+Most of the function will wok the same in the OS editor as in the
+original editor so you can use the Clavia G2 manual for these functions.<br>
+<br>
+<table style="width: 875px; height: 2465px;" border="1" cellpadding="2" cellspacing="2">
+<tbody>
+<tr>
+<td></td>
+<td style="text-align: center;">Clavia editor</td>
+<td style="text-align: center;">Open source editor</td>
+<td>Differences OS editor</td>
+</tr>
+<tr>
+<td>Runs on Windows</td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;">X</td>
+<td></td>
+</tr>
+<tr>
+<td>Runs on Max </td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;">-</td>
+<td></td>
+</tr>
+<tr>
+<td>Runs on Linux</td>
+<td style="text-align: center;">-</td>
+<td style="text-align: center;">-</td>
+<td></td>
+</tr>
+<tr>
+<td>Main screen</td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;"></td>
+<td></td>
+</tr>
+<tr>
+<td>Toolbar</td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;">X</td>
+<td>Seperate Synth toolbar and slot toolbars</td>
+</tr>
+<tr>
+<td>Perf: (name)</td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;">X</td>
+<td>On patch manager window</td>
+</tr>
+<tr>
+<td>Master Clock</td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;">X</td>
+<td>On Synth toolbar</td>
+</tr>
+<tr>
+<td>Slot buttons</td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;">X</td>
+<td>Click on slot toolbar</td>
+</tr>
+<tr>
+<td>Connection indicators</td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;">X</td>
+<td>On Synth toolbar</td>
+</tr>
+<tr>
+<td>Perf</td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;">X</td>
+<td>On patch manager window</td>
+</tr>
+<tr>
+<td>New</td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;">X</td>
+<td>File menu</td>
+</tr>
+<tr>
+<td>Init 1&amp;2</td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;">X</td>
+<td>File menu</td>
+</tr>
+<tr>
+<td>Module Group selectors</td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;">-</td>
+<td>Right click patch window to add modules, or "Add" menu</td>
+</tr>
+<tr>
+<td>Module Icons</td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;">X</td>
+<td>On add module popup</td>
+</tr>
+<tr>
+<td>Patch Load, Cycles and Memory</td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;">-</td>
+<td></td>
+</tr>
+<tr>
+<td>Undo &amp; Redo</td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;">X</td>
+<td>Only undo</td>
+</tr>
+<tr>
+<td>Color</td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;">X</td>
+<td>On Editor tools window</td>
+</tr>
+<tr>
+<td>Morph groups</td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;">X</td>
+<td></td>
+</tr>
+<tr>
+<td>Patch Name</td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;">X</td>
+<td></td>
+</tr>
+<tr>
+<td>Category</td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;">X</td>
+<td>On patch manager window</td>
+</tr>
+<tr>
+<td>Voice Mode</td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;">X</td>
+<td></td>
+</tr>
+<tr>
+<td>Variation</td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;">X</td>
+<td></td>
+</tr>
+<tr>
+<td>Var Init</td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;">X</td>
+<td></td>
+</tr>
+<tr>
+<td>Patch Level</td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;">X</td>
+<td></td>
+</tr>
+<tr>
+<td>Visible cables</td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;">X</td>
+<td>On Editor tools window</td>
+</tr>
+<tr>
+<td>Hide all cables</td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;">-</td>
+<td></td>
+</tr>
+<tr>
+<td>Shake cables</td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;">-</td>
+<td></td>
+</tr>
+<tr>
+<td>Patch window split bar</td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;">X</td>
+<td>Position isn't updated yet when switching slots</td>
+</tr>
+<tr>
+<td><br>
+</td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;"></td>
+<td></td>
+</tr>
+<tr>
+<td><br>
+</td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;"></td>
+<td></td>
+</tr>
+<tr>
+<td>Patch window popup</td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;">X</td>
+<td>Not complete yet</td>
+</tr>
+<tr>
+<td>Module popup</td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;">X</td>
+<td></td>
+</tr>
+<tr>
+<td>Parameter popup</td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;">X</td>
+<td></td>
+</tr>
+<tr>
+<td>Cable popup</td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;">X</td>
+<td></td>
+</tr>
+<tr>
+<td><br>
+</td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;"></td>
+<td></td>
+</tr>
+<tr>
+<td>Create a new empty Patch window</td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;">X</td>
+<td></td>
+</tr>
+<tr>
+<td>Add modules to a Patch</td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;">X</td>
+<td></td>
+</tr>
+<tr>
+<td>Rename a module</td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;">X</td>
+<td></td>
+</tr>
+<tr>
+<td>Move a module</td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;">X</td>
+<td></td>
+</tr>
+<tr>
+<td>Delete a module</td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;">X</td>
+<td></td>
+</tr>
+<tr>
+<td>Replace a module</td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;">-</td>
+<td></td>
+</tr>
+<tr>
+<td>Coloring a module</td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;">X</td>
+<td></td>
+</tr>
+<tr>
+<td>Connecting modules</td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;">X</td>
+<td></td>
+</tr>
+<tr>
+<td>Edit module parameters in a Patch</td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;">X</td>
+<td></td>
+</tr>
+<tr>
+<td>Voice Area and FX Area</td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;">X</td>
+<td></td>
+</tr>
+<tr>
+<td>Download a Patch to the synthesizer</td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;">X</td>
+<td>Patch manager window</td>
+</tr>
+<tr>
+<td>Store a Patch</td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;">X</td>
+<td>Patch manager window</td>
+</tr>
+<tr>
+<td>Delete a Patch</td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;">X</td>
+<td>Patch manager window</td>
+</tr>
+<tr>
+<td>Creating Patch parameter Variations</td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;">X</td>
+<td></td>
+</tr>
+<tr>
+<td>Save a Variation</td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;">X</td>
+<td></td>
+</tr>
+<tr>
+<td>Copy a Variation</td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;">X</td>
+<td></td>
+</tr>
+<tr>
+<td>Variation Init</td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;">X</td>
+<td></td>
+</tr>
+<tr>
+<td>midi control of Variations</td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;">X</td>
+<td>CC#70</td>
+</tr>
+<tr>
+<td>Knobs and controllers</td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;">X</td>
+<td></td>
+</tr>
+<tr>
+<td>The Parameter Pages window</td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;">X</td>
+<td></td>
+</tr>
+<tr>
+<td>Assign a parameter to a knob</td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;">X</td>
+<td></td>
+</tr>
+<tr>
+<td>Assign all module parameters to a set of knobs</td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;">X</td>
+<td></td>
+</tr>
+<tr>
+<td>Parameter overview window</td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;">-</td>
+<td></td>
+</tr>
+<tr>
+<td>midi controllers</td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;">X</td>
+<td></td>
+</tr>
+<tr>
+<td>Auto assign midi controllers</td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;">-</td>
+<td></td>
+</tr>
+<tr>
+<td>Morph groups</td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;">X</td>
+<td></td>
+</tr>
+<tr>
+<td>Assign parameters to a Morph group</td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;">X</td>
+<td></td>
+</tr>
+<tr>
+<td>Deassign parameters from a Morph group</td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;">X</td>
+<td></td>
+</tr>
+<tr>
+<td>Edit parameters in a Morph group</td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;">X</td>
+<td></td>
+</tr>
+<tr>
+<td>Copy a Morph group to another source</td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;">-</td>
+<td></td>
+</tr>
+<tr>
+<td>Morph groups in separate Variations</td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;">X</td>
+<td></td>
+</tr>
+<tr>
+<td>Keyboard Morph and Pitch Stick morph</td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;"></td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>The Editor and Performances</td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;"></td>
+<td></td>
+</tr>
+<tr>
+<td>Performance mode and Patch mode</td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;">X</td>
+<td></td>
+</tr>
+<tr>
+<td>Uploading a Performance to the Editor</td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;">X</td>
+<td></td>
+</tr>
+<tr>
+<td>Creating a Performance in the Editor</td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;">X</td>
+<td></td>
+</tr>
+<tr>
+<td>Keyboard Split (Keyboard Range)</td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;">X</td>
+<td></td>
+</tr>
+<tr>
+<td>Keyboard range and G2 panel split function</td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;"></td>
+<td></td>
+</tr>
+<tr>
+<td>Combining Split and Layer</td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;">X</td>
+<td></td>
+</tr>
+<tr>
+<td>The Global Parameter Pages</td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;">X</td>
+<td></td>
+</tr>
+<tr>
+<td>Storing a Performance</td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;">X</td>
+<td></td>
+</tr>
+<tr>
+<td>Storing in the synth</td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;">X</td>
+<td></td>
+</tr>
+<tr>
+<td>Saving on the computer</td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;">X</td>
+<td></td>
+</tr>
+<tr>
+<td>Renaming single Patches in Performances</td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;">X</td>
+<td></td>
+</tr>
+<tr>
+<td>Extracting Patches from a Performance</td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;">X</td>
+<td></td>
+</tr>
+<tr>
+<td>Extract a Patch and store it in the synth</td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;">X</td>
+<td></td>
+</tr>
+<tr>
+<td>Extract a Patch and save it on the computer</td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;">X</td>
+<td></td>
+</tr>
+<tr>
+<td>Deleting Performances in the synth</td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;">X</td>
+<td></td>
+</tr>
+<tr>
+<td>Exiting Performance Mode</td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;">X</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Patch mutator</td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;"></td>
+<td></td>
+</tr>
+<tr>
+<td>Patch adjuster</td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;"></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<br>
+<h2><a class="mozTocH2" name="mozTocId721952"></a>Additional
+functionality</h2>
+<br>
+<h2><a class="mozTocH2" name="mozTocId157181"></a>Midi
+control of editor functions</h2>
+The G2
 engine obviously has the disadvantage that you have no knobs and
 buttons to manipulate parameters like the G2 keys has. Of course you
 can assign midi controllers to patch parameters in the standard way,
 but you have to do that for every patch and it's a bit of a
-drag.&nbsp;Since I am an engine owner, I've been looking for ways to
+drag.&nbsp;Since I am an engine owner, I've been looking for ways
+to
 better integrate my midi controller with my engine so it works more
-like a G2 keys.<br><br>What I've come up with, I'll explain in this section, basically it's control of the editor using midi.<br><br>This
+like a G2 keys.<br>
+<br>
+What I've come up with, I'll explain in this section, basically it's
+control of the editor using midi.<br>
+<br>
+This
 has nothing to do with the standard G2 functionality of controller
 assignment to parameters, you can still do that, also with the os
 editor. These assignments are stored in the patch, and will work with
-or without your G2 connected to a computer.<br><br>The controler
+or without your G2 connected to a computer.<br>
+<br>
+The controler
 assignmenst desribed in this section only control the editor,
 specifically the parameter pages window, so these will only work when
 the G2 is connected to the computer and the editor is running. The G2
 engine will mostly be used in a studio environment, so I guess will be
-connected to a computer most of the time anyways.<br><br>I'll give the example here how I use my BCR2000 to control my engine.<br><br>First
+connected to a computer most of the time anyways.<br>
+<br>
+I'll give the example here how I use my BCR2000 to control my engine.<br>
+<br><h3><a class="mozTocH3" name="mozTocId592500"></a>Ctrl midi ports</h3><br>
+First
 you have to check which midi ports you want to use for control of the
 editor. You can assign more than one controller. The midi ports that
 are used for sending/receiving sysex from the G2 (tab Midi sysex) are
-disabled for midi control.<br><br>You can also check a midi out port,
+disabled for midi control.<br>
+<br>
+You can also check a midi out port,
 if your controler can process midi. For example, the bcr2000 has leds
 around the rotary controls and on the buttons, so by sending control
 midi from the editor to the bcr2000, the new value of the parameters
-will be indicated by the leds, if you switch between parameter pages.<br><br>Could be with some controllers that you exeperience a "midi feedback loop", in that case you beter disable the Ctrl midi out.<br><br><img style="width: 538px; height: 476px;" alt="" src="Img/ctrl_midi_1.jpg"><br><br>The
+will be indicated by the leds, if you switch between parameter pages.<br>
+<br>
+Could be with some controllers that you exeperience a "midi feedback
+loop", in that case you beter disable the Ctrl midi out.<br>
+<br>
+<img style="width: 538px; height: 476px;" alt="" src="Img/ctrl_midi_1.jpg"><br>
+<br><h3><a class="mozTocH3" name="mozTocId452168"></a>Assigning midi control to knobs &nbsp;and buttons</h3><br>The
 parameter pages window is basically a representation of the knob
 section of a G2 keys. To be able to control some more functions, I hav
 added some controls on the parameter pages window that the original
 editor doesn't have, namely a slot selection button group, variation
 selection button group and a function selection button group (params,
 global params, morphs and patch params). These controls are all "Midi
-aware".<br><br><img style="width: 585px; height: 190px;" alt="" src="Img/ctrl_midi_2.jpg"><br><br>Back
+aware".<br>
+<br>
+<img style="width: 585px; height: 190px;" alt="" src="Img/ctrl_midi_2.jpg"><br>
+<br>
+Back
 in the application settings window, tab Ctrl midi there is a button
 "Mapping". When you push that button, an informattion window will
 appear called "Editor UI midi mapping", it shows the mappings that are
@@ -185,20 +822,198 @@ already there, but also a little pink box will appear on all the
 controls in the application that are Midi aware, so these can be
 assigned to a controller. The boxes containing a number are already
 assigned. For example C45 is assigned to controller #45 and N94 is
-assigned to note #94. Boxes without a number are not assigned.<br><br><img style="width: 732px; height: 815px;" alt="" src="Img/ctrl_midi_3.jpg"><br><br>Assignment
+assigned to note #94. Boxes without a number are not assigned.<br>
+<br>
+<img style="width: 732px; height: 815px;" alt="" src="Img/ctrl_midi_3.jpg"><br>
+<br>
+Assignment
 is done by a "Midi learn" function, so turn a knob on the controller
 and then right click on the control you want to assign. A popup window
 will appear with the posible options, could be "Assign ... to ..." or
-also the option "Deassign ..." if the control already had an assignment.<br><br><img style="width: 584px; height: 189px;" alt="" src="Img/ctrl_midi_4.jpg"><br><br>If
+also the option "Deassign ..." if the control already had an assignment.<br>
+<br>
+<img style="width: 584px; height: 189px;" alt="" src="Img/ctrl_midi_4.jpg"><br>
+<br>
+If
 you choise assign the controller value will be shown in de pink box.
 Try turing the knob on the controller, the knob on the parameter pages
-should move with it.<br><br><img style="width: 584px; height: 189px;" alt="" src="Img/ctrl_midi_5.jpg"><br><br>The
+should move with it.<br>
+<br>
+<img style="width: 584px; height: 189px;" alt="" src="Img/ctrl_midi_5.jpg"><br>
+<br>
+The
 nice thing about it is, that if you switch to another parameter page,
 the parameter under the knob will change but the knob will still be
-assigned to the same CC (CC#40 in this case), just like on the G2 keys.<br><br><img style="width: 584px; height: 189px;" alt="" src="Img/ctrl_midi_6.jpg"><br><br>You can also assign button or note controllers to the buttons and buttongroups, also using the midi learn function.<br><br><h3>BCR settings</h3>I'll
+assigned to the same CC (CC#40 in this case), just like on the G2 keys.<br>
+<br>
+<img style="width: 584px; height: 189px;" alt="" src="Img/ctrl_midi_6.jpg"><br>
+<br>
+You can also assign button or note controllers to the buttons and
+buttongroups, also using the midi learn function.<br>
+<br>
+<h3><a class="mozTocH3" name="mozTocId383003"></a>BCR
+settings</h3>
+I'll
 give an example how I set up my BCR. Maybe there are better ways, but
-it's mainly to show&nbsp;you have to setup the buttons a certain way so
-the midi feedback function will work properly.<br><img style="width: 696px; height: 257px;" alt="" src="Img/ctrl_midi_bcr2000_1.jpg"><br>&nbsp; &nbsp; &nbsp; &nbsp;<img style="width: 673px; height: 366px;" alt="" src="Img/ctrl_midi_bcr2000_2.jpg"><br><br><table style="text-align: left; width: 100%;" border="1" cellpadding="2" cellspacing="2"><tbody><tr><td>Button group</td><td>Midi Data Type</td><td>Channel</td><td>Parameter</td><td>Value1</td><td>Value2</td><td>Controller MODE</td><td>Controller Option</td><td>Display function</td><td>G2 Function</td></tr><tr><td colspan="10" rowspan="1">Encoder group 1 (Buttons 4)</td></tr><tr><td>Rotary encoders (1)</td><td>CC</td><td>1</td><td>40..47</td><td>0</td><td>127</td><td>ABS</td><td>Bar</td><td>On</td><td>Parameter pages Knobs</td></tr><tr><td>Buttons (2) Top row</td><td>CC</td><td>1</td><td>48..55</td><td>127</td><td>0</td><td>T ON</td><td>- </td><td>On</td><td>Parameter pages buttons</td></tr><tr><td>Buttons (2) Bottom row 1..5</td><td>CC</td><td>1</td><td>32..36</td><td>127</td><td>0</td><td>T ON</td><td>- </td><td>On</td><td>Select param page</td></tr><tr><td>Buttons (2) Bottom row 6..8</td><td>CC</td><td>1</td><td>37..39</td><td>127</td><td>0</td><td>T ON</td><td>- </td><td>On</td><td>Select param page column</td></tr><tr><td>Push function encoders (8)</td><td>CC</td><td>1</td><td>56..63</td><td>127</td><td>0</td><td>T ON</td><td>- </td><td>On</td><td>Select variation</td></tr><tr><td>Buttons (9) </td><td>CC</td><td>1</td><td>105..108</td><td>127</td><td>0</td><td>T ON</td><td>- </td><td>On</td><td>Select param page function (params, global, morph patch)</td></tr><tr><td colspan="10" rowspan="1">Encoder group 2 (Buttons 4)</td></tr><tr><td colspan="10" rowspan="1">(Is a copy of encoder group 1, only different function for the push function of the encoders)</td></tr><tr><td>Push function encoders (8) 1..4</td><td>CC</td><td>1</td><td>101..104</td><td>127</td><td>0</td><td>T ON</td><td>- </td><td>On</td><td>Select slot</td></tr><tr><td>Push function encoders (8) 5</td><td>CC</td><td>1</td><td>60</td><td>127</td><td>0</td><td>T ON</td><td>- </td><td>On</td><td>Patch manager Enable slot on/off</td></tr><tr><td>Push function encoders (8) 6</td><td>CC</td><td>1</td><td>61</td><td>127</td><td>0</td><td>TON</td><td>-</td><td>On</td><td>Patch manager slot keyboard on/off</td></tr><tr><td>Push function encoders (8) 7</td><td>CC</td><td>1</td><td>62</td><td>127</td><td>0</td><td>T ON</td><td>-</td><td>On</td><td>Patch manager slot Hold on/off</td></tr></tbody></table><br><h2>Patch manager</h2>The
+it's mainly to show&nbsp;you have to setup the buttons a certain
+way so
+the midi feedback function will work properly.<br>
+<img style="width: 696px; height: 257px;" alt="" src="Img/ctrl_midi_bcr2000_1.jpg"><br>
+&nbsp; &nbsp; &nbsp; &nbsp;<img style="width: 673px; height: 366px;" alt="" src="Img/ctrl_midi_bcr2000_2.jpg"><br>
+<br>
+<table style="text-align: left; width: 100%;" border="1" cellpadding="2" cellspacing="2">
+<tbody>
+<tr>
+<td>Button group</td>
+<td>Midi Data Type</td>
+<td>Channel</td>
+<td>Parameter</td>
+<td>Value1</td>
+<td>Value2</td>
+<td>Controller MODE</td>
+<td>Controller Option</td>
+<td>Display function</td>
+<td>G2 Function</td>
+</tr>
+<tr>
+<td colspan="10" rowspan="1">Encoder group 1
+(Buttons 4)</td>
+</tr>
+<tr>
+<td>Rotary encoders (1)</td>
+<td>CC</td>
+<td>1</td>
+<td>40..47</td>
+<td>0</td>
+<td>127</td>
+<td>ABS</td>
+<td>Bar</td>
+<td>On</td>
+<td>Parameter pages Knobs</td>
+</tr>
+<tr>
+<td>Buttons (2) Top row</td>
+<td>CC</td>
+<td>1</td>
+<td>48..55</td>
+<td>127</td>
+<td>0</td>
+<td>T ON</td>
+<td>- </td>
+<td>On</td>
+<td>Parameter pages buttons</td>
+</tr>
+<tr>
+<td>Buttons (2) Bottom row 1..5</td>
+<td>CC</td>
+<td>1</td>
+<td>32..36</td>
+<td>127</td>
+<td>0</td>
+<td>T ON</td>
+<td>- </td>
+<td>On</td>
+<td>Select param page</td>
+</tr>
+<tr>
+<td>Buttons (2) Bottom row 6..8</td>
+<td>CC</td>
+<td>1</td>
+<td>37..39</td>
+<td>127</td>
+<td>0</td>
+<td>T ON</td>
+<td>- </td>
+<td>On</td>
+<td>Select param page column</td>
+</tr>
+<tr>
+<td>Push function encoders (8)</td>
+<td>CC</td>
+<td>1</td>
+<td>56..63</td>
+<td>127</td>
+<td>0</td>
+<td>T ON</td>
+<td>- </td>
+<td>On</td>
+<td>Select variation</td>
+</tr>
+<tr>
+<td>Buttons (9) </td>
+<td>CC</td>
+<td>1</td>
+<td>105..108</td>
+<td>127</td>
+<td>0</td>
+<td>T ON</td>
+<td>- </td>
+<td>On</td>
+<td>Select param page function (params, global, morph patch)</td>
+</tr>
+<tr>
+<td colspan="10" rowspan="1">Encoder group 2
+(Buttons 4)</td>
+</tr>
+<tr>
+<td colspan="10" rowspan="1">(Is a copy of
+encoder group 1, only different function for the push function of the
+encoders)</td>
+</tr>
+<tr>
+<td>Push function encoders (8) 1..4</td>
+<td>CC</td>
+<td>1</td>
+<td>101..104</td>
+<td>127</td>
+<td>0</td>
+<td>T ON</td>
+<td>- </td>
+<td>On</td>
+<td>Select slot</td>
+</tr>
+<tr>
+<td>Push function encoders (8) 5</td>
+<td>CC</td>
+<td>1</td>
+<td>60</td>
+<td>127</td>
+<td>0</td>
+<td>T ON</td>
+<td>- </td>
+<td>On</td>
+<td>Patch manager Enable slot on/off</td>
+</tr>
+<tr>
+<td>Push function encoders (8) 6</td>
+<td>CC</td>
+<td>1</td>
+<td>61</td>
+<td>127</td>
+<td>0</td>
+<td>TON</td>
+<td>-</td>
+<td>On</td>
+<td>Patch manager slot keyboard on/off</td>
+</tr>
+<tr>
+<td>Push function encoders (8) 7</td>
+<td>CC</td>
+<td>1</td>
+<td>62</td>
+<td>127</td>
+<td>0</td>
+<td>T ON</td>
+<td>-</td>
+<td>On</td>
+<td>Patch manager slot Hold on/off</td>
+</tr>
+</tbody>
+</table>
+<br>
+<h2><a class="mozTocH2" name="mozTocId149759"></a>Patch
+manager</h2>
+The
 patch manager gives a visual representation of all the memory locations
 of the G2 that can hold patches or performances. The top section
 consists of five slots, one for a performance and four patch slots,
@@ -206,15 +1021,25 @@ these reprsent the working areas of the G2. The bottom section shows 8
 performance tabs and 32 patch tabs with each 128 locations that
 represent the internal memory of the G2. In between the working areas
 and the memory locations are a number of controls, that basically are
-the performance settings of the G2.<br><br>The idea is that you can
+the performance settings of the G2.<br>
+<br>
+The idea is that you can
 drag patches and performances around between memory and working area
 and also that you have all the controls on one window to quickly
-audition patches and assemble a performance. <br><br><img style="width: 648px; height: 656px;" alt="" src="Img/patch_manager_1.jpg"><br><br>To
+audition patches and assemble a performance. <br>
+<br>
+<img style="width: 648px; height: 656px;" alt="" src="Img/patch_manager_1.jpg"><br>
+<br>
+To
 give you an example of how this works, I'll assemble a performance.
 First right click on the performance slot and select "Init performance"
 to create a new empty performance. You can see that you also have the
 options to load and save the current performance from and to disk in
-this popup menu and to rename the performance.<br><br><img style="width: 399px; height: 349px;" alt="" src="Img/patch_manager_2.jpg"><br><br>Then,
+this popup menu and to rename the performance.<br>
+<br>
+<img style="width: 399px; height: 349px;" alt="" src="Img/patch_manager_2.jpg"><br>
+<br>
+Then,
 in de memory section I select the tab patches, and drag a couple of
 patches to the empty slots. So in this case I want to layer two pads
 and assign them to the upper part of the keyboard and I want to have a
@@ -222,51 +1047,801 @@ base sound on de lower part. So I drag a pad to slot A and B and a base
 sound to slot C. Then I put "Keyb. range" on. Then I select slot A,
 make sure that "Keyb." is on and with shift key held down I select the
 upper part of the keyboard (keys turn blue). Same with slot B. For slot
-C I select the lower part of the keyboard.<br><br>The keyboard control has a double function here, you kan use it to select a keyboard range for the slot, or to play notes.<br><br>The
+C I select the lower part of the keyboard.<br>
+<br>
+The keyboard control has a double function, you kan use it to
+select a keyboard range for the slot, or to play notes.<br>
+<br>
+The
 patch category row (with all the different colors) also has a double
 function, it's color shows what category patch s stored in all the
 different memory locations, but you can also drag a categroy over a
-slot, to assign the patch in that slot to the category.<br><br><img style="width: 647px; height: 475px;" alt="" src="Img/patch_manager_3.jpg"><br><br>So
+slot, to assign the patch in that slot to the category.<br>
+<br>
+<img style="width: 647px; height: 475px;" alt="" src="Img/patch_manager_3.jpg"><br>
+<br>
+So
 after I have assembled the performace, I rename it using the right
-click popup menu and drag it to a performance memory location.<br><br><img style="width: 647px; height: 470px;" alt="" src="Img/patch_manager_4.jpg"><br><br>If
+click popup menu and drag it to a performance memory location.<br>
+<br>
+<img style="width: 647px; height: 470px;" alt="" src="Img/patch_manager_4.jpg"><br>
+<br>
+If
 you right click on the memory section, you also get a popup menu with a
 number of functions. You can upload the patch in that memory location
 to the different slots. You can save the complete bank to disk or
 restore the bank from disk. You can clear the memory location or clear
-the entire memory bank.<br><br><img style="width: 647px; height: 656px;" alt="" src="Img/patch_manager_5.jpg"><br><br>I'll show here how you can save a bank by uploading it to disk and restore it againg by downloading it to the G2.<br><br>If
+the entire memory bank.<br>
+<br>
+<img style="width: 647px; height: 656px;" alt="" src="Img/patch_manager_5.jpg"><br>
+<br>
+I'll show here how you can save a bank by uploading it to disk and
+restore it againg by downloading it to the G2.<br><br><h3><a class="mozTocH3" name="mozTocId450697"></a>Upload bank to disk</h3>
+<br>
+If
 you choose "Upload bank to disk", you will be shown a file save dialog,
 to save the patch list. It is best to reseve an empty folder for this
 patch list file, because apart from the patch list, all patches will be
-saved in this folder too.<br><br><img style="width: 1073px; height: 649px;" alt="" src="Img/patch_manager_6.jpg"><br><br>So after saving it, the folder will hold a patchlist file and all the patches.<br><br><img style="width: 667px; height: 418px;" alt="" src="Img/patch_manager_7.jpg"><br><br>To
+saved in this folder too.<br>
+<br>
+<img style="width: 1073px; height: 649px;" alt="" src="Img/patch_manager_6.jpg"><br>
+<br>
+So after saving it, the folder will hold a patchlist file and all the
+patches.<br>
+<br>
+<img style="width: 667px; height: 418px;" alt="" src="Img/patch_manager_7.jpg"><br>
+<br><h3><a class="mozTocH3" name="mozTocId182571"></a>Download bank to G2</h3>To
 restore the bank, first select the bank number to which you want to
 restore, right click to open the popup menu and select "Download bank
-to G2".<br><br><img style="width: 647px; height: 524px;" alt="" src="Img/patch_manager_8.jpg"><br><br>You will get a lload file dialog, in which you have to select the patch list file that you want to restore,<br><br><img style="width: 692px; height: 497px;" alt="" src="Img/patch_manager_9.jpg"><br><br>You
+to G2".<br>
+<br>
+<img style="width: 647px; height: 524px;" alt="" src="Img/patch_manager_8.jpg"><br>
+<br>
+You will get a lload file dialog, in which you have to select the patch
+list file that you want to restore,<br>
+<br>
+<img style="width: 692px; height: 497px;" alt="" src="Img/patch_manager_9.jpg"><br>
+<br>
+You
 will get a warning message. The patches will be restored starting from
 location one. So if the patch list contains 30 patches, the first 30
 memory locations will be overwritten. Contrary to the G2 bank restore
 function, the rest of the bank locations will not be cleared. If you
 want that, you have to clear the target bank before restoring the patch
-list.<br><br><img style="width: 647px; height: 444px;" alt="" src="Img/patch_manager_11.jpg"><br><br>After pressing Ok, you will see an hourglass for a minute, than the bank will be restored.<br><br><img style="width: 648px; height: 513px;" alt="" src="Img/patch_manager_10.jpg"><br><br><h2>Patch browser</h2><br>The
+list.<br>
+<br>
+<img style="width: 647px; height: 444px;" alt="" src="Img/patch_manager_11.jpg"><br>
+<br>
+After pressing Ok, you will see an hourglass for a minute, than the
+bank will be restored.<br>
+<br>
+<img style="width: 648px; height: 513px;" alt="" src="Img/patch_manager_10.jpg"><br>
+<br>
+<h2><a class="mozTocH2" name="mozTocId978001"></a>Patch
+browser</h2>
+<br>
+The
 patch browser is a utility for searching through your performance and
 patch library on disk. You can also use it to search through the
-patches/performances in internal memory of the G2 in simple listform.<br><br>To
+patches/performances in internal memory of the G2 in simple list form.<br>
+<br>
+To
 use the browser you first have to enter the "root folder" of you patch
 library on disk in the "Application settings" window. When searching
 for patches and performances the browser will search through all the
-subfolders of the rootfolder recursively.<br><br><img style="width: 528px; height: 466px;" alt="" src="Img/patch_browser_1.jpg"><br><br>When you open the patch browser you'll see four tabs:<br><br>- Perf. (disk) : this will list all performances on disk, relative to the root folder<br>- Patch (disk) : this will list all patches on disk, relative to the root folder<br>- Perf : the peformances in the G2's internal memory<br>- Patch : the patches in the G2's internal memory<br><br>When you click on the list header (Patch file, Date, Path...), the list will be sorted according to that column.<br><br>When
-you double click a patch or performance or press Enter, the patch or
+subfolders of the rootfolder recursively.<br>
+<br>
+<img style="width: 528px; height: 466px;" alt="" src="Img/patch_browser_1.jpg"><br>
+<br>
+If you open the patch browser you'll see four tabs:<br>
+<br>
+- Perf. (disk) : this will list all performances on disk, relative to
+the root folder<br>
+- Patch (disk) : this will list all patches on disk, relative to the
+root folder<br>
+- Perf : the peformances in the G2's internal memory<br>
+- Patch : the patches in the G2's internal memory<br>
+<br>
+If you click on the list header (Patch file, Date, Path...), the list
+will be sorted according to that column.<br>
+<br>
+If you double click a patch or performance or press Enter, the patch or
 performance will be loaded in the G2. Patches are loaded into the
-currently selected slot.<br><br><img style="width: 656px; height: 438px;" alt="" src="Img/patch_browser_2.jpg"><br><br>There
+currently selected slot.<br>
+<br>
+<img style="width: 656px; height: 438px;" alt="" src="Img/patch_browser_2.jpg"><br>
+<br>
+There
 is also an option for parsing the patches on disk, so that some extra
 information can be extracted from the patch and shown in the list. For
-this you have check the checkbox&nbsp;"Parse patches". An extra four
-columns will appear in the list:<br><br>- ParseMsg : when an error occurse while parsing the patch, this will be shown in this column<br>- Version : the version of the patch file<br>- Category : the patch category<br>- Patch notes : patch notes, if any, will be shown in this column<br><br>This function only works for patches at the moment.<br><br><img style="width: 638px; height: 438px;" alt="" src="Img/patch_browser_3.jpg"><br><br>Another
+this you have check the checkbox&nbsp;"Parse patches". An extra
+four
+columns will appear in the list:<br>
+<br>
+- ParseMsg : when an error occurse while parsing the patch, this will
+be shown in this column<br>
+- Version : the version of the patch file<br>
+- Category : the patch category<br>
+- Patch notes : patch notes, if any, will be shown in this column<br>
+<br>
+This function only works for patches at the moment, not for
+performances.<br>
+<br>
+<img style="width: 638px; height: 438px;" alt="" src="Img/patch_browser_3.jpg"><br>
+<br>
+Another
 option is to filter the patches that have certain modules in them, for
-example if you are searching patches for an example how to use the
-FilterPhase in combination with a FreqShift, you can select these
+example if you are searching for examples how to use the
+"Filter phase" in combination with a "Freq shift", you can select these
 modules using the button "Select modules". An selection window will
-appear in which you can check&nbsp;modules that have to be used in a
-patch, then press Ok.<br><br><img style="width: 663px; height: 485px;" alt="" src="Img/patch_browser_4.jpg"><br><br>The
-patchbrowser will parse all patches relative to the rootfolder
+appear. Check the modules that must be present in the result patches,
+then press Ok.<br>
+<br>
+<img style="width: 663px; height: 485px;" alt="" src="Img/patch_browser_4.jpg"><br>
+<br>
+The
+patchbrowser will parse all patches relative to the root folder
 containing a FltPhase and a FreqShift module, resulting in 29 patches
-in this example. <br><br><img style="width: 638px; height: 438px;" alt="" src="Img/patch_browser_5.jpg"><br><br><br><br><br><br>G2 VST<br><br><br><br>Remote control<br><br><br>Extra modules, driver and resonator<br><br><br>JAWS compatibility<br><br><br>Message log <br><br><br><br>The source forge site<br><br>Application developement<br><br><br><br><br><br><br><br><br><br><br><br></body></html>
+in this example. <br>
+<br>
+<img style="width: 638px; height: 438px;" alt="" src="Img/patch_browser_5.jpg"><br>
+<br>
+<h2><a class="mozTocH2" name="mozTocId363909"></a>G2
+VST</h2>
+<br>
+The
+G2 VST is a Steinberg virtual instrument for use in a DAW, for example
+Cubase or Ableton. The benefit of a Vst is that you can embed G2
+patches and all paramers into the DAW project, so if you reload a
+project in your DAW, all G2 patches and parameters will be restored
+automatically also.&nbsp; Of course you can also
+automate parameter changes. <br>
+<br>
+In order to communicate with the
+G2 from within a DAW, there has to be some way of access to the USB
+interface. My first attempt was to give the VST it's own USB interface,
+but I because of complexity and stability issues I've chosen another
+approach: the VST will comunicate with the OS editor using a TCP
+connection and the editor will forward these messages using the USB
+interface.<br>
+<br>
+This approach has a number of advantages:<br>
+<br>
+- The G2 VST user interface can be kept simple (no patch editing in the
+VST)<br>
+- You can edit patches in the editor and these changes will be
+automatically reflected in the VST and vice versa.<br>
+<br>
+One thing you have to keep in mind though:<br>
+<br>
+- Before starting your DAW, you first have to start the OS editor!<br>
+<br>
+The VST has only been testen for Cubase and Ableton for the moment.<br>
+<h3><a class="mozTocH3" name="mozTocId976409"></a>Installation
+of the VST</h3>
+<br>
+The installation of the VST is fairly simple, you have to copy these
+three files to your DAW's VST folder:<br>
+<br>
+- G2_vst_D2011.dll<br>
+- ModuleDef.xml<br>
+- ParamDef.xml<br>
+<br>
+<img style="width: 722px; height: 290px;" alt="" src="Img/G2_VST_installation.jpg"><br>
+<br>
+The "ModuleDef.xml" and "ParamDef.xml" are needed for the editor also,
+so don't move them, but copy them.<br>
+<br>
+<h3><a class="mozTocH3" name="mozTocId882961"></a>Setup
+of the VST and editor</h3>
+The
+VST and the editor have to communicate with each other, so we have to
+set up a port and a TCP-IP address, this is done in the "Application
+setings" dialog of the editor, tab "TCP-IP".<br>
+<br>
+First of all, there
+is a checkbox "Is server". If checked, then the editor is setup as a
+server and the VST can connect with it as a client. So this checkbox
+should be checked.<br>
+<br>
+Next there is a Port setting. The default
+setting of the port is 2501. It could be however that port 2501 is
+already in use on your computer. You will get an error message like
+"Could not bind socket. Adress and port already in use." on startup of
+the editor. In that case you will have to change it to someting else,
+for example 2502. After changing the port number, restart the editor!<br>
+<br>
+Next,
+the "Host" setting will be disabled, because you can only change this
+setting if the editor is not setup as a server (see section "Remote
+control").<br>
+<br>
+If you had to change the port setting, than you have
+to create an "Ini - file" for the VST, because the VST also has the
+default port setting of 2501 build in. So, if for example, you changed
+the port to 2502, press the button and an ini-file will be created in
+the same folder as where the editor exe file is located.<br>
+<br>
+<br>
+<img style="width: 538px; height: 476px;" alt="" src="Img/G2_VST_setup.jpg"><br>
+<br>
+Copy the file "G2_VST_ini.xml" also to your DAW's VST folder.<br>
+<br>
+<img style="width: 723px; height: 314px;" alt="" src="Img/G2_VST_setup_2.jpg"><br>
+<br>
+<h3><a class="mozTocH3" name="mozTocId885397"></a>G2
+VST functionality</h3>
+So
+now start the OS edtor, if you haven't started it alread and start your
+DAW, there should be a VST present named "G2_vst_D2011".<br>
+<br>
+<img style="width: 1036px; height: 544px;" alt="" src="Img/G2_VST_1.jpg"><br>
+<br>
+which means If you activate the G2 VST, you will see an user interface
+that's basically the global parameter pages of the editor, including
+four slots with variation controls. If all has gone well, the bottom
+bar will show your TCP-IP settings and the text "Online" which means
+that there is a&nbsp;connection with the editor. There could also
+be an
+error message here, if for example the TCP-IP settings are not set up
+correctly.<br>
+<br>
+<img style="width: 893px; height: 462px;" alt="" src="Img/G2_VST_2.jpg"><br>
+<br>
+On the top bar of the editor you will see that there
+is&nbsp;currently one client connected. <br>
+<br>
+<img style="width: 674px; height: 331px;" alt="" src="Img/G2_VST_3.jpg"><br>
+<br>
+If
+you would try to close the editor at this point, you will get a
+warning:
+"There are 1 G2 clients connected to this server, do you really want to
+close the connection?". Because the G2 VST cannot operate without the
+editor running.<br>
+<br>
+<img style="width: 684px; height: 404px;" alt="" src="Img/G2_VST_4.jpg"><br>
+<br>
+Next load a patch in a slot. <br>
+<br>
+<img style="width: 689px; height: 434px;" alt="" src="Img/G2_VST_5.jpg"><br>
+<br>
+The name of the patch will appear in the corresponding slot of the VST.<br>
+<br>
+<img style="width: 821px; height: 359px;" alt="" src="Img/G2_VST_6.jpg"><br>
+<br>
+Assign the parameters of a module to a <span style="font-weight: bold;">Global</span> parameter
+page.<br>
+<br>
+<img style="width: 729px; height: 563px;" alt="" src="Img/G2_VST_7.jpg"><br>
+<br>
+The parameters will appear on the knobs of the VST.<br>
+<br>
+<img style="width: 834px; height: 353px;" alt="" src="Img/G2_VST_8.jpg"><br>
+<br>
+Now
+to automate parameters, that may be depended of the type of DAW you are
+using. I'll give the example of how it's done in Ableton. For example I
+want to automate variation changes and parameter Freq and FilterType.<br>
+<br>
+On the ableton VST window I have to press the "configure" button.<br>
+<br>
+<img style="width: 939px; height: 425px;" alt="" src="Img/G2_VST_9.jpg"><br>
+<br>
+And then, push or change the button or knob you want to be able to
+automate, these will the appear in the Ableton VST window.<br>
+<br>
+<img style="width: 942px; height: 424px;" alt="" src="Img/G2_VST_10.jpg"><br>
+<br>
+After that you can just automate them as with any other VST or Ableton
+instrument.<br>
+<br>
+<img style="width: 769px; height: 541px;" alt="" src="Img/G2_VST_11.jpg"><br>
+<br>
+Any
+change you make in the editor will automatically be changed in the VST
+also. For saving the patch in your DAW project, you don't have to do
+anything special, just save the project.<br>
+<br>
+<img style="width: 871px; height: 702px;" alt="" src="Img/G2_VST_12.jpg"><br>
+<br>
+On reloading the project, the patch will be restored in the editor
+automatically.<br>
+<br>
+<h2><a class="mozTocH2" name="mozTocId413619"></a>Remote
+control</h2>
+<br>
+In
+stead of a VST as a client to an editor acting as a server, you can
+also connect an other editor as a client. This functionality is still a
+bit experimental, but it could be used in future to run an editor on a
+wireless device like a tablet. <br>
+<br>
+<h3><a class="mozTocH3" name="mozTocId420075"></a>Setup
+of the server editor</h3>
+The
+server must have an USB connection to the G2. The setup of the server
+is basically the same as with the VST, so in the application settings
+dialog, tab TCP-IP, the checkbox "Is server" should be checked and a
+TCP-IP port should be specified. <br>
+<br>
+You should also set the
+parameter "Broadcast leds interval (ms)", this limits the amount of led
+and volume indicator messages that the server receives from the G2 and
+broadcasts over the network to connected clients. This stream of
+messages is to big for most wireless networks to handle, so by setting
+the value to for example 500ms, the server will only broadcast the led
+and volume indicator messages every 500ms and throw away all the
+messages in between.<br>
+<br>
+<img style="width: 528px; height: 466px;" alt="" src="Img/remote_control_1.jpg"><br>
+<br>
+<h3><a class="mozTocH3" name="mozTocId151692"></a>Setup
+of the client editor</h3>
+<br>
+To
+test this functionality you could make a copy of the os editor folder,
+and in the copied folder edit the "G2_editor_ini.xml" file manually,
+for example in Notepad. <br>
+<br>
+<img style="width: 722px; height: 375px;" alt="" src="Img/remote_control_2.jpg"><br>
+<br>
+Change the setting "Is server" to "False" in the ini file.<br>
+<br>
+<img style="width: 860px; height: 275px;" alt="" src="Img/remote_control_3.jpg"><br>
+<br>
+If
+the server editor is running, you can now start the copied editor setup
+as a client. Every action you do in the one editor should be mirrored
+in the other editor.<br>
+<br>
+<img style="width: 1594px; height: 555px;" alt="" src="Img/remote_control_4.jpg"><br>
+<br>
+The TCP-IP settings of the client in this example are<br>
+<br>
+- Port = 2502<br>
+- Host = 127.0.0.1 (local host)<br>
+<br>
+If
+the client and server are running on different computers, the Host
+value should be changed to the IP-adress of the server computer in the
+network.<br>
+<br>
+<h2><a class="mozTocH2" name="mozTocId604559"></a>System
+exclusive operation</h2>
+If
+for some reason or another there is no USB connection set up between
+editor and G2, there is still some functionality available using MIDI
+and system exclusive messages (sysex). You can upload and download
+patches and performances from and to the G2 and you can even build new
+patches.<br>
+<br>
+If
+you start the editor without the Libusb-win32 driver installed you will
+get a message "libusv0.dll not found, USB functions are disabled".<br>
+<br>
+<img style="width: 320px; height: 152px;" alt="" src="Img/sysex_operation_1.jpg"><br>
+<br>
+And then another message saying "No g2 device found".<br>
+<br>
+<img style="width: 170px; height: 154px;" alt="" src="Img/sysex_operation_2.jpg"><br>
+<br>
+Nonetheless, the editor will start, the editor will be offline as
+indicated by the&nbsp;checkbox. <br>
+<br>
+<img style="width: 745px; height: 370px;" alt="" src="Img/sysex_operation_3.jpg"><br>
+<br>
+So
+first the midi ports for Sysex communication must be set up, this is
+done in the "Application settings" dialog, tab "Midi sysex". These are
+the midi ports that are connected to the physical midi in and midi out
+ports of the G2.<br>
+<br>
+<img style="width: 537px; height: 475px;" alt="" src="Img/sysex_operation_4.jpg"><br>
+<br>
+<span style="font-style: italic;">WARNING
+: Some midi devices can only be accessed by one application at a time.
+So if for example you tried to connect such a device in the editor and
+it's also already used by your DAW. the editor might freeze up. The
+"Midisport" I'm using here can be accessed by multiple applications at
+once.</span><br style="font-style: italic;">
+<br>
+So After the Midi sysex
+ports are set up, sysex communiction must be possible between editor
+and G2. For easy access to the sysex functions, they are mapped to the
+function keys F1...F6<br>
+<br>
+F1 - Get the active patch<br>
+F2 - Get the active performance<br>
+F3 - Get a patch from a bank<br>
+F4 - Get a performance from a bank<br>
+F5 - &nbsp;Send patch sysex<br>
+F6 - Send performance sysex<br>
+<br>
+<img style="width: 744px; height: 344px;" alt="" src="Img/sysex_operation_5.jpg"><br>
+<br>
+Working this way with the editor is a bit like groping in the dark, but
+I'll give an example how it works here.<br>
+<br>
+So
+by pressing F1 the currently active patch for the slot is uploaded from
+the G2 to the editor. In this case it's an empty patch, so nothing much
+happens,. I only see the volume indicator moving and the patch name
+going blanc.<br>
+<br>
+<img style="width: 756px; height: 398px;" alt="" src="Img/sysex_operation_6.jpg"><br>
+<br>
+So
+next I patch up some modules, making sure it will make a sound, and the
+press F5. There should be some noise comming out of the speakers.<br>
+<br>
+<img style="width: 739px; height: 502px;" alt="" src="Img/sysex_operation_7.jpg"><br>
+<br>
+I
+can turn a knob, but the change will only be heard after I press F5
+again, same thing if I would increase the number of voices in the patch.<br>
+<br>
+<img style="width: 733px; height: 451px;" alt="" src="Img/sysex_operation_8.jpg"><br>
+<br>
+You
+get the idea, so basic patching functions are still possible using only
+sysex. Sysex mesages can be viewed using the message log, see section
+"Message log"<br>
+<br>
+<img style="width: 817px; height: 688px;" alt="" src="Img/sysex_operation_11.jpg"><br>
+<br>
+<br>
+<h2><a class="mozTocH2" name="mozTocId189459"></a>Extra
+modules: driver and resonator</h2>
+While
+working on the editor I discovered a couple of modules that are present
+in the G2 firmware but not in the original Clavia G2 editor. I have
+added these modules to the OS editor, you will find them in the
+oscillator group the one is called "Driver" and the other "Resonator".<br>
+<br>
+<img style="width: 768px; height: 840px;" alt="" src="Img/driver_resonator_1.jpg"><br>
+<br>
+I'm
+afraid I'm not much help explaining these modules, because I'm
+not an expert in music theory. Hopefully people will start to use these
+modules and we can learn there full potentional. Here is a little
+example I put together. The driver/resonator pair is mostly used to
+simulate acoustic instruments, you can also get some reverb like sounds
+out of them. I'd say, just experiment!<br>
+<br>
+<img style="width: 739px; height: 582px;" alt="" src="Img/driver_resonator_2.jpg"><br>
+<br>
+If
+you save patches or performances containing these modules, the editor
+will add an "x" to the file externsion, so patches with these modules
+will be saved with the extension ".pch2x" and performances with
+".prf2x". This is to prevent&nbsp;association of these files with
+the
+original Clavia editor. The original Clavia editor considers patches
+containing these modules as corrupt. <br>
+<br>
+<br>
+<h2><a class="mozTocH2" name="mozTocId453035"></a>Shortcut keys and JAWS compatibility</h2>
+<br>
+The JAWS compatibility&nbsp;is someting I started together with a blind musician, this
+functionality however is only in it's experimental stage. It will need
+a lot more research and also some new ideas to make this work. I think
+it would be a great project &nbsp;for some student or university to
+undertake. The challenge is how to build a user interface to facilliate
+a blind person to make or analyse something as complex as a G2 patch.
+With a real modular system you can at least feel your way around the
+system and build a kind of mental picture how the patch is layed out,
+with the G2 there is only a picture on a monitor.<br>
+<br>
+There is&nbsp;software available that reads out screen content or
+puts it on a braille reader, for example "JAWS". This screen reading
+software recognizes Windows objects, like edit boxes, comboboxes,
+checkboxes, menus etc. and extracts text from it that it reads out or
+puts on a braille reader. So if your software is build out of Windows
+objects, it should, in theory, be JAWS compatible.<br>
+<br>
+Unfortunately, in the editor, the whole patch area is pure graphical,
+no Windows objects. So to make the editor more JAWS compatible I've
+added a number of menu's and popup menu's. These menu's are Windows
+objects so are JAWS compatible.<br>
+<br>
+The important parts of the user interface are described in the following sections : application
+layout,&nbsp; the shortcut keys and the menu's.<br>
+<h3><a class="mozTocH3" name="mozTocId40639"></a>Application layout</h3>
+The application is layed out as follows, from top to bottom:<br>
+<ol>
+<li>Main menu bar</li>
+<li>Application settings bar, with the following controls:</li>
+<ol style="list-style-type: lower-alpha;">
+<li>Online checkbox, indicates if the USB connection with the
+G2 Synth is active</li>
+<li>Clients connected, indicates if VST's or other editors
+are connected to this editor</li>
+<li>Master clock (not Jaws compatible)</li>
+<li>G2 synth selection radio button. If multiple G2's are
+connected with the editor (not Jaws compatible)</li>
+</ol>
+<li>Settings bar slot A (not Jaws compatible)</li>
+<li>Settings bar slot B (not Jaws compatible)</li>
+<li>Settings bar slot C (not Jaws compatible)</li>
+<li>Settings bar slot D (not Jaws compatible)</li>
+<li>Patch location VA (see clavia documentation)</li>
+<li>Splitter</li>
+<li>Patch location FX (see clavia documentation)</li>
+<li>Status bar</li>
+</ol>
+<h3><a class="mozTocH3" name="mozTocId271333"></a>Shortcut keys and menu's</h3>
+The shortcut keys and for the most part the same as in the original
+clavia edtor. <br>
+Some shortcut keys and a number of popup menus are added to be
+comapitble with "Jaws" screenreading software.<br>
+A number of sections and dialogs in the application are not Jaws
+compaitble at the moment.<br>
+<br>
+<span style="text-decoration: underline; font-weight: bold;">Important:</span><br>
+<br>Menu's containing pictures or icons are not read out by Jaws. So
+for compatibility of Jaws, in the Application settings dialog,&nbsp;tab
+"Editor" the checkbox "Only text menus" should be checked.<br>
+<br><img style="width: 538px; height: 476px;" alt="Application menu, tab Editor, checkbox &quot;Only text menus&quot; should be checked" src="Img/JAWS_1.jpg"><br><br>
+<table border="1" cellpadding="2" cellspacing="2" width="100%">
+<tbody>
+<tr style="font-weight: bold;">
+<td colspan="2" rowspan="1">File Menu</td>
+
+</tr>
+<tr>
+<td>There are no shortcuts in the file menu.</td>
+<td></td>
+</tr>
+<tr><td></td><td></td></tr><tr style="font-weight: bold;">
+<td colspan="2" rowspan="1">Edit menu and shortcuts</td>
+
+</tr>
+<tr>
+<td>Ctrl + Z</td>
+<td> Undo</td>
+</tr>
+<tr>
+<td>Ctrl + X</td>
+<td> Cut</td>
+</tr>
+<tr>
+<td>Ctrl + C</td>
+<td> Copy</td>
+</tr>
+<tr>
+<td>Ctrl + V&nbsp;</td>
+<td> Paste</td>
+</tr>
+<tr>
+<td>Del&nbsp;</td>
+<td> Delete</td>
+</tr>
+<tr>
+<td>Alt+V</td>
+<td> Copy variation popup menu</td>
+</tr>
+<tr>
+<td>Alt+M</td>
+<td> Edit module properties</td>
+</tr>
+<tr>
+<td>Alt+P&nbsp;</td>
+<td> Edit parameter properties</td>
+</tr>
+<tr><td></td><td></td></tr><tr>
+<td colspan="2" rowspan="1"><span style="font-weight: bold;">
+Other editting keys</span>
+</td>
+
+</tr>
+<tr>
+<td>Arrow Up&nbsp;</td>
+<td> Increase selected parameter value</td>
+</tr>
+<tr>
+<td>Arrow Down</td>
+<td> Decrease selected parameter value</td>
+</tr>
+<tr>
+<td>Ctrl + Arrow Up</td>
+<td> Increase selected parameter morph value</td>
+</tr>
+<tr>
+<td>Ctrl + Arrow Down&nbsp;</td>
+<td> Decrease selected parameter morph value</td>
+</tr>
+<tr><td></td><td></td></tr><tr style="font-weight: bold;">
+<td colspan="2" rowspan="1"> Selection menu and shortcuts</td>
+
+</tr>
+<tr>
+<td>S</td>
+<td> Slot selection popup menu</td>
+</tr>
+<tr>
+<td>L&nbsp;</td>
+<td> Patch location selection popup menu</td>
+</tr>
+<tr>
+<td>M</td>
+<td> Module selection popup menu</td>
+</tr>
+<tr>
+<td>P</td>
+<td> Parameter selection popup menu</td>
+</tr>
+<tr>
+<td>E</td>
+<td> Cable selection popup menu</td>
+</tr>
+<tr>
+<td>Ctrl + A</td>
+<td>Select all modules</td>
+</tr>
+<tr><td></td><td></td></tr><tr style="font-weight: bold;">
+<td colspan="2" rowspan="1">Other selection keys</td>
+
+</tr>
+
+<tr>
+<td>1..8</td>
+<td> Select variation 1 to 8</td>
+</tr>
+<tr>
+<td>F</td>
+<td> Select
+patch location FX</td>
+</tr>
+<tr>
+<td>V</td>
+<td> Select patch location VA</td>
+</tr>
+<tr>
+<td>A..D</td>
+<td> Select slot A to D</td>
+</tr>
+<tr>
+<td>Arrow Left</td>
+<td> Select previous parameter of module</td>
+</tr>
+<tr>
+<td>Arrow Right</td>
+<td> Select next parameter of module</td>
+</tr>
+<tr>
+<td>Shift + Arrow Left&nbsp;</td>
+<td> Select module left</td>
+</tr>
+<tr>
+<td>Shift + Arrow Right&nbsp;</td>
+<td> Select module right</td>
+</tr>
+<tr>
+<td>Shift + Arrow Up&nbsp;</td>
+<td> Select module up</td>
+</tr>
+<tr>
+<td>Shift + Arrow Down</td>
+<td> Select module down</td>
+</tr>
+<tr>
+<td colspan="2" rowspan="1">Add menu and shortcuts</td>
+
+</tr>
+<tr>
+<td>Shift + M&nbsp;</td>
+<td> Add new module to patch popup menu</td>
+</tr>
+<tr>
+<td>Shift + E&nbsp;</td>
+<td> Add new cable to module popup menu</td>
+</tr>
+<tr><td></td><td></td></tr><tr style="font-weight: bold;">
+<td colspan="2" rowspan="1">View Menu</td>
+
+</tr>
+<tr>
+<td>Ctrl + P&nbsp;</td>
+<td>Patch settings (not yet Jaws compatible)</td>
+</tr>
+<tr>
+<td>Ctrl + F&nbsp;</td>
+<td>Parameter pages (not yet Jaws compatible)</td>
+</tr>
+<tr>
+<td>Ctrl + B&nbsp;</td>
+<td>Patch manager (not Jaws compatible)</td>
+</tr>
+<tr>
+<td>Ctrl + B</td>
+<td>Patch browser</td>
+</tr>
+<tr>
+<td>Ctrl +
+N&nbsp;</td>
+<td> Patch notes (not yet Jaws compatible)</td>
+</tr>
+<tr><td></td><td></td></tr><tr style="font-weight: bold;">
+<td colspan="2" rowspan="1">Midi sysex shortcuts</td>
+
+</tr>
+<tr>
+<td>F1&nbsp;</td>
+<td> Get active patch sysex</td>
+</tr>
+<tr>
+<td>F2&nbsp;</td>
+<td> Get active performance sysex</td>
+</tr>
+<tr>
+<td>F3&nbsp;</td>
+<td> Get patch sysex from bank</td>
+</tr>
+<tr>
+<td>F4</td>
+<td> Get performance sysex from bank</td>
+</tr>
+<tr>
+<td>F5&nbsp;</td>
+<td> Send patch sysex</td>
+</tr>
+<tr>
+<td>F6&nbsp;</td>
+<td> Send performance sysex</td>
+</tr>
+<tr><td></td><td></td></tr><tr style="font-weight: bold;">
+<td colspan="2" rowspan="1">Settings Menu and shortcuts</td>
+
+</tr>
+
+<tr>
+<td>Ctrl + G</td>
+<td>Synth settings (not yet Jaws compatible)</td>
+</tr>
+<tr>
+<td>Ctrl + R&nbsp;</td>
+<td>Performance settings</td>
+</tr>
+<tr>
+<td>Application settings</td>
+<td> (no
+shortcut)</td>
+</tr>
+</tbody>
+</table>
+<br>
+<h3><a class="mozTocH3" name="mozTocId83568"></a>Example patching using only menu's and shortcut keys </h3>Creating a new patch and selecting slot and patch location<br><br>&nbsp;1. Press Alt key to go to the main menu bar, select "File menu", "Init patch" to create a new patch<br>&nbsp;2. Press A to select slot A<br>&nbsp;3. Press V to select patch location VA<br><br>Adding an OscB module to the patch<br><br>&nbsp;4. Press Shift+M, the "add module" popup menu appears. <br>&nbsp;&nbsp;&nbsp; ( Modules are grouped in pages, so first a page must be selected and then the actual module )<br><br>&nbsp;5. Press Arrow down until page "Osc" is selected<br>&nbsp;6. Press Arrow right, submenu with al the oscilator modules appears<br>&nbsp;7. Press Arrow down to select "OscB"<br>&nbsp;8. Press Enter to add a module of type "OscB" to the patch<br><br>Adding an 2-Out module to the patch<br><br>&nbsp;9. Press Shift+M to add another module<br>10. Press Arrow down until page "In/Out" is selected<br>11. Press Arrow right, to open the submenu with the input/output modules<br>12. Select module "2-Out" and press enter to add the module to the patch<br><br>Selecing a module <br><br>13. Press M, the "select module" popup appears<br>14. Press Arrow down until page "Osc" is selected<br>15. Press Arrow right, to open the submenu with all the oscilators in the current patch location<br>16. Select module "OscB - OscB1" (that's module type - module name)<br><br>Adding a cable<br><br>17. Press Shift+E, the "select cable" popup appears with all the connectors of the current module<br>18. Press Arrow down to select connector "Output Out"<br>19. Now the destination module must be selected, press Arrow right to open the module selection submenu<br>20. Select module page "In/Out"<br>21. press Arrow right and select module "2-Out1"<br>22. Press Arrow right to select a free input connector of the "2-Out1" module, select "input InL" <br>23. Press Enter, you shoud hear a sound now on the left speaker<br><br>Modifying a parameter<br><br>24. Select OscB1 ( M - Arrow down - Arrow down - Arrow right - Enter)<br>25. Press P, the parameter popup menu appears<br>26. Press Arrow down to select parameter "Course, value +0 +0"<br>27. Press Arrow up/Arrow down to change the parameter value<br><br>Deleting a cable<br><br>28. Select OscB1<br>29. Press E. the select cable menu appears, it shows all connectors of the current module that have cables<br>30. Press Arrow down to select connector "Output out"<br>31. Press Arrow right, the submenu with all cable destinations appears<br>32. Select cable "Connected to 2-Out1, input InL"<br>33. Press Arrow right, the submenu with cable options appears<br>34. Press Arrow down to select option "Delete cable".<br><br><h2>Message log</h2><br>For
+debugging purposes there is a message log that can be activated or
+deactivated in the Application settings. For activation of the message
+log the checkbox "Log enabled" on tab "General" should be checked. If
+checked all USB messages or SYSEX messages will be logged, but loading
+of performances and patches will be significally slower. To keep the
+message log size manageable, led indicator messages and volume
+indicator messages are nog logged.<br><br>The message log is important
+for bug reporting. If you find bugs in the editor, it will help a great
+deal if you can reproduce the error with the message log enabled, save
+it to disk and post it on the NMG2 OS Editor thread on the
+electro-music forum, or on the source forge site.<br><br>Another use of
+the message log is to investigate the purpose of certain messages,
+because there are still lot of messages that haven't been decoded yet.<br>&nbsp;<br>
+<img style="width: 539px; height: 477px;" alt="" src="Img/Message_log_1.jpg"><br>
+<br>You can view the log using menu Settings, View Log.<br><br><img style="width: 1040px; height: 782px;" alt="" src="Img/Message_log_2.jpg"><br><br>There are three buttons on top of the window:<br><br>- Save log file : to save the log file to disk<br>- Refresh : to refresh the log<br>- Clear : to clear the log<br><br>On
+the bottom there is a function to manually enter a USB message for the
+G2 and send it with button "Send Msg". To be able to&nbsp;use this
+function, you first have to understand how messages are structured. <br><br><br><br><br><br><br><br><br><br>
+The source forge site<br>
+<br>
+Application developement<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+</body></html>

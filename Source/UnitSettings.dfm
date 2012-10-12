@@ -24,7 +24,7 @@ object frmSettings: TfrmSettings
     Top = 0
     Width = 522
     Height = 375
-    ActivePage = TabSheet3
+    ActivePage = TabSheet1
     Align = alClient
     TabOrder = 0
     object TabSheet3: TTabSheet
@@ -188,10 +188,6 @@ object frmSettings: TfrmSettings
     end
     object TabSheet1: TTabSheet
       Caption = 'TCP-IP'
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object cbIsServer: TCheckBox
         Left = 198
         Top = 62
@@ -224,12 +220,12 @@ object frmSettings: TfrmSettings
       end
       object StaticText3: TStaticText
         Left = 32
-        Top = 163
+        Top = 227
         Width = 137
         Height = 17
         Caption = 'Broadcast leds interval (ms)'
         FocusControl = eTimerBroadcastLedMessages
-        TabOrder = 5
+        TabOrder = 6
         TabStop = True
       end
       object ePort: DEdit
@@ -253,10 +249,10 @@ object frmSettings: TfrmSettings
       end
       object eTimerBroadcastLedMessages: DEdit
         Left = 198
-        Top = 159
+        Top = 223
         Width = 121
         Height = 21
-        TabOrder = 6
+        TabOrder = 7
         Text = '500'
         OnEnter = eTimerBroadcastLedMessagesEnter
       end
@@ -273,16 +269,21 @@ object frmSettings: TfrmSettings
         Font.Name = 'Tahoma'
         Font.Style = [fsBold]
         ParentFont = False
-        TabOrder = 7
+        TabOrder = 8
+      end
+      object bCreateG2VSTIni: TButton
+        Left = 198
+        Top = 162
+        Width = 121
+        Height = 25
+        Caption = 'Create G2 VST Ini file'
+        TabOrder = 5
+        OnClick = bCreateG2VSTIniClick
       end
     end
     object TabSheet4: TTabSheet
       Caption = 'Midi sysex'
       ImageIndex = 3
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object StaticText5: TStaticText
         Left = 19
         Top = 189
@@ -342,10 +343,6 @@ object frmSettings: TfrmSettings
     object TabSheet5: TTabSheet
       Caption = 'Editor'
       ImageIndex = 4
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object cbSlotStripColor: TColorBox
         Left = 184
         Top = 88
@@ -494,10 +491,6 @@ object frmSettings: TfrmSettings
       Caption = 'OSC'
       ImageIndex = 1
       TabVisible = False
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object Panel1: TPanel
         Left = 0
         Top = 0

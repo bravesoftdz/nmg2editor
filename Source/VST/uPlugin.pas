@@ -30,7 +30,8 @@ interface
 uses Windows, uEditor, DAEffect, DAEffectX,
      DAudioEffect, DAudioEffectX, DVstTemplate, Forms, Messages,
      DVstUtils, Math, DDspUtils, Sysutils, Classes, StdCtrls,
-     g2_types, g2_usb, g2_file;
+     DOM, XMLRead,
+     g2_types, g2_database, g2_usb, g2_file;
 
 type
    APlugin = class(TVstTemplate)
@@ -147,19 +148,6 @@ begin
   // editor window and use the host's default representation
   inherited Create(audiomaster, FNumPrograms, FNumParameters, TPluginEditorWindow);
 
-
-{  log.Add('Load module defs from path ' + GetLibraryPath);
-  try}
-//    FG2.LoadModuleDefs(GetLibraryPath);
-{    except on E:Exception do begin
-      log.Add(E.Message);
-      Log.SaveToFile(LOG_PATH + 'VSTLog.txt');
-    end;
-  end;}
-
-  //FG2.LogLevel := 1;
-  //FG2.USBActive := True;
-
   // connect event handlers
   OnParameterChange := ParameterChanged;
   OnEditorIdle := EditorIdle;
@@ -192,6 +180,9 @@ var i, j, Page, PageColumn, ParamIndex, timer_start : integer;
     Module : TG2FileModule;
     Param, ButtonParam : TG2FileParameter;
     Knob : TGlobalKnob;
+    Doc : TXMLDocument;
+    RootNode : TDOMNode;
+    VSTTCPSettingsNode : TXMLVSTTCPSettingsType;
 begin
   // initialize your parameters here:
   if (not assigned(FG2)) then
@@ -200,6 +191,25 @@ begin
   try
     FG2.LogLevel := 0;
     FG2.add_log_line( 'Initialize parameters', LOGCMD_NUL);
+
+    // Load port and ip settings
+    if FileExists( GetLibraryPath + 'G2_VST_ini.xml') then begin
+      Doc := TXMLDocument.Create;
+      try
+        ReadXMLFile( Doc, GetLibraryPath + 'G2_VST_ini.xml');
+
+        RootNode := Doc.FindNode('G2_VST_settings');
+        if assigned( RootNode) then begin
+          VSTTCPSettingsNode := TXMLVSTTCPSettingsType(RootNode.FindNode('TCP_settings'));
+          if assigned(VSTTCPSettingsNode) then begin
+            FG2.Port := VSTTCPSettingsNode.Port;
+            FG2.Host := VSTTCPSettingsNode.IP;
+          end;
+        end;
+      finally
+        Doc.Free;
+      end;
+    end;
 
     FG2.LoadModuleDefs(GetLibraryPath);
     FG2.USBActive := True;

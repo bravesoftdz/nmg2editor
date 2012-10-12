@@ -637,44 +637,47 @@ begin
         midistring := MidiToString(thisEvent);
         add_log_line( midistring, LOGCMD_NUL);
 
-        if (copy(midistring, 1, 12) = 'F0337F0A2000')   // Patch dump
-          or (copy(midistring, 1, 12) = 'F0337F0A2800') // Perf dump
-            then begin
+        if copy(midistring, 1, 4) = 'F033' then begin
 
-          // Welk blok?
-          block := ord(thisEvent.Sysex[8])*256 + ord(thisEvent.Sysex[9]);
-          total := ord(thisEvent.Sysex[10])*256 + ord(thisEvent.Sysex[11]);
+          if (copy(midistring, 7, 6) = '0A2000')   // Patch dump
+            or (copy(midistring, 7, 6) = '0A2800') // Perf dump
+              then begin
 
-          add_log_line('Receiving sysex patch, block ' + IntToStr(block) + ' of ' + IntToStr(total), LOGCMD_NUL);
+            // Welk blok?
+            block := ord(thisEvent.Sysex[8])*256 + ord(thisEvent.Sysex[9]);
+            total := ord(thisEvent.Sysex[10])*256 + ord(thisEvent.Sysex[11]);
 
-          if block = 0 then begin
-            // Eerste blok
-            FSysExStream.Clear;
-          end;
+            add_log_line('Receiving sysex patch, block ' + IntToStr(block) + ' of ' + IntToStr(total), LOGCMD_NUL);
 
-          for i := 0 to thisEvent.SysexLength - 1 do begin
-            C := ord(thisEvent.Sysex[i]);
-            FSysExStream.Write(C, 1);
-          end;
+            if block = 0 then begin
+              // Eerste blok
+              FSysExStream.Clear;
+            end;
 
-          if block = total - 1 then begin
-            // Laatste blok
-            FSysExStream.Position := 0;
+            for i := 0 to thisEvent.SysexLength - 1 do begin
+              C := ord(thisEvent.Sysex[i]);
+              FSysExStream.Write(C, 1);
+            end;
 
-            Lines := nil;
-            if assigned(LogLines) then
-              Lines := LogLines;
+            if block = total - 1 then begin
+              // Laatste blok
+              FSysExStream.Position := 0;
 
-            //FSysExStream.SaveToFile('TestSysEx.bin');
-            G2FileDataStream := TG2FileDataStream.LoadMidiData( self, FSysExStream, Lines);
+              Lines := nil;
+              if assigned(LogLines) then
+                Lines := LogLines;
 
-            if G2FileDataStream is TG2FilePerformance then
-              (Performance as TG2USBPerformance).SendSetPerformanceMessage( '', G2FileDataStream as TG2FilePerformance)
-            else
-              if G2FileDataStream is TG2FilePatch then
-                (Performance.Slot[ Performance.SelectedSlot] as TG2USBSlot).SendSetPatchMessage( '', G2FileDataStream as TG2FilePatch)
+              //FSysExStream.SaveToFile('TestSysEx.bin');
+              G2FileDataStream := TG2FileDataStream.LoadMidiData( self, FSysExStream, Lines);
+
+              if G2FileDataStream is TG2FilePerformance then
+                (Performance as TG2USBPerformance).SendSetPerformanceMessage( '', G2FileDataStream as TG2FilePerformance)
               else
-                raise Exception.Create('Unknown data type');
+                if G2FileDataStream is TG2FilePatch then
+                  (Performance.Slot[ Performance.SelectedSlot] as TG2USBSlot).SendSetPatchMessage( '', G2FileDataStream as TG2FilePatch)
+                else
+                  raise Exception.Create('Unknown data type');
+            end;
           end;
         end;
       end;

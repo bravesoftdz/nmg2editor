@@ -642,7 +642,6 @@ end;
 procedure TfrmPatchManager.LoadIniXML;
 var Doc : TXMLDocument;
     RootNode : TDOMNode;
-    PatchManagerSettingsNode : TXMLPatchManagerSettingsType;
     FormSettingsNode : TXMLFormSettingsType;
 begin
   if not FileExists('G2_editor_ini.xml') then

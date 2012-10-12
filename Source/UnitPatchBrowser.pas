@@ -189,7 +189,7 @@ end;
 procedure TfrmPatchBrowser.LoadIniXML;
 var Doc : TXMLDocument;
     RootNode : TDOMNode;
-    PatchManagerSettingsNode : TXMLPatchManagerSettingsType;
+    PatchBrowserSettingsNode : TXMLPatchBrowserSettingsType;
     FormSettingsNode : TXMLFormSettingsType;
     G2 : TG2;
 begin
@@ -203,12 +203,12 @@ begin
     RootNode := Doc.FindNode('G2_Editor_settings');
     if assigned(RootNode) then begin
 
-      PatchManagerSettingsNode := TXMLPatchManagerSettingsType(RootNode.FindNode('PatchManagerSettings'));
-      if assigned(PatchManagerSettingsNode) then begin
-        FExternalSortCol := PatchManagerSettingsNode.ExternalSortCol;
-        FInternalSortCol := PatchManagerSettingsNode.InternalSortCol;
-        if PatchManagerSettingsNode.SelectedTab < tcSource.Tabs.Count then
-          tcSource.TabIndex := PatchManagerSettingsNode.SelectedTab;
+      PatchBrowserSettingsNode := TXMLPatchBrowserSettingsType(RootNode.FindNode('PatchBrowserSettings'));
+      if assigned(PatchBrowserSettingsNode) then begin
+        FExternalSortCol := PatchBrowserSettingsNode.ExternalSortCol;
+        FInternalSortCol := PatchBrowserSettingsNode.InternalSortCol;
+        if PatchBrowserSettingsNode.SelectedTab < tcSource.Tabs.Count then
+          tcSource.TabIndex := PatchBrowserSettingsNode.SelectedTab;
       end;
 
       FormSettingsNode := TXMLFormSettingsType(RootNode.FindNode('PatcBrowserForm'));

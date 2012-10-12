@@ -138,7 +138,6 @@ unit UnitG2Editor;
 // Move modules
 // Edit Midi assignment dialog
 // Download bank, clear rest of bank
-// Added test section in Add module with the hidden modules for trying out if they can be activated.
 // Ini settings patch manager
 
 
@@ -647,7 +646,6 @@ type
     procedure SelectG2( G2Index : integer);
 
     procedure AddModule( aModuleType : byte);
-    procedure AddTestModule( aModuleType, aAlternativeModuleType : byte);
     procedure DoAddModule( Sender: TObject);
     procedure AssignKnob( Sender: TObject);
     procedure DeAssignKnob( Sender: TObject);
@@ -1559,7 +1557,7 @@ var Doc : TXMLDocument;
     CtrlMidiDeviceNode : TXMLCtrlMidiDeviceType;
     CtrlMidiAssignmentListNode : TDOMElement;
     CtrlMidiAssignmentNode : TXMLCtrlMidiassignmentType;
-    PatchManagerSettingsNode : TXMLPatchManagerSettingsType;
+    PatchBrowserSettingsNode : TXMLPatchBrowserSettingsType;
     DirSettingsNode : TXMLDirectorySettingsType;
     FormSettingsNode : TXMLFormSettingsType;
     G2 : TG2;
@@ -1656,13 +1654,12 @@ begin
     DirSettingsNode.G2oolsFolder := AnsiString(frmSettings.eG2oolsFolder.Text);
     DirSettingsNode.ModuleHelpFile := AnsiString(frmSettings.eModuleHelpFile.Text);
 
-    // TODO
-    PatchManagerSettingsNode := TXMLPatchManagerSettingsType(Doc.CreateElement('PatchManagerSettings'));
-    RootNode.AppendChild(PatchManagerSettingsNode);
-    PatchManagerSettingsNode.BaseFolder := AnsiString(frmSettings.ePatchRootFolder.Text);
-    PatchManagerSettingsNode.SelectedTab := frmPatchBrowser.tcSource.TabIndex;
-    PatchManagerSettingsNode.ExternalSortCol := frmPatchBrowser.FExternalSortCol;
-    PatchManagerSettingsNode.InternalSortCol := frmPatchBrowser.FInternalSortCol;
+    PatchBrowserSettingsNode := TXMLPatchBrowserSettingsType(Doc.CreateElement('PatchBrowserSettings'));
+    RootNode.AppendChild(PatchBrowserSettingsNode);
+    PatchBrowserSettingsNode.BaseFolder := AnsiString(frmSettings.ePatchRootFolder.Text);
+    PatchBrowserSettingsNode.SelectedTab := frmPatchBrowser.tcSource.TabIndex;
+    PatchBrowserSettingsNode.ExternalSortCol := frmPatchBrowser.FExternalSortCol;
+    PatchBrowserSettingsNode.InternalSortCol := frmPatchBrowser.FInternalSortCol;
 
     FormSettingsNode := TXMLFormSettingsTYpe(Doc.CreateElement('PatchBrowserForm'));
     RootNode.AppendChild(FormSettingsNode);
@@ -3528,7 +3525,7 @@ var i, j, k : integer;
     end;
 
 begin
-  for i := 0 to 16 do begin
+  for i := 0 to 15 do begin
 
     aMenuItem := TMenuItem.Create( puAddModule);
     aMenuItem.Caption := MODULECATEGORIES[i];
@@ -3728,23 +3725,7 @@ begin
   if FAddPoint.Y < 0 then
     FAddPoint.Y := 0;
 
-  G2.SelectedPatch.MessAddModule( G2.SelectedPatch.SelectedLocation, aModuleType, aModuleType, FAddPoint.X div UNITS_COL, FAddPoint.y div UNITS_ROW );
-end;
-
-procedure TfrmG2Main.AddTestModule( aModuleType, aAlternativeModuleType : byte);
-var G2 : TG2;
-begin
-  G2 := SelectedG2;
-  if not assigned(G2) then
-    exit;
-
-  if FAddPoint.X < 0 then
-    FAddPoint.X := 0;
-
-  if FAddPoint.Y < 0 then
-    FAddPoint.Y := 0;
-
-  G2.SelectedPatch.MessAddModule( G2.SelectedPatch.SelectedLocation, aModuleType, aAlternativeModuleType, FAddPoint.X div UNITS_COL, FAddPoint.y div UNITS_ROW );
+  G2.SelectedPatch.MessAddModule( G2.SelectedPatch.SelectedLocation, aModuleType, FAddPoint.X div UNITS_COL, FAddPoint.y div UNITS_ROW );
 end;
 
 procedure TfrmG2Main.DoAddModule( Sender: TObject);

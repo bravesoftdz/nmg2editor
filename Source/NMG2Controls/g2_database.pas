@@ -171,6 +171,17 @@ type
     property TimerBroadcastLedMessages : integer read Get_TimerBroadcastLedMessages write Set_TimerBroadcastLedMessages;
   end;
 
+  TXMLVSTTCPSettingsType = class(TDOMElement)
+  protected
+    function Get_IP: string;
+    function Get_Port: integer;
+    procedure Set_IP( aValue : string);
+    procedure Set_Port( aValue : integer);
+  public
+    property IP: string read Get_IP write Set_IP;
+    property Port: integer read Get_Port write Set_Port;
+  end;
+
   TXMLFormSettingsType = class(TDOMElement)
   protected
     function Get_PosX: integer;
@@ -191,7 +202,7 @@ type
     property Visible: boolean read Get_Visible write Set_Visible;
   end;
 
-  TXMLPatchManagerSettingsType = class(TDOMElement)
+  TXMLPatchBrowserSettingsType = class(TDOMElement)
   protected
     function Get_BaseFolder: AnsiString;
     procedure Set_BaseFolder( aValue : AnsiString);
@@ -658,7 +669,10 @@ end;
 
 function TXMLTCPSettingsType.Get_IP: string;
 begin
-  Result := GetAttribute('IP');
+  if GetAttribute('IP') = '' then
+    Result := '127.0.0.1'
+  else
+    Result := GetAttribute('IP');
 end;
 
 function TXMLTCPSettingsType.Get_IsServer: boolean;
@@ -703,6 +717,34 @@ end;
 procedure TXMLTCPSettingsType.Set_TimerBroadcastLedMessages(aValue: integer);
 begin
   SetAttribute('TimerBroadcastLedMessages', IntToStr(aValue));
+end;
+
+{ TXMLVSTTCPSettingsType }
+
+function TXMLVSTTCPSettingsType.Get_IP: string;
+begin
+  if GetAttribute('IP') = '' then
+    Result := '127.0.0.1'
+  else
+    Result := GetAttribute('IP');
+end;
+
+function TXMLVSTTCPSettingsType.Get_Port: integer;
+begin
+  if GetAttribute('Port') = '' then
+    Result := 2501
+  else
+    Result := GetInt(GetAttribute('Port'));
+end;
+
+procedure TXMLVSTTCPSettingsType.Set_IP( aValue : string);
+begin
+  SetAttribute('IP', aValue);
+end;
+
+procedure TXMLVSTTCPSettingsType.Set_Port( aValue : integer);
+begin
+  SetAttribute('Port', IntToStr(aValue));
 end;
 
 { TXMLTCPSettingsListType }
@@ -793,42 +835,42 @@ end;
 
 { TXMLPatchManagerSettingsType }
 
-function TXMLPatchManagerSettingsType.Get_BaseFolder: AnsiString;
+function TXMLPatchBrowserSettingsType.Get_BaseFolder: AnsiString;
 begin
   Result := GetAttribute('BaseFolder');
 end;
 
-function TXMLPatchManagerSettingsType.Get_ExternalSortCol: integer;
+function TXMLPatchBrowserSettingsType.Get_ExternalSortCol: integer;
 begin
   Result := GetInt(GetAttribute('ExternalSortCol'));
 end;
 
-function TXMLPatchManagerSettingsType.Get_InternalSortCol: integer;
+function TXMLPatchBrowserSettingsType.Get_InternalSortCol: integer;
 begin
   Result := GetInt(GetAttribute('InternalSortCol'));
 end;
 
-function TXMLPatchManagerSettingsType.Get_SelectedTab: integer;
+function TXMLPatchBrowserSettingsType.Get_SelectedTab: integer;
 begin
   Result := GetInt(GetAttribute('SelectedTab'));
 end;
 
-procedure TXMLPatchManagerSettingsType.Set_BaseFolder(aValue: AnsiString);
+procedure TXMLPatchBrowserSettingsType.Set_BaseFolder(aValue: AnsiString);
 begin
   SetAttribute('BaseFolder', aValue);
 end;
 
-procedure TXMLPatchManagerSettingsType.Set_ExternalSortCol(aValue: integer);
+procedure TXMLPatchBrowserSettingsType.Set_ExternalSortCol(aValue: integer);
 begin
   SetAttribute('ExternalSortCol', IntToStr(aValue));
 end;
 
-procedure TXMLPatchManagerSettingsType.Set_InternalSortCol(aValue: integer);
+procedure TXMLPatchBrowserSettingsType.Set_InternalSortCol(aValue: integer);
 begin
   SetAttribute('InternalSortCol', IntToStr(aValue));
 end;
 
-procedure TXMLPatchManagerSettingsType.Set_SelectedTab(aValue: integer);
+procedure TXMLPatchBrowserSettingsType.Set_SelectedTab(aValue: integer);
 begin
   SetAttribute('SelectedTab', IntToStr(aValue));
 end;

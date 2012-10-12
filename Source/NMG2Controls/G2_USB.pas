@@ -510,7 +510,7 @@ type
     procedure   SetParamValue( aLocation : TLocationType; aModuleIndex : byte; aParameterIndex : byte; aVariation : byte; aValue: byte); override;
     function    MessSetPatchDescription( FPatchDescription : TPatchDescription): boolean;
     function    MessSetPatchNotes( aLines : TStrings): boolean;
-    function    MessAddModule( aLocation : TLocationType; aModuleTypeID, aAlternativeModuleTypeID, aCol, aRow: byte): boolean; override;
+    function    MessAddModule( aLocation : TLocationType; aModuleTypeID, aCol, aRow: byte): boolean; override;
     function    MessCopyModules( aSrcePatch : TG2FilePatchPart; aFromLocation, aToLocation : TLocationType): boolean; override;
     function    MessAddConnection( aLocation : TLocationType; aFromConnector, aToConnector : TG2FileConnector): boolean; override;
     function    MessDeleteConnection( aLocation : TLocationType; aCable : TG2FileCable): boolean; override;
@@ -575,7 +575,7 @@ begin
   FSendMessageQueue.Duplicates := dupAccept;
   FSendMessageCount := 0;
 
-  FHost := '127.0.0.1'; // TODO: get it from the ini file
+  FHost := '127.0.0.1';
   FPort := DEFAULT_PORT;
 
   FLogLedDataMessages := False;
@@ -3056,17 +3056,17 @@ begin
 end;
 
 function TG2USBPatch.MessAddModule( aLocation : TLocationType; aModuleTypeID,
-  aAlternativeModuleTypeID, aCol, aRow: byte): boolean;
+  aCol, aRow: byte): boolean;
 var MemStream : TG2SendMessage;
     aModuleIndex : Byte;
 begin
-  inherited MessAddModule( aLocation, aModuleTypeID, aAlternativeModuleTypeID, aCol, aRow);
+  inherited MessAddModule( aLocation, aModuleTypeID, aCol, aRow);
 
   // Get a new module index
   aModuleIndex := GetMaxModuleIndex( aLocation) + 1;
 
   // Send over usb
-  MemStream := CreateAddNewModuleMessage( aLocation, aModuleIndex, aModuleTypeID, aAlternativeModuleTypeID, aCol, ARow);
+  MemStream := CreateAddNewModuleMessage( aLocation, aModuleIndex, aModuleTypeID, aCol, ARow);
   Result := SendCmdMessage( MemStream);
 end;
 

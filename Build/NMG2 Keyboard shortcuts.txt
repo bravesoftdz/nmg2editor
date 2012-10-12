@@ -121,7 +121,7 @@ The application is layed out as follows:
  2. Application settings bar
     a. Online checkbox, indicates if the USB connection with the G2 Synth is active
     b. Clients connected, indicates if VST's or other editors are connected to this editor
-    c. Perf mode, indicates if the G2 is in perf mode (see clavia documentation)
+    c. Master clock (not Jaws compatible)
     d. G2 synth selection radio button. If multiple G2's are connected with the editor (not Jaws compatible)
 
  3. Settings bar slot A (not Jaws compatible)
