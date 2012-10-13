@@ -1,2 +1,0 @@
-Failed patches: 
- C:\dx7-dx200-1\solange2.syx

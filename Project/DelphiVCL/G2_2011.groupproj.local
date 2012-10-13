@@ -1,9 +1,0 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<BorlandProject>
-	<Transactions>
-    <Transaction>1899-12-30 00:00:00.000.200,C:\Users\Bruno\Documents\RAD Studio\Projects\ProjectGroup1.groupproj=C:\Users\Bruno\Delphi\NMG2\Project\DelphiVCL\G2_2011.groupproj</Transaction>
-  </Transactions>
-	<Default.Personality>
-		<Projects ActiveProject="C:\Users\Bruno\Delphi\nmg2editor\Project\DelphiVCL\G2_editor_D2011.dproj"/>
-	</Default.Personality>
-</BorlandProject>
