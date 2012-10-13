@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<Transactions>
+    <Transaction>1899-12-30 00:00:00.000.623,C:\Users\Bruno\Delphi\nmg2editor\Source\FMXG2Controls\G2FMXCable.pas=</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.720,C:\Users\Bruno\Delphi\nmg2editor\Source\FMXG2Controls\G2FMXCable.pas=C:\Users\Bruno\Delphi\FMX Controls\FMX G2 Connector\G2FMXCable.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.314,=IndySystem.dcp</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.361,C:\Users\Bruno\Delphi\nmg2editor\Source\FMXG2Controls\G2FMXPackage.dproj=C:\Users\Bruno\Delphi\nmg2editor\Source\FMXG2Controls\G2FMXConnectorPackage.dproj</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.767,=rtl.dcp</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.313,=MidiComponents2010.dcp</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.794,=fmx.dcp</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.797,=C:\Users\Bruno\Delphi\nmg2editor\Source\FMXG2Controls\G2FMXGraph.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.124,C:\Users\Bruno\Delphi\nmg2editor\Source\FMXG2Controls\G2FMXConnector.pas=</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.404,C:\Users\Bruno\Delphi\nmg2editor\Source\FMXG2Controls\G2FMXConnector.pas=C:\Users\Bruno\Delphi\FMX Controls\FMX G2 Connector\G2FMXConnector.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.834,C:\Users\Bruno\Delphi\FMX Controls\FMX G2 Connector\G2FMXConnectorPackage.dproj=C:\Users\Bruno\Documents\RAD Studio\Projects\Package1.dproj</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.374,=C:\Users\Bruno\Delphi\FMX Controls\FMX G2 Connector\G2FMXCable.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.496,C:\Users\Bruno\Delphi\FMX Controls\FMX G2 Connector\G2FMXConnector.win.rc=</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.970,=C:\Users\Bruno\Delphi\FMX Controls\FMX G2 Connector\G2FMXConnector.mac.rc</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.039,C:\Users\Bruno\Delphi\nmg2editor\Source\FMXG2Controls\G2FMXConnectorPackage.dproj=C:\Users\Bruno\Delphi\FMX Controls\FMX G2 Connector\G2FMXConnectorPackage.dproj</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.520,C:\Users\Bruno\Delphi\FMX Controls\FMX G2 Connector\G2FMXConnector.mac.rc=</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.762,=C:\Users\Bruno\Delphi\FMX Controls\FMX G2 Connector\G2FMXConnector.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.307,=IndyCore.dcp</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.536,=NMG2_controls_D2011.dcp</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.274,=C:\Users\Bruno\Delphi\FMX Controls\FMX G2 Connector\G2FMXConnector.win.rc</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.446,=NMG2_controls_D2011.dcp</Transaction>
+  </Transactions>
+</BorlandProject>

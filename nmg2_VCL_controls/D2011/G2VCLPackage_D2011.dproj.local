@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<Transactions>
+    <Transaction>1899-12-30 00:00:00.000.045,=IndySystem.dcp</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.016,=vcl.dcp</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.213,=C:\Users\Bruno\Delphi\nmg2editor\Source\NMG2Controls\g2_classes.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.783,=rtl.dcp</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.199,=C:\Users\Bruno\Delphi\nmg2editor\Source\NMG2Controls\fastbitmap.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.363,=C:\Users\Bruno\Delphi\midiio-dev-v7\h4ndy-midiio-dev-67754a8fdfa5\MidiOut.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.986,C:\Users\Bruno\Delphi\midiio-dev-v7\h4ndy-midiio-dev-67754a8fdfa5\MidiOut.pas=</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.694,=MidiComponents2010.dcp</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.057,=MidiComponents2010.dcp</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.263,=C:\Users\Bruno\Delphi\nmg2editor\Source\NMG2Controls\JawsCtrls.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.562,=NMG2_controls_D2011.dcp</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.615,C:\Users\Bruno\Delphi\nmg2editor\Source\VCLG2Controls\Keyboard.pas=C:\Users\Bruno\Delphi\nmg2editor\Source\VCLG2Controls\MusicalKeyboard.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.872,=C:\Users\Bruno\Delphi\nmg2editor\Source\VCLG2Controls\Keyboard.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.256,=C:\Users\Bruno\Delphi\nmg2editor\Source\NMG2Controls\graph_util_vcl.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.245,=C:\Users\Bruno\Delphi\nmg2editor\Source\NMG2Controls\g2_graph.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.108,C:\Users\Bruno\Documents\RAD Studio\Projects\Package1.dproj=C:\Users\Bruno\Delphi\nmg2editor\Source\G2VCLPackage.dproj</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.032,=IndyCore.dcp</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.121,C:\Users\Bruno\Delphi\nmg2editor\Source\VCLG2Controls\G2VCLPackage.dproj=C:\Users\Bruno\Delphi\nmg2editor\Project\DelphiVCL\G2VCLPackage_D2011.dproj</Transaction>
+  </Transactions>
+</BorlandProject>

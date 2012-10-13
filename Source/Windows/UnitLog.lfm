@@ -1,0 +1,89 @@
+object frmLog: TfrmLog
+  Left = 0
+  Top = 0
+  Caption = 'Log'
+  ClientHeight = 404
+  ClientWidth = 710
+  Color = clBtnFace
+  Font.Charset = DEFAULT_CHARSET
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'Tahoma'
+  Font.Style = []
+  OnCreate = FormCreate
+  PixelsPerInch = 96
+  object Memo1: TMemo
+    Left = 0
+    Top = 0
+    Width = 710
+    Height = 344
+    Align = alClient
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -13
+    Font.Name = 'Courier New'
+    Font.Style = []
+    Lines.Strings = (
+      ''
+      'G2 usb demo'
+      ''
+      
+        'This software is intended for educational/research purposes, use' +
+        ' at your own risk!'
+      ''
+      'This demo uses the open source libusb-win32 usb driver.'
+      ''
+      'Download libusb-win32 snapshot from'
+      'http://sourceforge.net/projects/libusb-win32/files/'
+      'Make a system restore point'
+      'Install as a filter driver on the existing clavia usb driver'
+      
+        'Do NOT install as device driver (because it then permanently rep' +
+        'laces the clavia driver!)'
+      ''
+      
+        'After you installed the filter driver, test if the clavia softwa' +
+        're still works. If not, do a system restore.'
+      ''
+      
+        'The demo can not run alongside the clavia software, before you r' +
+        'un the one you have to stop the other.')
+    ParentFont = False
+    ScrollBars = ssBoth
+    TabOrder = 0
+  end
+  object Panel1: TPanel
+    Left = 0
+    Top = 344
+    Width = 710
+    Height = 60
+    Align = alBottom
+    TabOrder = 1
+    object eCommand: TEdit
+      Left = 14
+      Top = 13
+      Width = 575
+      Height = 21
+      Hint = 'Here you can type a message (hex seperated with space)'
+      Anchors = [akLeft, akTop, akRight]
+      ParentShowHint = False
+      ShowHint = True
+      TabOrder = 0
+    end
+    object bSendMsg: TButton
+      Left = 606
+      Top = 11
+      Width = 75
+      Height = 25
+      Hint = 
+        'With this you can send a typed messages to the G2 (hex seperated' +
+        ' with a space)'
+      Anchors = [akTop, akRight]
+      Caption = 'Send Msg'
+      ParentShowHint = False
+      ShowHint = True
+      TabOrder = 1
+      OnClick = bSendMsgClick
+    end
+  end
+end

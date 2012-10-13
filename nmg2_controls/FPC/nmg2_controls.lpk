@@ -1,0 +1,68 @@
+<?xml version="1.0"?>
+<CONFIG>
+  <Package Version="3">
+    <PathDelim Value="\"/>
+    <Name Value="nmg2_controls"/>
+    <CompilerOptions>
+      <Version Value="9"/>
+      <PathDelim Value="\"/>
+      <SearchPaths>
+        <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
+      </SearchPaths>
+      <Other>
+        <CompilerPath Value="$(CompPath)"/>
+      </Other>
+    </CompilerOptions>
+    <Files Count="6">
+      <Item1>
+        <Filename Value="g2_classes.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="g2_classes"/>
+      </Item1>
+      <Item2>
+        <Filename Value="g2_database.pas"/>
+        <UnitName Value="G2_Database"/>
+      </Item2>
+      <Item3>
+        <Filename Value="g2_file.pas"/>
+        <UnitName Value="g2_file"/>
+      </Item3>
+      <Item4>
+        <Filename Value="g2_graph.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="g2_graph"/>
+      </Item4>
+      <Item5>
+        <Filename Value="g2_types.pas"/>
+        <UnitName Value="g2_types"/>
+      </Item5>
+      <Item6>
+        <Filename Value="g2_usb.pas"/>
+        <UnitName Value="g2_usb"/>
+      </Item6>
+    </Files>
+    <Type Value="RunAndDesignTime"/>
+    <RequiredPkgs Count="4">
+      <Item1>
+        <PackageName Value="lnetvisual"/>
+      </Item1>
+      <Item2>
+        <PackageName Value="lnetbase"/>
+      </Item2>
+      <Item3>
+        <PackageName Value="LCL"/>
+      </Item3>
+      <Item4>
+        <PackageName Value="FCL"/>
+        <MinVersion Major="1" Valid="True"/>
+      </Item4>
+    </RequiredPkgs>
+    <UsageOptions>
+      <LibraryPath Value="C:\lazarus\fpc\2.4.4\source"/>
+      <UnitPath Value="$(PkgOutDir)"/>
+    </UsageOptions>
+    <PublishOptions>
+      <Version Value="2"/>
+    </PublishOptions>
+  </Package>
+</CONFIG>

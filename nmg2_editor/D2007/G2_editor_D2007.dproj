@@ -1,0 +1,354 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <ProjectGuid>{fc980960-6434-429c-b598-13bf86acd484}</ProjectGuid>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <DCC_DCCCompiler>DCC32</DCC_DCCCompiler>
+    <DCC_DependencyCheckOutputName>Build\G2_editor_D2007.exe</DCC_DependencyCheckOutputName>
+    <MainSource>G2_editor_D2007.dpr</MainSource>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <Version>7.0</Version>
+    <DCC_DebugInformation>False</DCC_DebugInformation>
+    <DCC_LocalDebugSymbols>False</DCC_LocalDebugSymbols>
+    <DCC_SymbolReferenceInfo>0</DCC_SymbolReferenceInfo>
+    <DCC_Define>RELEASE</DCC_Define>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <Version>7.0</Version>
+    <DCC_Define>DEBUG</DCC_Define>
+    <DCC_ExeOutput>Build</DCC_ExeOutput>
+    <DCC_DcuOutput>Dcu</DCC_DcuOutput>
+    <DCC_ObjOutput>Dcu</DCC_ObjOutput>
+    <DCC_HppOutput>Dcu</DCC_HppOutput>
+    <DCC_Optimize>False</DCC_Optimize>
+  </PropertyGroup>
+  <ProjectExtensions>
+    <Borland.Personality>Delphi.Personality</Borland.Personality>
+    <Borland.ProjectType />
+    <BorlandProject>
+<BorlandProject><Delphi.Personality><Parameters><Parameters Name="UseLauncher">False</Parameters><Parameters Name="LoadAllSymbols">True</Parameters><Parameters Name="LoadUnspecifiedSymbols">False</Parameters></Parameters><VersionInfo><VersionInfo Name="IncludeVerInfo">True</VersionInfo><VersionInfo Name="AutoIncBuild">False</VersionInfo><VersionInfo Name="MajorVer">1</VersionInfo><VersionInfo Name="MinorVer">0</VersionInfo><VersionInfo Name="Release">0</VersionInfo><VersionInfo Name="Build">0</VersionInfo><VersionInfo Name="Debug">False</VersionInfo><VersionInfo Name="PreRelease">False</VersionInfo><VersionInfo Name="Special">False</VersionInfo><VersionInfo Name="Private">False</VersionInfo><VersionInfo Name="DLL">False</VersionInfo><VersionInfo Name="Locale">1033</VersionInfo><VersionInfo Name="CodePage">1252</VersionInfo></VersionInfo><VersionInfoKeys><VersionInfoKeys Name="CompanyName"></VersionInfoKeys><VersionInfoKeys Name="FileDescription"></VersionInfoKeys><VersionInfoKeys Name="FileVersion">1.0.0.0</VersionInfoKeys><VersionInfoKeys Name="InternalName"></VersionInfoKeys><VersionInfoKeys Name="LegalCopyright"></VersionInfoKeys><VersionInfoKeys Name="LegalTrademarks"></VersionInfoKeys><VersionInfoKeys Name="OriginalFilename"></VersionInfoKeys><VersionInfoKeys Name="ProductName"></VersionInfoKeys><VersionInfoKeys Name="ProductVersion">1.0.0.0</VersionInfoKeys><VersionInfoKeys Name="Comments"></VersionInfoKeys></VersionInfoKeys><Source><Source Name="MainSource">G2_editor_D2007.dpr</Source></Source><Excluded_Packages>
+      <Excluded_Packages Name="$(BDS)\bin\comentcore100.bpl">CodeGear COM Support</Excluded_Packages>
+      <Excluded_Packages Name="$(BDS)\bin\indy100.bpl">Internet Direct (Indy) Version 9</Excluded_Packages>
+      <Excluded_Packages Name="$(BDS)\bin\dclindy100.bpl">Internet Direct Version 9 (Indy) Property and Component Editors</Excluded_Packages>
+      <Excluded_Packages Name="$(BDS)\bin\dclbde100.bpl">CodeGear BDE DB Components</Excluded_Packages>
+      <Excluded_Packages Name="$(BDS)\bin\dcldbxcds4100.bpl">CodeGear SimpleDataset Component (DBX)</Excluded_Packages>
+      <Excluded_Packages Name="$(BDS)\bin\dclemacsedit100.bpl">CodeGear Editor Emacs Enhancements</Excluded_Packages>
+      <Excluded_Packages Name="$(BDS)\bin\dclib100.bpl">Borland InterBase Express Components</Excluded_Packages>
+      <Excluded_Packages Name="$(BDS)\bin\dclmlwiz100.bpl">CodeGear Markup Language Wizards</Excluded_Packages>
+      <Excluded_Packages Name="$(BDS)\bin\dcloffice2k100.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
+      <Excluded_Packages Name="$(BDS)\bin\dclsmpedit100.bpl">CodeGear Editor Script Enhancements</Excluded_Packages>
+      <Excluded_Packages Name="$(BDS)\bin\dclwebsnap100.bpl">CodeGear WebSnap Components</Excluded_Packages>
+      <Excluded_Packages Name="$(BDS)\bin\dclofficexp100.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
+    </Excluded_Packages></Delphi.Personality></BorlandProject></BorlandProject>
+  </ProjectExtensions>
+  <Import Project="$(MSBuildBinPath)\Borland.Delphi.Targets" />
+  <ItemGroup>
+    <DelphiCompile Include="G2_editor_D2007.dpr">
+      <MainSource>MainSource</MainSource>
+    </DelphiCompile>
+    <DCCReference Include="....\Source\NMG2Controls\G2_file.pas" />
+    <DCCReference Include="...\Source\NMG2Controls\G2_file.pas" />
+    <DCCReference Include="..UnitG2Editor.pas">
+      <Form>frmG2Main</Form>
+    </DCCReference>
+    <DCCReference Include="..\..\Source\2Controls\graph_util_vcl.pas" />
+    <DCCReference Include="..\..\Source\CLG2Controls\graph_util_vcl.pas" />
+    <DCCReference Include="..\..\Source\Common\fastbitmap.pas" />
+    <DCCReference Include="..\..\Source\Common\G2_Classes.pas" />
+    <DCCReference Include="..\..\Source\Common\G2_Database.pas" />
+    <DCCReference Include="..\..\Source\Common\G2_file.pas" />
+    <DCCReference Include="..\..\Source\Common\G2_Graph.pas" />
+    <DCCReference Include="..\..\Source\Common\g2_mess.pas" />
+    <DCCReference Include="..\..\Source\Common\g2_midi.pas" />
+    <DCCReference Include="..\..\Source\Common\G2_Types.pas" />
+    <DCCReference Include="..\..\Source\Common\G2_USB.pas" />
+    <DCCReference Include="..\..\Source\Common\graph_util_vcl.pas" />
+    <DCCReference Include="..\..\Source\Common\JawsCtrls.pas" />
+    <DCCReference Include="..\..\Source\Common\LibUSBWinDyn.pas" />
+    <DCCReference Include="..\..\Source\Common\MusicalKeyboard.pas" />
+    <DCCReference Include="..\..\Source\Common\OSCUtils.pas" />
+    <DCCReference Include="..\..\Source\Commo\G2_Classes.pas" />
+    <DCCReference Include="..\..\Source\Commo\G2_Database.pas" />
+    <DCCReference Include="..\..\Source\Commo\G2_file.pas" />
+    <DCCReference Include="..\..\Source\Commo\G2_Graph.pas" />
+    <DCCReference Include="..\..\Source\Commo\G2_Types.pas" />
+    <DCCReference Include="..\..\Source\Commo\G2_USB.pas" />
+    <DCCReference Include="..\..\Source\Commo\graph_util_vcl.pas" />
+    <DCCReference Include="..\..\Source\Comm\G2_Classes.pas" />
+    <DCCReference Include="..\..\Source\Comm\G2_Database.pas" />
+    <DCCReference Include="..\..\Source\Comm\G2_file.pas" />
+    <DCCReference Include="..\..\Source\Comm\G2_Graph.pas" />
+    <DCCReference Include="..\..\Source\Comm\G2_Types.pas" />
+    <DCCReference Include="..\..\Source\Comm\G2_USB.pas" />
+    <DCCReference Include="..\..\Source\Comm\graph_util_vcl.pas" />
+    <DCCReference Include="..\..\Source\Com\G2_Classes.pas" />
+    <DCCReference Include="..\..\Source\Com\G2_Database.pas" />
+    <DCCReference Include="..\..\Source\Com\G2_file.pas" />
+    <DCCReference Include="..\..\Source\Com\G2_Graph.pas" />
+    <DCCReference Include="..\..\Source\Com\G2_Types.pas" />
+    <DCCReference Include="..\..\Source\Com\G2_USB.pas" />
+    <DCCReference Include="..\..\Source\Com\graph_util_vcl.pas" />
+    <DCCReference Include="..\..\Source\Controls\graph_util_vcl.pas" />
+    <DCCReference Include="..\..\Source\Co\G2_Classes.pas" />
+    <DCCReference Include="..\..\Source\Co\G2_Database.pas" />
+    <DCCReference Include="..\..\Source\Co\G2_file.pas" />
+    <DCCReference Include="..\..\Source\Co\G2_Graph.pas" />
+    <DCCReference Include="..\..\Source\Co\G2_Types.pas" />
+    <DCCReference Include="..\..\Source\Co\G2_USB.pas" />
+    <DCCReference Include="..\..\Source\Co\graph_util_vcl.pas" />
+    <DCCReference Include="..\..\Source\C\G2_Classes.pas" />
+    <DCCReference Include="..\..\Source\C\G2_Database.pas" />
+    <DCCReference Include="..\..\Source\C\G2_file.pas" />
+    <DCCReference Include="..\..\Source\C\G2_Graph.pas" />
+    <DCCReference Include="..\..\Source\C\G2_Types.pas" />
+    <DCCReference Include="..\..\Source\C\G2_USB.pas" />
+    <DCCReference Include="..\..\Source\C\graph_util_vcl.pas" />
+    <DCCReference Include="..\..\Source\G2Controls\graph_util_vcl.pas" />
+    <DCCReference Include="..\..\Source\graph_util_vcl.pas" />
+    <DCCReference Include="..\..\Source\LG2Controls\graph_util_vcl.pas" />
+    <DCCReference Include="..\..\Source\ls\graph_util_vcl.pas" />
+    <DCCReference Include="..\..\Source\NMG2Controls\G2_Classes.pas" />
+    <DCCReference Include="..\..\Source\NMG2Controls\G2_Database.pas" />
+    <DCCReference Include="..\..\Source\NMG2Controls\G2_file.pas" />
+    <DCCReference Include="..\..\Source\NMG2Controls\G2_Graph.pas" />
+    <DCCReference Include="..\..\Source\NMG2Controls\G2_Types.pas" />
+    <DCCReference Include="..\..\Source\NMG2Controls\G2_USB.pas" />
+    <DCCReference Include="..\..\Source\NMG2Controls\graph_util_vcl.pas" />
+    <DCCReference Include="..\..\Source\ntrols\graph_util_vcl.pas" />
+    <DCCReference Include="..\..\Source\ols\graph_util_vcl.pas" />
+    <DCCReference Include="..\..\Source\ontrols\graph_util_vcl.pas" />
+    <DCCReference Include="..\..\Source\rols\graph_util_vcl.pas" />
+    <DCCReference Include="..\..\Source\s\graph_util_vcl.pas" />
+    <DCCReference Include="..\..\Source\Third_party_code\FPC_XML\dom.pas" />
+    <DCCReference Include="..\..\Source\Third_party_code\FPC_XML\uriparser.pas" />
+    <DCCReference Include="..\..\Source\Third_party_code\FPC_XML\xmlread.pas" />
+    <DCCReference Include="..\..\Source\Third_party_code\FPC_XML\xmlutils.pas" />
+    <DCCReference Include="..\..\Source\Third_party_code\FPC_XML\xmlwrite.pas" />
+    <DCCReference Include="..\..\Source\Third_party_code\MIDIIO\CircBuf.pas" />
+    <DCCReference Include="..\..\Source\Third_party_code\MIDIIO\MidiCallback.pas" />
+    <DCCReference Include="..\..\Source\Third_party_code\MIDIIO\MidiCons.pas" />
+    <DCCReference Include="..\..\Source\Third_party_code\MIDIIO\MidiDefs.pas" />
+    <DCCReference Include="..\..\Source\Third_party_code\MIDIIO\MidiIn.pas" />
+    <DCCReference Include="..\..\Source\Third_party_code\MIDIIO\MidiKeyPatchArray.pas" />
+    <DCCReference Include="..\..\Source\Third_party_code\MIDIIO\MidiOut.pas" />
+    <DCCReference Include="..\..\Source\Third_party_code\MIDIIO\MidiType.pas" />
+    <DCCReference Include="..\..\Source\trols\graph_util_vcl.pas" />
+    <DCCReference Include="..\..\Source\UnitEditLabel.pas">
+      <Form>frmEditLabel</Form>
+    </DCCReference>
+    <DCCReference Include="..\..\Source\UnitEditorTools.pas">
+      <Form>frmEditorTools</Form>
+    </DCCReference>
+    <DCCReference Include="..\..\Source\UnitG2Editor.pas">
+      <Form>frmG2Main</Form>
+    </DCCReference>
+    <DCCReference Include="..\..\Source\UnitLog.pas">
+      <Form>frmLog</Form>
+    </DCCReference>
+    <DCCReference Include="..\..\Source\UnitMidiMapping.pas">
+      <Form>frmMidiMapping</Form>
+    </DCCReference>
+    <DCCReference Include="..\..\Source\UnitModuleDef.pas">
+      <Form>frmModuleDef</Form>
+    </DCCReference>
+    <DCCReference Include="..\..\Source\UnitParameterPages.pas">
+      <Form>frmParameterPages</Form>
+    </DCCReference>
+    <DCCReference Include="..\..\Source\UnitPatchBrowser.pas">
+      <Form>frmPatchBrowser</Form>
+    </DCCReference>
+    <DCCReference Include="..\..\Source\UnitPatchBrowserFilterModules.pas">
+      <Form>frmPatchBrowserModuleFilter</Form>
+    </DCCReference>
+    <DCCReference Include="..\..\Source\UnitPatchManager.pas">
+      <Form>frmPatchManager</Form>
+    </DCCReference>
+    <DCCReference Include="..\..\Source\UnitPatchNotes.pas">
+      <Form>frmPatchNotes</Form>
+    </DCCReference>
+    <DCCReference Include="..\..\Source\UnitPatchSettings.pas">
+      <Form>frmPatchSettings</Form>
+    </DCCReference>
+    <DCCReference Include="..\..\Source\UnitPerfSettings.pas">
+      <Form>frmPerfSettings</Form>
+    </DCCReference>
+    <DCCReference Include="..\..\Source\UnitSeqGrid.pas">
+      <Form>frmSeqGrid</Form>
+    </DCCReference>
+    <DCCReference Include="..\..\Source\UnitSettings.pas">
+      <Form>frmSettings</Form>
+    </DCCReference>
+    <DCCReference Include="..\..\Source\UnitSynthSettings.pas">
+      <Form>frmSynthSettings</Form>
+    </DCCReference>
+    <DCCReference Include="..\..\Source\VCLG2Controls\G2_Classes.pas" />
+    <DCCReference Include="..\..\Source\VCLG2Controls\G2_Graph.pas" />
+    <DCCReference Include="..\..\Source\VCLG2Controls\graph_util_vcl.pas" />
+    <DCCReference Include="..\..\Source\WindoUnitG2Editor.pas">
+      <Form>frmG2Main</Form>
+    </DCCReference>
+    <DCCReference Include="..\..\Source\WindowsUnitG2Editor.pas">
+      <Form>frmG2Main</Form>
+    </DCCReference>
+    <DCCReference Include="..\..\Source\Windows\UnitEditLabel.pas">
+      <Form>frmEditLabel</Form>
+    </DCCReference>
+    <DCCReference Include="..\..\Source\Windows\UnitEditorTools.pas">
+      <Form>frmEditorTools</Form>
+    </DCCReference>
+    <DCCReference Include="..\..\Source\Windows\UnitG2Editor.pas">
+      <Form>frmG2Main</Form>
+    </DCCReference>
+    <DCCReference Include="..\..\Source\Windows\UnitLog.pas">
+      <Form>frmLog</Form>
+    </DCCReference>
+    <DCCReference Include="..\..\Source\Windows\UnitMidiMapping.pas">
+      <Form>frmMidiMapping</Form>
+    </DCCReference>
+    <DCCReference Include="..\..\Source\Windows\UnitModuleDef.pas">
+      <Form>frmModuleDef</Form>
+    </DCCReference>
+    <DCCReference Include="..\..\Source\Windows\UnitParameterPages.pas">
+      <Form>frmParameterPages</Form>
+    </DCCReference>
+    <DCCReference Include="..\..\Source\Windows\UnitPatchBrowser.pas">
+      <Form>frmPatchBrowser</Form>
+    </DCCReference>
+    <DCCReference Include="..\..\Source\Windows\UnitPatchBrowserFilterModules.pas">
+      <Form>frmPatchBrowserModuleFilter</Form>
+    </DCCReference>
+    <DCCReference Include="..\..\Source\Windows\UnitPatchManager.pas">
+      <Form>frmPatchManager</Form>
+    </DCCReference>
+    <DCCReference Include="..\..\Source\Windows\UnitPatchNotes.pas">
+      <Form>frmPatchNotes</Form>
+    </DCCReference>
+    <DCCReference Include="..\..\Source\Windows\UnitPatchSettings.pas">
+      <Form>frmPatchSettings</Form>
+    </DCCReference>
+    <DCCReference Include="..\..\Source\Windows\UnitPerfSettings.pas">
+      <Form>frmPerfSettings</Form>
+    </DCCReference>
+    <DCCReference Include="..\..\Source\Windows\UnitSeqGrid.pas">
+      <Form>frmSeqGrid</Form>
+    </DCCReference>
+    <DCCReference Include="..\..\Source\Windows\UnitSettings.pas">
+      <Form>frmSettings</Form>
+    </DCCReference>
+    <DCCReference Include="..\..\Source\Windows\UnitSynthSettings.pas">
+      <Form>frmSynthSettings</Form>
+    </DCCReference>
+    <DCCReference Include="..\..\Source\WindowUnitG2Editor.pas">
+      <Form>frmG2Main</Form>
+    </DCCReference>
+    <DCCReference Include="..\..\Source\WindUnitG2Editor.pas">
+      <Form>frmG2Main</Form>
+    </DCCReference>
+    <DCCReference Include="..\..\Source\WinUnitG2Editor.pas">
+      <Form>frmG2Main</Form>
+    </DCCReference>
+    <DCCReference Include="..\..\Source\WiUnitG2Editor.pas">
+      <Form>frmG2Main</Form>
+    </DCCReference>
+    <DCCReference Include="..\..\Source\WUnitG2Editor.pas">
+      <Form>frmG2Main</Form>
+    </DCCReference>
+    <DCCReference Include="..\SoUnitG2Editor.pas">
+      <Form>frmG2Main</Form>
+    </DCCReference>
+    <DCCReference Include="..\SourceUnitG2Editor.pas">
+      <Form>frmG2Main</Form>
+    </DCCReference>
+    <DCCReference Include="..\Source\NMG2Controls\G2_Classes.pas" />
+    <DCCReference Include="..\Source\NMG2Controls\G2_Database.pas" />
+    <DCCReference Include="..\Source\NMG2Controls\G2_file.pas" />
+    <DCCReference Include="..\Source\NMG2Controls\G2_Graph.pas" />
+    <DCCReference Include="..\Source\NMG2Controls\G2_Types.pas" />
+    <DCCReference Include="..\Source\NMG2Controls\G2_USB.pas" />
+    <DCCReference Include="..\Source\NMG2Controls\graph_util_vcl.pas" />
+    <DCCReference Include="..\Source\UnitEditLabel.pas">
+      <Form>frmEditLabel</Form>
+    </DCCReference>
+    <DCCReference Include="..\Source\UnitG2Editor.pas">
+      <Form>frmG2Main</Form>
+    </DCCReference>
+    <DCCReference Include="..\Source\UnitLog.pas">
+      <Form>frmLog</Form>
+    </DCCReference>
+    <DCCReference Include="..\Source\UnitParameterPages.pas">
+      <Form>frmParameterPages</Form>
+    </DCCReference>
+    <DCCReference Include="..\Source\UnitPatchSettings.pas">
+      <Form>frmPatchSettings</Form>
+    </DCCReference>
+    <DCCReference Include="..\Source\UnitPerfSettings.pas">
+      <Form>frmPerfSettings</Form>
+    </DCCReference>
+    <DCCReference Include="..\Source\UnitSeqGrid.pas">
+      <Form>frmSeqGrid</Form>
+    </DCCReference>
+    <DCCReference Include="..\Source\UnitSynthSettings.pas">
+      <Form>frmSynthSettings</Form>
+    </DCCReference>
+    <DCCReference Include="..\SourcUnitG2Editor.pas">
+      <Form>frmG2Main</Form>
+    </DCCReference>
+    <DCCReference Include="..\SourUnitG2Editor.pas">
+      <Form>frmG2Main</Form>
+    </DCCReference>
+    <DCCReference Include="..\SouUnitG2Editor.pas">
+      <Form>frmG2Main</Form>
+    </DCCReference>
+    <DCCReference Include="..\SUnitG2Editor.pas">
+      <Form>frmG2Main</Form>
+    </DCCReference>
+    <DCCReference Include="..\UnitG2Editor.pas">
+      <Form>frmG2Main</Form>
+    </DCCReference>
+    <DCCReference Include=".UnitG2Editor.pas">
+      <Form>frmG2Main</Form>
+    </DCCReference>
+    <DCCReference Include="G2_Classes.pas" />
+    <DCCReference Include="G2_Database.pas" />
+    <DCCReference Include="G2_file.pas" />
+    <DCCReference Include="G2_Graph.pas" />
+    <DCCReference Include="G2_Types.pas" />
+    <DCCReference Include="G2_USB.pas" />
+    <DCCReference Include="NMG2Controls\G2_Classes.pas" />
+    <DCCReference Include="NMG2Controls\G2_Database.pas" />
+    <DCCReference Include="NMG2Controls\G2_file.pas" />
+    <DCCReference Include="NMG2Controls\G2_Graph.pas" />
+    <DCCReference Include="NMG2Controls\G2_Types.pas" />
+    <DCCReference Include="NMG2Controls\G2_USB.pas" />
+    <DCCReference Include="NMG2Controls\graph_util_vcl.pas" />
+    <DCCReference Include="NMG2Controls\UnitG2Editor.pas">
+      <Form>frmG2Main</Form>
+    </DCCReference>
+    <DCCReference Include="UnitEditLabel.pas">
+      <Form>frmEditLabel</Form>
+    </DCCReference>
+    <DCCReference Include="UnitG2Editor.pas">
+      <Form>frmG2Main</Form>
+    </DCCReference>
+    <DCCReference Include="UnitLog.pas">
+      <Form>frmLog</Form>
+    </DCCReference>
+    <DCCReference Include="UnitParameterPages.pas">
+      <Form>frmParameterPages</Form>
+    </DCCReference>
+    <DCCReference Include="UnitPatchSettings.pas">
+      <Form>frmPatchSettings</Form>
+    </DCCReference>
+    <DCCReference Include="UnitPerfSettings.pas">
+      <Form>frmPerfSettings</Form>
+    </DCCReference>
+    <DCCReference Include="UnitSeqGrid.pas">
+      <Form>frmSeqGrid</Form>
+    </DCCReference>
+    <DCCReference Include="UnitSynthSettings.pas">
+      <Form>frmSynthSettings</Form>
+    </DCCReference>
+  </ItemGroup>
+</Project>

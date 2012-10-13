@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<G2_Editor_settings>
+  <G2_Synth_1>
+    <Editor_settings LedColor="0" LogEnabled="False" OnlyTextMenus="False" CableThickness="2" HighlightColor="16776960" SlotStripColor="5920402" SlotStripInverseColor="5447424" SlotStripDisabledColor="13684944"/>
+    <TCP_settings IP="127.0.0.1" Port="2501" IsServer="True" TimerBroadcastLedMessages="0"/>
+    <MIDI_settings MidiInDevice="" MidiOutDevice=""/>
+  </G2_Synth_1>
+  <CTRL_MIDI_in_device_list/>
+  <CTRL_MIDI_out_device_list/>
+  <CTRL_MIDI_ASSIGNMENT_LIST/>
+  <MainForm PosX="100" PosY="100" SizeX="1083" SizeY="663" Visible="True"/>
+  <DirectorySettings G2oolsFolder="" ModuleHelpFile=""/>
+  <PatchBrowserSettings BaseFolder="" SelectedTab="0" ExternalSortCol="0" InternalSortCol="0"/>
+  <PatchBrowserForm PosX="225" PosY="225" SizeX="546" SizeY="438" Visible="False"/>
+  <PatchManagerForm PosX="25" PosY="25" SizeX="576" SizeY="555" Visible="False"/>
+  <SettingsForm PosX="0" PosY="0" SizeX="528" SizeY="466" Visible="False"/>
+  <ParameterPagesForm PosX="175" PosY="175" SizeX="575" SizeY="180" Visible="False"/>
+  <PatchSettingsForm PosX="125" PosY="125" SizeX="608" SizeY="185" Visible="False"/>
+  <EditorToolsForm PosX="200" PosY="200" SizeX="151" SizeY="261" Visible="False"/>
+  <PatchNotesForm PosX="25" PosY="25" SizeX="367" SizeY="425" Visible="False"/>
+</G2_Editor_settings>
