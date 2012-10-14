@@ -78,6 +78,7 @@
 			<DCC_IncludePath>NMG2Controls\;NMG2Controls\Delphi\xml;$(DCC_IncludePath)</DCC_IncludePath>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
+			<DCC_ExeOutput>..\..\v0.25</DCC_ExeOutput>
 			<VerInfo_AutoGenVersion>true</VerInfo_AutoGenVersion>
 			<VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
 			<VerInfo_Locale>1033</VerInfo_Locale>

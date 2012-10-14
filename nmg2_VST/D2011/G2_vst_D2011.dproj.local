@@ -1,35 +1,35 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <BorlandProject>
 	<Transactions>
-    <Transaction>1899-12-30 00:00:00.000.dproj,C:\Documents and Settings\BVerhue.BVE-HOME\My Documents\Delphi\NM G2\Source\VST\VstPlugin.dproj=C:\Documents and Settings\BVerhue.BVE-HOME\My Documents\Delphi\NM G2\Source\VST\G2Vst.dproj</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.017,=C:\Users\Bruno\Delphi\nmg2editor_2\Source\Common\g2_mess.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.827,=C:\Users\Bruno\Delphi\nmg2editor_2\Source\Third_party_code\TobyBear_vst_template\CommonVST\DAudioEffectX.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.603,=C:\Users\Bruno\Delphi\nmg2editor_2\Source\Third_party_code\FPC_XML\uriparser.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.063,=C:\Users\Bruno\Delphi\nmg2editor_2\Source\Common\G2_USB.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.815,=C:\Users\Bruno\Delphi\nmg2editor_2\Source\Third_party_code\TobyBear_vst_template\CommonVST\DAudioEffect.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.835,=C:\Users\Bruno\Delphi\nmg2editor_2\Source\Third_party_code\TobyBear_vst_template\CommonVST\DDspUtils.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.956,=C:\Users\Bruno\Delphi\nmg2editor_2\Source\Common\g2_file.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.373,=C:\Users\Bruno\Delphi\nmg2editor_2\Source\Third_party_code\MIDIIO\CircBuf.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.913,=C:\Users\Bruno\Delphi\nmg2editor_2\Source\Common\g2_database.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.624,=C:\Users\Bruno\Delphi\nmg2editor_2\Source\Third_party_code\FPC_XML\xmlread.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.638,=C:\Users\Bruno\Delphi\nmg2editor_2\Source\Third_party_code\FPC_XML\xmlutils.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.901,=C:\Users\Bruno\Delphi\nmg2editor_2\Source\Common\g2_classes.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.384,=C:\Users\Bruno\Delphi\nmg2editor_2\Source\Third_party_code\MIDIIO\MidiDefs.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.892,=C:\Users\Bruno\Delphi\nmg2editor_2\Source\Common\fastbitmap.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.988,=C:\Users\Bruno\Delphi\nmg2editor_2\Source\Common\g2_graph.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.804,=C:\Users\Bruno\Delphi\nmg2editor_2\Source\Third_party_code\TobyBear_vst_template\CommonVST\DVstTemplate.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.029,=C:\Users\Bruno\Delphi\nmg2editor_2\Source\Common\g2_midi.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.044,=C:\Users\Bruno\Delphi\nmg2editor_2\Source\Common\g2_types.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.088,=C:\Users\Bruno\Delphi\nmg2editor_2\Source\Common\LibUSBWinDyn.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.309,C:\Users\Bruno\Delphi\NMG2\Project\DelphiVCL\G2_vst_D2011.dproj=C:\Users\Bruno\Delphi\NMG2\Source\VST\G2_vst.dproj</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.806,=C:\Users\Bruno\Delphi\nmg2editor_2\Source\Third_party_code\TobyBear_vst_template\CommonVST\DAEffectX.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.dproj,C:\Documents and Settings\BVerhue.BVE-HOME\My Documents\Delphi\NM G2\Source\VST\G2Vst.dproj=C:\Documents and Settings\BVerhue.BVE-HOME\My Documents\Delphi\NM G2\Source\VST\VstPlugin.dproj</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.dproj,C:\Documents and Settings\BVerhue.BVE-HOME\My Documents\Delphi\NM G2\Source\VST\G2_vst.dproj=C:\Documents and Settings\BVerhue.BVE-HOME\My Documents\Delphi\NM G2\Source\VST\G2Vst.dproj</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.814,=C:\Users\Bruno\Delphi\nmg2editor_2\Source\Third_party_code\TobyBear_vst_template\CommonVST\DVstUtils.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.590,=C:\Users\Bruno\Delphi\nmg2editor_2\Source\Third_party_code\FPC_XML\dom.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.076,=C:\Users\Bruno\Delphi\nmg2editor_2\Source\Common\graph_util_vcl.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.651,=C:\Users\Bruno\Delphi\nmg2editor_2\Source\Third_party_code\FPC_XML\xmlwrite.pas</Transaction>
     <Transaction>1899-12-30 00:00:00.000.220,=C:\Users\Bruno\Delphi\NMG2\Source\NMG2Controls\stackdump.pas</Transaction>
-    <Transaction>1899-12-30 00:00:00.000.dproj,C:\Documents and Settings\BVerhue.BVE-HOME\My Documents\Delphi\NM G2\Source\VST\G2Vst.dproj=C:\Documents and Settings\BVerhue.BVE-HOME\My Documents\Delphi\NM G2\Source\VST\G2_vst.dproj</Transaction>
-    <Transaction>1899-12-30 00:00:00.000.309,C:\Users\Bruno\Delphi\NMG2\Source\VST\G2_vst.dproj=C:\Users\Bruno\Delphi\NMG2\Project\DelphiVCL\G2_vst_D2011.dproj</Transaction>
-    <Transaction>2012-10-13 16:30:22.806,=C:\Users\Bruno\Delphi\nmg2editor_2\Source\Third_party_code\TobyBear_vst_template\CommonVST\DAEffectX.pas</Transaction>
-    <Transaction>2012-10-13 16:30:22.815,=C:\Users\Bruno\Delphi\nmg2editor_2\Source\Third_party_code\TobyBear_vst_template\CommonVST\DAudioEffect.pas</Transaction>
-    <Transaction>2012-10-13 16:30:22.827,=C:\Users\Bruno\Delphi\nmg2editor_2\Source\Third_party_code\TobyBear_vst_template\CommonVST\DAudioEffectX.pas</Transaction>
-    <Transaction>2012-10-13 16:30:22.835,=C:\Users\Bruno\Delphi\nmg2editor_2\Source\Third_party_code\TobyBear_vst_template\CommonVST\DDspUtils.pas</Transaction>
-    <Transaction>2012-10-13 16:30:35.804,=C:\Users\Bruno\Delphi\nmg2editor_2\Source\Third_party_code\TobyBear_vst_template\CommonVST\DVstTemplate.pas</Transaction>
-    <Transaction>2012-10-13 16:30:35.814,=C:\Users\Bruno\Delphi\nmg2editor_2\Source\Third_party_code\TobyBear_vst_template\CommonVST\DVstUtils.pas</Transaction>
-    <Transaction>2012-10-13 16:32:35.126,=C:\Users\Bruno\Delphi\nmg2editor_2\Source\Third_party_code\TobyBear_vst_template\CommonVST\DAEffect.pas</Transaction>
-    <Transaction>2012-10-13 16:32:57.892,=C:\Users\Bruno\Delphi\nmg2editor_2\Source\Common\fastbitmap.pas</Transaction>
-    <Transaction>2012-10-13 16:32:57.901,=C:\Users\Bruno\Delphi\nmg2editor_2\Source\Common\g2_classes.pas</Transaction>
-    <Transaction>2012-10-13 16:32:57.913,=C:\Users\Bruno\Delphi\nmg2editor_2\Source\Common\g2_database.pas</Transaction>
-    <Transaction>2012-10-13 16:32:57.956,=C:\Users\Bruno\Delphi\nmg2editor_2\Source\Common\g2_file.pas</Transaction>
-    <Transaction>2012-10-13 16:32:57.988,=C:\Users\Bruno\Delphi\nmg2editor_2\Source\Common\g2_graph.pas</Transaction>
-    <Transaction>2012-10-13 16:32:58.017,=C:\Users\Bruno\Delphi\nmg2editor_2\Source\Common\g2_mess.pas</Transaction>
-    <Transaction>2012-10-13 16:32:58.029,=C:\Users\Bruno\Delphi\nmg2editor_2\Source\Common\g2_midi.pas</Transaction>
-    <Transaction>2012-10-13 16:32:58.044,=C:\Users\Bruno\Delphi\nmg2editor_2\Source\Common\g2_types.pas</Transaction>
-    <Transaction>2012-10-13 16:32:58.063,=C:\Users\Bruno\Delphi\nmg2editor_2\Source\Common\G2_USB.pas</Transaction>
-    <Transaction>2012-10-13 16:32:58.076,=C:\Users\Bruno\Delphi\nmg2editor_2\Source\Common\graph_util_vcl.pas</Transaction>
-    <Transaction>2012-10-13 16:32:58.088,=C:\Users\Bruno\Delphi\nmg2editor_2\Source\Common\LibUSBWinDyn.pas</Transaction>
-    <Transaction>2012-10-13 16:33:14.590,=C:\Users\Bruno\Delphi\nmg2editor_2\Source\Third_party_code\FPC_XML\dom.pas</Transaction>
-    <Transaction>2012-10-13 16:33:14.603,=C:\Users\Bruno\Delphi\nmg2editor_2\Source\Third_party_code\FPC_XML\uriparser.pas</Transaction>
-    <Transaction>2012-10-13 16:33:14.624,=C:\Users\Bruno\Delphi\nmg2editor_2\Source\Third_party_code\FPC_XML\xmlread.pas</Transaction>
-    <Transaction>2012-10-13 16:33:14.638,=C:\Users\Bruno\Delphi\nmg2editor_2\Source\Third_party_code\FPC_XML\xmlutils.pas</Transaction>
-    <Transaction>2012-10-13 16:33:14.651,=C:\Users\Bruno\Delphi\nmg2editor_2\Source\Third_party_code\FPC_XML\xmlwrite.pas</Transaction>
-    <Transaction>2012-10-13 16:33:38.373,=C:\Users\Bruno\Delphi\nmg2editor_2\Source\Third_party_code\MIDIIO\CircBuf.pas</Transaction>
-    <Transaction>2012-10-13 16:33:38.384,=C:\Users\Bruno\Delphi\nmg2editor_2\Source\Third_party_code\MIDIIO\MidiDefs.pas</Transaction>
-    <Transaction>2012-10-13 16:33:38.397,=C:\Users\Bruno\Delphi\nmg2editor_2\Source\Third_party_code\MIDIIO\MidiType.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.397,=C:\Users\Bruno\Delphi\nmg2editor_2\Source\Third_party_code\MIDIIO\MidiType.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.126,=C:\Users\Bruno\Delphi\nmg2editor_2\Source\Third_party_code\TobyBear_vst_template\CommonVST\DAEffect.pas</Transaction>
   </Transactions>
 </BorlandProject>

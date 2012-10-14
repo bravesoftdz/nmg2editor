@@ -1383,12 +1383,12 @@ begin
     if G2.FParamDefList.FileVersion <> NMG2_VERSION then
       ShowMessage( 'Warning, ParamDef.xml version differs from application.');
 
-    G2 := frmG2Main.SelectedG2;
-    if assigned(G2) then
-      frmPatchBrowserModuleFilter.UpdateModules(G2.FModuleDefList);
-
     G2.USBActive := True;
   end;
+
+  G2 := frmG2Main.SelectedG2;
+  if assigned(G2) then
+    frmPatchBrowserModuleFilter.UpdateModules(G2.FModuleDefList);
 
   CreateAddModuleMenu;
   CreateModuleMenu;
