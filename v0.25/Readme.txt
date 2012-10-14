@@ -11,13 +11,9 @@
 *  You should use the Filter wizard for this.                   *
 *                                                               *
 * Instructions on how to download and install the driver you    *
-* can find here:                                                *
+* can find in the help file                                     *
 *                                                               *
-* http://sourceforge.net/p/nmg2editor/wiki/Installing%20LibUSB/ *
-*                                                               *
-* If you install the libusb-win32 as a device driver            *
-* (inf-wizard) in stead of a filter driver (filter-wizard),     *
-* the original clavia editor will not work anymore!             *
+*     \Help\NMG2 Open source editor help.html                   *
 *                                                               *
 *****************************************************************
 
@@ -44,7 +40,6 @@ VST:
    ParamDef.xml
 
 2) then you can copy the new versions of these files to your VST folder.
-
 
 
 Known issues:
@@ -76,6 +71,34 @@ This error may occur when the tcp-ip port in the application settings is already
 
 Updates
 =======
+
+v0.25 update 14-10-2012
+=====================
+
+- Detection of modules incomaptible with original clavia edtor, will be saved with extensions prf2x en pch2x
+- Delay parameter where not shown in units in param pages.
+- Added some other missing unit conversions.
+- Added help to application settings
+- Added menu option to run g2ools from editor
+- Added option to change led colors
+- Bug placing modules when adding modules in scrolled scrollbox
+- Added option to control editor ui elements with midi (ctrl midi input) ableton style
+- Added init performance messages
+- Implemented assigned voices message
+- Implemented init perf message sequence
+- Implemented clear bank location message
+- Implement master clock messages
+- prevent echo ctrl midi on radio controls (midi + index)
+- Global point seperator, in stead of from country settings
+- Check box list for ctrl midi devices
+- Keep midi devices in ini file that system can't find (turned off)
+- patch manager : load, save patch/perf, init perf, load/save bank, rename, variations, slot selection also selectslot, select category
+- Assigned voices red when nil
+- Check box list for sysex midi devices
+- Show/Hide midi aware indicator on controls
+- Found and solved memory leak in VST
+- Restructured code repository (svn)
+- Made a html help file
 
 v0.24 update 8-7-2012
 =====================

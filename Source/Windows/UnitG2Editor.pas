@@ -134,6 +134,8 @@ unit UnitG2Editor;
 // Check box list for sysex midi devices
 // Show/Hide midi aware indicator on controls
 // Found and solved memory leak in VST
+// Restructured code repository (svn)
+// Made a html help file
 
 // Todo :
 // Move modules
