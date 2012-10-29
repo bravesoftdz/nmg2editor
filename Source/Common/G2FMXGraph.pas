@@ -3,7 +3,7 @@ unit G2FMXGraph;
 interface
 
 uses
-  System.SysUtils, System.Classes, System.UITypes, Types,
+  System.SysUtils, System.Classes, System.UITypes, Types, System.Contnrs,
   FMX.Types, FMX.Controls, FMX.Forms, FMX.Layouts, FMX.Objects,
   G2_Types, G2_File, G2_usb;
 
@@ -13,6 +13,7 @@ const
 	GRAVITY = 0.04;
 
 type
+  TClickEvent = procedure(Sender: TObject) of object;
   TModuleClickEvent = procedure(Sender : TObject; Button: TMouseButton; Shift: TShiftState; X,  Y: Integer; Module : TG2FileModule) of Object;
   TParameterClickEvent = procedure(Sender : TObject; Button: TMouseButton; Shift: TShiftState; X,  Y: Integer; Parameter : TG2FileParameter) of Object;
   TConnectorClickEvent = procedure(Sender : TObject; Button: TMouseButton; Shift: TShiftState; X,  Y: Integer; Parameter : TG2FileConnector) of Object;
@@ -21,8 +22,11 @@ type
   TG2FMXPatchArea = class;
   TG2FMXModule = class;
   TG2FMXControl = class;
+  TButtonBevel = class;
   TG2FMXConnector = class;
   TG2FMXCable = class;
+
+  TBevelType = (bvNone, bvRaised, bvLowered);
 
   TG2Graph = class( TG2USB)
   // Contains the control for the VA and FX patching
@@ -183,7 +187,7 @@ type
     function    GetSelected: boolean;
     function    GetLocation : TLocationType;
     function    GetModuleIndex : TBits8;
-    function    GetColor : TColor;
+    function    GetColor : TAlphaColor;
   protected
     procedure   MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Single); override;
     procedure   MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: Single); override;
@@ -235,7 +239,7 @@ type
     //property    Color : TColor read GetColor;
   end;
 
-  TG2FMXControl = class( TStyledControl)
+  TG2FMXControl = class( TControl)
   // This represents a child graphic control of another graphic control (module)
   protected
     FSelected       : boolean;
@@ -254,7 +258,7 @@ type
     procedure   DeSelect; virtual;
     procedure   SetLowValue( aValue: byte);
     procedure   SetHighValue( aValue: byte);
-
+    function    GetSelected : boolean;
   public
     constructor Create( AOwner: TComponent); override;
     destructor  Destroy; override;
@@ -262,8 +266,8 @@ type
     procedure   SetModule( aValue : TG2FMXModule); virtual;
     procedure   SetValue( aValue : byte);
     function    GetValue : byte;
-    procedure   SetParamLabel( aValue : string);
-    function    GetParamLabel : string;
+    procedure   SetParamLabel( aIndex : integer; aValue : AnsiString);
+    function    GetParamLabel( aIndex : integer) : AnsiString;
     procedure   InitValue( aValue: integer);
     function    CheckValueBounds( aValue : integer): byte;
     procedure   SetMorphValue( aValue: byte);
@@ -275,18 +279,19 @@ type
     function    GetMorph : TMorphParameter;
     function    GetParamIndex : integer;
     procedure   ParsePanelData( fs : TModuleDefStream); virtual;
-    function    ParseProperties( fs: TModuleDefStream; aName : string): boolean; virtual;
+    function    ParseProperties( fs: TModuleDefStream; aName : AnsiString): boolean; virtual;
 
     property    Parameter   : TG2FileParameter read FParameter write SetParameter;
     property    ParamIndex  : integer read GetParamIndex;
+    property    ParamLabel[ Index : integer]: AnsiString read GetParamLabel write SetParamLabel;
     property    Module      : TG2FMXModule read FModule write SetModule;
     property    MouseInput  : boolean read FMouseInput write FMouseInput;
+    property    Selected    : boolean read GetSelected;
   published
     property    Value       : byte read GetValue write SetValue;
     property    MorphValue  : byte read GetMorphValue;
     property    LowValue    : byte read GetLowValue write SetLowValue;
     property    HighValue   : byte read GetHighValue write SetHighValue;
-    property    ParamLabel  : string read GetParamLabel write SetParamLabel;
     property    OnMouseUp;
     property    OnMouseDown;
     property    OnMouseMove;
@@ -300,6 +305,127 @@ type
     destructor  Destroy; override;
     procedure   AssignControl( aControl : TG2FMXControl);
     procedure   DeassignControl( aControl : TG2FMXControl);
+  end;
+
+  TButtonBevel = class(TShape)
+  private
+    FInversed : boolean;
+    FBevelThickness : single;
+    FPointsUpperLeft,
+    FPointsLowerRight: TPolygon;
+    FDarkSideColor : TAlphaColor;
+    FLightSideColor : TAlphaColor;
+    FillDark : TBrush;
+    FillLight : TBrush;
+  protected
+    procedure SetBevelThickness( aValue : single);
+    procedure SetDarkSideColor( aValue : TAlphaColor);
+    procedure SetLightSideColor( aValue : TAlphaColor);
+    procedure SetInversed( aValue : boolean);
+    procedure Paint; override;
+  public
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+  published
+    property BevelThickness : single read FBevelThickness write SetBevelThickness;
+    property DarkSideColor : TAlphaColor Read FDarkSideColor write SetDarkSideColor;
+    property LightSideColor : TAlphaColor Read FLightSideColor write SetLightSideColor;
+    property Inversed : boolean read FInversed write SetInversed;
+    property Fill;
+    property Stroke;
+    property StrokeCap;
+    property StrokeDash;
+    property StrokeJoin;
+    property StrokeThickness;
+  end;
+
+  TG2FMXButton = class( TG2FMXControl)
+  private
+    FButtonText     : TStrings;
+    //FImageList      : TG2ImageList;
+    FButtonWidth    : integer;
+    FButtonHeight   : integer;
+    FButtonCount    : integer;
+    FOrientation    : TOrientationType;
+    FHighlightColor : TAlphaColor;
+    FBorderColor    : TAlphaColor;
+    FBevelVisible   : boolean;
+    FImageWidth     : integer;
+    FImageCount     : integer;
+    FCaption        : string;
+    FIcon           : TIconType;
+    FPressed        : boolean;
+    FFill           : TBrush;
+    FRectangle      : TRectangle;
+    FBevel          : TButtonBevel;
+    FText          : TText;
+    FOnClick        : TClickEvent;
+
+    FPointsUpperLeft,
+    FPointsLowerRight: TPolygon;
+  protected
+    procedure   MouseDown( Button: TMouseButton; Shift: TShiftState; X: Single; Y: Single); override;
+    procedure   MouseUp( Button: TMouseButton; Shift: TShiftState; X: Single; Y: Single); override;
+    procedure   SetCaption( aValue : string);
+    procedure   SetIcon( aValue : TIconType);
+    procedure   SetButtonText( aValue : TStrings);
+    procedure   SetHighLightColor( aValue : TAlphaColor);
+    procedure   SetBorderColor( aValue : TAlphaColor);
+    procedure   SetButtonCount( aValue : integer); virtual;
+    procedure   SetBevelVisible( aValue : boolean);
+    procedure   SetOrientation( aValue : TOrientationType); virtual;
+    procedure   Paint; override;
+    procedure   DrawBevel;
+  public
+    constructor Create( AOwner: TComponent); override;
+    destructor  Destroy; override;
+    function    ParseProperties( fs: TModuleDefStream; aName : AnsiString): boolean; override;
+
+
+    property    Module : TG2FMXModule read FModule;
+    property    Icon : TIconType read FIcon write SetIcon;
+  published
+    property    Caption : string read FCaption write SetCaption;
+    property    OnClick : TClickEvent read FOnClick write FOnClick;
+    //property    ButtonText : TStrings read FButtonText write SetButtonText;
+    property    HightlightColor : TAlphaColor read FHighlightColor write SetHighlightColor;
+    property    BorderColor : TAlphaColor read FBorderColor write SetBorderColor;
+    property    BevelVisible : boolean read FBevelVisible write SetBevelVisible;
+    //property    Orientation : TOrientationType read FOrientation write SetOrientation;
+    //property    ButtonCount : integer read FButtonCount write SetButtonCount;
+  end;
+
+  TG2FMXButtonText = class( TG2FMXButton)
+  private
+    FButtonTextType : TButtonTextType;
+    procedure   SetButtonTextType( aValue : TButtonTextType);
+  protected
+    procedure   MouseDown(Button: TMouseButton; Shift: TShiftState; X: Single; Y: Single); override;
+    procedure   MouseUp( Button: TMouseButton; Shift: TShiftState; X: Single; Y: Single); override;
+    procedure   Paint; override;
+  public
+    constructor Create( AOwner: TComponent); override;
+    destructor  Destroy; override;
+    procedure   ParsePanelData( fs : TModuleDefStream); override;
+    function    ParseProperties( fs: TModuleDefStream; aName : AnsiString): boolean; override;
+  published
+    property    ButtonTextType : TButtonTextType read FButtonTextType write SetButtonTextType;
+  end;
+
+  TG2FMXTextEdit = class( TG2FMXButtonText)
+  public
+    constructor Create( AOwner: TComponent); override;
+    destructor  Destroy; override;
+  end;
+
+  TG2FMXButtonFlat = class( TG2FMXButton)
+  protected
+    procedure   MouseDown(Button: TMouseButton; Shift: TShiftState; X: Single; Y: Single); override;
+    procedure   Paint; override;
+  public
+    constructor Create( AOwner: TComponent); override;
+    destructor  Destroy; override;
+    procedure   ParsePanelData( fs : TModuleDefStream); override;
   end;
 
   TG2FMXKnob = class( TG2FMXControl)
@@ -316,7 +442,7 @@ type
     FType             : TKnobType;
     FStartX,
     FStartY           : single;
-    FHighlightColor   : TColor;
+    FHighlightColor   : TAlphaColor;
     FFill,
     FFillMorph        : TBrush;
     procedure   SetOrientation( aValue : TOrientationType);
@@ -325,7 +451,7 @@ type
     procedure   MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: Single); override;
     procedure   MouseMove(Shift: TShiftState; X, Y: Single); override;
     procedure   SetKnobType( aValue : TKnobType);
-    procedure   SetHighLightColor( aValue : TColor);
+    procedure   SetHighLightColor( aValue : TAlphaColor);
   public
     constructor Create( AOwner: TComponent); override;
     destructor  Destroy; override;
@@ -333,11 +459,11 @@ type
     function    GetSliderRect: TRectF;
     function    GetMorphRect: TRectF;
     procedure   SetBounds(ALeft: single; ATop: single;  AWidth: single; AHeight: single); override;
-    function    ParseProperties( fs: TModuleDefStream; aName : String): boolean; override;
+    function    ParseProperties( fs: TModuleDefStream; aName : AnsiString): boolean; override;
  published
     property    KnobType : TKnobType read FType write SetKnobType;
     property    Orientation : TOrientationType read FOrientation write SetOrientation;
-    property    HightlightColor : TColor read FHighlightColor write SetHighlightColor;
+    property    HightlightColor : TAlphaColor read FHighlightColor write SetHighlightColor;
   end;
 
 
@@ -357,7 +483,7 @@ type
     destructor Destroy; override;
     procedure  Paint; override;
     procedure  ParsePanelData(fs: TModuleDefStream);
-    function   ParseProperties( fs: TModuleDefStream; aName : string): boolean;
+    function   ParseProperties( fs: TModuleDefStream; aName : AnsiString): boolean;
     procedure  SetData(aConnectorData: TG2FileConnector);
 
     property Data : TG2FileConnector read FData write SetData;
@@ -420,11 +546,62 @@ type
     property    Parent : TFmxObject read FParent write SetParent;
   end;
 
+function  Darker(c : TAlphaColor; f : byte): TAlphaColor;
+function  Lighter(c : TAlphaColor; f : byte): TAlphaColor;
+
 procedure Register;
 
 implementation
 uses
   Math;
+
+function Darker(c : TAlphaColor; f : byte): TAlphaColor;
+var R, G, B : byte;
+
+  function sub( comp : byte): byte;
+  begin
+    if comp - f > 0 then
+      result := comp - f
+    else
+      result := 0;
+  end;
+
+begin
+  //if c < 0 then
+  //  c := ColorToRGB(c);
+
+  R := (c and $000000FF);
+  G := (c and $0000FF00) shr 8;
+  B := (c and $00FF0000) shr 16;
+
+  result := sub(B) * 65536
+          + sub(G) * 256
+          + sub(R);
+end;
+
+function Lighter(c : TAlphaColor; f : byte): TAlphaColor;
+var R, G, B : byte;
+
+  function add( comp : byte): byte;
+  begin
+    if comp + f < 255 then
+      result := comp + f
+    else
+      result := 255;
+  end;
+
+begin
+  //if c < 0 then
+  //  c := ColorToRGB(c);
+
+  R := (c and $000000FF);
+  G := (c and $0000FF00) shr 8;
+  B := (c and $00FF0000) shr 16;
+
+  result := add(B) * 65536
+          + add(G) * 256
+          + add(R);
+end;
 
 
 {function PointInRect( X, Y : single; Rect : TRect): boolean;
@@ -452,7 +629,10 @@ end;
 
 function TG2Graph.GetSelectedPatch: TG2GraphPatch;
 begin
-  // Abstract
+  if assigned(Performance) then
+    Result := Performance.Slot[ Performance.SelectedSlot].Patch as TG2GraphPatch
+  else
+    Result := nil;
 end;
 
 procedure TG2Graph.SetClientType( aValue: TClientType);
@@ -1404,9 +1584,15 @@ var //MemStream : TMemoryStream;
 begin
   aPath := ExtractFilePath(ParamStr(0));
   //aPath := GetCurrentDir;
-{$IFDEF FPC}
+{$IFDEF LINUX}
   aPath := aPath + 'Modules/';
-{$ELSE}
+{$ENDIF}
+
+{$IFDEF MACOS}
+  aPath := '/Applications/Delphi/PAServer/scratch-dir/Bruno-VBMac/Modules/';
+{$ENDIF}
+
+{$IFDEF MSWINDOWS}
   aPath := aPath + '\Modules\';
 {$ENDIF}
 
@@ -1547,13 +1733,13 @@ begin
     Result := 'MiniVU';
 
   if aG2GraphChildControl is TG2GraphPartSelector then
-    Result := 'PartSelector';
+    Result := 'PartSelector';}
 
-  if aG2GraphChildControl is TG2GraphButtonText then
+  if aG2GraphChildControl is TG2FMXButtonText then
     Result := 'ButtonText';
 
-  if aG2GraphChildControl is TG2GraphButtonFlat then
-    Result := 'ButtonFlat';}
+  if aG2GraphChildControl is TG2FMXButtonFlat then
+    Result := 'ButtonFlat';
 
   if aG2GraphChildControl is  TG2FMXKnob then
     Result := 'Knob';
@@ -1612,20 +1798,17 @@ begin
   end;
 
   if (aControlType = 'ButtonText') then begin
-    //Result := TG2GraphButtonText.Create(self);
-    Result := TG2FMXControl.Create(self);
+    Result := TG2FMXButtonText.Create(self);
     Result.Module := self;
   end;
 
   if (aControlType = 'TextEdit') then begin
-    //Result := TG2GraphButtonText.Create(self);
-    Result := TG2FMXControl.Create(self);
+    Result := TG2FMXTextEdit.Create(self);
     Result.Module := self;
   end;
 
   if (aControlType = 'ButtonFlat') then begin
-    //Result := TG2GraphButtonFlat.Create(self);
-    Result := TG2FMXControl.Create(self);
+    Result := TG2FMXButtonFlat.Create(self);
     Result.Module := self;
   end;
 
@@ -1667,7 +1850,7 @@ begin
   Result := TG2FMXControl( FChildControls[ChildControlIndex]);
 end;
 
-function TG2FMXModule.GetColor: TColor;
+function TG2FMXModule.GetColor: TAlphaColor;
 begin
   Result := FData.Color;
 end;
@@ -1816,12 +1999,20 @@ begin
     Result := -1;
 end;
 
-function TG2FMXControl.GetParamLabel: string;
+function TG2FMXControl.GetParamLabel( aIndex : integer): AnsiString;
 begin
   if assigned( FParameter) then
-    Result := FParameter.ParamLabel[0]
+    Result := FParameter.ParamLabel[ aIndex]
   else
     Result := '';
+end;
+
+function TG2FMXControl.GetSelected: boolean;
+begin
+  if assigned( FParameter) then
+    Result := FParameter.Selected
+  else
+    Result := False;
 end;
 
 function TG2FMXControl.GetValue: byte;
@@ -1867,7 +2058,7 @@ begin
   end;
 end;
 
-function TG2FMXControl.ParseProperties( fs: TModuleDefStream; aName : string): boolean;
+function TG2FMXControl.ParseProperties( fs: TModuleDefStream; aName : AnsiString): boolean;
 var aValue : string;
 begin
   Result := True;
@@ -1927,11 +2118,12 @@ begin
   end;
 end;
 
-procedure TG2FMXControl.SetParamLabel(aValue: string);
+procedure TG2FMXControl.SetParamLabel( aIndex : integer; aValue: AnsiString);
 begin
   if assigned( FParameter) then
-    FParameter.ParamLabel[0] := aValue
+    FParameter.ParamLabel[ aIndex] := aValue
   else begin
+    Repaint;
   end;
 end;
 
@@ -2169,7 +2361,7 @@ begin
   FData.CalcDefColor;
 end;
 
-function TG2FMXConnector.ParseProperties( fs: TModuleDefStream; aName : string): boolean;
+function TG2FMXConnector.ParseProperties( fs: TModuleDefStream; aName : AnsiString): boolean;
 var aValue : string;
 begin
   Result := True;
@@ -2219,6 +2411,592 @@ procedure TG2FMXConnector.SetData(aConnectorData: TG2FileConnector);
 begin
   FData := aConnectorData;
   FData.GraphControl := self;
+end;
+
+// ==== TButtonBevel ===========================================================
+
+constructor TButtonBevel.Create(AOwner: TComponent);
+begin
+  inherited;
+  SetLength(FPointsUpperLeft, 6);
+  SetLength(FPointsLowerRight, 6);
+  FDarkSideColor := claGray;
+  FLightSideColor := claLightGray;
+  FInversed := False;
+
+  FillDark := TBrush.Create(TBrushKind.bkSolid, claGray);
+  FillLight := TBrush.Create(TBrushKind.bkSolid, claLightGray);
+end;
+
+destructor TButtonBevel.Destroy;
+begin
+  FillLight.Free;
+  FillDark.Free;
+
+  Finalize(FPointsUpperLeft);
+  Finalize(FPointsLowerRight);
+  inherited;
+end;
+
+procedure TButtonBevel.Paint;
+var
+  R, RInner: TRectF;
+begin
+  inherited;
+
+  R := GetShapeRect;
+  RInner.Left := R.Left + FBevelThickness;
+  RInner.Right := R.Right + FBevelThickness;
+  RInner.Top := R.Top + FBevelThickness;
+  RInner.Bottom := R.Bottom + FBevelThickness;
+
+
+  //if Canvas.BeginScene then
+  //  try
+
+      {canvas.Fill.Color := claDarkGray;}
+      canvas.Fill.Kind := TBrushKind.bkSolid;
+
+      {Canvas.FillRect( RInner, 0, 0, AllCorners, AbsoluteOpacity);}
+
+      if Inversed then begin
+        canvas.Fill.Color := claRed;//FDarkSideColor
+        canvas.Stroke.Color := claRed;
+      end else begin
+        canvas.Fill.Color := FLightSideColor;
+      end;
+
+      FPointsUpperLeft[0] := PointF(R.Left, R.Top);
+      FPointsUpperLeft[1] := PointF(R.Right, R.Top);
+      FPointsUpperLeft[2] := PointF(R.Right, R.Bottom);
+      FPointsUpperLeft[3] := PointF(R.Right - FBevelThickness, R.Bottom - FBevelThickness);
+      FPointsUpperLeft[4] := PointF(R.Right - FBevelThickness, R.Top + FBevelThickness);
+      FPointsUpperLeft[5] := PointF(R.Left + FBevelThickness, R.Top + FBevelThickness);
+
+      Canvas.FillPolygon(FPointsUpperLeft, 1);
+      //Canvas.DrawPolygon(FPoints, AbsoluteOpacity);
+
+      if Inversed then begin
+        canvas.Fill.Color := claBlue;//FDarkSideColor
+        canvas.Stroke.Color := claBlue;
+      end else
+        canvas.Fill.Color := FDarkSideColor;
+
+      FPointsLowerRight[0] := PointF(R.Left, R.Top);
+      FPointsLowerRight[1] := PointF(R.Left + FBevelThickness, R.Top + FBevelThickness);
+      FPointsLowerRight[2] := PointF(R.Left + FBevelThickness, R.Bottom - FBevelThickness);
+      FPointsLowerRight[3] := PointF(R.Right - FBevelThickness, R.Bottom - FBevelThickness);
+      FPointsLowerRight[4] := PointF(R.Right, R.Bottom);
+      FPointsLowerRight[5] := PointF(R.Left, R.Bottom);
+
+      Canvas.FillPolygon(FPointsLowerRight, 1);
+    //finally
+    //  Canvas.EndScene;
+    //end;
+end;
+
+procedure TButtonBevel.SetBevelThickness(aValue: single);
+begin
+  FBevelThickness := aValue;
+  Repaint;
+end;
+
+procedure TButtonBevel.SetDarkSideColor( aValue : TAlphaColor);
+begin
+  FDarkSideColor := aValue;
+  Repaint;
+end;
+
+procedure TButtonBevel.SetInversed(aValue: boolean);
+begin
+  FInversed := aValue;
+  Repaint;
+end;
+
+procedure TButtonBevel.SetLightSideColor( aValue : TAlphaColor);
+begin
+  FLightSideColor := aValue;
+  Repaint;
+end;
+
+// ==== TG2FMXButton ===========================================================
+
+constructor TG2FMXButton.Create(AOwner: TComponent);
+begin
+  inherited;
+
+  FButtonText := TStringList.Create;
+  //FImageList := TG2ImageList.Create( True);
+
+  FMouseInput := True;
+
+  Width := 13;
+  Height := 12;
+
+  HitTest := True;
+
+  {FRectangle := TRectangle.Create(self);
+  FRectangle.Parent := self;
+  FRectangle.Align := TAlignLayout.alClient;
+  FRectangle.Fill.Color := claDarkGray;
+  FRectangle.Stroke.Color := claBlack;
+  FRectangle.HitTest := False;}
+
+  {FBevel := TButtonBevel.Create(self);
+  FBevel.Parent := self;
+  FBevel.Align := TAlignLayout.alClient;
+  FBevel.BevelThickness := 5;
+  FBevel.HitTest := False;}
+
+  FText := TText.Create(self);
+  FText.Parent := self;
+  FText.Align := TAlignLayout.alClient;
+  FText.HitTest := False;
+
+  FButtonWidth := 0;
+  FButtonHeight := 0;
+  FButtonCount := 0;
+  FOrientation := otHorizontal;
+  FImageWidth := 0;
+  FImageCount := 0;
+
+  //FHighLightColor := G_HighLightColor;
+  FHighLightColor := claTurquoise;
+
+  FCaption := '';
+  FIcon := itNone;
+
+  FPressed := False;
+
+  //FBevel.DarkSideColor := Darker( claRed, 20);
+ // FBevel.LightSideColor := Lighter( claRed, 20);
+  SetLength(FPointsUpperLeft, 6);
+  SetLength(FPointsLowerRight, 6);
+end;
+
+destructor TG2FMXButton.Destroy;
+begin
+  //FImageList.Free;
+  FButtonText.Free;
+
+  Finalize(FPointsUpperLeft);
+  Finalize(FPointsLowerRight);
+  inherited;
+end;
+
+procedure TG2FMXButton.MouseDown( Button: TMouseButton; Shift: TShiftState; X,  Y: Single);
+begin
+ if (ssLeft in Shift) then begin
+    FPressed := True;
+    {FBevel.Inversed := True;
+
+    if FBevel.Inversed then
+      FText.Text := 'Inversed!'
+    else
+      FText.Text := 'Normal!';}
+    Repaint;
+  end;
+  inherited;
+end;
+
+procedure TG2FMXButton.MouseUp( Button: TMouseButton; Shift: TShiftState; X,  Y: Single);
+begin
+  if FPressed then begin
+    FPressed := False;
+    //FBevel.Inversed := False;
+    Repaint;
+    if assigned(FOnClick) then FOnClick( self);
+  end;
+  inherited;
+end;
+
+procedure TG2FMXButton.SetCaption( aValue: string);
+begin
+  FCaption := aValue;
+  FText.Text := aValue;
+end;
+
+procedure TG2FMXButton.SetOrientation( aValue : TOrientationType);
+begin
+  // Abstract
+end;
+
+procedure TG2FMXButton.SetHighLightColor( aValue: TAlphaColor);
+begin
+  FHighlightColor := aValue;
+  Repaint;
+end;
+
+procedure TG2FMXButton.SetBevelVisible( aValue: boolean);
+begin
+  FBevelVisible := aValue;
+  Repaint;
+end;
+
+procedure TG2FMXButton.SetBorderColor( aValue: TAlphaColor);
+begin
+  FBorderColor := aValue;
+end;
+
+procedure TG2FMXButton.SetIcon( aValue: TIconType);
+begin
+  FIcon := aValue;
+  Repaint;
+end;
+
+procedure TG2FMXButton.SetButtonCount( aValue: integer);
+begin
+  FButtonCount := aValue;
+  Repaint;
+end;
+
+procedure TG2FMXButton.SetButtonText( aValue: TStrings);
+begin
+  FButtonText.Assign( aValue);
+  Repaint;
+end;
+
+procedure TG2FMXButton.Paint;
+var R : TRectF;
+begin
+  inherited;
+
+  canvas.Fill.Color := claDarkGray;
+  canvas.Fill.Kind := TBrushKind.bkSolid;
+
+  canvas.FillRect( BoundsRect, 0, 0, allCorners, 1);
+
+  R := BoundsRect;
+
+  if FBevelVisible and (not FPressed) then begin
+    DrawBevel;
+  end;
+
+  Canvas.Fill.Color := claBlack;
+  if FPressed then
+    Canvas.FillText( R, 'Pressed!', True, AbsoluteOpacity, [], TTextAlign.taCenter)
+  else
+    Canvas.FillText( R, 'Not pressed!', True, AbsoluteOpacity, [], TTextAlign.taCenter);
+end;
+
+procedure TG2FMXButton.DrawBevel;
+var R : TRectF;
+    FBevelThickness : single;
+begin
+  FBevelThickness := 2;
+
+  R := BoundsRect;
+
+  if FPressed then begin
+    canvas.Fill.Color := claGray
+  end else begin
+    canvas.Fill.Color := claLightGray;
+  end;
+
+  FPointsUpperLeft[0] := PointF(R.Left, R.Top);
+  FPointsUpperLeft[1] := PointF(R.Right, R.Top);
+  FPointsUpperLeft[2] := PointF(R.Right, R.Bottom);
+  FPointsUpperLeft[3] := PointF(R.Right - FBevelThickness, R.Bottom - FBevelThickness);
+  FPointsUpperLeft[4] := PointF(R.Right - FBevelThickness, R.Top + FBevelThickness);
+  FPointsUpperLeft[5] := PointF(R.Left + FBevelThickness, R.Top + FBevelThickness);
+
+  Canvas.FillPolygon(FPointsUpperLeft, AbsoluteOpacity);
+
+  //canvas.Stroke.Color := claWhite;
+  //canvas.StrokeThickness := 1;
+  //Canvas.DrawPolygon(FPointsUpperLeft, AbsoluteOpacity);
+
+  if FPressed then begin
+    canvas.Fill.Color := claLightGray
+  end else
+    canvas.Fill.Color := claGray;
+
+  FPointsLowerRight[0] := PointF(R.Left, R.Top);
+  FPointsLowerRight[1] := PointF(R.Left + FBevelThickness, R.Top + FBevelThickness);
+  FPointsLowerRight[2] := PointF(R.Left + FBevelThickness, R.Bottom - FBevelThickness);
+  FPointsLowerRight[3] := PointF(R.Right - FBevelThickness, R.Bottom - FBevelThickness);
+  FPointsLowerRight[4] := PointF(R.Right, R.Bottom);
+  FPointsLowerRight[5] := PointF(R.Left, R.Bottom);
+
+  Canvas.FillPolygon(FPointsLowerRight, 1);
+
+  //canvas.Stroke.Color := claWhite;
+  //canvas.StrokeThickness := 1;
+  //Canvas.DrawPolygon(FPointsLowerRight, AbsoluteOpacity);
+end;
+
+
+function TG2FMXButton.ParseProperties( fs: TModuleDefStream; aName : AnsiString): boolean;
+var aValue : AnsiString;
+begin
+  Result := True;
+
+  if not inherited ParseProperties( fs, aName) then begin
+
+    if aName = 'Text' then begin
+      fs.ReadConst( '"');
+      fs.ReadOptions( FButtonText, [','], ['"']);
+    end else
+
+    if aName = 'Image' then begin
+      fs.ReadConst( '"');
+      //fs.ReadOptions( FImageList.FImageData, [':'], ['"']);
+      fs.ReadUntil( ['"']);
+    end else
+
+    if aName = 'CodeRef' then begin
+      aValue := fs.ReadUntil( [#13]);
+      FParameter := FModule.FData.Parameter[ StrToInt(string(aValue))] as TG2GraphParameter;
+      (FParameter as TG2GraphParameter).AssignControl(self);
+    end else
+
+    if aName = 'InfoFunc' then begin
+      aValue := fs.ReadUntil( [#13]);
+      //
+    end else
+
+    if aName = 'Orientation' then begin
+      aValue := fs.ReadUntil( [#13]);
+      if aValue = '"Horizontal"' then
+        FOrientation := otHorizontal
+      else
+        FOrientation := otVertical;
+    end else
+
+    if aName = 'ButtonCount' then begin
+      aValue := fs.ReadUntil( [#13]);
+      FButtonCount := StrToInt(string(aValue));
+    end else
+
+    if aName = 'ButtonWidth' then begin
+      aValue := fs.ReadUntil( [#13]);
+      FButtonWidth := StrToInt(string(aValue));
+    end else
+
+    {if aName = 'Type' then begin
+      aValue := ReadUntil(fs, [#13]);
+      //
+    end else}
+
+    if aName = 'Style' then begin
+      aValue := fs.ReadUntil( [#13]);
+      //
+    end else
+
+    if aName = 'ImageWidth' then begin
+      aValue := fs.ReadUntil( [#13]);
+      FImageWidth := StrToInt(string(aValue));
+    end else
+
+    if aName = 'ImageCount' then begin
+      aValue := fs.ReadUntil( [#13]);
+      FImageCount := StrToInt(string(aValue));
+    end else
+
+      Result := False
+
+  end;
+end;
+
+// ==== TG2FMXButtonText =======================================================
+
+constructor TG2FMXButtonText.Create(AOwner: TComponent);
+begin
+  inherited;
+
+  //FButtonTextType := bttNormal;
+  FButtonTextType := bttPush;
+end;
+
+destructor TG2FMXButtonText.Destroy;
+begin
+  inherited;
+end;
+
+procedure TG2FMXButtonText.MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Single);
+begin
+  if  ( ssLeft in Shift) then begin
+    if FButtonTextType = bttPush then
+      Value := 1
+    else
+      Value := 1 - Value;
+  end;
+  inherited;
+end;
+
+procedure TG2FMXButtonText.MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: Single);
+begin
+  if FButtonTextType = bttPush then
+    Value := 0;
+  inherited;
+end;
+
+procedure TG2FMXButtonText.Paint;
+var LabelText : string;
+begin
+  if Value = 0 then
+    Canvas.Fill.Color := claDarkGray
+  else
+    Canvas.Fill.Color := FHighLightColor;
+  canvas.Fill.Kind := TBrushKind.bkSolid;
+
+  canvas.FillRect( BoundsRect, 0, 0, allCorners, 1);
+
+  if False{FImageList.Count > 0} then
+    //DrawCenter( ExtCanvas, Rect, FImageList.Items[0])
+  else begin
+    LabelText := '';
+    if assigned(Parameter) then
+      LabelText := Parameter.SelectedButtonText
+    else
+      if (FButtonText.Count > 0) then begin
+        LabelText := string(ParamLabel[0]);
+        if LabelText = '' then
+          if  Value < FButtonText.Count then
+            LabelText := FButtonText[ Value];
+      end;
+    Canvas.Fill.Color := claBlack;
+    Canvas.FillText( BoundsRect, LabelText, True, AbsoluteOpacity, [], TTextAlign.taCenter)
+  end;
+
+  {if Selected then
+    Canvas.Brush.Color := CL_SELECTED_PARAM
+  else
+    Canvas.Brush.Color := Color;}
+
+  if Value = 0 then
+    DrawBevel;
+end;
+
+procedure TG2FMXButtonText.ParsePanelData(fs: TModuleDefStream);
+begin
+  inherited;
+
+  {if FImageList.FImageData.Count > 0 then begin
+    FImageList.BitmapWidth := FImageWidth;
+    FImageList.ParseImageData( 1, True)
+  end;}
+end;
+
+function TG2FMXButtonText.ParseProperties(fs: TModuleDefStream; aName: AnsiString): boolean;
+var aValue : AnsiString;
+begin
+  Result := True;
+
+  if not inherited ParseProperties( fs, aName) then begin
+
+    if aName = 'Type' then begin
+      aValue := fs.ReadUntil( [#13]);
+
+      if aValue = '"Push"' then
+        FButtonTextType := bttPush
+      else
+        if aValue = '"Check"' then
+          FButtonTextType := bttCheck;
+
+    end else
+      Result := False
+
+  end;
+end;
+
+procedure TG2FMXButtonText.SetButtonTextType( aValue: TButtonTextType);
+begin
+  FButtonTextType := aValue;
+  Repaint;
+end;
+
+// ==== TG2GraphTextEdit =======================================================
+
+constructor TG2FMXTextEdit.Create(AOwner: TComponent);
+begin
+  inherited;
+end;
+
+destructor TG2FMXTextEdit.Destroy;
+begin
+  inherited;
+end;
+
+// ==== TG2GraphButtonFlat =====================================================
+
+constructor TG2FMXButtonFlat.Create(AOwner: TComponent);
+begin
+  inherited;
+end;
+
+destructor TG2FMXButtonFlat.Destroy;
+begin
+  inherited;
+end;
+
+procedure TG2FMXButtonFlat.Paint;
+var Rect : TRect;
+    LabelText : string;
+begin
+  //AddLogLine('Paint button flat');
+
+  inherited;
+
+  Canvas.Fill.Color := claDarkGray;
+  Canvas.Fill.Kind := TBrushKind.bkSolid;
+
+  Canvas.FillRect( BoundsRect, 0, 0, allCorners, 1);
+
+  if False{(FImageList.Count > 0) and (Value < FImageList.Count)} then begin
+    //DrawCenter( ExtCanvas, Rect, FImageList.Items[Value])
+  end else begin
+    LabelText := '';
+    if assigned(Parameter) then
+      LabelText := Parameter.SelectedButtonText
+    else
+      if Value < FButtonText.Count then
+        LabelText := FButtonText[Value];
+
+    if assigned(Parameter) and (LabelText = '') then
+      LabelText := Parameter.InfoFunction( Parameter.InfoFunctionIndex);
+
+    Canvas.Fill.Color := claBlack;
+    Canvas.FillText( BoundsRect, LabelText, True, AbsoluteOpacity, [], TTextAlign.taCenter)
+  end;
+
+  if Selected then
+    Canvas.Stroke.Color := claWhite
+  else
+    Canvas.Stroke.Color := claBlack;
+
+  Canvas.DrawRect( BoundsRect, 0, 0, allCorners, AbsoluteOpacity);
+
+  {if MidiAware and ShowMidiBox then begin
+    if assigned(FMidiEditorAssignmentList) then
+      MidiEditorAssignment := FMidiEditorAssignmentList.FindControl(self)
+    else
+      MidiEditorAssignment := nil;
+    DrawMidiAwareBox( ExtCanvas, MakeRect( Rect.Left, Rect.Top, 16, 8), MidiEditorAssignment);
+  end;}
+end;
+
+procedure TG2FMXButtonFlat.ParsePanelData( fs: TModuleDefStream);
+begin
+  inherited;
+
+  if assigned(FParameter) then
+    {if FImageCount > 0 then begin
+      FImageList.BitmapWidth := FImageWidth;
+      FImageList.ParseImageData( FImageCount, True)
+    end;}
+end;
+
+
+procedure TG2FMXButtonFlat.MouseDown( Button: TMouseButton; Shift: TShiftState; X, Y: Single);
+begin
+  if ( ssLeft in Shift) then begin
+    if Value + 1 > HighValue then
+      Value := LowValue
+    else
+      Value := Value + 1;
+  end;
+  inherited;
 end;
 
 // ==== TG2FMXKnob =============================================================
@@ -2533,7 +3311,7 @@ begin
   end;
 end;
 
-function TG2FMXKnob.ParseProperties( fs: TModuleDefStream; aName : String): boolean;
+function TG2FMXKnob.ParseProperties( fs: TModuleDefStream; aName : AnsiString): boolean;
 var aValue : AnsiString;
 begin
   Result := True;
@@ -2723,7 +3501,7 @@ begin
   //Invalidate;
 end;
 
-procedure TG2FMXKnob.SetHighLightColor( aValue: TColor);
+procedure TG2FMXKnob.SetHighLightColor( aValue: TAlphaColor);
 begin
   FHighlightColor := aValue;
   //Invalidate;
@@ -3041,7 +3819,14 @@ end;
 
 procedure Register;
 begin
-  RegisterComponents('G2 FMX Controls', [TG2FMXPatchArea, TG2FMXControl, TG2FMXCable, TG2FMXConnector]);
+  RegisterComponents('G2 FMX Controls', [TG2FMXPatchArea, TG2FMXControl,
+      TButtonBevel, TG2FMXButton, TG2FMXKnob, TG2FMXCable, TG2FMXConnector,
+      TG2FMXButtonText, TG2FMXButtonFlat]);
 end;
 
+
+initialization
+  RegisterFMXClasses([TG2FMXPatchArea, TG2FMXControl, TButtonBevel,
+      TG2FMXButton, TG2FMXKnob, TG2FMXCable, TG2FMXConnector, TG2FMXButtonText,
+      TG2FMXButtonFlat]);
 end.

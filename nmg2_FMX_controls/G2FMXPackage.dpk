@@ -36,6 +36,6 @@ requires
   MidiComponents2010;
 
 contains
-  G2FMXGraph in 'G2FMXGraph.pas';
+  G2FMXGraph in '..\Source\Common\G2FMXGraph.pas';
 
 end.

@@ -504,6 +504,7 @@ type
     aPerfRename: TAction;
     btClockRun: TG2GraphButtonText;
     Patchbrowser1: TMenuItem;
+    Timer1: TTimer;
 
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);

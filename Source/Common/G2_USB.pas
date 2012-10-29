@@ -54,16 +54,25 @@ uses
   LCLType,
 {$ELSE}
   {$IFDEF G2_VER220_up}
-    WinApi.Windows, WinApi.Messages, System.SyncObjs, System.Classes,
-    System.SysUtils,
+    {$IFDEF MSWINDOWS}
+    WinApi.Windows, WinApi.Messages,
+    {$ENDIF}
+    System.SyncObjs, System.Classes, System.SysUtils,
   {$ELSE}
-    Windows, Messages, SyncObjs, Classes, SysUtils,
+    {$IFDEF MSWINDOWS}
+      Windows, Messages,
+    {$ENDIF}
+    SyncObjs, Classes, SysUtils,
   {$ENDIF}
 {$ENDIF}
 
-{$IFDEF unix}
+{$IFDEF UNIX}
   libusb,
-{$ELSE}
+{$ENDIF}
+{$IFDEF MACOS}
+  libusb_dyn,
+{$ENDIF}
+{$IFDEF MSWINDOWS}
   //LibUSBWin,
   LibUSBWinDyn,
 {$ENDIF}
@@ -72,7 +81,7 @@ uses
   g2_types, g2_file, g2_mess;
 
 const
-{$IFNDEF unix}
+{$IFNDEF UNIX}
   LIBUSB_ERROR_TIMEOUT = -116;
 {$ENDIF}
   TIME_OUT             = 0;     // Timeout wait for G2 interrupt message, must be long enough, otherwise there is the risk of losing contact with the G2
@@ -231,10 +240,15 @@ type
 
   TG2USB = class( TG2Mess)
     private
-{$IFDEF unix}
+{$IFDEF UNIX}
       g2udev : Plibusb_device_handle; //a device handle
       ctx : PPlibusb_context;
-{$ELSE}
+{$ENDIF}
+{$IFDEF MACOS}
+      g2udev : Plibusb_device_handle; //a device handle
+      ctx : PPlibusb_context;
+{$ENDIF}
+{$IFDEF MSWINDOWS}
       bus    : pusb_bus;
       g2dev  : pusb_device;
       g2udev : pusb_dev_handle;
@@ -294,11 +308,17 @@ type
 
       function    GetUSBActive : boolean;
       procedure   SetUSBActive(const value : boolean);
-{$IFDEF unix}
+{$IFDEF UNIX}
       function    iread(addr: byte; var buffer; size, timeout: longword): integer;
       function    bread(addr: byte; var buffer; size, timeout: longword): integer;
       function    bwrite(addr: byte; var buffer; size, timeout: longword): integer;
-{$ELSE}
+{$ENDIF}
+{$IFDEF MACOS}
+      function    iread(addr: byte; var buffer; size, timeout: longword): integer;
+      function    bread(addr: byte; var buffer; size, timeout: longword): integer;
+      function    bwrite(addr: byte; var buffer; size, timeout: longword): integer;
+{$ENDIF}
+{$IFDEF MSWINDOWS}
       function    bwrite(addr : longword; var buffer; size, timeout : longword): integer;
       function    bread(addr : longword; var buffer; size, timeout : longword): integer;
       function    iread(addr : longword; var buffer; size, timeout : longword): integer;
@@ -396,7 +416,9 @@ type
 
       property    IdTCPClient : TIdTCPClient read FIdTCPClient;
       property    Initialized : boolean read FInitialized;
+{$IFDEF MSWINDOWS}
       property    G2USBDevice : pusb_device read g2dev write g2dev;
+{$ENDIF}
     published
       property    IsServer : boolean read FIsServer write FIsServer;
       property    Port : integer read FPort write FPort;
@@ -536,7 +558,9 @@ type
     function    MessSetModuleLabel( aLocation : TLocationType; aModuleIndex : byte; aName : AnsiString): boolean; override;
   end;
 
+{$IFDEF MSWINDOWS}
   procedure GetUSBDeviceList( aList : TList);
+{$ENDIF}
 
 implementation
 
@@ -617,9 +641,13 @@ function TG2USB.get_error: string;
 var i : integer;
     err : PAnsiChar;
 begin
-{$IFDEF unix}
+{$IFDEF UNIX}
   Result := 'error...';
-{$ELSE}
+{$ENDIF}
+{$IFDEF MACOS}
+  Result := 'error...';
+{$ENDIF}
+{$IFDEF WINDOWS}
   err := usb_strerror;
 
   Result := '';
@@ -646,6 +674,7 @@ begin
   Result := Performance.Slot[ aSlot] as TG2USBSlot;
 end;
 
+{$IFDEF MSWINDOWS}
 procedure GetUSBDeviceList( aList : TList);
 var bus : pusb_bus;
     dev : pusb_device;
@@ -670,12 +699,56 @@ begin
     end;
     bus := bus^.next;
   end;
-
   usb_set_debug(255);
 end;
+{$ENDIF}
 
-{$IFDEF unix}
+{$IFDEF UNIX}
 function TG2USB.Init : boolean;
+var returncode:integer;
+    dev : libusb_device;
+    devs : PPlibusb_device;
+    cnt : integer;
+begin
+  // Initialization of the USB interface unix
+
+  ctx := nil;
+
+  returncode := libusb_init(@ctx);     //init libusb API
+  //libusb_set_debug(ctx,3);             //set debug
+
+  cnt := libusb_get_device_list(ctx,@devs);
+  g2udev := libusb_open_device_with_vid_pid(ctx,VENDOR_ID,PRODUCT_ID); //hid lib test
+
+  if assigned(g2udev) then begin
+    libusb_free_device_list(devs, 1); //free the list, unref the devices in it
+    //kernel driver attaching problem
+    if (libusb_kernel_driver_active(g2udev, 0) = 1) then  //find out if kernel driver is attached
+    begin
+      add_log_line('Kernel Driver Active', LOGCMD_HDR);
+      if(libusb_detach_kernel_driver(g2udev, 0) = 0) then //detach it
+        add_log_line('Kernel Driver Detached!', LOGCMD_HDR);
+    end;
+
+    dev := libusb_get_device(g2udev);
+
+    // get 3 endpoints
+    g2iin := $81;
+    g2bin := $82;
+    g2bout := $03;
+
+    //g2udev := usb_open(g2dev);
+    //if not Assigned(g2udev) then
+    //  raise Exception.Create('Unable to open device.');
+
+    returncode := libusb_claim_interface(g2udev, 0);   //claim usb interface
+    if returncode < 0 then
+      add_log_line('Claim not possible!', LOGCMD_HDR);
+  end;
+end;
+{$ENDIF}
+{$IFDEF MACOS}
+procedure TG2USB.Init;
 var returncode:integer;
     dev : libusb_device;
     devs : PPlibusb_device;
@@ -717,7 +790,8 @@ begin
       add_log_line('Claim not possible!', LOGCMD_HDR);
   end;
 end;
-{$ELSE}
+{$ENDIF}
+{$IFDEF MSWINDOWS}
 procedure TG2USB.Init;
 var dev: pusb_device;
     version : pusb_version;
@@ -794,7 +868,7 @@ begin
 end;
 {$ENDIF}
 
-{$IFDEF unix}
+{$IFDEF UNIX}
 procedure TG2USB.Done;
 var returncode:integer;
 begin
@@ -814,7 +888,29 @@ begin
   end;
   libusb_exit(ctx);
 end;
-{$ELSE}
+{$ENDIF}
+{$IFDEF MACOS}
+procedure TG2USB.Done;
+var returncode:integer;
+begin
+  // Disconnect from the USB interface unix
+
+  returncode := libusb_release_interface(g2udev, 0); //release the claimed interface
+  if(returncode<>0) then
+    add_log_line('Cannot Release Interface', LOGCMD_HDR) //result handler
+  else
+    add_log_line('Released Interface', LOGCMD_HDR);
+  if assigned(g2udev) then begin
+    // G2 is never attached to the kernel, so following not needed
+    //if (libusb_attach_kernel_driver(g2udev, 0) = 0) then //attach kernel again it
+    //  add_log_line('Kernel Driver Attached!', LOGCMD_HDR);
+    libusb_close(g2udev); //close the device we opened
+    g2udev := nil;
+  end;
+  libusb_exit(ctx);
+end;
+{$ENDIF}
+{$IFDEF MSWINDOWS}
 procedure TG2USB.Done;
 begin
   // Disconnect from the USB interface windows
@@ -830,7 +926,7 @@ begin
 end;
 {$ENDIF}
 
-{$IFDEF unix}
+{$IFDEF UNIX}
 function TG2USB.iread(addr: byte; var buffer; size, timeout: longword): integer;
 var requested : integer;
     bytes_read : longint;
@@ -867,8 +963,46 @@ begin
       Result := size;
   end;
 end;
+{$ENDIF}
+{$IFDEF MACOS}
+function TG2USB.iread(addr: byte; var buffer; size, timeout: longword): integer;
+var requested : integer;
+    bytes_read : longint;
+begin
+  // Read an interrupt message from USB unix
+  Result := libusb_interrupt_transfer(g2udev,addr,PChar(@buffer), size, @bytes_read, timeout);
+  if Result >= 0 then
+    Result := bytes_read;
+end;
 
-{$ELSE}
+function TG2USB.bread(addr: byte; var buffer; size, timeout: longword): integer;
+var requested : integer;
+    bytes_read : longint;
+begin
+  // Read a bulk message from USB unix
+  Result := libusb_bulk_transfer(g2udev,addr,PChar(@buffer), size, @bytes_read, timeout);
+
+  if Result < 0 then
+    add_log_line(get_error, LOGCMD_ERR)
+  else
+    Result := bytes_read;
+end;
+
+function TG2USB.bwrite(addr: byte; var buffer; size, timeout: longword): integer;
+var bytes_written : longint;
+begin
+  // Write a bulk message over USB unix
+  try
+    Result := libusb_bulk_transfer(g2udev,addr,PChar(@buffer), size, @bytes_written, timeout);
+  finally
+    if Result < 0 then
+      add_log_line(get_error, LOGCMD_ERR)
+    else
+      Result := size;
+  end;
+end;
+{$ENDIF}
+{$IFDEF MSWINDOWS}
 function TG2USB.iread(addr: longword; var buffer; size, timeout: longword): integer;
 begin
   // Read an interrupt message from USB windows
@@ -992,9 +1126,13 @@ begin
   FreeOnTerminate := True;
   inherited Create(CreateSuspended);
 
-{$IFDEF unix}
+{$IFDEF UNIX}
   Priority := tpNormal;
-{$ELSE}
+{$ENDIF}
+{$IFDEF MACOS}
+  //Priority := tpNormal;
+{$ENDIF}
+{$IFDEF MSWINDOWS}
   Priority := tpHigher;
 {$ENDIF}
 end;
@@ -1052,7 +1190,12 @@ begin
   FreeOnTerminate := True;
   inherited Create(CreateSuspended);
 
+{$IFDEF MSWINDOWS}
+// VCL :
   Priority := tpHigher;
+// FMX :
+//  Priority := tpNormal;
+{$ENDIF}
 end;
 
 procedure TReceiveMessageThread.Execute;
@@ -1946,10 +2089,14 @@ begin
       if assigned(g2udev) then begin
         add_log_line( 'starting message threads.', LOGCMD_NUL);
         FReceiveMessageThread := TReceiveMessageThread.Create(False, self);
+{$IFDEF MSWINDOWS}
         FReceiveMessageThreadHandle := FReceiveMessageThread.Handle;
+{$ENDIF}
 
         FSendMessageThread := TSendMessageThread.Create(False, self);
+{$IFDEF MSWINDOWS}
         FSendMessageThreadHandle := FSendMessageThread.Handle;
+{$ENDIF}
       end;
 
       if assigned(g2udev) then begin
@@ -2040,7 +2187,9 @@ begin
       if assigned( FSendMessagethread) then begin
         add_log_line( 'Stop send message thread.', LOGCMD_NUL);
         FSendMessageThread.Terminate;
+{$IFDEF MSWINDOWS}
         WaitForSingleObject( FSendMessageThreadHandle, 3000);
+{$ENDIF}
         FSendMessageThread := nil;
       end;
     except on E:Exception do
@@ -2058,6 +2207,7 @@ begin
 
     if assigned(g2udev) then begin
       // Read remaining messages until timeout
+{$IFDEF MSWINDOWS}
       add_log_line( 'Empty recieve message buffer.', LOGCMD_NUL);
       timer_start := GetTickCount;
       SetLength(iin_buf, 16);
@@ -2067,13 +2217,15 @@ begin
           bytes_read := extended_message(iin_buf);
         bytes_read := iread( g2iin, iin_buf[0], 16, 1000);
       end;
-
+{$ENDIF}
       // Clean up usb connection
       Done;
     end;
 
     if assigned( FReceiveMessageThread) and not(FReceiveMessageThread.Terminated) then begin
+{$IFDEF MSWINDOWS}
       WaitForSingleObject( FReceiveMessageThreadHandle, 3000);
+{$ENDIF}
       FReceiveMessageThread := nil;
     end;
 

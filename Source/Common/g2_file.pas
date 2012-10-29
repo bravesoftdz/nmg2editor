@@ -36,9 +36,17 @@ interface
 
 uses
 {$IFDEF G2_VER220_up}
-  WinApi.Windows, System.Classes, System.SysUtils, System.Contnrs, System.math,
+  {$IFDEF MSWINDOWS}
+    WinApi.Windows,
+  {$ESLSE}
+  {$ENDIF}
+  System.Classes, System.SysUtils, System.Contnrs, System.math,
 {$ELSE}
-  Windows, Classes, SysUtils, Contnrs, math,
+  {$IFDEF MSWINDOWS}
+    Windows,
+  {$ELSE}
+  {$ENDIF}
+  Classes, SysUtils, Contnrs, math,
 {$ENDIF}
   DOM, XMLRead, g2_types, g2_database;
 
@@ -1407,7 +1415,9 @@ type
     FLogLevel    : integer;
     FLogFilePath : string;
     FLogLines    : TStringList;
+{$IFDEF MSWINDOWS}
     FLogLock     : TRTLCriticalSection; // for multi threaded access to log
+{$ENDIF}
 
     FLastError   : string;
 
@@ -10514,7 +10524,9 @@ constructor TG2File.Create( AOwner: TComponent);
 begin
   inherited;
 
+{$IFDEF MSWINDOWS}
   InitializeCriticalSection(FLogLock);
+{$ENDIF}
   FLogLines := nil;
   FLogLevel := 0;
 
@@ -10546,6 +10558,7 @@ begin
   FBanks.Free;
 
   if assigned(FLogLines) then begin
+{$IFDEF MSWINDOWS}
     EnterCriticalSection(FLogLock);
     try
       FreeAndNil(FLogLines);
@@ -10553,6 +10566,9 @@ begin
       LeaveCriticalSection(FLogLock);
     end;
     DeleteCriticalSection(FLogLock);
+{$ELSE}
+    FreeAndNil(FLogLines);
+{$ENDIF}
   end;
 
   inherited;
@@ -10619,6 +10635,7 @@ procedure TG2File.SetLogLevel( aValue : integer);
 begin
   if aValue = 1 then begin
 
+{$IFDEF MSWINDOWS}
     EnterCriticalSection(FLogLock);
     try
       if not assigned(FLogLines) then
@@ -10626,9 +10643,13 @@ begin
     finally
       LeaveCriticalSection(FLogLock);
     end;
+{$ELSE}
+    FLogLines := TStringList.Create;
+{$ENDIF}
 
   end else begin
 
+{$IFDEF MSWINDOWS}
     if assigned(FLogLines) then begin
       EnterCriticalSection(FLogLock);
       try
@@ -10638,6 +10659,9 @@ begin
       end;
       //DeleteCriticalSection(FLogLock);
     end;
+{$ELSE}
+    FreeAndNil(FLogLines);
+{$ENDIF}
 
   end;
   FLogLevel := aValue;
@@ -10682,7 +10706,9 @@ begin
   if (not assigned(FLogLines)) then
     exit;
 
+{$IFDEF MSWINDOWS}
   EnterCriticalSection(FLogLock);
+{$ENDIF}
   try
     if (FLogLevel = 0) or (not assigned(FLogLines)) then
       exit;
@@ -10702,7 +10728,9 @@ begin
     end;
 
   finally
+{$IFDEF MSWINDOWS}
     LeaveCriticalSection(FLogLock);
+{$ENDIF}
   end;
 end;
 
@@ -10714,7 +10742,9 @@ begin
   if (FLogLevel = 0) or ((not assigned(FLogLines)) and (not assigned(FOnLogLine))) then
     exit;
 
+{$IFDEF MSWINDOWS}
   EnterCriticalSection(FLogLock);
+{$ENDIF}
   try
 
     c := 0;
@@ -10748,18 +10778,29 @@ begin
      else
        FLogLines.Add(IntToHex(p, 6) + ' - ' + line + stringofchar(' ', 16*3 - Length(line) + 1) + char_line);
   finally
+{$IFDEF MSWINDOWS}
     LeaveCriticalSection(FLogLock);
+{$ENDIF}
   end;
 end;
 
 procedure TG2File.save_log;
+var i : integer;
 begin
   if assigned(FLogLines) then begin
+{$IFDEF MSWINDOWS}
     EnterCriticalSection(FLogLock);
+{$ENDIF}
     try
-      FLogLines.SaveToFile( FLogFilePath + 'VSTLog_' + IntToStr(GetTickCount) + '.txt'); // TODO
+      i := 0;
+      while FileExists(FLogFilePath + 'VSTLog_' + IntToStr(i) + '.txt') do
+        inc(i);
+
+      FLogLines.SaveToFile( FLogFilePath + 'VSTLog_' + IntToStr(i) + '.txt');
     finally
+{$IFDEF MSWINDOWS}
       LeaveCriticalSection(FLogLock);
+{$ENDIF}
     end;
   end;
 end;
@@ -10767,11 +10808,15 @@ end;
 procedure TG2File.AssignLog( Lines : TStrings);
 begin
   if assigned(FLogLines) then begin
+{$IFDEF MSWINDOWS}
     EnterCriticalSection(FLogLock);
+{$ENDIF}
     try
       Lines.Assign(FLogLines);
     finally
+{$IFDEF MSWINDOWS}
       LeaveCriticalSection(FLogLock);
+{$ENDIF}
     end;
   end;
 end;
@@ -10779,11 +10824,15 @@ end;
 procedure TG2File.ClearLog;
 begin
   if assigned(FLogLines) then begin
+{$IFDEF MSWINDOWS}
     EnterCriticalSection(FLogLock);
+{$ENDIF}
     try
       FLogLines.Clear;
     finally
+{$IFDEF MSWINDOWS}
       LeaveCriticalSection(FLogLock);
+{$ENDIF}
     end;
   end;
 end;

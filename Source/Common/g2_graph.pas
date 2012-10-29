@@ -59,7 +59,7 @@ uses
   Graphics, Menus, Dialogs, math, Contnrs,
 {$ENDIF}
   g2_database, MidiType,
-  g2_file, g2_types, graph_util_vcl, g2_usb, g2_midi, fastbitmap;
+  g2_file, g2_types, g2_usb, g2_midi, graph_util_vcl, fastbitmap;
 
 type
   TG2GraphChildControl = class;

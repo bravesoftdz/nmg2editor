@@ -778,6 +778,9 @@ function  GetKeyName( aKeyNumber : integer): string;
 function  G2FloatToStr( aValue : single; aLen : integer): string;
 function  G2FloatToStrFixed( aValue : single; aLen : integer): string;
 function  PatchNameFromFileName( aFileName : string): string;
+{$IFNDEF MSWINDOWS}
+function GetTickCount: integer;
+{$ENDIF}
 
 
 {$IFNDEF G2_VST}
@@ -827,6 +830,11 @@ var
   G_CableThickness : integer;
 
 implementation
+
+function GetTickCount: integer;
+begin
+  Result := trunc(24*60*60*1000 * frac(GetTime));
+end;
 
 function PatchNameFromFileName( aFileName : string): string;
 var i : integer;

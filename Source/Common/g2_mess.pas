@@ -30,9 +30,15 @@ interface
 
 uses
 {$IFDEF G2_VER220_up}
-  WinApi.Windows, System.Classes, System.SysUtils, System.Contnrs,
+  {$IFDEF MSWINDOWS}
+  WinApi.Windows,
+  {$ENDIF}
+  System.Classes, System.SysUtils, System.Contnrs,
 {$ELSE}
-  Windows, Classes, SysUtils, Contnrs,
+  {$IFDEF MSWINDOWS}
+  Windows,
+  {$ENDIF}
+  Classes, SysUtils, Contnrs,
 {$ENDIF}
   g2_types, g2_database, g2_file;
 

@@ -1679,4 +1679,8 @@ object frmG2Main: TfrmG2Main
     Left = 832
     Top = 360
   end
+  object Timer1: TTimer
+    Left = 168
+    Top = 120
+  end
 end

@@ -1,12 +1,23 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <BorlandProject>
 	<Transactions>
-    <Transaction>1899-12-30 00:00:00.000.011,=C:\Users\Bruno\Documents\RAD Studio\Projects\Unit1.pas</Transaction>
-    <Transaction>1899-12-30 00:00:00.000.301,=C:\Users\Bruno\Documents\RAD Studio\Projects\Unit1.pas</Transaction>
-    <Transaction>1899-12-30 00:00:00.000.874,C:\Users\Bruno\Documents\RAD Studio\Projects\Unit1.dfm=C:\Users\Bruno\Delphi\nmg2editor\Source\UnitG2USBTest.dfm</Transaction>
     <Transaction>1899-12-30 00:00:00.000.905,=C:\Users\Bruno\Documents\RAD Studio\Projects\Unit1.pas</Transaction>
-    <Transaction>1899-12-30 00:00:00.000.453,C:\Users\Bruno\Documents\RAD Studio\Projects\Project1.dproj=C:\Users\Bruno\Delphi\nmg2editor\Project\DelphiVCL\G2_USB_Test.dproj</Transaction>
-    <Transaction>1899-12-30 00:00:00.000.874,C:\Users\Bruno\Documents\RAD Studio\Projects\Unit1.pas=C:\Users\Bruno\Delphi\nmg2editor\Source\UnitG2USBTest.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.301,=C:\Users\Bruno\Documents\RAD Studio\Projects\Unit1.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.011,=C:\Users\Bruno\Documents\RAD Studio\Projects\Unit1.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.874,C:\Users\Bruno\Delphi\nmg2editor\Source\UnitG2USBTest.dfm=C:\Users\Bruno\Documents\RAD Studio\Projects\Unit1.dfm</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.453,C:\Users\Bruno\Delphi\nmg2editor\Project\DelphiVCL\G2_USB_Test.dproj=C:\Users\Bruno\Documents\RAD Studio\Projects\Project1.dproj</Transaction>
     <Transaction>1899-12-30 00:00:00.000.194,=C:\Users\Bruno\Documents\RAD Studio\Projects\Unit1.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.874,C:\Users\Bruno\Delphi\nmg2editor\Source\UnitG2USBTest.pas=C:\Users\Bruno\Documents\RAD Studio\Projects\Unit1.pas</Transaction>
+    <Transaction>2012-10-27 20:26:37.852,=C:\Users\Bruno\Delphi\nmg2editor\Source\Common\g2_file.pas</Transaction>
+    <Transaction>2012-10-27 20:26:37.882,=C:\Users\Bruno\Delphi\nmg2editor\Source\Common\g2_mess.pas</Transaction>
+    <Transaction>2012-10-27 20:26:37.896,=C:\Users\Bruno\Delphi\nmg2editor\Source\Common\g2_types.pas</Transaction>
+    <Transaction>2012-10-27 20:26:37.915,=C:\Users\Bruno\Delphi\nmg2editor\Source\Common\G2_USB.pas</Transaction>
+    <Transaction>2012-10-27 20:26:37.926,=C:\Users\Bruno\Delphi\nmg2editor\Source\Common\LibUSBWinDyn.pas</Transaction>
+    <Transaction>2012-10-27 20:26:59.761,=C:\Users\Bruno\Delphi\nmg2editor\Source\Third_party_code\FPC_XML\dom.pas</Transaction>
+    <Transaction>2012-10-27 20:26:59.772,=C:\Users\Bruno\Delphi\nmg2editor\Source\Third_party_code\FPC_XML\uriparser.pas</Transaction>
+    <Transaction>2012-10-27 20:26:59.792,=C:\Users\Bruno\Delphi\nmg2editor\Source\Third_party_code\FPC_XML\xmlread.pas</Transaction>
+    <Transaction>2012-10-27 20:26:59.805,=C:\Users\Bruno\Delphi\nmg2editor\Source\Third_party_code\FPC_XML\xmlutils.pas</Transaction>
+    <Transaction>2012-10-27 20:26:59.816,=C:\Users\Bruno\Delphi\nmg2editor\Source\Third_party_code\FPC_XML\xmlwrite.pas</Transaction>
+    <Transaction>2012-10-27 20:27:16.247,=C:\Users\Bruno\Delphi\nmg2editor\Source\Common\g2_database.pas</Transaction>
   </Transactions>
 </BorlandProject>
