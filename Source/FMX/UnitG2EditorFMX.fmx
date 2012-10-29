@@ -18,7 +18,7 @@ object Form1: TForm1
     TabOrder = 0
     object MenuItem1: TMenuItem
       Position.Point = '(2,2)'
-      Width = 34.777343750000000000
+      Width = 36.500000000000000000
       Height = 20.000000000000000000
       TabOrder = 0
       ShortCut = 0
@@ -38,24 +38,13 @@ object Form1: TForm1
     Align = alTop
     Position.Point = '(0,25)'
     Width = 963.000000000000000000
-    Height = 64.000000000000000000
+    Height = 26.000000000000000000
     TabOrder = 1
-    object CornerButton1: TCornerButton
-      Position.Point = '(144,8)'
-      Width = 80.000000000000000000
-      Height = 22.000000000000000000
-      OnClick = CornerButton1Click
-      TabOrder = 0
-      Text = 'CornerButton1'
-      XRadius = 3.000000000000000000
-      YRadius = 3.000000000000000000
-      Sides = [sdTop, sdLeft, sdBottom, sdRight]
-    end
     object SmallScrollBar1: TSmallScrollBar
       Position.Point = '(489,9)'
       Width = 150.000000000000000000
       Height = 8.000000000000000000
-      TabOrder = 1
+      TabOrder = 0
       Min = 1.000000000000000000
       Max = 4.000000000000000000
       Orientation = orHorizontal
@@ -67,32 +56,15 @@ object Form1: TForm1
       Position.Point = '(7,3)'
       Width = 73.000000000000000000
       Height = 19.000000000000000000
-      TabOrder = 2
+      TabOrder = 1
       Text = 'Online'
     end
     object Label1: TLabel
       Position.Point = '(448,4)'
       Width = 41.000000000000000000
       Height = 15.000000000000000000
-      TabOrder = 3
+      TabOrder = 2
       Text = 'Zoom'
-    end
-    object G2FMXButton1: TG2FMXButton
-      Position.Point = '(288,8)'
-      Width = 113.000000000000000000
-      Height = 33.000000000000000000
-      Value = 0
-      LowValue = 0
-      HighValue = 0
-      HightlightColor = claNull
-      BorderColor = claNull
-      BevelVisible = False
-      object TText
-        Align = alClient
-        Width = 113.000000000000000000
-        Height = 33.000000000000000000
-        HitTest = False
-      end
     end
   end
   object Splitter1: TSplitter
@@ -392,9 +364,9 @@ object Form1: TForm1
   end
   object ScrollboxVA: TScrollBox
     Align = alClient
-    Position.Point = '(0,89)'
+    Position.Point = '(0,51)'
     Width = 963.000000000000000000
-    Height = 417.000000000000000000
+    Height = 455.000000000000000000
     TabOrder = 3
     object LayoutZoomVA: TLayout
       Position.Point = '(8,8)'

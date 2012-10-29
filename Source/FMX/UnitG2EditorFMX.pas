@@ -40,18 +40,15 @@ type
     ScrollBoxFX: TScrollBox;
     LayoutVA: TG2FMXPatchArea;
     LayoutFX: TG2FMXPatchArea;
-    CornerButton1: TCornerButton;
     cbUSBActive: TCheckBox;
     Label1: TLabel;
     timerStartUp: TTimer;
-    G2FMXButton1: TG2FMXButton;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure MenuItem2Click(Sender: TObject);
     procedure SmallScrollBar1Change(Sender: TObject);
     procedure timerStartUpTimer(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
-    procedure CornerButton1Click(Sender: TObject);
   private
     { Private declarations }
     procedure G2AfterG2Init(Sender: TObject);
@@ -150,11 +147,6 @@ begin
   Initialized := True;
 
   UpdateControls;}
-end;
-
-procedure TForm1.CornerButton1Click(Sender: TObject);
-begin
-  CornerButton1.Visible := False;
 end;
 
 procedure TForm1.FormClose(Sender: TObject; var Action: TCloseAction);
