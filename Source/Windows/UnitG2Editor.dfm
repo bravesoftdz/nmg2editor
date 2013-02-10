@@ -72,6 +72,7 @@ object frmG2Main: TfrmG2Main
       Value = 0
       LowValue = 0
       HighValue = 0
+      OnMouseDown = gdMasterClockMouseDown
       ParentColor = False
       ParentFont = False
       LineCount = 1
@@ -1678,9 +1679,5 @@ object frmG2Main: TfrmG2Main
   object puSelectCable: TPopupMenu
     Left = 832
     Top = 360
-  end
-  object Timer1: TTimer
-    Left = 168
-    Top = 120
   end
 end

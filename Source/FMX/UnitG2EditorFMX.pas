@@ -13,7 +13,8 @@ uses
 {$IFDEF MACOS}
   libusb_dyn,
 {$ENDIF}
-  g2_types, g2_file, g2_usb, G2FMXGraph;
+  g2_types, g2_file, g2_usb, G2FMXGraph, Data.Bind.EngExt, Fmx.Bind.DBEngExt,
+  System.Rtti, System.Bindings.Outputs, Fmx.Bind.Editors, Data.Bind.Components;
 
 type
   TEditorSettings = class
@@ -32,7 +33,6 @@ type
     MenuItem2: TMenuItem;
     OpenDialog1: TOpenDialog;
     Panel1: TPanel;
-    SmallScrollBar1: TSmallScrollBar;
     LayoutZoomFX: TLayout;
     Splitter1: TSplitter;
     ScrollboxVA: TScrollBox;
@@ -43,12 +43,13 @@ type
     cbUSBActive: TCheckBox;
     Label1: TLabel;
     timerStartUp: TTimer;
+    TrackBar1: TTrackBar;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure MenuItem2Click(Sender: TObject);
-    procedure SmallScrollBar1Change(Sender: TObject);
     procedure timerStartUpTimer(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure TrackBar1Change(Sender: TObject);
   private
     { Private declarations }
     procedure G2AfterG2Init(Sender: TObject);
@@ -79,6 +80,9 @@ procedure TForm1.FormCreate(Sender: TObject);
 var G2DeviceList : TList;
     i : integer;
 begin
+  FormatSettings.DecimalSeparator := '.';
+  //Application.UpdateFormatSettings := False;
+
   FG2List := TObjectList.Create( True);
   FEditorSettingsList := TObjectList.Create( True);
 
@@ -147,6 +151,22 @@ begin
   Initialized := True;
 
   UpdateControls;}
+end;
+
+procedure TForm1.TrackBar1Change(Sender: TObject);
+begin
+  LayoutVa.Scale.X := TrackBar1.Value;
+  LayoutVa.Scale.Y := TrackBar1.Value;
+  LayoutZoomVA.Width := LayoutVa.Width * TrackBar1.Value;
+  LayoutZoomVA.Height := LayoutVa.Height * TrackBar1.Value;
+
+  ScrollboxVa.VScrollBar.Value := (LayoutVa.Height/2 * TrackBar1.Value - LayoutVa.Height/2);
+  ScrollboxVa.HScrollBar.Value := (LayoutVa.Width/2 * TrackBar1.Value - LayoutVa.Width/2);
+
+  LayoutFX.Scale.X := TrackBar1.Value;
+  LayoutFX.Scale.Y := TrackBar1.Value;
+  LayoutZoomFX.Width := LayoutVa.Width * TrackBar1.Value;
+  LayoutZoomFX.Height := LayoutVa.Height * TrackBar1.Value;
 end;
 
 procedure TForm1.FormClose(Sender: TObject; var Action: TCloseAction);
@@ -369,8 +389,8 @@ begin
   LayoutVA.Position.Y := 0;
   LayoutVA.Width := (max_col + 2) * UNITS_COL;
   LayoutVA.Height := (max_row + 6) * UNITS_ROW;
-  LayoutZoomVA.Width := LayoutVa.Width * SmallScrollbar1.Value;
-  LayoutZoomVA.Height := LayoutVa.Height * SmallScrollbar1.Value;
+  LayoutZoomVA.Width := LayoutVa.Width * TrackBar1.Value;
+  LayoutZoomVA.Height := LayoutVa.Height * TrackBar1.Value;
 
   max_col := 0;
   max_row := 0;
@@ -388,22 +408,8 @@ begin
   LayoutFX.Position.Y := 0;
   LayoutFX.Width := (max_col + 2) * UNITS_COL;
   LayoutFX.Height := (max_row + 6) * UNITS_ROW;
-  LayoutZoomFX.Width := LayoutFX.Width * SmallScrollbar1.Value;
-  LayoutZoomFX.Height := LayoutFX.Height * SmallScrollbar1.Value;
-
-end;
-
-procedure TForm1.SmallScrollBar1Change(Sender: TObject);
-begin
-  LayoutVa.Scale.X := SmallScrollbar1.Value;
-  LayoutVa.Scale.Y := SmallScrollbar1.Value;
-  LayoutZoomVA.Width := LayoutVa.Width * SmallScrollbar1.Value;
-  LayoutZoomVA.Height := LayoutVa.Height * SmallScrollbar1.Value;
-
-  LayoutFX.Scale.X := SmallScrollbar1.Value;
-  LayoutFX.Scale.Y := SmallScrollbar1.Value;
-  LayoutZoomFX.Width := LayoutVa.Width * SmallScrollbar1.Value;
-  LayoutZoomFX.Height := LayoutVa.Height * SmallScrollbar1.Value;
+  LayoutZoomFX.Width := LayoutFX.Width * TrackBar1.Value;
+  LayoutZoomFX.Height := LayoutFX.Height * TrackBar1.Value;
 
 end;
 

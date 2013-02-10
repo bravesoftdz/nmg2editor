@@ -687,6 +687,9 @@ begin
       GlobalSharedLockedFree(PCtlInfo^.hMem, PCtlInfo);
       PCtlInfo := nil;
     end;
+    { BVE 20130120 Send exception to caller }
+    raise;
+
   end;
 
 end;

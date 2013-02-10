@@ -80,6 +80,8 @@ type
     procedure PerfChange(Sender: TObject);
     procedure udRateClick(Sender: TObject; Button: TUDBtnType);
     procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure udRateChangingEx(Sender: TObject; var AllowChange: Boolean;
+      NewValue: SmallInt; Direction: TUpDownDirection);
   private
     { Private declarations }
     FDisableControls : boolean;
@@ -171,10 +173,23 @@ begin
   G2.Performance.SendSetPerfSettingsMessage;
 end;
 
+procedure TfrmPerfSettings.udRateChangingEx(Sender: TObject;
+  var AllowChange: Boolean; NewValue: SmallInt; Direction: TUpDownDirection);
+begin
+  if FDisableControls or (NewValue < 30) or (NewValue > 240) then begin
+    AllowChange := False;
+    exit;
+  end;
+
+  AllowChange := True;
+  eRate.Text := IntToStr(NewValue);
+  PerfChange(self);
+end;
+
 procedure TfrmPerfSettings.udRateClick(Sender: TObject; Button: TUDBtnType);
 begin
-  eRate.Text := IntToStr(udRate.Position);
-  PerfChange(self);
+//  eRate.Text := IntToStr(udRate.Position);
+//  PerfChange(self);
 end;
 
 procedure TfrmPerfSettings.updateDialog;
@@ -195,7 +210,6 @@ begin
     else
       rbStop.Checked := True;
     cbKeyboardRange.Checked := G2.Performance.KeyboardRangeEnabled = 1;
-
 
     cbEnableA.Checked   := G2.Performance.Slot[0].Enabled = 1;
     cbHoldA.Checked     := G2.Performance.Slot[0].Hold = 1;

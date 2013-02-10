@@ -1136,6 +1136,7 @@ type
     FController        : TController;
     FLocation          : TLocationType;
     FModuleIndex       : integer;
+    FID                : integer;
     FParamType         : TParamType;
     FParamIndex        : integer;
     FLowValue          : byte;
@@ -1167,7 +1168,7 @@ type
   public
     constructor Create( aPatch : TG2FilePatch; aLocation : TLocationType; aModuleIndex : integer; aModule : TG2FileModule);
     destructor  Destroy; override;
-    procedure   InitParam( aModuleName : AnsiString; aParamIndex : byte; aParamType : TParamType; aParamName, aDefaultParamLabel : AnsiString; aLowValue, aHighValue, aDefaultValue : byte; aDefaultKnob, aButtonParamIndex : integer; aButtonText : AnsiString);
+    procedure   InitParam( aID : integer; aModuleName : AnsiString; aParamIndex : byte; aParamType : TParamType; aParamName, aDefaultParamLabel : AnsiString; aLowValue, aHighValue, aDefaultValue : byte; aDefaultKnob, aButtonParamIndex : integer; aButtonText : AnsiString);
     procedure   AssignKnob( aKnobIndex : integer);
     procedure   DeassignKnob( aKnobIndex : integer);
     procedure   AssignGlobalKnob( aPerf : TG2FilePerformance; aSlotIndex : byte; aKnobIndex : integer);
@@ -1199,6 +1200,7 @@ type
     function    TextFunction: string;
     procedure   InvalidateControl; virtual;
 
+    property    ParamID : integer read FID write FID;
     property    ParamType : TParamType read FParamType write FParamType;
     property    ParamIndex : integer read FParamIndex write FParamIndex;
     property    LowValue : byte read FLowValue write FLowValue;
@@ -1584,6 +1586,7 @@ var i : integer;
     aParamDef : TXMLParamDefType;
     aConnectorList : TXMLConnectorListType;
     aParamList : TXMLParamListType;
+    dummy : integer;
 begin
   FLocation      := aLocation;
   FTypeID        := aModuleDef.ModuleType;
@@ -1594,6 +1597,9 @@ begin
   //ModuleName     := FPatchPart.GetUniqueModuleName(aModuleDef.ShortName);
   ModuleFileName := aModuleDef.ShortName;
   FModeCount     := 0;
+
+  if aModuleDef.ModuleType = 64 then
+    dummy := 1;
 
   FPage := aModuleDef.Page;
   FPageIndex := aModuleDef.PageIndex;
@@ -1629,7 +1635,7 @@ begin
       for i := 0 to aParamList.Count - 1 do begin
         FParams[i] := CreateParameter;
         aParamDef := aParamDefList.ParamDef[ aModuleDef.Params[i].Id];
-        FParams[i].InitParam( aModuleDef.ShortName, i, ptParam, aModuleDef.Params[i].Name, aModuleDef.Params[i].ParamLabel,
+        FParams[i].InitParam( aModuleDef.Params[i].Id, aModuleDef.ShortName, i, ptParam, aModuleDef.Params[i].Name, aModuleDef.Params[i].ParamLabel,
                               aParamDef.LowValue, aParamDef.HighValue, aParamDef.DefaultValue,
                               aModuleDef.Params[i].DefaultKnob, aModuleDef.Params[i].ButtonParamIndex,
                               aParamDef.ButtonText);
@@ -1647,7 +1653,7 @@ begin
       for i := 0 to aParamList.Count - 1 do begin
         FModes[i] := CreateParameter;
         aParamDef := aParamDefList.ParamDef[ aModuleDef.Modes[i].Id];
-        FModes[i].InitParam( aModuleDef.ShortName, i, ptMode, aModuleDef.Modes[i].Name, aModuleDef.Modes[i].ParamLabel,
+        FModes[i].InitParam( aModuleDef.Modes[i].Id, aModuleDef.ShortName, i, ptMode, aModuleDef.Modes[i].Name, aModuleDef.Modes[i].ParamLabel,
                              aParamDef.LowValue, aParamDef.HighValue, aParamDef.DefaultValue,
                              -1, -1,
                               aParamDef.ButtonText);
@@ -5368,7 +5374,7 @@ var i : integer;
     i := Length(FParams);
     SetLength(FParams, i + 1);
     FParams[i] := CreateParameter( ModuleIndex);
-    FParams[i].InitParam( ModuleName, ParamIndex, ParamType, ParamName, '', LowValue, HighValue, DefaultValue, -1, -1, ButtonText);
+    FParams[i].InitParam( 0, ModuleName, ParamIndex, ParamType, ParamName, '', LowValue, HighValue, DefaultValue, -1, -1, ButtonText);
     FParams[i].InfoFunctionIndex := InfoFunc;
   end;
 
@@ -5413,11 +5419,11 @@ begin
   AddParam( ptParam, PATCH_MORPH,       'Morph',    15,            'G.Wh2',      0,   1,   0, 'Knob;G.Wh2', 526);
 
   // "Virtual" paramaters for use in parameter pages
-  AddParam( ptMasterClock, PATCH_MASTERCLOCK, 'Mast Clk',  0,            'M.Clk',    30,  240,  0, '', 501);
-  AddParam( ptMasterClock, PATCH_MASTERCLOCK, 'Clk Run',   1,            'Clk.Rn',   0,   1,    0, 'On;Off', 502);
+  AddParam( ptMasterClock, PATCH_MASTERCLOCK, 'Mast Clk',  0,      'M.Clk',    30,  240,  0, '', 501);
+  AddParam( ptMasterClock, PATCH_MASTERCLOCK, 'Clk Run',   1,      'Clk.Rn',   0,   1,    0, 'Off;On', 502);
 
-  AddParam( ptVoiceMode, PATCH_VOICES,      'Voice Cnt',  0,           'Voices',     0,   31,   0, '', 503);
-  AddParam( ptVoiceMode, PATCH_VOICES,      'Voice Mod',  1,           'Vce.Mde',    0,   2,    0, 'Poly;Mono;Legato', 504);
+  AddParam( ptVoiceMode, PATCH_VOICES,      'Voice Cnt',  0,       'Voices',     0,   31,   0, '', 503);
+  AddParam( ptVoiceMode, PATCH_VOICES,      'Voice Mod',  1,       'Vce.Mde',    0,   2,    0, 'Poly;Mono;Legato', 504);
 
   // Module params should already be initialized;
   InitKnobs;
@@ -7080,12 +7086,13 @@ begin
   end;
 end;
 
-procedure TG2FileParameter.InitParam( aModuleName : AnsiString; aParamIndex : byte; aParamType : TParamType;
+procedure TG2FileParameter.InitParam( aID : integer; aModuleName : AnsiString; aParamIndex : byte; aParamType : TParamType;
                                       aParamName, aDefaultParamLabel : AnsiString;
                                       aLowValue, aHighValue, aDefaultValue : byte;
                                       aDefaultKnob, aButtonParamIndex : integer; aButtonText : AnsiString);
 var i : integer;
 begin
+  FID := aID;
   FParamType := aParamType;
   FParamIndex := aParamIndex;
   FParamName := aParamName;
@@ -10715,6 +10722,11 @@ begin
 
     case log_cmd of
     LOGCMD_NUL: FLogLines.Add(tekst);
+    LOGCMD_SAV:
+      begin
+        FLogLines.Add(tekst);
+        FLogLines.SaveToFile('G2_log.txt');
+      end;
     LOGCMD_HDR:
       begin
         FLogLines.Add('');

@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<Transactions>
+    <Transaction>1899-12-30 00:00:00.000.181,C:\Users\Bruno\Delphi\nmg2editor\nmg2_controls\XE3\NMG2_controls_D2011.dproj=C:\Users\Bruno\Delphi\nmg2editor\nmg2_controls\D2011\NMG2_controls_D2011.dproj</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.953,F:\NMG2\Source\NMG2Controls\NMG2_controls.dproj=F:\NMG2\Source\NMG2Controls\NMG2_controls_D2011.dproj</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.795,C:\Users\Bruno\Delphi\nmg2editor\nmg2_controls\XE3\NMG2_controls_DXE3.dproj=C:\Users\Bruno\Delphi\nmg2editor\nmg2_controls\XE3\NMG2_controls_D2011.dproj</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.008,C:\Users\Bruno\Delphi\NMG2\Source\NMG2Controls\NMG2_controls_D2011.dproj=C:\Users\Bruno\Delphi\NMG2\Project\DelphiVCL\NMG2_controls_D2011.dproj</Transaction>
+  </Transactions>
+</BorlandProject>

@@ -289,6 +289,7 @@ type
       FSendMessageThreadHandle : THandle;
 
       // Vars for communication between server and client
+      FTCPIPEnabled         : boolean;
       FHost                 : String;
       FPort                 : integer;
       FIsServer             : boolean;
@@ -414,6 +415,7 @@ type
       procedure   SendDownloadPerfBankMessage( aBank, aLocation: byte; aFileName : string);
       procedure   NextPerfBankDownloadMessage( Sender: TObject);
 
+      property    TCPIPEnabled : boolean read FTCPIPEnabled write FTCPIPEnabled;
       property    IdTCPClient : TIdTCPClient read FIdTCPClient;
       property    Initialized : boolean read FInitialized;
 {$IFDEF MSWINDOWS}
@@ -604,6 +606,8 @@ begin
   FSendMessageQueue := TThreadList.Create;
   FSendMessageQueue.Duplicates := dupAccept;
   FSendMessageCount := 0;
+
+  FTCPIPEnabled := True;
 
   FHost := '127.0.0.1';
   FPort := DEFAULT_PORT;
@@ -2069,6 +2073,7 @@ begin
       end;
 
       add_log_line( 'Starting server tcp-ip thread.', LOGCMD_NUL);
+
       // Create server object
       FIdTCPServer := TIdTCPServer.Create( Self);
       FIdTCPServer.OnExecute := IdTCPServerExecute;
@@ -2079,7 +2084,8 @@ begin
       FIdTCPServer.ContextClass := TClientContext;
       FIdTCPServer.OnConnect := IdTCPServerConnect;
       FIdTCPServer.OnDisconnect := IdTCPServerDisconnect;
-      FIdTCPServer.Active := True;
+      if FTCPIPEnabled then
+        FIdTCPServer.Active := True;
 
       add_log_line( 'initializing usb.', LOGCMD_NUL);
       Init;
@@ -2231,7 +2237,8 @@ begin
 
     if assigned(FIdTCPServer) then begin
       add_log_line( 'Stop server thread.', LOGCMD_NUL);
-      FIdTCPServer.Active := False;
+      if FIdTCPServer.Active then
+        FIdTCPServer.Active := False;
       FIdTCPServer.Free;
       FIdTCPServer := nil;
     end;
@@ -2466,26 +2473,32 @@ procedure TG2USB.USBInitSeq(Sender: TObject);
 var do_next_step : boolean;
 begin
   do_next_step := true;
-  case FInitStep of
-  0 : SendInitMessage;
-  1 : SendStartStopCommunicationMessage( STOP_COMM);
-  2 : SendGetPatchVersionMessage( GetPerformance.FPerfVersion);
-  3 : SendGetSynthSettingsMessage;
-  4 : SendUnknown1Message;
-  5 : GetPerformance.USBStartInit( False);
-  6 : if NextBankListCmd.PatchFileType <> pftEnd then begin
-        SendListMessage( NextBankListCmd.PatchFileType, NextBankListCmd.Bank, NextBankListCmd.Patch, FBanks);
-        do_next_step := false;
-      end else begin
-        SendStartStopCommunicationMessage( START_COMM);
-        OnNextInitStep := nil;
-        FInitialized := True;
-        if assigned(FOnAfterG2Init) then
-          FOnAfterG2Init(self);
-      end;
+  try
+    case FInitStep of
+    0 : SendInitMessage;
+    1 : SendStartStopCommunicationMessage( STOP_COMM);
+    2 : SendGetPatchVersionMessage( GetPerformance.FPerfVersion);
+    3 : SendGetSynthSettingsMessage;
+    4 : SendUnknown1Message;
+    5 : GetPerformance.USBStartInit( False);
+    6 : if NextBankListCmd.PatchFileType <> pftEnd then begin
+          SendListMessage( NextBankListCmd.PatchFileType, NextBankListCmd.Bank, NextBankListCmd.Patch, FBanks);
+          do_next_step := false;
+        end else begin
+          SendStartStopCommunicationMessage( START_COMM);
+          OnNextInitStep := nil;
+          FInitialized := True;
+          if assigned(FOnAfterG2Init) then
+            FOnAfterG2Init(self);
+        end;
+    end;
+    if do_next_step then
+      inc(FInitStep);
+  except on E:Exception do begin
+      FInitialized := False;
+      OnNextInitStep := nil;
+    end;
   end;
-  if do_next_step then
-    inc(FInitStep);
 end;
 
 procedure TG2USB.NextListMessage(Sender: TObject);

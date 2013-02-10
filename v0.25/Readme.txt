@@ -67,13 +67,25 @@ You may not have installed the libusb-win32 driver on (all the) g2 synths.
 For example "Could not bind socket. Adress and port already in use." 
 
 This error may occur when the tcp-ip port in the application settings is already in use on your system. You can try and change the "Port" setting in the G2_editor_ini.xml file to another value.
+
+
+-> BCR2000 as midi-controller
+
+There is a midi issue where the editor seems to wait forever when sending/receiving the first midi message to/from the bcr2000. Can be solved by resetting the bcr2000.
   
 
 Updates
 =======
 
+v0.26 update 10-2-2013
+======================
+
+- Fixed some issues with starting/stopping master clock and setting master tempo.
+- Added module category "Test" on request, containing two testing modules: Red2Blue and Blue2Red
+
+
 v0.25 update 14-10-2012
-=====================
+=======================
 
 - Detection of modules incomaptible with original clavia edtor, will be saved with extensions prf2x en pch2x
 - Delay parameter where not shown in units in param pages.

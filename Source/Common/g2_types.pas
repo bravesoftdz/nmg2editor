@@ -39,7 +39,7 @@ uses
 {$ENDIF}
 
 const
-  NMG2_VERSION = '0.25';
+  NMG2_VERSION = '0.26';
   PATCH_VERSION = 23;
 
   NMORPHS = 8;
@@ -97,6 +97,7 @@ const
   LOGCMD_HDR = $01;
   LOGCMD_ERR = $02;
   LOGCMD_TAB = $03;
+  LOGCMD_SAV = $04;
 
   CMD_SLOT = $08;
   CMD_SYS  = $0c;
@@ -305,7 +306,7 @@ const
                                          'User1',
                                          'User2');
 
-  MODULECATEGORIES : array[0..15] of string =('In/Out',
+  MODULECATEGORIES : array[0..16] of string =('In/Out',
                                               'Note',
                                               'Osc',
                                               'LFO',
@@ -320,7 +321,8 @@ const
                                               'Switch',
                                               'Logic',
                                               'Seq',
-                                              'MIDI');
+                                              'MIDI',
+                                              'Test');
 
   ENV_TIMES : array[0..127] of single =
                 (0.0005, 0.0006, 0.0007, 0.0009, 0.0011, 0.0013, 0.0015, 0.0018,

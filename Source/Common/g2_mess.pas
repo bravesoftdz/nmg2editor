@@ -3262,7 +3262,7 @@ begin
                         PatchName := '';
                         i := 1;
                         MemStream.Read(b, 1);
-                        while (MemStream.Position < MemStream.Size - 1) and (i<=16) and (b<>0) do begin
+                        while (MemStream.Position < MemStream.Size) and (i<=16) and (b<>0) do begin
                           PatchName := PatchName + AnsiChar(b);
                           MemStream.Read(b, 1);
                           inc(i);

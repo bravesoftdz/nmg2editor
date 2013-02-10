@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<ModuleDefList xmlns="http://www.yourtargetnamespace.com" version="0.25">
+<ModuleDefList xmlns="http://www.yourtargetnamespace.com" version="0.26">
   <ModuleDef>
     <ModuleType>1</ModuleType>
     <IsLed>0</IsLed>
@@ -11644,5 +11644,49 @@
         <DefaultKnob>0</DefaultKnob>
       </Param>
     </Params>
+  </ModuleDef>
+  <ModuleDef>
+    <ModuleType>203</ModuleType>
+    <IsLed>0</IsLed>
+    <Uprate>0</Uprate>
+    <Page>Test</Page>
+    <PageIndex>1</PageIndex>
+    <ShortName>Blue2Red</ShortName>
+    <LongName>Blue2Red</LongName>
+    <Height>2</Height>
+    <Inputs>
+      <Connector>
+        <Name>In1</Name>
+        <Type>yellow</Type>
+      </Connector>
+    </Inputs>
+    <Outputs>
+      <Connector>
+        <Name>Out1</Name>
+        <Type>blue</Type>
+      </Connector>
+    </Outputs>
+  </ModuleDef>
+  <ModuleDef>
+    <ModuleType>201</ModuleType>
+    <IsLed>0</IsLed>
+    <Uprate>0</Uprate>
+    <Page>Test</Page>
+    <PageIndex>2</PageIndex>
+    <ShortName>Red2Blue</ShortName>
+    <LongName>Red2Blue</LongName>
+    <Height>2</Height>
+    <Inputs>
+      <Connector>
+        <Name>In1</Name>
+        <Type>blue</Type>
+      </Connector>
+    </Inputs>
+    <Outputs>
+      <Connector>
+        <Name>Out1</Name>
+        <Type>yellow</Type>
+      </Connector>
+    </Outputs>
   </ModuleDef>
 </ModuleDefList>

@@ -70,5 +70,6 @@ begin
   Application.CreateForm(TfrmMidiMapping, frmMidiMapping);
   Application.CreateForm(TfrmSettings, frmSettings);
   Application.CreateForm(TfrmModuleDef, frmModuleDef);
+  frmG2Main.StartupTimer.Enabled := True;
   Application.Run;
 end.

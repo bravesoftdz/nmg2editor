@@ -32,10 +32,11 @@ requires
   fmx,
   IndyCore,
   IndySystem,
-  NMG2_controls_D2011,
-  MidiComponents2010;
+  NMG2_controls_DXE3,
+  MidiComponentsDXE3;
 
 contains
-  G2FMXGraph in '..\Source\Common\G2FMXGraph.pas';
+  G2FMXGraph in '..\Source\Common\G2FMXGraph.pas',
+  graph_util_fmx in '..\Source\Common\graph_util_fmx.pas';
 
 end.

@@ -55,6 +55,7 @@ object frmPerfSettings: TfrmPerfSettings
       Position = 30
       TabOrder = 2
       TabStop = True
+      OnChangingEx = udRateChangingEx
       OnClick = udRateClick
     end
     object eRate: DEdit

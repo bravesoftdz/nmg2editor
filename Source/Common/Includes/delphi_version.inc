@@ -37,6 +37,9 @@
                     {$DEFINE G2_VER220_up} // Delphi XE
                     {$IF Compilerversion >= 23}
                       {$DEFINE G2_VER230_up} // Delphi XE2
+                      {$IF Compilerversion >= 24}
+                        {$DEFINE G2_VER240_up} // Delphi XE3
+                      {$IFEND}
                     {$IFEND}
                   {$IFEND}
                 {$IFEND}

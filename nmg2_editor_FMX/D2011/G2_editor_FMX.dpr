@@ -14,7 +14,8 @@ uses
   G2FMXGraph in '..\..\Source\Common\G2FMXGraph.pas',
   G2_USB in '..\..\Source\Common\G2_USB.pas',
   LibUSBWinDyn in '..\..\Source\Common\LibUSBWinDyn.pas',
-  g2_mess in '..\..\Source\Common\g2_mess.pas';
+  g2_mess in '..\..\Source\Common\g2_mess.pas',
+  graph_util_fmx in '..\..\Source\Common\graph_util_fmx.pas';
 
 {$R *.res}
 

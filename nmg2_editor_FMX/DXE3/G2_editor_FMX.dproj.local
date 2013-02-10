@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<Transactions>
+    <Transaction>1899-12-30 00:00:00.000.744,C:\Users\Bruno\Delphi\NMG2\Source\UnitG2EditorFMX.pas=C:\Users\Bruno\Documents\RAD Studio\Projects\Unit1.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.355,C:\Users\Bruno\Delphi\NMG2\Source\G2_editor_FMX.dproj=C:\Users\Bruno\Documents\RAD Studio\Projects\Project1.dproj</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.744,C:\Users\Bruno\Delphi\NMG2\Source\UnitG2EditorFMX.fmx=C:\Users\Bruno\Documents\RAD Studio\Projects\Unit1.fmx</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.960,C:\Users\Bruno\Delphi\NMG2\Project\DelphiFMX\G2_editor_FMX.dproj=C:\Users\Bruno\Delphi\NMG2\Source\G2_editor_FMX.dproj</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.956,C:\Users\Bruno\Delphi\nmg2editor\nmg2_editor_FMX\DXE3\G2_editor_FMX.dproj=C:\Users\Bruno\Delphi\nmg2editor\nmg2_editor_FMX\D2011\G2_editor_FMX.dproj</Transaction>
+  </Transactions>
+</BorlandProject>

@@ -504,7 +504,6 @@ type
     aPerfRename: TAction;
     btClockRun: TG2GraphButtonText;
     Patchbrowser1: TMenuItem;
-    Timer1: TTimer;
 
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
@@ -624,6 +623,8 @@ type
     procedure G2ClockBPMChange( Sender : TObject; SenderID : integer; BPM : integer);
     procedure G2AfterGetAssignedVoices(Sender : TObject);
     procedure btClockRunClick(Sender: TObject);
+    procedure gdMasterClockMouseDown(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
 
   private
     { Private declarations }
@@ -1103,6 +1104,7 @@ begin
     frmEditLabel.Top := (Sender as TEdit).ClientToScreen(Point(0, 0)).Y;
 
     frmEditLabel.eLabel.Text := FSlot.Patch.PatchName;
+
     if frmEditLabel.ShowModal = mrOk then begin
       FSlot.SendSetPatchName( frmEditLabel.eLabel.Text);
     end;
@@ -1366,7 +1368,7 @@ begin
   {cbLogMessages.Checked := True;
   cbLogMessagesClick(self);}
 
-  StartupTimer.Enabled := True;
+  //StartupTimer.Enabled := True;
 end;
 
 procedure TfrmG2Main.StartupTimerTimer(Sender: TObject);
@@ -1386,6 +1388,7 @@ begin
     if G2.FParamDefList.FileVersion <> NMG2_VERSION then
       ShowMessage( 'Warning, ParamDef.xml version differs from application.');
 
+    //G2.TCPIPEnabled := False;
     G2.USBActive := True;
   end;
 
@@ -1423,7 +1426,7 @@ procedure TfrmG2Main.FormClose(Sender: TObject; var Action: TCloseAction);
 var G2 : TG2;
     i : integer;
 begin
-  SaveIniXML; // At this moment all the windows still are visible
+  SaveIniXML; // At this moment all the windows still are visible for saving state & position
   for i := 0 to FG2List.Count - 1 do begin
     G2 := FG2List[i] as TG2;
     G2.USBActive := False;
@@ -2219,8 +2222,34 @@ begin
   if not assigned(G2) then
     exit;
 
-  G2.Performance.SendSetMasterClockRunMessage( btClockRun.Value = 1);
+  //G2.Performance.SendSetMasterClockRunMessage( btClockRun.Value = 1);
+  G2.Performance.MasterClockRun := btClockRun.Value;
 end;
+
+procedure TfrmG2Main.gdMasterClockMouseDown(Sender: TObject;
+  Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+var G2 : TG2;
+begin
+  G2 := SelectedG2;
+  if not assigned(G2) then
+    exit;
+
+  if Sender is TG2GraphDisplay then begin
+    frmEditLabel.Left := (Sender as TG2GraphDisplay).ClientToScreen(Point(0, 0)).X;
+    frmEditLabel.Top := (Sender as TG2GraphDisplay).ClientToScreen(Point(0, 0)).Y;
+
+    frmEditLabel.eLabel.Text := IntToStr(G2.Performance.MasterClock);
+    frmEditLabel.eLabel.NumbersOnly := True;
+    try
+      if frmEditLabel.ShowModal = mrOk then begin
+        G2.Performance.MasterClock := StrToInt(frmEditLabel.eLabel.Text);
+      end;
+    finally
+      frmEditLabel.eLabel.NumbersOnly := False;
+    end;
+  end;
+end;
+
 
 // ==== File menu ==============================================================
 
@@ -3534,7 +3563,7 @@ var i, j, k : integer;
     end;
 
 begin
-  for i := 0 to 15 do begin
+  for i := 0 to High(MODULECATEGORIES) do begin
 
     aMenuItem := TMenuItem.Create( puAddModule);
     aMenuItem.Caption := MODULECATEGORIES[i];

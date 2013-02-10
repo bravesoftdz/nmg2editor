@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<Transactions>
+    <Transaction>1899-12-30 00:00:00.000.595,C:\Users\Bruno\Delphi\nmg2editor\Source\NMG2Controls\LibUSBWin.pas=</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.806,C:\Users\Bruno\Delphi\nmg2editor\Source\NMG2Controls\fastbitmap.pas=</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.953,F:\NMG2\Source\NMG2Controls\NMG2_controls.dproj=F:\NMG2\Source\NMG2Controls\NMG2_controls_D2011.dproj</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.008,C:\Users\Bruno\Delphi\NMG2\Source\NMG2Controls\NMG2_controls_D2011.dproj=C:\Users\Bruno\Delphi\NMG2\Project\DelphiVCL\NMG2_controls_D2011.dproj</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.962,=MidiComponents2010.dcp</Transaction>
+    <Transaction>2013-01-27 14:52:03.181,C:\Users\Bruno\Delphi\nmg2editor\nmg2_controls\XE3\NMG2_controls_D2011.dproj=C:\Users\Bruno\Delphi\nmg2editor\nmg2_controls\D2011\NMG2_controls_D2011.dproj</Transaction>
+  </Transactions>
+</BorlandProject>

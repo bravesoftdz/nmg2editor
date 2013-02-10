@@ -5260,7 +5260,7 @@ procedure TG2GraphLevelShift.PaintOn( ExtCanvas : TCanvas; ExtBoundsRect : TRect
 var Rect, RectTop, RectBottom : TRect;
     HorzCenter, VertCenter: integer;
     P1, P2 : TPoint;
-    //MidiEditorAssignment : TMidiEditorAssignment;
+    MidiEditorAssignment : TMidiEditorAssignment;
 
 begin
   inherited;

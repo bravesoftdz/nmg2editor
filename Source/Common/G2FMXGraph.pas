@@ -1,11 +1,13 @@
 unit G2FMXGraph;
 
+{$I includes\delphi_version.inc}
+
 interface
 
 uses
-  System.SysUtils, System.Classes, System.UITypes, Types, System.Contnrs,
-  FMX.Types, FMX.Controls, FMX.Forms, FMX.Layouts, FMX.Objects,
-  G2_Types, G2_File, G2_usb;
+  System.SysUtils, System.Classes, System.UITypes, System.UIConsts, System.Types,
+  System.Contnrs, FMX.Types, FMX.Controls, FMX.Forms, FMX.Layouts, FMX.Objects,
+  G2_Types, G2_File, G2_usb, graph_util_fmx;
 
 const
   TENSION = 10;
@@ -14,6 +16,7 @@ const
 
 type
   TClickEvent = procedure(Sender: TObject) of object;
+  TChangeEvent = procedure(Sender : TObject) of Object;
   TModuleClickEvent = procedure(Sender : TObject; Button: TMouseButton; Shift: TShiftState; X,  Y: Integer; Module : TG2FileModule) of Object;
   TParameterClickEvent = procedure(Sender : TObject; Button: TMouseButton; Shift: TShiftState; X,  Y: Integer; Parameter : TG2FileParameter) of Object;
   TConnectorClickEvent = procedure(Sender : TObject; Button: TMouseButton; Shift: TShiftState; X,  Y: Integer; Parameter : TG2FileConnector) of Object;
@@ -107,10 +110,15 @@ type
   private
     FNewCable : TG2FMXCable;
     FFromConnector : TG2FMXConnector;
+
+    FMoveLayout : TLayout;
+    FStartX, FStartY : single;
   protected
     procedure   MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Single); override;
     procedure   MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: Single); override;
     procedure   MouseMove(Shift: TShiftState; X, Y: Single); override;
+    procedure   MoveLayoutMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Single);
+    procedure   MoveLayoutMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Single);
   public
     constructor Create( AOwner: TComponent); override;
     destructor  Destroy; override;
@@ -275,6 +283,8 @@ type
     FStartValue,
     FLowValue,
     FHighValue      : byte;
+
+    FOnChange       : TChangeEvent;
     procedure   MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Single); override;
     procedure   MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: Single); override;
     procedure   MouseMove(Shift: TShiftState; X, Y: Single); override;
@@ -292,6 +302,7 @@ type
     function    GetValue : byte;
     procedure   SetParamLabel( aIndex : integer; aValue : AnsiString);
     function    GetParamLabel( aIndex : integer) : AnsiString;
+    function    GetParamLabelIndex: integer;
     procedure   InitValue( aValue: integer);
     function    CheckValueBounds( aValue : integer): byte;
     procedure   SetMorphValue( aValue: byte);
@@ -1239,6 +1250,34 @@ begin
   end;
 end;
 
+procedure TG2FMXPatchArea.MoveLayoutMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Single);
+begin
+  if (Sender is TLayout) then begin
+    if assigned(FMoveLayout) then begin
+      FMoveLayout.Free;
+      Patch.MessMoveModules( Data.Location);
+    end;
+  end;
+end;
+
+procedure TG2FMXPatchArea.MoveLayoutMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Single);
+var MoveLayout : TLayout;
+    P: TPointF;
+begin
+  if (ssLeft in Shift) then
+    if (Sender is TLayout) and assigned(FMoveLayout) then begin
+
+      MoveLayout := Sender as TLayout;
+
+      P := MoveLayout.LocalToAbsolute(PointF(X, Y));
+      if Assigned(MoveLayout.Parent) and (MoveLayout.Parent is TControl) then
+        P := TControl(MoveLayout.Parent).AbsoluteToLocal(P);
+
+        MoveLayout.Position.X := P.X - FStartX;
+        MoveLayout.Position.Y := P.Y - FStartY;
+    end;
+end;
+
 // ==== G2GraphModule ==========================================================
 
 constructor TG2GraphModule.Create( aPatchPart : TG2FilePatchPart);
@@ -1565,10 +1604,12 @@ begin
       FStartY := Y;
       //Patch.SelectModules;
 
-      BringToFront;
+    {  BringToFront;
       PatchArea := Parent as TG2FMXPatchArea;
       if assigned(PatchArea) then
-        PatchArea.CablesToFront;
+        PatchArea.CablesToFront;}
+
+
     end;
 
   inherited;
@@ -1577,7 +1618,11 @@ end;
 procedure TG2FMXModule.MouseMove(Shift: TShiftState; X, Y: Single);
 var PatchArea : TG2FMXPatchArea;
     Patch : TG2GraphPatch;
+    Module : TG2GraphModule;
+    BitMap : TBitmap;
+    Image : TImage;
     i : integer;
+    P: TPointF;
 begin
   if assigned(Parent) then
     PatchArea := Parent as TG2FMXPatchArea;
@@ -1588,8 +1633,45 @@ begin
     PatchArea.MouseMove(Shift, Position.X + X, Position.Y + Y)
   else begin
     if (ssLeft in Shift) then
-      if FWasAlreadySelected then
-        Patch.MoveOutlines( Data.Location, X - FStartX, Y - FStartY);
+     { if FWasAlreadySelected then
+        Patch.MoveOutlines( Data.Location, X - FStartX, Y - FStartY);}
+
+      if ((abs(X-FStartX)>1) or (abs(Y-FStartY)>1)) then begin
+
+        PatchArea.FMoveLayout := TLayout.Create(self);
+        PatchArea.FMoveLayout.Parent := PatchArea;
+        PatchArea.FMoveLayout.Position.X := 0;
+        PatchArea.FMoveLayout.Position.Y := 0;
+        PatchArea.FMoveLayout.Width := PatchArea.Width;
+        PatchArea.FMoveLayout.Height := PatchArea.Height;
+        PatchArea.FMoveLayout.HitTest := True;
+        PatchArea.FMoveLayout.OnMouseMove := PatchArea.MoveLayoutMouseMove;
+        PatchArea.FMoveLayout.OnMouseUp := PatchArea.MoveLayoutMouseUp;
+
+        P := LocalToAbsolute(PointF(X, Y));
+        P := PatchArea.AbsoluteToLocal(P);
+
+        PatchArea.FStartX := P.X;
+        PatchArea.FStartY := P.Y;
+
+        for i := 0 to Patch.PatchPart[ ord(Location)].SelectedModuleList.Count - 1 do begin
+          Module := (Patch.PatchPart[ ord(Location)].SelectedModuleList[i] as TG2GraphModule);
+          Bitmap := Module.FPanel.MakeScreenshot;
+          try
+            Image := TImage.Create( PatchArea.FMoveLayout);
+            Image.Bitmap.Assign( Bitmap);
+            Image.Opacity := 0.6;
+            Image.HitTest := False;
+            Image.Position.Assign( Module.FPanel.Position);
+            Image.Width := Module.FPanel.Width;
+            Image.Height := Module.FPanel.Height;
+
+            Image.Parent := PatchArea.FMoveLayout;
+          finally
+            BitMap.Free;
+          end;
+        end;
+      end;
 
     inherited;
   end;
@@ -2029,6 +2111,57 @@ begin
   Result := inherited Add( aValue);
 end;
 
+{$IFDEF G2_VER240_up}
+procedure TG2ImageList.ParseImageData( ImageCount : integer; Hex : boolean);
+var Bitmap : TBitmap;
+    i, j, k, b : integer;
+    LNew : TAlphaColor;
+    LScan : PAlphaColorArray;
+    Rec: TBitmapData;
+begin
+  if (FImageData.Count = 0) or (FBitmapWidth = 0) then
+    exit;
+
+  FBitmapHeight := FImageData.Count div FBitmapWidth div ImageCount;
+
+  b := 0;
+  for i := 0 to ImageCount - 1 do begin
+    Bitmap := TBitmap.Create( FBitmapWidth,
+                              FBitmapHeight);
+
+    Bitmap.Map( TMapAccess.maWrite, Rec);
+    try
+      for j := 0 to Bitmap.Height - 1 do begin
+        //LScan := Bitmap.Scanline[j];
+        for k := 0 to Bitmap.Width - 1 do begin
+          if Hex then begin
+            LNew      := $FF000000
+                       + 256*256 *(16 * HexToByte( FImageData[b][1]) + 1 * HexToByte( FImageData[b][2]))
+                       + 256 * (16 * HexToByte( FImageData[b][3]) + 1 * HexToByte( FImageData[b][4]))
+                       + (16 * HexToByte( FImageData[b][5]) + 1 * HexToByte( FImageData[b][6]));
+          end else begin
+            LNew  := StrToInt(copy( FImageData[b], 1, 3))
+                   + 256 * StrToInt(copy( FImageData[b], 4, 3))
+                   + 256*256* StrToInt(copy( FImageData[b], 7, 3));
+          end;
+          if (j = 0) and (k = 0) then begin
+            //Bitmap.TransparentColor := (LNew.rgbtBlue * 256 + LNew.rgbtGreen) * 256 + LNew.rgbtRed;
+          end;
+
+          //LScan[k] := LNew;
+          Rec.SetPixel( k, j, LNew);
+          inc(b);
+        end;
+      end;
+    finally
+      Bitmap.Unmap( Rec);
+    end;
+
+    Add( Bitmap);
+  end;
+  FImageData.Clear;
+end;
+{$ELSE}
 procedure TG2ImageList.ParseImageData( ImageCount : integer; Hex : boolean);
 var Bitmap : TBitmap;
     i, j, k, b : integer;
@@ -2078,6 +2211,8 @@ begin
   end;
   FImageData.Clear;
 end;
+{$ENDIF}
+
 
 // ==== TG2FMXControl ===================================================
 
@@ -2100,7 +2235,14 @@ begin
 end;
 
 destructor TG2FMXControl.Destroy;
+var Patch : TG2GraphPatch;
 begin
+  if assigned(FModule) then begin
+    Patch := FModule.GetPatch;
+    if assigned(Patch) and (Patch.SelectedControl = self) then
+      FModule.GetPatch.SelectedControl := nil;
+  end;
+
   SetParameter(nil);
   inherited;
 end;
@@ -2140,18 +2282,21 @@ begin
   if assigned(aParam) and not( aParam is TG2FileParameter) then
     raise Exception.Create('Parameter must be of type TG2GraphParameter.');
 
-  Param := aParam as TG2GraphParameter;
+  if aParam <> FParameter then begin
+    Param := aParam as TG2GraphParameter;
 
-  if assigned(FParameter) then begin
-    (FParameter as TG2GraphParameter).DeassignControl(self);
-    if assigned( Param) then begin
-      Param.AssignControl( self);
+    if assigned(FParameter) then begin
+      (FParameter as TG2GraphParameter).DeassignControl(self);
+      if assigned( Param) then begin
+        Param.AssignControl( self);
+      end;
+      FParameter := Param;
+    end else begin
+      FParameter := Param;
+      if assigned(FParameter) then
+        (FParameter as TG2GraphParameter).AssignControl( self);
     end;
-    FParameter := Param;
-  end else begin
-    FParameter := Param;
-    if assigned(FParameter) then
-      (FParameter as TG2GraphParameter).AssignControl( self);
+    Repaint;
   end;
 end;
 
@@ -2216,20 +2361,25 @@ begin
     Result := '';
 end;
 
+function TG2FMXControl.GetParamLabelIndex: integer;
+begin
+  Result := 0;
+end;
+
+function TG2FMXControl.GetValue: byte;
+begin
+  if assigned( FParameter) then
+    Result := FParameter.GetParameterValue
+  else
+    Result := FValue;
+end;
+
 function TG2FMXControl.GetSelected: boolean;
 begin
   if assigned( FParameter) then
     Result := FParameter.Selected
   else
     Result := False;
-end;
-
-function TG2FMXControl.GetValue: byte;
-begin
-  if assigned( FParameter) then
-    Result := FParameter.GetParameterValue
-  else
-    Result := FValue;
 end;
 
 procedure TG2FMXControl.MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: single);
@@ -2269,6 +2419,8 @@ end;
 
 function TG2FMXControl.ParseProperties( fs: TModuleDefStream; aName : AnsiString): boolean;
 var aValue : string;
+    G2 : TG2File;
+    temp : string;
 begin
   Result := True;
 
@@ -2302,6 +2454,20 @@ begin
     aValue := fs.ReadUntil([#13]);
     FZOrder := StrToInt( aValue);
   end else
+
+  if aName = 'InfoFunc' then begin
+    aValue := fs.ReadUntil( [#13]);
+    if assigned(FParameter) then
+      FParameter.InfoFunctionIndex := StrToInt( string(aValue));
+
+    if assigned(FParameter) and assigned(FParameter.Patch)
+       and assigned(FParameter.Patch.G2) then begin
+      G2 := FParameter.Patch.G2;
+      temp := FParameter.InfoFunction( FParameter.InfoFunctionIndex);
+      if pos('?', temp)>0 then
+         G2.add_log_line( FParameter.ModuleName + ' ' + FParameter.ParamName + ' ' + IntToStr(FParameter.InfoFunctionIndex) + ' ' + temp, LOGCMD_NUL);
+    end;
+ end else
 
     Result := False
 end;
@@ -2342,11 +2508,10 @@ begin
     FParameter.SetParameterValue( aValue)
   else begin
     FValue := aValue;
-
-{    if assigned( FOnChange) then
-      FOnChange( self);}
+    Repaint;
+    if assigned( FOnChange) then
+      FOnChange( self);
   end;
-  Repaint;
 end;
 
 procedure TG2FMXControl.SetLowValue( aValue: byte);
@@ -2357,6 +2522,7 @@ begin
     FLowValue := aValue;
   end;
   Repaint;
+
 end;
 
 procedure TG2FMXControl.SetHighValue( aValue: byte);
@@ -2386,6 +2552,7 @@ var MorphParameter : TMorphParameter;
 begin
   if assigned( FParameter) then begin
     FParameter.SetSelectedMorphValue( aValue);
+    Repaint;
   end;
 end;
 
@@ -3360,8 +3527,12 @@ begin
   canvas.FillRect( BoundsRect, 0, 0, allCorners, AbsoluteOpacity);
 
   if FImageList.Count > 0 then begin
-    Canvas.DrawBitmap( FImageList.Items[0], RectF(0,0,FImageList.Items[0].Width, FImageList.Items[0].Height)
-                                     ,BoundsRect, AbsoluteOpacity)
+    //Canvas.DrawBitmap( FImageList.Items[0], RectF(0,0,FImageList.Items[0].Width, FImageList.Items[0].Height)
+    //                                 ,BoundsRect, AbsoluteOpacity)
+    Canvas.Fill.Color := claBlack;
+    DrawImage( FParameter.ParamID, Value, Canvas, FImageList.Items[0],
+               RectF(0,0,FImageList.Items[0].Width, FImageList.Items[0].Height),
+               BoundsRect, 2, 2, AbsoluteOpacity);
   end else begin
     LabelText := '';
     if assigned(Parameter) then
@@ -3466,7 +3637,11 @@ begin
   Canvas.FillRect( BoundsRect, 0, 0, allCorners, 1);
 
   if (FImageList.Count > 0) and (Value < FImageList.Count) then begin
-    Canvas.DrawBitmap( FImageList.Items[Value], FImageList.BoundsRect, BoundsRect, AbsoluteOpacity);
+    //Canvas.DrawBitmap( FImageList.Items[Value], FImageList.BoundsRect, BoundsRect, AbsoluteOpacity);
+    Canvas.Fill.Color := claBlack;
+    DrawImage( FParameter.ParamID, Value, Canvas, FImageList.Items[Value],
+               RectF(0,0,FImageList.Items[Value].Width, FImageList.Items[Value].Height),
+               BoundsRect, 2, 2, AbsoluteOpacity);
   end else begin
     LabelText := '';
     if assigned(Parameter) then
@@ -3774,10 +3949,15 @@ begin
         Canvas.FillRect( Rect, 0, 0, allCorners, AbsoluteOpacity);
 
         if FImageList.Count > 0 then begin
-          if i < FImageList.Count then
-            Canvas.DrawBitmap( FImageList.Items[i],
+          if i < FImageList.Count then begin
+            {Canvas.DrawBitmap( FImageList.Items[i],
                                RectF(0,0,FImageList.Items[i].Width, FImageList.Items[i].Height),
-                               Rect, AbsoluteOpacity)
+                               Rect, AbsoluteOpacity)}
+            Canvas.Fill.Color := claBlack;
+            DrawImage( FParameter.ParamID, i, Canvas, FImageList.Items[i],
+                       RectF(0,0,FImageList.Items[i].Width, FImageList.Items[i].Height),
+                       Rect, 2, 2, AbsoluteOpacity);
+          end;
         end else begin
           LabelText := '';
           if assigned(Parameter) then
@@ -4004,17 +4184,17 @@ begin
     FStartValue := Value;
 
     if (FType in [ktSlider, ktSeqSlider]) then begin
-      if (PointInRect( PointF(X, Y), GetSliderRect)) then
+      if (PtInRect( GetSliderRect, PointF(X, Y))) then
         FSLiderSelected := True;
     end else
-      if (FType in [ktReset, ktResetMedium]) and PointInRect( PointF(X, Y), FCenterButtonRect) then begin
+      if (FType in [ktReset, ktResetMedium]) and PtInRect( FCenterButtonRect, PointF(X, Y)) then begin
         Value := (HighValue - LowValue + 1) div 2;
       end else
-        if PointInRect( PointF(X, Y), FIncBtnRect) then begin
+        if PtInRect( FIncBtnRect, PointF(X, Y)) then begin
           if Value < HighValue then
             Value := Value + 1;
         end else
-          if PointInRect( PointF(X, Y), FDecBtnRect) then begin
+          if PtInRect( FDecBtnRect, PointF(X, Y)) then begin
             if Value > LowValue then
               Value := Value - 1;
           end;

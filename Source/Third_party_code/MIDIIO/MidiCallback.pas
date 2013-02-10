@@ -50,7 +50,7 @@ unit MidiCallback;
 
 interface
 
-uses Windows, MMsystem, Circbuf, MidiDefs, MidiCons;
+uses Windows, MMsystem, Circbuf, MidiDefs, MidiCons, SysUtils;
 
 {$IFDEF WIN32}
 procedure midiHandler(
@@ -122,7 +122,8 @@ begin
 
     mim_Open: {nothing};
 
-    mim_Error: {TODO: handle (message to trigger exception?) };
+    mim_Error: {TODO: handle (message to trigger exception?) }
+       raise Exception.Create('Midi error ' + IntToStr(dwParam1));
 
     mim_Data, mim_Longdata, mim_Longerror:
       { Note: mim_Longerror included because there's a bug in the Maui
