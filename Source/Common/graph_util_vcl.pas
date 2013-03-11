@@ -75,6 +75,8 @@ procedure DrawRect( aCanvas : TCanvas; aRect : TRect);
 procedure TextCenter( aCanvas : TCanvas; aRect : TRect; aText : string);
 procedure DrawCenter( aCanvas : TCanvas; aRect : TRect; aBitmap : TBitmap);
 
+function  CompareBitmap( Bitmap1, Bitmap2 : TBitmap): boolean;
+
 //procedure CreateFlatPen(Pen: TPen; Width: Integer; Color: TColor);
 
 procedure ShrinkRect(var aRect : TRect; aAmount : integer);
@@ -465,6 +467,34 @@ begin
      TempIntfImg.Free;
   end;
 {$ENDIF}
+end;
+
+function CompareBitmap( Bitmap1, Bitmap2 : TBitmap): boolean;
+var i, j : integer;
+    LScan1, LScan2 : PRGBTripleArray;
+begin
+  // Only 24bit valid!
+  if Bitmap1.Pixelformat <> pf24bit then
+    raise Exception.Create('Only 24bit bmp valid.');
+
+  if (Bitmap1.Pixelformat = Bitmap2.PixelFormat) and
+     (Bitmap1.Width = Bitmap2.Width) and
+     (Bitmap1.Height = Bitmap2.Height) then begin
+    Result := True;
+    for i := 0 to Bitmap1.Height - 1 do begin
+      LScan1 := Bitmap1.ScanLine[i];
+      LScan2 := Bitmap2.ScanLine[i];
+      for j := 0 to BitMap1.Width do begin
+        if not((LScan1[j].rgbtBlue = LScan2[j].rgbtBlue) and
+               (LScan1[j].rgbtGreen = LScan2[j].rgbtGreen) and
+               (LScan1[j].rgbtRed = LScan2[j].rgbtRed)) then begin
+          Result := False;
+          exit;
+        end;
+      end;
+    end;
+  end else
+    Result := false;
 end;
 
 procedure DrawBevel( aCanvas : TCanvas; aRect : TRect; aBevelType : TBevelCut);

@@ -29,13 +29,13 @@ interface
 uses
 {$IFDEF G2_VER220_up}
   WinAPI.Windows, WinAPI.Messages, System.SysUtils, System.Variants,
-  System.Classes, VCL.Graphics, VCL.Controls, VCL.Forms, VCL.Dialogs,
-  VCL.StdCtrls, VCL.Grids, VCL.ExtCtrls, VCL.ActnList, VCL.ActnMan,
+  System.Classes, System.Contnrs, VCL.Graphics, VCL.Controls, VCL.Forms,
+  VCL.Dialogs, VCL.StdCtrls, VCL.Grids, VCL.ExtCtrls, VCL.ActnList, VCL.ActnMan,
   VCL.XPStyleActnCtrls, VCL.PlatformDefaultStyleActnCtrls,
 {$ELSE}
   Windows, Messages, SysUtils, Variants, Classes, Graphics,
   Controls, Forms, Dialogs, StdCtrls, Grids, ExtCtrls,
-  ActnList, ActnMan, XPStyleActnCtrls,
+  ActnList, ActnMan, XPStyleActnCtrls, Contnrs,
 {$ENDIF}
   DOM, XMLWrite, XMLRead, g2_types, g2_database, g2_graph, g2_file, g2_mess, g2_usb,
   g2_classes, g2_midi;
@@ -78,7 +78,7 @@ type
     procedure UpdateControls;
     procedure UpdateModuleDef;
     procedure ExtractTextEdit;
-    procedure CreateSVG( aFileName : string);
+    procedure CreateSVG;
     procedure LoadModule;
     procedure UnloadModule;
   end;
@@ -90,7 +90,7 @@ implementation
 
 {$R *.dfm}
 
-uses UnitG2Editor;
+uses UnitG2Editor, graph_util_vcl;
 
 { TForm1 }
 
@@ -122,7 +122,7 @@ end;
 
 procedure TfrmModuleDef.Button3Click(Sender: TObject);
 begin
-  CreateSVG('g2_graphics.svg');
+  CreateSVG;
 end;
 
 procedure TfrmModuleDef.FormCreate(Sender: TObject);
@@ -262,18 +262,32 @@ begin
   WriteXMLFile( G2_module_def.FXMLModuleDefs, new_filename);
 end;
 
-procedure TfrmModuleDef.CreateSVG( aFileName : string);
+procedure TfrmModuleDef.CreateSVG;
 var Control : TG2GraphChildControl;
     RadioButton : TG2GraphButtonRadio;
+    BitMapList : TObjectList;
+    Bitmap : TBitmap;
     i, j, k : integer;
-    knob_section, buttontext_section, buttonflat_section, textfield_section,
-    module_section, mr, mc, btc, bfc, ki, tfc : integer;
+    symbol_section, knob_section, buttontext_section, buttonflat_section, textfield_section,
+    module_section, mr, mc, btc, bfc, kc, tfc, sc : integer;
     new_filename : string;
     Doc : TXMLDocument;
-    RootNode, DefsNode, GMainNode, GModuleDefNode,
+    RootNode, DefsNode, GMainNode,
+    GSymbolSectionNode, GSymbolDefNode, SymbolNode,
     GTextFieldSectionNode, GTextFieldDefNode, TextFieldNode,
     GButtonTextSectionNode, GButtonTextDefNode, ButtonTextNode,
-    GButtonFlatSectionNode, GButtonFlatDefNode, ButtonFlatNode : TDomNode;
+    GButtonFlatSectionNode, GButtonFlatDefNode, ButtonFlatNode,
+    GModuleSectionNode, GModuleDefNode, ModuleNode : TDomNode;
+
+    function FindBitmap( aBitmap : TBitmap): integer;
+    begin
+      Result := 0;
+      while (Result < BitMapList.Count) and not(CompareBitmap( aBitmap, BitMapList.Items[Result] as TBitmap)) do
+        inc(Result);
+
+      if (Result >= BitMapList.Count) then
+        Result := -1;
+    end;
 
     procedure CreateLabel( aNode : TDomNode; x, y : integer; aText : string; aFontSize : integer);
     var S : TStringStream;
@@ -293,6 +307,47 @@ var Control : TG2GraphChildControl;
         ReadXMLFragment( aNode, S);
       finally
         S.Free;
+      end;
+    end;
+
+    procedure CreateSymbol( aNode : TDomNode; id : string; Width, Height : integer);
+    var S : TStringStream;
+    begin
+      S := TStringStream.Create(
+         '<g id="g2_symbol_' + id + '">'
+       + '  <desc>Symbol for G2 editor</desc>'
+       + '  <g id="g2_symbol_' + id + '_sel">'
+       + '     <rect id="g2_symbol_' + id + '_rect" fill="none" stroke="blue" stroke-width="0.2" x="0" y="0" width="' + IntToStr(Width)+ '" height="' + IntToStr(Height) + '" />'
+       + '  </g>'
+       + '</g>');
+      try
+        ReadXMLFragment( aNode, S);
+      finally
+        S.Free;
+      end;
+    end;
+
+    function AddSymbolFromBitmap( aBitmap : TBitmap): integer;
+    begin
+      Result := FindBitmap(aBitmap);
+      if Result = - 1 then begin
+        Bitmap := TBitmap.Create;
+        Bitmap.Assign(aBitmap);
+        BitMapList.Add(Bitmap);
+        Result := BitmapList.Count -1;
+
+        SymbolNode := GSymbolSectionNode.FirstChild;
+        while (SymbolNode <> nil) and (TDomELement(SymbolNode).GetAttribute('id') <>  'g2_symbol_def_' + IntToStr(Result)) do
+          SymbolNode := SymbolNode.NextSibling;
+
+        if not assigned(SymbolNode) then begin
+          GSymbolDefNode := Doc.CreateElement('g');
+          GSymbolSectionNode.AppendChild(GSymbolDefNode);
+          TDOMElement(GSymbolDefNode).SetAttribute('id', 'g2_symbol_def_' + IntToStr(Result));
+          TDOMElement(GSymbolDefNode).SetAttribute('transform', 'translate(' + IntToStr(sc) + ',' + IntToStr(symbol_section) + ')');
+          CreateSymbol( GSymbolDefNode, IntToStr(Result), (BitmapList[Result] as TBitmap).Width, (BitmapList[Result] as TBitmap).Height);
+          sc := sc + (BitmapList[Result] as TBitmap).Width + 20;
+        end;
       end;
     end;
 
@@ -409,8 +464,8 @@ var Control : TG2GraphChildControl;
     end;
 
     procedure CreateModule( aNode : TDomNode);
-    var GL1Node, DescNode, PanelNode, UseNode : TDOMNode;
-        l, m, x, y, w, h, dx, dy : integer;
+    var GL1Node, GCtrlNode, DescNode, PanelNode, UseNode : TDOMNode;
+        l, m, x, y, w, h, dx, dy, symbol_id : integer;
     begin
       GL1Node := Doc.CreateElement('g');
       aNode.AppendChild(Gl1Node);
@@ -478,13 +533,30 @@ var Control : TG2GraphChildControl;
             btc := btc + Control.Width + 30;
           end;
 
+          GCtrlNode := Doc.CreateElement('g');
+          Gl1Node.AppendChild(GCtrlNode);
+          TDOMElement(GCtrlNode).SetAttribute('id', 'g2_module_' + IntToStr(FModule.TypeID) + '_gctrl_' + IntToStr(l));
+
           UseNode := Doc.CreateElement('use');
-          Gl1Node.AppendChild(UseNode);
+          GCtrlNode.AppendChild(UseNode);
           TDOMElement(UseNode).SetAttribute('id', 'g2_module_' + IntToStr(FModule.TypeID) + '_ctrl_' + IntToStr(l));
           TDOMElement(UseNode).SetAttribute('xlink:href', '#g2_buttontext_' + IntToStr(Control.Width) + 'x' + IntToStr(Control.Height));
           TDOMElement(UseNode).SetAttribute('transform', 'translate(' + IntToStr(Control.Left) + ',' + IntToStr(Control.Top) + ')');
           TDOMElement(UseNode).SetAttribute('x', '0');
           TDOMElement(UseNode).SetAttribute('y', '0');
+
+          for m := 0 to (Control as TG2GraphButton).ImageList.Count - 1 do begin
+            symbol_id := AddSymbolFromBitmap( (Control as TG2GraphButton).ImageList.Items[m]);
+            w := (BitmapList[symbol_id] as TBitmap).Width;
+            h := (BitmapList[symbol_id] as TBitmap).Height;
+            UseNode := Doc.CreateElement('use');
+            GCtrlNode.AppendChild(UseNode);
+            TDOMElement(UseNode).SetAttribute('id', 'g2_module_' + IntToStr(FModule.TypeID) + '_ctrl_' + IntToStr(l) + '_symbol_' + IntToStr(m));
+            TDOMElement(UseNode).SetAttribute('xlink:href', '#g2_symbol_' + IntToStr(symbol_id));
+            TDOMElement(UseNode).SetAttribute('transform', 'translate(' + IntToStr(Control.Left + Control.Width div 2 - w div 2) + ',' + IntToStr(Control.Top + Control.Height div 2 - h div 2) + ')');
+            TDOMElement(UseNode).SetAttribute('x', '0');
+            TDOMElement(UseNode).SetAttribute('y', '0');
+          end;
         end;
 
         if Control is TG2GraphButtonFlat then begin
@@ -500,6 +572,10 @@ var Control : TG2GraphChildControl;
             TDOMElement(GButtonFlatDefNode).SetAttribute('transform', 'translate(' + IntToStr(bfc) + ',' + IntToStr(buttonflat_section) + ')');
             CreateButtonFlat( GButtonFlatDefNode, Control.Width, Control.Height);
             bfc := bfc + Control.Width + 30;
+          end;
+
+          for m := 0 to (Control as TG2GraphButton).ImageList.Count - 1 do begin
+            AddSymbolFromBitmap( (Control as TG2GraphButton).ImageList.Items[m]);
           end;
 
           UseNode := Doc.CreateElement('use');
@@ -591,6 +667,7 @@ var Control : TG2GraphChildControl;
 
 begin
   Doc := TXMLDocument.Create;
+  BitMapList := TObjectList.Create(True);
   try
     RootNode := Doc.CreateElement('svg');
     Doc.AppendChild(RootNode);
@@ -609,13 +686,15 @@ begin
     buttontext_section := 50;
     buttonflat_section := 100;
     textfield_section := 150;
-    module_section := 200;
+    symbol_section := 200;
+    module_section := 250;
     mr := 0;
     mc := 0;
     btc := 0;
     bfc := 0;
-    ki := 0;
+    kc := 0;
     tfc := 0;
+    sc := 0;
 
     CreateKnobBig( DefsNode);
     CreateConnector( DefsNode);
@@ -637,10 +716,18 @@ begin
     GMainNode.AppendChild(GButtonFlatSectionNode);
     TDOMElement(GButtonFlatSectionNode).SetAttribute('id', 'g2_buttonflat_section');
 
+    GSymbolSectionNode := Doc.CreateElement('g');
+    GMainNode.AppendChild(GSymbolSectionNode);
+    TDOMElement(GSymbolSectionNode).SetAttribute('id', 'g2_symbol_section');
+
+    GModuleSectionNode := Doc.CreateElement('g');
+    GMainNode.AppendChild(GModuleSectionNode);
+    TDOMElement(GModuleSectionNode).SetAttribute('id', 'g2_module_section');
+
     for i := 0 to G2_module_def.FModuleDefList.Count - 1 do begin
 
       GModuleDefNode := Doc.CreateElement('g');
-      GMainNode.AppendChild(GModuleDefNode);
+      GModuleSectionNode.AppendChild(GModuleDefNode);
       TDOMElement(GModuleDefNode).SetAttribute('id', 'g2_module_def_' + IntToStr(i));
       TDOMElement(GModuleDefNode).SetAttribute('transform', 'translate(' + IntToStr(mc * 300) + ',' + IntToStr(module_section + mr*80) + ')');
 
@@ -661,30 +748,48 @@ begin
           // Extract bitmaps
           if Control is TG2GraphBitmap then begin
             for k := 0 to (Control as TG2GraphBitmap).ImageList.Count - 1 do begin
-              (Control as TG2GraphBitmap).ImageList.Items[k].SaveToFile('C:\Users\Bruno\Delphi\nmg2editor\v0.25\ExtrImg\Module_' + IntToStr(FModule.TypeID) + '_ControlID_' + IntToStr(Control.ID) + '_No_' +  IntToStr(k) + '.bmp');
+              if FindBitmap((Control as TG2GraphBitmap).ImageList.Items[k]) = -1 then begin
+                Bitmap := TBitmap.Create;
+                Bitmap.Assign((Control as TG2GraphBitmap).ImageList.Items[k]);
+                BitMapList.Add(Bitmap);
+              end;
+              //(Control as TG2GraphBitmap).ImageList.Items[k].SaveToFile('C:\Users\Bruno\Delphi\nmg2editor\v0.25\ExtrImg\Module_' + IntToStr(FModule.TypeID) + '_ControlID_' + IntToStr(Control.ID) + '_No_' +  IntToStr(k) + '.bmp');
             end;
           end;
 
           if Control is TG2GraphButton then begin
             for k := 0 to (Control as TG2GraphButton).ImageList.Count - 1 do begin
-              (Control as TG2GraphButton).ImageList.Items[k].SaveToFile('C:\Users\Bruno\Delphi\nmg2editor\v0.25\ExtrImg\Module_' + IntToStr(FModule.TypeID) + '_ControlID_' + IntToStr(Control.ID) + '_No_' +  IntToStr(k) + '.bmp');
+              if FindBitmap((Control as TG2GraphButton).ImageList.Items[k]) = -1 then begin
+                Bitmap := TBitmap.Create;
+                Bitmap.Assign((Control as TG2GraphButton).ImageList.Items[k]);
+                BitMapList.Add(Bitmap);
+              end;
+              //(Control as TG2GraphButton).ImageList.Items[k].SaveToFile('C:\Users\Bruno\Delphi\nmg2editor\v0.25\ExtrImg\Module_' + IntToStr(FModule.TypeID) + '_ControlID_' + IntToStr(Control.ID) + '_No_' +  IntToStr(k) + '.bmp');
             end;
           end;
 
           if Control is TG2GraphPartSelector then begin
             for k := 0 to (Control as TG2GraphPartSelector).ImageList.Count - 1 do begin
-              (Control as TG2GraphPartSelector).ImageList.Items[k].SaveToFile('C:\Users\Bruno\Delphi\nmg2editor\v0.25\ExtrImg\Module_' + IntToStr(FModule.TypeID) + '_ControlID_' + IntToStr(Control.ID) + '_No_' +  IntToStr(k) + '.bmp');
+              if FindBitmap((Control as TG2GraphPartSelector).ImageList.Items[k]) = -1 then begin
+                Bitmap := TBitmap.Create;
+                Bitmap.Assign((Control as TG2GraphPartSelector).ImageList.Items[k]);
+                BitMapList.Add(Bitmap);
+              end;
+              //(Control as TG2GraphPartSelector).ImageList.Items[k].SaveToFile('C:\Users\Bruno\Delphi\nmg2editor\v0.25\ExtrImg\Module_' + IntToStr(FModule.TypeID) + '_ControlID_' + IntToStr(Control.ID) + '_No_' +  IntToStr(k) + '.bmp');
             end;
           end;
-
         end;
 
       finally
         UnloadModule
       end;
     end;
-    WriteXMLFile( Doc, aFileName);
+    for i := 0 to BitmapList.Count - 1 do
+      (BitmapList.Items[i] as TBitmap).SaveToFile('Skin\Symbol_' + IntToStr(i) + '.bmp');
+
+    WriteXMLFile( Doc, 'Skin\g2_graphics.svg');
   finally
+    BitMapList.Free;
     Doc.Free;
   end;
 end;
