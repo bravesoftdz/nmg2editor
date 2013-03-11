@@ -437,6 +437,7 @@ type
   // This represents a child graphic control of a module
   protected
     FSelected       : boolean;
+    FID             : integer;
     FModule         : TG2GraphModulePanel;
     FParameter      : TG2FileParameter;
     FMouseInput     : boolean;
@@ -492,6 +493,7 @@ type
     property    Selected    : boolean read GetSelected;
     property    ParamLabel[ Index : integer]: AnsiString read GetParamLabel write SetParamLabel;
   published
+    property    ID : integer read FID write FID;
     property    Font;
     property    Color;
     property    Value       : byte read GetValue write SetValue;
@@ -515,6 +517,7 @@ type
     procedure   PaintOn( ExtCanvas : TCanvas; ExtBoundsRect : TRect); override;
     procedure   ParsePanelData( fs : TModuleDefStream); override;
     function    ParseProperties( fs: TModuleDefStream; aName : AnsiString): boolean; override;
+    property    ImageList : TG2ImageList read FImageList;
   end;
 
   TG2GraphLine = class( TG2GraphChildControl)
@@ -686,6 +689,7 @@ type
     procedure   PaintOn( ExtCanvas : TCanvas; ExtBoundsRect : TRect); override;
     function    ParseProperties( fs: TModuleDefStream; aName : AnsiString): boolean; override;
 
+    property    ImageList : TG2ImageList read FImageList;
     property    Module : TG2GraphModulePanel read FModule;
     property    Icon : TIconType read FIcon write SetIcon;
   published
@@ -829,6 +833,7 @@ type
     procedure   SetBounds(ALeft: Integer; ATop: Integer;  AWidth: Integer; AHeight: Integer); override;
     procedure   ParsePanelData( fs : TModuleDefStream); override;
     function    ParseProperties( fs: TModuleDefStream; aName : AnsiString): boolean; override;
+    property    ImageList : TG2ImageList read FImageList;
   end;
 
   TG2GraphKnob = class( TG2GraphChildControl)
@@ -3668,6 +3673,11 @@ var aValue : AnsiString;
     temp : string;
 begin
   Result := True;
+
+  if aName = 'ID' then begin
+    aValue := fs.ReadUntil( [#13]);
+    FID := StrToInt( string(aValue));
+  end else
 
   if aName = 'XPos' then begin
     aValue := fs.ReadUntil( [#13]);

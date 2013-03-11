@@ -1,9 +1,9 @@
 ﻿	<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 		<PropertyGroup>
-			<ProjectGuid>{03C18A48-EB72-4C04-A319-53520465E712}</ProjectGuid>
-			<MainSource>G2FMXPackage.dpk</MainSource>
-			<ProjectVersion>14.3</ProjectVersion>
-			<FrameworkType>FMX</FrameworkType>
+			<ProjectGuid>{7D588904-3D69-4743-AD45-F52D38D91AB8}</ProjectGuid>
+			<MainSource>FPCXMLPackageXE2.dpk</MainSource>
+			<ProjectVersion>13.4</ProjectVersion>
+			<FrameworkType>None</FrameworkType>
 			<Base>True</Base>
 			<Config Condition="'$(Config)'==''">Debug</Config>
 			<Platform Condition="'$(Platform)'==''">Win32</Platform>
@@ -35,17 +35,15 @@
 			<Base>true</Base>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Base)'!=''">
-			<DCC_UnitSearchPath>.\$(Platform)\$(Config);$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
-			<DCC_UsePackage>rtl;fmx;IndyCore;IndySystem;$(DCC_UsePackage)</DCC_UsePackage>
+			<DCC_UsePackage>rtl;$(DCC_UsePackage)</DCC_UsePackage>
 			<DCC_CBuilderOutput>All</DCC_CBuilderOutput>
 			<DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;$(DCC_Namespace)</DCC_Namespace>
-			<GenDll>true</GenDll>
 			<GenPackage>true</GenPackage>
+			<GenDll>true</GenDll>
 			<DCC_DcuOutput>.\$(Platform)\$(Config)</DCC_DcuOutput>
 			<DCC_ExeOutput>.\$(Platform)\$(Config)</DCC_ExeOutput>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Base_Win32)'!=''">
-			<DCC_UsePackage>MidiComponents2010;NMG2_controls_D2011;fmx162;MidiComponentsDXE3;NMG2_controls_DXE3;$(DCC_UsePackage)</DCC_UsePackage>
 			<VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
 			<DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;Bde;$(DCC_Namespace)</DCC_Namespace>
 			<VerInfo_Locale>1033</VerInfo_Locale>
@@ -59,8 +57,6 @@
 			<DCC_RemoteDebug>true</DCC_RemoteDebug>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Cfg_1_Win32)'!=''">
-			<VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
-			<VerInfo_Locale>1033</VerInfo_Locale>
 			<DCC_RemoteDebug>false</DCC_RemoteDebug>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Cfg_2)'!=''">
@@ -74,13 +70,11 @@
 				<MainSource>MainSource</MainSource>
 			</DelphiCompile>
 			<DCCReference Include="rtl.dcp"/>
-			<DCCReference Include="fmx.dcp"/>
-			<DCCReference Include="IndyCore.dcp"/>
-			<DCCReference Include="IndySystem.dcp"/>
-			<DCCReference Include="NMG2_controls_D2011.dcp"/>
-			<DCCReference Include="MidiComponents2010.dcp"/>
-			<DCCReference Include="..\Source\Common\G2FMXGraph.pas"/>
-			<DCCReference Include="..\Source\Common\graph_util_fmx.pas"/>
+			<DCCReference Include="dom.pas"/>
+			<DCCReference Include="uriparser.pas"/>
+			<DCCReference Include="xmlread.pas"/>
+			<DCCReference Include="xmlutils.pas"/>
+			<DCCReference Include="xmlwrite.pas"/>
 			<BuildConfiguration Include="Release">
 				<Key>Cfg_2</Key>
 				<CfgParent>Base</CfgParent>
@@ -98,9 +92,6 @@
 			<Borland.ProjectType>Package</Borland.ProjectType>
 			<BorlandProject>
 				<Delphi.Personality>
-					<Source>
-						<Source Name="MainSource">G2FMXPackage.dpk</Source>
-					</Source>
 					<VersionInfo>
 						<VersionInfo Name="IncludeVerInfo">True</VersionInfo>
 						<VersionInfo Name="AutoIncBuild">False</VersionInfo>
@@ -129,14 +120,20 @@
 						<VersionInfoKeys Name="Comments"/>
 					</VersionInfoKeys>
 					<Excluded_Packages>
+						<Excluded_Packages Name="C:\Users\Public\Documents\RAD Studio\9.0\Bpl\NMG2_controls_D2011.bpl">(untitled)</Excluded_Packages>
+						<Excluded_Packages Name="C:\Users\Public\Documents\RAD Studio\9.0\Bpl\G2VCLPackage_D2011.bpl">(untitled)</Excluded_Packages>
+						<Excluded_Packages Name="C:\Users\Public\Documents\RAD Studio\9.0\Bpl\G2FMXPackage.bpl">(untitled)</Excluded_Packages>
 						<Excluded_Packages Name="$(BDSBIN)\dcloffice2k160.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
 						<Excluded_Packages Name="$(BDSBIN)\dclofficexp160.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
 					</Excluded_Packages>
+					<Source>
+						<Source Name="MainSource">FPCXMLPackageXE2.dpk</Source>
+					</Source>
 				</Delphi.Personality>
 				<Deployment/>
 				<Platforms>
-					<Platform value="OSX32">False</Platform>
 					<Platform value="Win64">False</Platform>
+					<Platform value="OSX32">False</Platform>
 					<Platform value="Win32">True</Platform>
 				</Platforms>
 			</BorlandProject>

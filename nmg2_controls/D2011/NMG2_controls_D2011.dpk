@@ -31,7 +31,8 @@ requires
   vcl,
   IndyCore,
   IndySystem,
-  MidiComponents2010;
+  MidiComponents2010,
+  FPCXMLPackageXE2;
 
 contains
   G2_Types in '..\..\Source\Common\G2_Types.pas',
@@ -40,12 +41,7 @@ contains
   g2_mess in '..\..\Source\Common\g2_mess.pas',
   g2_midi in '..\..\Source\Common\g2_midi.pas',
   g2_database in '..\..\Source\Common\g2_database.pas',
-  LibUSBWinDyn in '..\..\Source\Common\LibUSBWinDyn.pas',
-  dom in '..\..\Source\Third_party_code\FPC_XML\dom.pas',
-  xmlutils in '..\..\Source\Third_party_code\FPC_XML\xmlutils.pas',
-  xmlread in '..\..\Source\Third_party_code\FPC_XML\xmlread.pas',
-  uriparser in '..\..\Source\Third_party_code\FPC_XML\uriparser.pas',
-  xmlwrite in '..\..\Source\Third_party_code\FPC_XML\xmlwrite.pas';
+  LibUSBWinDyn in '..\..\Source\Common\LibUSBWinDyn.pas';
 
 end.
 

@@ -61,7 +61,7 @@
 			<Icon_MainIcon>NMG2_controls_Icon.ico</Icon_MainIcon>
 			<DCC_Namespace>Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;Bde;$(DCC_Namespace)</DCC_Namespace>
 			<VerInfo_Locale>1033</VerInfo_Locale>
-			<DCC_UsePackage>vcl;MidiComponents2010;$(DCC_UsePackage)</DCC_UsePackage>
+			<DCC_UsePackage>vcl;MidiComponents2010;FPCXMLPackageXE2;$(DCC_UsePackage)</DCC_UsePackage>
 			<VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Cfg_1)'!=''">
@@ -146,6 +146,7 @@
 			<DCCReference Include="IndyCore.dcp"/>
 			<DCCReference Include="IndySystem.dcp"/>
 			<DCCReference Include="MidiComponents2010.dcp"/>
+			<DCCReference Include="FPCXMLPackageXE2.dcp"/>
 			<DCCReference Include="..\..\Source\Common\G2_Types.pas"/>
 			<DCCReference Include="..\..\Source\Common\G2_USB.pas"/>
 			<DCCReference Include="..\..\Source\Common\G2_file.pas"/>
@@ -153,11 +154,6 @@
 			<DCCReference Include="..\..\Source\Common\g2_midi.pas"/>
 			<DCCReference Include="..\..\Source\Common\g2_database.pas"/>
 			<DCCReference Include="..\..\Source\Common\LibUSBWinDyn.pas"/>
-			<DCCReference Include="..\..\Source\Third_party_code\FPC_XML\dom.pas"/>
-			<DCCReference Include="..\..\Source\Third_party_code\FPC_XML\xmlutils.pas"/>
-			<DCCReference Include="..\..\Source\Third_party_code\FPC_XML\xmlread.pas"/>
-			<DCCReference Include="..\..\Source\Third_party_code\FPC_XML\uriparser.pas"/>
-			<DCCReference Include="..\..\Source\Third_party_code\FPC_XML\xmlwrite.pas"/>
 			<BuildConfiguration Include="Debug">
 				<Key>Cfg_2</Key>
 				<CfgParent>Base</CfgParent>

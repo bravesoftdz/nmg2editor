@@ -1255,7 +1255,7 @@ begin
   if (Sender is TLayout) then begin
     if assigned(FMoveLayout) then begin
       FMoveLayout.Free;
-      Patch.MessMoveModules( Data.Location);
+      //Patch.MessMoveModules( Data.Location);
     end;
   end;
 end;

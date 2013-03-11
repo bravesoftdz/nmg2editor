@@ -1,0 +1,8 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<Transactions>
+    <Transaction>1899-12-30 00:00:00.000.586,C:\Users\Bruno\Delphi\nmg2editor\Source\Third_party_code\MIDIIO\Package\DXE3\MidiComponentsDXE3.dproj=C:\Users\Bruno\Delphi\nmg2editor\Source\Third_party_code\MIDIIO\Package\DXE3\MidiComponents.dproj</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.269,C:\Users\Bruno\Delphi\nmg2editor\Source\Third_party_code\MIDIIO\Package\DXE3\MidiComponentsDXE3.dproj=C:\Users\Bruno\Delphi\nmg2editor\Source\Third_party_code\MIDIIO\Package\D2011\MidiComponents2010.dproj</Transaction>
+    <Transaction>2013-01-27 15:07:42.780,C:\Users\Bruno\Delphi\nmg2editor\Source\Third_party_code\MIDIIO\Package\DXE3\MidiComponentsDXE3.dproj=C:\Users\Bruno\Delphi\nmg2editor\Source\Third_party_code\MIDIIO\Package\DXE3\MidiComponents.dproj</Transaction>
+  </Transactions>
+</BorlandProject>

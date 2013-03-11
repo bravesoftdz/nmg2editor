@@ -1,33 +1,39 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <BorlandProject>
 	<Transactions>
-    <Transaction>1899-12-30 00:00:00.000.828,=C:\Users\Bruno\Delphi\nmg2editor_2\Source\Common\dom.pas</Transaction>
     <Transaction>1899-12-30 00:00:00.000.730,C:\Users\Bruno\Delphi\nmg2editor_2\Source\Common\dom.pas=</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.828,=C:\Users\Bruno\Delphi\nmg2editor_2\Source\Common\dom.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.961,=C:\Users\Bruno\Delphi\nmg2editor_2\Source\Third_party_code\FPC_XML\uriparser.pas</Transaction>
     <Transaction>1899-12-30 00:00:00.000.846,=C:\Documents and Settings\BVerhue\My Documents\Delphi\nmg2editor\Source\NMG2Controls\LibUSBWin.pas</Transaction>
-    <Transaction>1899-12-30 00:00:00.000.524,=C:\Users\Bruno\Delphi\NMG2\Source\NMG2Controls\g2_mess.pas</Transaction>
-    <Transaction>1899-12-30 00:00:00.000.595,C:\Users\Bruno\Delphi\nmg2editor\Source\NMG2Controls\LibUSBWin.pas=</Transaction>
     <Transaction>1899-12-30 00:00:00.000.659,=C:\Users\Bruno\Delphi\nmg2editor_2\Source\Third_party_code\FPC_XML\dom.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.595,C:\Users\Bruno\Delphi\nmg2editor\Source\NMG2Controls\LibUSBWin.pas=</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.524,=C:\Users\Bruno\Delphi\NMG2\Source\NMG2Controls\g2_mess.pas</Transaction>
     <Transaction>1899-12-30 00:00:00.000.831,C:\Users\Bruno\Delphi\nmg2editor\Source\NMG2Controls\graph_util_vcl.pas=</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.487,=C:\Documents and Settings\BVerhue\My Documents\Delphi\nmg2editor\Source\NMG2Controls\graph_util_vcl.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.057,C:\Users\Bruno\Delphi\nmg2editor\Source\Third_party_code\FPC_XML\uriparser.pas=</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.924,=C:\Documents and Settings\BVerhue\My Documents\Delphi\nmg2editor\Source\NMG2Controls\g2_database.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.815,C:\Users\Bruno\Delphi\nmg2editor\Source\Third_party_code\FPC_XML\xmlutils.pas=</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.857,C:\Users\Bruno\Delphi\nmg2editor\Source\Third_party_code\FPC_XML\xmlread.pas=</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.257,=C:\Users\Bruno\Delphi\nmg2editor_2\Source\Third_party_code\FPC_XML\xmlread.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.878,=C:\Documents and Settings\BVerhue\My Documents\Delphi\nmg2editor\Source\NMG2Controls\g2_midi.pas</Transaction>
     <Transaction>1899-12-30 00:00:00.000.806,C:\Users\Bruno\Delphi\nmg2editor\Source\NMG2Controls\fastbitmap.pas=</Transaction>
     <Transaction>1899-12-30 00:00:00.000.888,=C:\Users\Bruno\Delphi\nmg2editor_2\Source\Third_party_code\FPC_XML\xmlutils.pas</Transaction>
-    <Transaction>1899-12-30 00:00:00.000.924,=C:\Documents and Settings\BVerhue\My Documents\Delphi\nmg2editor\Source\NMG2Controls\g2_database.pas</Transaction>
-    <Transaction>1899-12-30 00:00:00.000.257,=C:\Users\Bruno\Delphi\nmg2editor_2\Source\Third_party_code\FPC_XML\xmlread.pas</Transaction>
-    <Transaction>1899-12-30 00:00:00.000.961,=C:\Users\Bruno\Delphi\nmg2editor_2\Source\Third_party_code\FPC_XML\uriparser.pas</Transaction>
-    <Transaction>1899-12-30 00:00:00.000.487,=C:\Documents and Settings\BVerhue\My Documents\Delphi\nmg2editor\Source\NMG2Controls\graph_util_vcl.pas</Transaction>
-    <Transaction>1899-12-30 00:00:00.000.878,=C:\Documents and Settings\BVerhue\My Documents\Delphi\nmg2editor\Source\NMG2Controls\g2_midi.pas</Transaction>
-    <Transaction>1899-12-30 00:00:00.000.804,C:\Users\Bruno\Delphi\nmg2editor\Project\DelphiVCL\Unit1.pas=C:\Users\Bruno\Delphi\nmg2editor\Source\NMG2Controls\JawsCtrls.pas</Transaction>
-    <Transaction>1899-12-30 00:00:00.000.722,=C:\Users\Bruno\Delphi\nmg2editor\Project\DelphiVCL\Unit1.pas</Transaction>
-    <Transaction>1899-12-30 00:00:00.000.008,C:\Users\Bruno\Delphi\NMG2\Source\NMG2Controls\NMG2_controls_D2011.dproj=C:\Users\Bruno\Delphi\NMG2\Project\DelphiVCL\NMG2_controls_D2011.dproj</Transaction>
     <Transaction>1899-12-30 00:00:00.000.661,=IndySystem.dcp</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.327,C:\Users\Bruno\Delphi\nmg2editor\Source\Third_party_code\FPC_XML\xmlwrite.pas=</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.722,=C:\Users\Bruno\Delphi\nmg2editor\Project\DelphiVCL\Unit1.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.804,C:\Users\Bruno\Delphi\nmg2editor\Project\DelphiVCL\Unit1.pas=C:\Users\Bruno\Delphi\nmg2editor\Source\NMG2Controls\JawsCtrls.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.448,C:\Users\Bruno\Delphi\nmg2editor\Source\Third_party_code\FPC_XML\dom.pas=</Transaction>
     <Transaction>1899-12-30 00:00:00.000.649,=IndyCore.dcp</Transaction>
-    <Transaction>1899-12-30 00:00:00.000.099,C:\Users\Bruno\Delphi\nmg2editor\Source\NMG2Controls\g2_graph.pas=</Transaction>
     <Transaction>1899-12-30 00:00:00.000.326,C:\Users\Bruno\Delphi\nmg2editor\Source\NMG2Controls\G2_Classes.pas=</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.099,C:\Users\Bruno\Delphi\nmg2editor\Source\NMG2Controls\g2_graph.pas=</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.008,C:\Users\Bruno\Delphi\NMG2\Source\NMG2Controls\NMG2_controls_D2011.dproj=C:\Users\Bruno\Delphi\NMG2\Project\DelphiVCL\NMG2_controls_D2011.dproj</Transaction>
     <Transaction>1899-12-30 00:00:00.000.170,C:\Users\Bruno\Delphi\midiio-dev-v7\h4ndy-midiio-dev-67754a8fdfa5\MidiOut.pas=</Transaction>
     <Transaction>1899-12-30 00:00:00.000.983,=C:\Users\Bruno\Delphi\midiio-dev-v7\h4ndy-midiio-dev-67754a8fdfa5\MidiOut.pas</Transaction>
-    <Transaction>1899-12-30 00:00:00.000.731,C:\Users\Bruno\Delphi\nmg2editor\Source\NMG2Controls\JawsCtrls.pas=</Transaction>
     <Transaction>1899-12-30 00:00:00.000.953,F:\NMG2\Source\NMG2Controls\NMG2_controls.dproj=F:\NMG2\Source\NMG2Controls\NMG2_controls_D2011.dproj</Transaction>
-    <Transaction>1899-12-30 00:00:00.000.962,=MidiComponents2010.dcp</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.731,C:\Users\Bruno\Delphi\nmg2editor\Source\NMG2Controls\JawsCtrls.pas=</Transaction>
     <Transaction>1899-12-30 00:00:00.000.376,=C:\Users\Bruno\Delphi\nmg2editor\Source\NMG2Controls\LibUSBWinDyn.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.962,=MidiComponents2010.dcp</Transaction>
     <Transaction>1899-12-30 00:00:00.000.126,=C:\Users\Bruno\Delphi\nmg2editor_2\Source\Third_party_code\FPC_XML\xmlwrite.pas</Transaction>
+    <Transaction>2013-02-16 11:46:21.669,=FPCXMLPackageXE2.dcp</Transaction>
   </Transactions>
 </BorlandProject>

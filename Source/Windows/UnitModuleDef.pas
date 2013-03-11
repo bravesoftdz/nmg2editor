@@ -37,7 +37,7 @@ uses
   Controls, Forms, Dialogs, StdCtrls, Grids, ExtCtrls,
   ActnList, ActnMan, XPStyleActnCtrls,
 {$ENDIF}
-  DOM, XMLWrite, g2_types, g2_database, g2_graph, g2_file, g2_mess, g2_usb,
+  DOM, XMLWrite, XMLRead, g2_types, g2_database, g2_graph, g2_file, g2_mess, g2_usb,
   g2_classes, g2_midi;
 
 type
@@ -56,6 +56,7 @@ type
     lbModules: TListBox;
     Panel3: TPanel;
     Splitter1: TSplitter;
+    Button3: TButton;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure FormShow(Sender: TObject);
@@ -64,6 +65,7 @@ type
     procedure aPrevModuleExecute(Sender: TObject);
     procedure aExtractModuleInfoExecute(Sender: TObject);
     procedure lbModulesClick(Sender: TObject);
+    procedure Button3Click(Sender: TObject);
   private
     { Private declarations }
   public
@@ -76,6 +78,7 @@ type
     procedure UpdateControls;
     procedure UpdateModuleDef;
     procedure ExtractTextEdit;
+    procedure CreateSVG( aFileName : string);
     procedure LoadModule;
     procedure UnloadModule;
   end;
@@ -115,6 +118,11 @@ begin
     G2 := frmG2Main.FG2List[i] as TG2;
     G2.LoadModuleDefs('');
   end;
+end;
+
+procedure TfrmModuleDef.Button3Click(Sender: TObject);
+begin
+  CreateSVG('g2_graphics.svg');
 end;
 
 procedure TfrmModuleDef.FormCreate(Sender: TObject);
@@ -254,6 +262,433 @@ begin
   WriteXMLFile( G2_module_def.FXMLModuleDefs, new_filename);
 end;
 
+procedure TfrmModuleDef.CreateSVG( aFileName : string);
+var Control : TG2GraphChildControl;
+    RadioButton : TG2GraphButtonRadio;
+    i, j, k : integer;
+    knob_section, buttontext_section, buttonflat_section, textfield_section,
+    module_section, mr, mc, btc, bfc, ki, tfc : integer;
+    new_filename : string;
+    Doc : TXMLDocument;
+    RootNode, DefsNode, GMainNode, GModuleDefNode,
+    GTextFieldSectionNode, GTextFieldDefNode, TextFieldNode,
+    GButtonTextSectionNode, GButtonTextDefNode, ButtonTextNode,
+    GButtonFlatSectionNode, GButtonFlatDefNode, ButtonFlatNode : TDomNode;
+
+    procedure CreateLabel( aNode : TDomNode; x, y : integer; aText : string; aFontSize : integer);
+    var S : TStringStream;
+    begin
+      S := TStringStream.Create(
+         '<g id="g2_label">'
+       + '  <desc>Label for G2 editor</desc>'
+       + '  <text id="g2_label_text" x="' + IntToStr(x) + '" y="' + IntToStr(y+aFontSize) + '"'
+       + '        style="font-size:' + IntToStr(aFontSize) + 'px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"'
+       + '        xml:space="preserve">'
+       + '     <tspan id="g2_label_text_span"  x="' + IntToStr(x) + '" y="' + IntToStr(y+aFontSize) + '">'
+       + aText
+       + '     </tspan>'
+       + '  </text>'
+       + '</g>');
+      try
+        ReadXMLFragment( aNode, S);
+      finally
+        S.Free;
+      end;
+    end;
+
+    procedure CreateTextField( aNode : TDomNode; x, y, Width, Height : integer);
+    var S : TStringStream;
+        bw : integer;
+    begin
+      bw := 1;
+      S := TStringStream.Create(
+         '<g id="g2_textfield_' + IntToStr(Width) + 'x' + IntToStr(Height) + '">'
+       + '  <desc>TextField for G2 editor</desc>'
+       + '  <g id="g2_textfield_parts">'
+       + '     <rect id="g2_textfield_bevel" fill="gray" stroke="none" x="' + IntToStr(x) + '" y="' + IntToStr(y) + '" width="' + IntToStr(Width)+ '" height="' + IntToStr(Height) + '" />'
+       + '     <rect id="g2_textfield_window" fill="black" stroke="none" x="' + IntToStr(x+bw) + '" y="' + IntToStr(y+bw) + '" width="' + IntToStr(Width - bw*2) + '" height="' + IntToStr(Height - bw*2) + '" />'
+       + '  </g>'
+       + '</g>');
+      try
+        ReadXMLFragment( aNode, S);
+      finally
+        S.Free;
+      end;
+    end;
+
+    procedure CreateButtonText( aNode : TDomNode; Width, Height : integer);
+    var S : TStringStream;
+        bw : integer;
+    begin
+      bw := 1;
+      S := TStringStream.Create(
+         '<g id="g2_buttontext_' + IntToStr(Width) + 'x' + IntToStr(Height) + '">'
+       + '  <desc>Button text for G2 editor</desc>'
+       + '  <rect id="g2_buttontext_sel" x="0" y="0" width="' + IntTostr(Width) + '" height="' + IntToStr(Height) + '" fill="none" stroke="blue" stroke-width="0.2"/>'
+       + '  <g id="g2_buttontext_parts">'
+       + '    <rect id="g2_buttontext_face" x="0" y="0" width="' + IntTostr(Width) + '" height="' + IntToStr(Height) + '" fill="gray" stroke="none"/>'
+       + '    <g id="g2_buttontext_bevel">'
+       + '      <path id="g2_buttontext_bevel_lt" fill="white" stroke="none"'
+       + '        d="M 0,0 h ' + IntToStr(Width) + ' v ' + IntTostr(Height)+ ' l -1,-1 v ' + IntToStr(-(Height - bw*2)) + ' h ' + IntToStr(-(Width-bw*2)) + ' z">'
+       + '      </path>'
+       + '      <path id="g2_buttontext_bevel_br" fill="black" stroke="none"'
+       + '        d="M 0,0 v ' + IntTostr(Height)+ ' h ' + IntToStr(Width) + ' l -1,-1 h' + IntToStr(-(Width-bw*2)) + ' v' + IntToStr(-(Height - bw*2)) + ' z">'
+       + '      </path>'
+       + '    </g>'
+       + '  </g>'
+       + '</g>');
+      try
+        ReadXMLFragment( aNode, S);
+      finally
+        S.Free;
+      end;
+    end;
+
+    procedure CreateButtonFlat( aNode : TDomNode; Width, Height : integer);
+    var S : TStringStream;
+        bw : integer;
+    begin
+      bw := 1;
+      S := TStringStream.Create(
+         '<g id="g2_buttonflat_' + IntToStr(Width) + 'x' + IntToStr(Height) + '">'
+       + '  <desc>Button flat for G2 editor</desc>'
+       + '  <g id="g2_buttonflat_parts">'
+       + '     <rect id="g2_buttonflat_face" fill="gray" stroke="black" x="0" y="0" width="' + IntToStr(Width) + '" height="' + IntToStr(Height) + '" />'
+       + '  </g>'
+       + '</g>');
+      try
+        ReadXMLFragment( aNode, S);
+      finally
+        S.Free;
+      end;
+    end;
+
+    procedure CreateKnobBig( aNode : TDomNode);
+    var S : TStringStream;
+    begin
+      S := TStringStream.Create(
+         '<g id="g2_knobbig">'
+       + '  <desc>Knob big for G2 editor</desc>'
+       + '  <rect id="g2_knobbig_sel" x="1" y="1" width="22" height="26" fill="none" stroke="blue" stroke-width="0.2"/>'
+       + '  <g transform="translate(12,14)">'
+       + '    <g>'
+       + '      <path id="g2_knobbig_morph" d="M0,0 v-10 a10,10 0 0,0 -10,10 z" fill="red" stroke="none" opacity="1" />'
+       + '    </g>'
+       + '    <g id="g2_knobbig_parts">'
+       + '      <circle id="g2_knobbig_face" cx="0" cy="0" r="10" fill="gray" stroke="blue" stroke-width="0.5" opacity="0.5"  />'
+       + '      <rect id="g2_knobbig_needle" fill="blue" stroke="blue" x="-0.5" y="-10" width="1" height="9" />'
+       + '    </g>'
+       + '  </g>'
+       + '</g>');
+      try
+        ReadXMLFragment( aNode, S);
+      finally
+        S.Free;
+      end;
+    end;
+
+    procedure CreateConnector( aNode : TDomNode);
+    var S : TStringStream;
+    begin
+      S := TStringStream.Create(
+         '<g id="g2_connector">'
+       + '  <desc>Connector for G2 editor</desc>'
+       + '  <rect id="g2_connector_sel" x="0" y="0" width="12" height="12" fill="none" stroke="blue" stroke-width="0.2"/>'
+       + '   <g transform="translate(6,6)">'
+       + '     <g id="g2_connector_parts">'
+       + '       <circle id="g2_connector_border" cx="0" cy="0" r="6" fill="red" stroke="none" opacity="1"  />'
+       + '       <circle id="g2_connector_hole" cx="0" cy="0" r="3" fill="black" stroke="none" opacity="1"  />'
+       + '     </g>'
+       + '   </g>'
+       + '</g>');
+      try
+        ReadXMLFragment( aNode, S);
+      finally
+        S.Free;
+      end;
+    end;
+
+    procedure CreateModule( aNode : TDomNode);
+    var GL1Node, DescNode, PanelNode, UseNode : TDOMNode;
+        l, m, x, y, w, h, dx, dy : integer;
+    begin
+      GL1Node := Doc.CreateElement('g');
+      aNode.AppendChild(Gl1Node);
+      TDOMElement(GL1Node).SetAttribute('id', 'g2_module_' + IntToStr(FModule.TypeID));
+
+      DescNode := Doc.CreateElement('desc');
+      GL1Node.AppendChild(DescNode);
+      DescNode.AppendChild(Doc.CreateTextNode('Module ' + IntToStr(FModule.TypeID) + ', ' + FModule.ModuleName));
+
+      PanelNode := Doc.CreateElement('rect');
+      GL1Node.AppendChild(PanelNode);
+      TDOMElement(PanelNode).SetAttribute('id', 'g2_module_panel_' + IntToStr(FModule.TypeID));
+      TDOMElement(PanelNode).SetAttribute('fill', 'white');
+      TDOMElement(PanelNode).SetAttribute('stroke', 'black');
+      TDOMElement(PanelNode).SetAttribute('x', '0');
+      TDOMElement(PanelNode).SetAttribute('y', '0');
+      TDOMElement(PanelNode).SetAttribute('width', IntToStr(FModule.Panel.Width));
+      TDOMElement(PanelNode).SetAttribute('height', IntToStr(FModule.Panel.Height));
+
+      for l := 0 to FModule.Panel.ChildControlsCount - 1 do begin
+        Control :=  FModule.Panel.GraphChildControls[l];
+
+        if Control is TG2GraphLabel then begin
+          CreateLabel( GL1Node, Control.Left, Control.Top, (Control as TG2GraphLabel).Caption, (Control as TG2GraphLabel).Font.Size);
+        end;
+
+        if Control is TG2GraphDisplay then begin
+
+          TextFieldNode := GTextFieldSectionNode.FirstChild;
+          while (TextFieldNode <> nil) and (TDomELement(TextFieldNode).GetAttribute('id') <>  'g2_textfield_def_' + IntToStr(Control.Width) + 'x' + IntToStr(Control.Height)) do
+            TextFieldNode := TextFieldNode.NextSibling;
+
+          if not assigned(TextFieldNode) then begin
+            GTextFieldDefNode := Doc.CreateElement('g');
+            GTextFieldSectionNode.AppendChild(GTextFieldDefNode);
+            TDOMElement(GTextFieldDefNode).SetAttribute('id', 'g2_textfield_def_' + IntToStr(Control.Width) + 'x' + IntToStr(Control.Height));
+            TDOMElement(GTextFieldDefNode).SetAttribute('transform', 'translate(' + IntToStr(tfc) + ',' + IntToStr(textfield_section) + ')');
+            CreateTextField( GTextFieldDefNode, 0, 0, Control.Width, Control.Height);
+            tfc := tfc + Control.Width + 30;
+          end;
+
+          UseNode := Doc.CreateElement('use');
+          Gl1Node.AppendChild(UseNode);
+          TDOMElement(UseNode).SetAttribute('id', 'g2_module_' + IntToStr(FModule.TypeID) + '_ctrl_' + IntToStr(l));
+          TDOMElement(UseNode).SetAttribute('xlink:href', '#g2_textfield_' + IntToStr(Control.Width) + 'x' + IntToStr(Control.Height));
+          TDOMElement(UseNode).SetAttribute('transform', 'translate(' + IntToStr(Control.Left) + ',' + IntToStr(Control.Top) + ')');
+          TDOMElement(UseNode).SetAttribute('x', '0');
+          TDOMElement(UseNode).SetAttribute('y', '0');
+
+          //CreateTextField( GL1Node, Control.Left, Control.Top, Control.Width, Control.Height);
+        end;
+
+        if Control is TG2GraphButtonText then begin
+
+          ButtonTextNode := GButtonTextSectionNode.FirstChild;
+          while (ButtonTextNode <> nil) and (TDomELement(ButtonTextNode).GetAttribute('id') <>  'g2_buttontext_def_' + IntToStr(Control.Width) + 'x' + IntToStr(Control.Height)) do
+            ButtonTextNode := ButtonTextNode.NextSibling;
+
+          if not assigned(ButtonTextNode) then begin
+            GButtonTextDefNode := Doc.CreateElement('g');
+            GButtonTextSectionNode.AppendChild(GButtonTextDefNode);
+            TDOMElement(GButtonTextDefNode).SetAttribute('id', 'g2_buttontext_def_' + IntToStr(Control.Width) + 'x' + IntToStr(Control.Height));
+            TDOMElement(GButtonTextDefNode).SetAttribute('transform', 'translate(' + IntToStr(btc) + ',' + IntToStr(buttontext_section) + ')');
+            CreateButtonText( GButtonTextDefNode, Control.Width, Control.Height);
+            btc := btc + Control.Width + 30;
+          end;
+
+          UseNode := Doc.CreateElement('use');
+          Gl1Node.AppendChild(UseNode);
+          TDOMElement(UseNode).SetAttribute('id', 'g2_module_' + IntToStr(FModule.TypeID) + '_ctrl_' + IntToStr(l));
+          TDOMElement(UseNode).SetAttribute('xlink:href', '#g2_buttontext_' + IntToStr(Control.Width) + 'x' + IntToStr(Control.Height));
+          TDOMElement(UseNode).SetAttribute('transform', 'translate(' + IntToStr(Control.Left) + ',' + IntToStr(Control.Top) + ')');
+          TDOMElement(UseNode).SetAttribute('x', '0');
+          TDOMElement(UseNode).SetAttribute('y', '0');
+        end;
+
+        if Control is TG2GraphButtonFlat then begin
+
+          ButtonFlatNode := GButtonFlatSectionNode.FirstChild;
+          while (ButtonFlatNode <> nil) and (TDomELement(ButtonFlatNode).GetAttribute('id') <>  'g2_buttonflat_def_' + IntToStr(Control.Width) + 'x' + IntToStr(Control.Height)) do
+            ButtonFlatNode := ButtonFlatNode.NextSibling;
+
+          if not assigned(ButtonFlatNode) then begin
+            GButtonFlatDefNode := Doc.CreateElement('g');
+            GButtonFlatSectionNode.AppendChild(GButtonFlatDefNode);
+            TDOMElement(GButtonFlatDefNode).SetAttribute('id', 'g2_buttonflat_def_' + IntToStr(Control.Width) + 'x' + IntToStr(Control.Height));
+            TDOMElement(GButtonFlatDefNode).SetAttribute('transform', 'translate(' + IntToStr(bfc) + ',' + IntToStr(buttonflat_section) + ')');
+            CreateButtonFlat( GButtonFlatDefNode, Control.Width, Control.Height);
+            bfc := bfc + Control.Width + 30;
+          end;
+
+          UseNode := Doc.CreateElement('use');
+          Gl1Node.AppendChild(UseNode);
+          TDOMElement(UseNode).SetAttribute('id', 'g2_module_' + IntToStr(FModule.TypeID) + '_ctrl_' + IntToStr(l));
+          TDOMElement(UseNode).SetAttribute('xlink:href', '#g2_buttonflat_' + IntToStr(Control.Width) + 'x' + IntToStr(Control.Height));
+          TDOMElement(UseNode).SetAttribute('transform', 'translate(' + IntToStr(Control.Left) + ',' + IntToStr(Control.Top) + ')');
+          TDOMElement(UseNode).SetAttribute('x', '0');
+          TDOMElement(UseNode).SetAttribute('y', '0');
+        end;
+
+        if Control is TG2GraphButtonRadio then begin
+          RadioButton := Control as TG2GraphButtonRadio;
+
+          if RadioButton.ButtonCount > 0 then begin
+
+            if RadioButton.Orientation = otHorizontal then begin
+              w := RadioButton.Width div RadioButton.ButtonCount - 1;
+              h := RadioButton.Height;
+              if RadioButton.UpsideDown then begin
+                dx := w;
+                dy := 0;
+              end else begin
+                dx := -w;
+                dy := 0;
+              end;
+            end else begin
+              w := RadioButton.Width;
+              h := RadioButton.Height div RadioButton.ButtonCount - 1;
+              if RadioButton.UpsideDown then begin
+                dx := 0;
+                dy := h;
+              end else begin
+                dx := 0;
+                dy := -h;
+              end;
+            end;
+
+            ButtonFlatNode := GButtonFlatSectionNode.FirstChild;
+            while (ButtonFlatNode <> nil) and (TDomELement(ButtonFlatNode).GetAttribute('id') <>  'g2_buttonflat_def_' + IntToStr(w) + 'x' + IntToStr(h)) do
+              ButtonFlatNode := ButtonFlatNode.NextSibling;
+
+            if not assigned(ButtonFlatNode) then begin
+              GButtonFlatDefNode := Doc.CreateElement('g');
+              GButtonFlatSectionNode.AppendChild(GButtonFlatDefNode);
+              TDOMElement(GButtonFlatDefNode).SetAttribute('id', 'g2_buttonflat_def_' + IntToStr(w) + 'x' + IntToStr(h));
+              TDOMElement(GButtonFlatDefNode).SetAttribute('transform', 'translate(' + IntToStr(bfc) + ',' + IntToStr(buttonflat_section) + ')');
+              CreateButtonFlat( GButtonFlatDefNode, w, h);
+              bfc := bfc + Control.Width + 30;
+            end;
+
+            x := RadioButton.Left;
+            y := RadioButton.Top;
+            for m := 0 to RadioButton.ButtonCount - 1 do begin
+              UseNode := Doc.CreateElement('use');
+              Gl1Node.AppendChild(UseNode);
+              TDOMElement(UseNode).SetAttribute('id', 'g2_module_' + IntToStr(FModule.TypeID) + '_ctrl_' + IntToStr(l) + '_el_'+ IntToStr(m));
+              TDOMElement(UseNode).SetAttribute('xlink:href', '#g2_buttonflat_' + IntToStr(w) + 'x' + IntToStr(h));
+              TDOMElement(UseNode).SetAttribute('transform', 'translate(' + IntToStr(x) + ',' + IntToStr(y) + ')');
+              TDOMElement(UseNode).SetAttribute('x', '0');
+              TDOMElement(UseNode).SetAttribute('y', '0');
+              x := x + dx;
+              y := y + dy;
+            end;
+          end;
+        end;
+
+        if Control is TG2GraphKnob then begin
+          UseNode := Doc.CreateElement('use');
+          Gl1Node.AppendChild(UseNode);
+          TDOMElement(UseNode).SetAttribute('id', 'g2_module_' + IntToStr(FModule.TypeID) + '_ctrl_' + IntToStr(l));
+          TDOMElement(UseNode).SetAttribute('xlink:href', '#g2_knobbig');
+          TDOMElement(UseNode).SetAttribute('transform', 'translate(' + IntToStr(Control.Left) + ',' + IntToStr(Control.Top) + ')');
+          TDOMElement(UseNode).SetAttribute('x', '0');
+          TDOMElement(UseNode).SetAttribute('y', '0');
+        end;
+
+        if Control is TG2GraphConnector then begin
+          UseNode := Doc.CreateElement('use');
+          Gl1Node.AppendChild(UseNode);
+          TDOMElement(UseNode).SetAttribute('id', 'g2_module_' + IntToStr(FModule.TypeID) + '_ctrl_' + IntToStr(l));
+          TDOMElement(UseNode).SetAttribute('xlink:href', '#g2_connector');
+          TDOMElement(UseNode).SetAttribute('transform', 'translate(' + IntToStr(Control.Left) + ',' + IntToStr(Control.Top) + ')');
+          TDOMElement(UseNode).SetAttribute('x', '0');
+          TDOMElement(UseNode).SetAttribute('y', '0');
+        end;
+      end;
+    end;
+
+begin
+  Doc := TXMLDocument.Create;
+  try
+    RootNode := Doc.CreateElement('svg');
+    Doc.AppendChild(RootNode);
+    TDOMElement(RootNode).SetAttribute('xmlns:dc','http://purl.org/dc/elements/1.1/');
+    TDOMElement(RootNode).SetAttribute('xmlns:cc','http://creativecommons.org/ns#');
+    TDOMElement(RootNode).SetAttribute('xmlns:rdf','http://www.w3.org/1999/02/22-rdf-syntax-ns#');
+    TDOMElement(RootNode).SetAttribute('xmlns:svg','http://www.w3.org/2000/svg');
+    TDOMElement(RootNode).SetAttribute('xmlns','http://www.w3.org/2000/svg');
+    TDOMElement(RootNode).SetAttribute('xmlns:xlink','http://www.w3.org/1999/xlink');
+
+    DefsNode := Doc.CreateElement('defs');
+    RootNode.AppendChild( DefsNode);
+    TDOMElement(DefsNode).SetAttribute('id', 'g2_defs');
+
+    knob_section := 0;
+    buttontext_section := 50;
+    buttonflat_section := 100;
+    textfield_section := 150;
+    module_section := 200;
+    mr := 0;
+    mc := 0;
+    btc := 0;
+    bfc := 0;
+    ki := 0;
+    tfc := 0;
+
+    CreateKnobBig( DefsNode);
+    CreateConnector( DefsNode);
+    //CreateButton( DefsNode, 12, 12);
+
+    GMainNode := Doc.CreateElement('g');
+    RootNode.AppendChild(GMainNode);
+    TDOMElement(GMainNode).SetAttribute('id', 'g2_main');
+
+    GTextFieldSectionNode := Doc.CreateElement('g');
+    GMainNode.AppendChild(GTextFieldSectionNode);
+    TDOMElement(GTextFieldSectionNode).SetAttribute('id', 'g2_textfield_section');
+
+    GButtonTextSectionNode := Doc.CreateElement('g');
+    GMainNode.AppendChild(GButtonTextSectionNode);
+    TDOMElement(GButtonTextSectionNode).SetAttribute('id', 'g2_buttontext_section');
+
+    GButtonFlatSectionNode := Doc.CreateElement('g');
+    GMainNode.AppendChild(GButtonFlatSectionNode);
+    TDOMElement(GButtonFlatSectionNode).SetAttribute('id', 'g2_buttonflat_section');
+
+    for i := 0 to G2_module_def.FModuleDefList.Count - 1 do begin
+
+      GModuleDefNode := Doc.CreateElement('g');
+      GMainNode.AppendChild(GModuleDefNode);
+      TDOMElement(GModuleDefNode).SetAttribute('id', 'g2_module_def_' + IntToStr(i));
+      TDOMElement(GModuleDefNode).SetAttribute('transform', 'translate(' + IntToStr(mc * 300) + ',' + IntToStr(module_section + mr*80) + ')');
+
+      inc(mr);
+      if mr > 21 then begin
+        inc(mc);
+        mr := 0;
+      end;
+
+      FModuleType := G2_module_def.FModuleDefList.ModuleDef[i].ModuleType;
+      LoadModule;
+      try
+        CreateModule( GModuleDefNode);
+
+        for j := 0 to FModule.Panel.ChildControlsCount - 1 do begin
+          Control :=  FModule.Panel.GraphChildControls[j];
+
+          // Extract bitmaps
+          if Control is TG2GraphBitmap then begin
+            for k := 0 to (Control as TG2GraphBitmap).ImageList.Count - 1 do begin
+              (Control as TG2GraphBitmap).ImageList.Items[k].SaveToFile('C:\Users\Bruno\Delphi\nmg2editor\v0.25\ExtrImg\Module_' + IntToStr(FModule.TypeID) + '_ControlID_' + IntToStr(Control.ID) + '_No_' +  IntToStr(k) + '.bmp');
+            end;
+          end;
+
+          if Control is TG2GraphButton then begin
+            for k := 0 to (Control as TG2GraphButton).ImageList.Count - 1 do begin
+              (Control as TG2GraphButton).ImageList.Items[k].SaveToFile('C:\Users\Bruno\Delphi\nmg2editor\v0.25\ExtrImg\Module_' + IntToStr(FModule.TypeID) + '_ControlID_' + IntToStr(Control.ID) + '_No_' +  IntToStr(k) + '.bmp');
+            end;
+          end;
+
+          if Control is TG2GraphPartSelector then begin
+            for k := 0 to (Control as TG2GraphPartSelector).ImageList.Count - 1 do begin
+              (Control as TG2GraphPartSelector).ImageList.Items[k].SaveToFile('C:\Users\Bruno\Delphi\nmg2editor\v0.25\ExtrImg\Module_' + IntToStr(FModule.TypeID) + '_ControlID_' + IntToStr(Control.ID) + '_No_' +  IntToStr(k) + '.bmp');
+            end;
+          end;
+
+        end;
+
+      finally
+        UnloadModule
+      end;
+    end;
+    WriteXMLFile( Doc, aFileName);
+  finally
+    Doc.Free;
+  end;
+end;
+
 procedure TfrmModuleDef.ExtractTextEdit;
 var Control : TG2GraphChildControl;
     i, j, k, l, p, ParamIndex : Integer;
@@ -270,6 +705,7 @@ begin
     LoadModule;
 
     try
+
       for j := 0 to FModule.ParameterCount - 1 do begin
         k := 0;
         while (k < FModule.Panel.ChildControlsCount) and (FModule.Panel.GraphChildControls[k].Parameter <> FModule.Parameter[j]) do

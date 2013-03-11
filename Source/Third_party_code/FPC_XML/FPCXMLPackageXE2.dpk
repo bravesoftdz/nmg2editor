@@ -1,4 +1,4 @@
-package G2FMXPackage;
+package FPCXMLPackageXE2;
 
 {$R *.res}
 {$IFDEF IMPLICITBUILDING This IFDEF should not be used by users}
@@ -28,15 +28,13 @@ package G2FMXPackage;
 {$IMPLICITBUILD ON}
 
 requires
-  rtl,
-  fmx,
-  IndyCore,
-  IndySystem,
-  NMG2_controls_D2011,
-  MidiComponents2010;
+  rtl;
 
 contains
-  G2FMXGraph in '..\Source\Common\G2FMXGraph.pas',
-  graph_util_fmx in '..\Source\Common\graph_util_fmx.pas';
+  dom in 'dom.pas',
+  uriparser in 'uriparser.pas',
+  xmlread in 'xmlread.pas',
+  xmlutils in 'xmlutils.pas',
+  xmlwrite in 'xmlwrite.pas';
 
 end.

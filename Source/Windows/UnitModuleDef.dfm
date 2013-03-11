@@ -482,6 +482,15 @@ object frmModuleDef: TfrmModuleDef
       RackColor = clGray
     end
   end
+  object Button3: TButton
+    Left = 302
+    Top = 318
+    Width = 88
+    Height = 25
+    Caption = 'Create SVG'
+    TabOrder = 2
+    OnClick = Button3Click
+  end
   object G2_module_def: TG2
     ClientType = ctEditor
     LogLevel = 0
