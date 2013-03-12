@@ -418,6 +418,26 @@ var Control : TG2GraphChildControl;
       end;
     end;
 
+    procedure CreatePartSelector( aNode : TDomNode; Width, Height : integer);
+    var S : TStringStream;
+        bw : integer;
+    begin
+      bw := 1;
+      S := TStringStream.Create(
+         '<g id="g2_partselector_' + IntToStr(Width) + 'x' + IntToStr(Height) + '">'
+       + '  <desc>Part selector for G2 editor</desc>'
+       + '  <g id="g2_partselector_' + IntToStr(Width) + 'x' + IntToStr(Height) + '_parts">'
+       + '     <rect id="g2_partselector_' + IntToStr(Width) + 'x' + IntToStr(Height) + '_window" fill="gray" stroke="black" x="0" y="0" width="' + IntToStr(Width) + '" height="' + IntToStr(Height) + '" />'
+       + '     <rect id="g2_partselector_' + IntToStr(Width) + 'x' + IntToStr(Height) + '_button" fill="gray" stroke="black" x="0" y="0" width="' + IntToStr(Width) + '" height="' + IntToStr(Height) + '" />'
+       + '  </g>'
+       + '</g>');
+      try
+        ReadXMLFragment( aNode, S);
+      finally
+        S.Free;
+      end;
+    end;
+
     procedure CreateKnobBig( aNode : TDomNode);
     var S : TStringStream;
     begin
