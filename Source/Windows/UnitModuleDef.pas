@@ -784,24 +784,57 @@ var Control : TG2GraphChildControl;
        end;
     end;
 
+    function Gradient( id : string; x1, y1, x2, y2 : single; Color1, Color2 : string ): string;
+    begin
+      Result :=
+        '<linearGradient id="' + id + '" gradientUnits="userSpaceOnUse" x1="' + FloatToStr(x1) + '" y1="' + FloatToStr(y1) + '" x2="' + FloatToStr(x2) + '" y2="' + FloatToStr(y2) + '" >'
+      + ' <stop style="stop-color:' + Color1 + ';stop-opacity:1" offset="0" id="' + id + 'stop0" />'
+      + ' <stop style="stop-color:' + Color2 + ';stop-opacity:1" offset="1" id="' + id + 'stop1" />'
+      + ' </linearGradient>';
+    end;
+
+    procedure CreateKnobSideGradient( aNode : TDomNode; r : single);
+    var id : string;
+        S : TStringStream;
+    begin
+      id := 'knobSideGradient';
+      S := TStringStream.Create( Gradient( id, r/2, r/2, -r/2, -r/2, '#333333', '#ffffff'));
+      try
+        ReadXMLFragment( aNode, S);
+      finally
+        S.Free;
+      end;
+    end;
+
     procedure CreateKnobBig( aNode : TDomNode);
     var S : TStringStream;
         id : string;
+        w, h, c_x, c_y, r_side, r_face : single;
     begin
+      // url(#linearGradient26483)
+
+      w := 22;
+      h := 26;
+      r_side := 11;
+      r_face := 8;
+      c_x := 11;
+      c_y := 11;
+
       id := idKnobBig;
       S := TStringStream.Create(
          '<g id="' + id + '">'
        + '  <desc>Knob big for G2 editor</desc>'
-       + '  <rect id="' + id + '_sel" x="0" y="0" width="22" height="26" fill="none" stroke="blue" stroke-width="0.2"/>'
-       + '  <g transform="translate(11,11)">'
+       + '  <rect id="' + id + '_sel" x="0" y="0" width="' + FLoatToStr(w) + '" height="' + FloatToStr(h) + '" fill="none" stroke="blue" stroke-width="0.2"/>'
+       + '  <g transform="translate(' + FloatToStr(c_x) + ',' + FloatToStr(c_y) + ')">'
        + '    <g id="g' + id + '_face">'
-       + '      <circle id="' + id + '_face" cx="0" cy="0" r="11" fill="' + cKnobFace + '" stroke="' + cKnobBorder + '" stroke-width="1"  />'
+       + '      <circle id="' + id + '_side" cx="0" cy="0" r="' + FloatToStr(r_side) + '" fill="url(#knobSideGradient)" stroke="' + cKnobBorder + '" stroke-width="1"  />'
+       + '      <circle id="' + id + '_face" cx="0" cy="0" r="' + FloatToStr(r_face) + '" fill="' + cKnobFace + '" stroke="none"/>'
        + '    </g>'
        + '    <g id="g' + id + '_needle">'
-       + '      <rect id="' + id + '_needle" fill="' + cKnobBorder + '" stroke="' + cKnobBorder + '" x="-0.1" y="-10" width="0.2" height="10" />'
+       + '      <rect id="' + id + '_needle" fill="' + cKnobBorder + '" stroke="' + cKnobBorder + '" x="-0.1" y="' + FloatToStr(-(r_face-1)) + '" width="0.2" height="' + FloatToStr(r_face-1) + '" />'
        + '    </g>'
        + '    <g id="g' + id + '_morph">'
-       + '      <path id="' + id + '_morph" d="M0,0 v-11 a11,11 0 0,0 -11,11 z" fill="red" stroke="none" opacity="0.5" />'
+       + '      <path id="' + id + '_morph" d="M0,0 v' + FLoatToStr(-r_side) + ' a' + FloatToStr(r_side) + ',' + FLoatToStr(r_side) + ' 0 0,0 ' + FloatToStr(-r_side) + ',' + FloatToStr(r_side) + ' z" fill="red" stroke="none" opacity="0.5" />'
        + '    </g>'
        + '  </g>'
        + '</g>');
@@ -1187,8 +1220,8 @@ begin
     bidc := 0;
     psc := 0;
 
-    //CreateKnobBig( DefsNode);
     CreateConnector( DefsNode);
+    CreateKnobSideGradient( DefsNode, 11);
 
     GMainNode := Doc.CreateElement('g');
     RootNode.AppendChild(GMainNode);
