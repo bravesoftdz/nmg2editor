@@ -264,6 +264,8 @@ end;
 
 procedure TfrmModuleDef.CreateSVG;
 const
+  nl = #10+#13;
+
   cBtnFace = '#c8b7b7';
   cBtnSideDark = '#6c5353';
   cBtnSideMedium = '#ac9393';
@@ -310,6 +312,7 @@ var Control : TG2GraphChildControl;
     new_filename : string;
     Doc : TXMLDocument;
     RootNode, DefsNode, GMainNode,
+    CommentNode,
     GSymbolSectionNode, GSymbolDefNode, SymbolNode,
     GTextFieldSectionNode, GTextFieldDefNode, TextFieldNode,
     GButtonTextSectionNode, GButtonTextDefNode, ButtonTextNode,
@@ -382,6 +385,41 @@ var Control : TG2GraphChildControl;
        + '<path id="' + aBaseName + '_bevel_b" fill="' + aColor2 + '" stroke="none"'
        + '  d="M 0, ' + IntToStr(aHeight) + ' l ' + IntToStr(aBevelWidth) + ','  + IntToStr(-aBevelWidth) + ' h ' + IntToStr((aWidth - aBevelWidth*2)) + ' l ' + IntToStr(aBevelWidth) + ','  + IntToStr(aBevelWidth) +' z">'
        + '</path>';
+    end;
+
+    function CommentText( aID : string; aText : string): string;
+    var sl : TStringList;
+        i : integer;
+    begin
+      sl := TStringList.Create;
+      try
+        sl.Text := aText;
+
+        Result := '<text id="' + aID + '">';
+
+        for i := 0 to sl.Count - 1 do begin
+          Result := Result
+                  + '<tspan id="' + aID + '_' + IntTostr(i) + '" x="0" dy="' + IntTostr(10) +'">'
+                  + sl[i]
+                  + '</tspan>';
+        end;
+
+        Result := Result + '</text>'
+
+      finally
+        sl.Free;
+      end;
+    end;
+
+    procedure CreateComment( aNode : TDomNode; aID: string; aText : string);
+    var S : TStringStream;
+    begin
+      S := TStringStream.Create( CommentText( aID, aText));
+      try
+        ReadXMLFragment( aNode, S);
+      finally
+        S.Free;
+      end;
     end;
 
     procedure CreateLabel( aNode : TDomNode; x, y : integer; aText : string; aFontSize : integer);
@@ -806,6 +844,44 @@ var Control : TG2GraphChildControl;
       end;
     end;
 
+    procedure CreateKnob( aNode : TDomNode; id : string; w, h, c_x, c_y, r_side, r_face : single; reset : boolean);
+    var S : TStringStream;
+        svg : string;
+    begin
+      svg :=
+         '<g id="' + id + '">'
+       + '  <desc>Knob for G2 editor</desc>'
+       + '  <rect id="' + id + '_sel" x="0" y="0" width="' + FLoatToStr(w) + '" height="' + FloatToStr(h) + '" fill="none" stroke="blue" stroke-width="0.2"/>';
+       if reset then begin
+         svg := svg
+       + '  <g>'
+       + '    <path id="' + id + '_cntrBtn" d="M' + FloatToStr((w - 10)/2) + ',0 h10 l -5,4 z" fill="lime" stroke="black" opacity="1" />'
+       + '  </g>';
+       end;
+
+       svg := svg
+       + '  <g transform="translate(' + FloatToStr(c_x) + ',' + FloatToStr(c_y) + ')">'
+       + '    <g id="g' + id + '_face">'
+       + '      <circle id="' + id + '_side" cx="0" cy="0" r="' + FloatToStr(r_side) + '" fill="url(#knobSideGradient)" stroke="' + cKnobBorder + '" stroke-width="1"  />'
+       + '      <circle id="' + id + '_face" cx="0" cy="0" r="' + FloatToStr(r_face) + '" fill="' + cKnobFace + '" stroke="none"/>'
+       + '    </g>'
+       + '    <g id="g' + id + '_needle">'
+       + '      <rect id="' + id + '_needle" fill="' + cKnobBorder + '" stroke="' + cKnobBorder + '" x="-0.1" y="' + FloatToStr(-(r_face-1)) + '" width="0.2" height="' + FloatToStr(r_face-1) + '" />'
+       + '    </g>'
+       + '    <g id="g' + id + '_morph">'
+       + '      <path id="' + id + '_morph" d="M0,0 v' + FLoatToStr(-r_side) + ' a' + FloatToStr(r_side) + ',' + FLoatToStr(r_side) + ' 0 0,0 ' + FloatToStr(-r_side) + ',' + FloatToStr(r_side) + ' z" fill="red" stroke="none" opacity="0.5" />'
+       + '    </g>'
+       + '  </g>'
+       + '</g>';
+
+      S := TStringStream.Create(svg);
+      try
+        ReadXMLFragment( aNode, S);
+      finally
+        S.Free;
+      end;
+    end;
+
     procedure CreateKnobBig( aNode : TDomNode);
     var S : TStringStream;
         id : string;
@@ -821,7 +897,10 @@ var Control : TG2GraphChildControl;
       c_y := 11;
 
       id := idKnobBig;
-      S := TStringStream.Create(
+
+      CreateKnob( aNode, id, w, h, c_x, c_y, r_side, r_face, false);
+
+      {S := TStringStream.Create(
          '<g id="' + id + '">'
        + '  <desc>Knob big for G2 editor</desc>'
        + '  <rect id="' + id + '_sel" x="0" y="0" width="' + FLoatToStr(w) + '" height="' + FloatToStr(h) + '" fill="none" stroke="blue" stroke-width="0.2"/>'
@@ -842,7 +921,7 @@ var Control : TG2GraphChildControl;
         ReadXMLFragment( aNode, S);
       finally
         S.Free;
-      end;
+      end;}
     end;
 
     procedure CreateKnobMedium( aNode : TDomNode);
@@ -850,7 +929,9 @@ var Control : TG2GraphChildControl;
         id : string;
     begin
       id := idKnobMedium;
-      S := TStringStream.Create(
+      CreateKnob( aNode, id, 20, 24, 10, 10, 10, 7, false);
+
+      {S := TStringStream.Create(
          '<g id="' + id + '">'
        + '  <desc>Knob medium for G2 editor</desc>'
        + '  <rect id="' + id + '_sel" x="0" y="0" width="20" height="24" fill="none" stroke="blue" stroke-width="0.2"/>'
@@ -870,7 +951,7 @@ var Control : TG2GraphChildControl;
         ReadXMLFragment( aNode, S);
       finally
         S.Free;
-      end;
+      end;}
     end;
 
     procedure CreateKnobResetMedium( aNode : TDomNode);
@@ -878,7 +959,8 @@ var Control : TG2GraphChildControl;
         id : string;
     begin
       id := idKnobResetMedium;
-      S := TStringStream.Create(
+      CreateKnob( aNode, id, 20, 30, 10, 16, 10, 7, true);
+      {S := TStringStream.Create(
          '<g id="' + id + '">'
        + '  <desc>Knob reset medium for G2 editor</desc>'
        + '  <rect id="' + id + '_sel" x="0" y="0" width="20" height="30" fill="none" stroke="blue" stroke-width="0.2"/>'
@@ -901,7 +983,7 @@ var Control : TG2GraphChildControl;
         ReadXMLFragment( aNode, S);
       finally
         S.Free;
-      end;
+      end;}
     end;
 
     procedure CreateKnobReset( aNode : TDomNode);
@@ -909,7 +991,8 @@ var Control : TG2GraphChildControl;
         id : string;
     begin
       id := idKnobReset;
-      S := TStringStream.Create(
+      CreateKnob( aNode, id, 18, 26, 9, 14, 9, 6, true);
+      {S := TStringStream.Create(
          '<g id="' + id + '">'
        + '  <desc>Knob reset for G2 editor</desc>'
        + '  <rect id="' + id + '_sel" x="0" y="0" width="18" height="26" fill="none" stroke="blue" stroke-width="0.2"/>'
@@ -932,7 +1015,7 @@ var Control : TG2GraphChildControl;
         ReadXMLFragment( aNode, S);
       finally
         S.Free;
-      end;
+      end;}
     end;
 
     procedure CreateKnobSmall( aNode : TDomNode);
@@ -940,7 +1023,8 @@ var Control : TG2GraphChildControl;
         id : string;
     begin
       id := idKnobSmall;
-      S := TStringStream.Create(
+      CreateKnob( aNode, id, 18, 22, 9, 9, 9, 6, false);
+      {S := TStringStream.Create(
          '<g id="' + id + '">'
        + '  <desc>Knob small for G2 editor</desc>'
        + '  <rect id="' + id + '_sel" x="0" y="0" width="18" height="22" fill="none" stroke="blue" stroke-width="0.2"/>'
@@ -960,7 +1044,7 @@ var Control : TG2GraphChildControl;
         ReadXMLFragment( aNode, S);
       finally
         S.Free;
-      end;
+      end;}
     end;
 
     procedure CreateKnobSliderKnob( aNode : TDomNode; aWidth, aHeight, aBevelWidth, aBevelHeight : single);
@@ -1231,6 +1315,12 @@ begin
     GMainNode.AppendChild(GKnobSectionNode);
     TDOMElement(GKnobSectionNode).SetAttribute('id', 'g2_knob_section');
 
+    CommentNode := Doc.CreateElement('g');
+    GKnobSectionNode.AppendChild(CommentNode);
+    TDOMElement(CommentNode).SetAttribute('id', 'knob_def_comment');
+    CreateComment( CommentNode, 'knob_def_comment_text', 'Knob section'+nl+'line1'+nl+'line2'+nl+'line3');
+    kc := kc + 200;
+
     GKnobDefNode := Doc.CreateElement('g');
     GKnobSectionNode.AppendChild(GKnobDefNode);
     TDOMElement(GKnobDefNode).SetAttribute('id', 'g2_knob_def_big');
@@ -1280,9 +1370,16 @@ begin
     CreateKnobSlider( GKnobDefNode);
     kc := kc + 40;
 
+
     GLedSectionNode := Doc.CreateElement('g');
     GMainNode.AppendChild(GLedSectionNode);
     TDOMElement(GLedSectionNode).SetAttribute('id', 'g2_led_section');
+
+    CommentNode := Doc.CreateElement('g');
+    GLedSectionNode.AppendChild(CommentNode);
+    TDOMElement(CommentNode).SetAttribute('id', 'led_def_comment');
+    CreateComment( CommentNode, 'led_def_comment_text', 'Led off section');
+    lc := lc + 200;
 
     GLedDefNode := Doc.CreateElement('g');
     GLedSectionNode.AppendChild(GLedDefNode);
@@ -1302,17 +1399,41 @@ begin
     GMainNode.AppendChild(GTextFieldSectionNode);
     TDOMElement(GTextFieldSectionNode).SetAttribute('id', 'g2_textfield_section');
 
+    CommentNode := Doc.CreateElement('g');
+    GTextFieldSectionNode.AppendChild(CommentNode);
+    TDOMElement(CommentNode).SetAttribute('id', 'textfield_def_comment');
+    CreateComment( CommentNode, 'textfield_def_comment_text', 'Textfield section');
+    tfc := tfc + 200;
+
     GButtonTextSectionNode := Doc.CreateElement('g');
     GMainNode.AppendChild(GButtonTextSectionNode);
     TDOMElement(GButtonTextSectionNode).SetAttribute('id', 'g2_buttontext_section');
+
+    CommentNode := Doc.CreateElement('g');
+    GButtonTextSectionNode.AppendChild(CommentNode);
+    TDOMElement(CommentNode).SetAttribute('id', 'buttontext_def_comment');
+    CreateComment( CommentNode, 'buttontext_def_comment_text', 'Buttontext up section');
+    btc := btc + 200;
 
     GButtonFlatSectionNode := Doc.CreateElement('g');
     GMainNode.AppendChild(GButtonFlatSectionNode);
     TDOMElement(GButtonFlatSectionNode).SetAttribute('id', 'g2_buttonflat_section');
 
+    CommentNode := Doc.CreateElement('g');
+    GButtonFlatSectionNode.AppendChild(CommentNode);
+    TDOMElement(CommentNode).SetAttribute('id', 'buttonflat_def_comment');
+    CreateComment( CommentNode, 'buttonflat_def_comment_text', 'Buttonflat section');
+    bfc := bfc + 200;
+
     GBtnIncDecSectionNode := Doc.CreateElement('g');
     GMainNode.AppendChild(GBtnIncDecSectionNode);
     TDOMElement(GBtnIncDecSectionNode).SetAttribute('id', 'g2_btnIncdec_section');
+
+    CommentNode := Doc.CreateElement('g');
+    GBtnIncDecSectionNode.AppendChild(CommentNode);
+    TDOMElement(CommentNode).SetAttribute('id', 'btnincdec_def_comment');
+    CreateComment( CommentNode, 'btnincdec_def_comment_text', 'ButtonIncDec section');
+    bidc := bidc + 200;
 
     GBtnIncDecDefNode := Doc.CreateElement('g');
     GBtnIncDecSectionNode.AppendChild(GBtnIncDecDefNode);
@@ -1332,9 +1453,21 @@ begin
     GMainNode.AppendChild(GPartSelSectionNode);
     TDOMElement(GPartSelSectionNode).SetAttribute('id', 'g2_partsel_section');
 
+    CommentNode := Doc.CreateElement('g');
+    GPartSelSectionNode.AppendChild(CommentNode);
+    TDOMElement(CommentNode).SetAttribute('id', 'partsel_def_comment');
+    CreateComment( CommentNode, 'partsel_def_comment_text', 'Partselector section');
+    psc := psc + 200;
+
     GSymbolSectionNode := Doc.CreateElement('g');
     GMainNode.AppendChild(GSymbolSectionNode);
     TDOMElement(GSymbolSectionNode).SetAttribute('id', 'g2_symbol_section');
+
+    CommentNode := Doc.CreateElement('g');
+    GSymbolSectionNode.AppendChild(CommentNode);
+    TDOMElement(CommentNode).SetAttribute('id', 'symbol_def_comment');
+    CreateComment( CommentNode, 'symbol_def_comment_text', 'Symbol section');
+    sc := sc + 200;
 
     GModuleSectionNode := Doc.CreateElement('g');
     GMainNode.AppendChild(GModuleSectionNode);
