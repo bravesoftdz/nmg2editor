@@ -286,11 +286,16 @@ const
   idLabel = 'label';
   idLedGreen = 'ledGreen';
   idLedSequencer = 'ledSeq';
+  idMiniVU = 'miniVU';
   idTxtField = 'txtField';
-  idBtnText = 'btnText';
+  idBtnTextUp = 'btnTextUp';
+  idBtnTextDown = 'btnTextDown';
   idBtnFlat = 'btnFlat';
   idBtnIncDecHorz = 'btnIncDecHorz';
   idBtnIncDecVert = 'btnIncDecVert';
+  idLevelShift = 'levelShift';
+  idBtnRadioUp = 'btnRadioUp';
+  idBtnRadioDown = 'btnRadioDown';
   idSlider = 'slider';
   idKnobBig = 'knobBig';
   idKnobMedium = 'knobMedium';
@@ -300,26 +305,34 @@ const
   idConnectorIn = 'connIn';
   idConnectorOut = 'connOut';
   idPartSel = 'partSel';
+  idGraph = 'graph';
   idModule = 'module';
 
 var Control : TG2GraphChildControl;
     BitMapList : TObjectList;
     Bitmap : TBitmap;
     i, j, k : integer;
-    symbol_section, knob_section, buttontext_section, buttonflat_section,
-    textfield_section, led_section, btnIncDec_section, partsel_section,
-    connector_section,
-    module_section, mr, mc, btc, bfc, kc, tfc, sc, lc, bidc, psc, cc : integer;
+    symbol_section, knob_section, buttontext_up_section, buttontext_down_section,
+    buttonflat_section, textfield_section, led_section, btnIncDec_section, partsel_section,
+    connector_section, graph_section, minivu_section, btnRadioUp_section, btnRadioDown_section,
+    levelshift_section, module_section,
+    mr, mc, btc, bfc, kc, tfc, sc, lc, lsc, bidc, psc, cc, gc, minivu_c, rbc: integer;
     new_filename : string;
     Doc : TXMLDocument;
     RootNode, DefsNode, GMainNode,
     GSymbolSectionNode, GSymbolDefNode, SymbolNode,
     GTextFieldSectionNode, GTextFieldDefNode, TextFieldNode,
-    GButtonTextSectionNode, GButtonTextDefNode, ButtonTextNode,
+    GButtonTextUpSectionNode, GButtonTextUpDefNode, ButtonTextUpNode,
+    GButtonTextDownSectionNode, GButtonTextDownDefNode, ButtonTextDownNode,
     GButtonFlatSectionNode, GButtonFlatDefNode, ButtonFlatNode,
     GKnobSectionNode, GKnobDefNode, KnobNode,
     GLedSectionNode, GLedDefNode, LedNode,
+    GMiniVUSectionNode, GMiniVUDefNode, MiniVUNode,
+    GGraphSectionNode, GGraphDefNode, GraphNode,
     GBtnIncDecSectionNode, GBtnIncDecDefNode, BtnIncDecNode,
+    GLevelShiftSectionNode, GLevelShiftDefNode, LevelShiftNode,
+    GBtnRadioUpSectionNode, GBtnRadioUpDefNode, BtnRadioUpNode,
+    GBtnRadioDownSectionNode, GBtnRadioDownDefNode, BtnRadioDownNode,
     GPartSelSectionNode, GPartSelDefNode, PartSelNode,
     GConnectorSectionNode, GConnectorDefNode, ConnectorNode,
     GModuleSectionNode, GModuleDefNode, ModuleNode,
@@ -336,35 +349,35 @@ var Control : TG2GraphChildControl;
         Result := -1;
     end;
 
-    function NiceBevel( aBaseName : string; aWidth, aHeight, aBevelWidth, aBevelHeight : single; aColor1, aColor2 : string): string;
+    function NiceBevel( aBaseName : string; aWidth, aHeight, aBevelWidth, aBevelHeight : single; aColSideLeft, aColSideTop, aColSideRight, aColSideBottom : string): string;
     var dw, dh : single;
     begin
       dw := aBevelWidth / 1.5;
       dh := aBevelHeight / 1.5;
 
       Result :=
-         '<path id="' + aBaseName + '_bevel_l" fill="' + aColor1 + '" stroke="none"'
+         '<path id="' + aBaseName + '_bevel_l" fill="' + aColSideLeft + '" stroke="none"'
        + '  d="M 0,0'
            + ' c 0,0 ' + FloatToStr(aBevelWidth) + ','  + FloatToStr(dw) + ' ' + FloatToStr(aBevelWidth) + ',' + FloatToStr(aBevelWidth+dw)
              + ' 0,' + FloatToStr(aBevelWidth + dw) + ' 0,' + FloatToStr(aHeight - (aBevelWidth+dw)*2 - dw - aBevelWidth) + ' 0,' + FloatToStr(aHeight - (aBevelWidth+dw)*2)
              + ' 0,' + FloatToStr(dw) + ' ' + FloatToStr(-aBevelWidth) + ',' + FloatToStr(aBevelWidth+dw) + ' ' + FloatToStr(-aBevelWidth) + ',' + FloatToStr(aBevelWidth+dw)
            + ' z">'
        + '</path>'
-       + '<path id="' + aBaseName + '_bevel_t" fill="' + aColor1 + '" stroke="none"'
+       + '<path id="' + aBaseName + '_bevel_t" fill="' + aColSideTop + '" stroke="none"'
        + '  d="M ' + FloatToStr(aWidth) + ',0'
            + ' c 0,0 ' + FloatToStr(-dh) + ','  + FloatToStr(aBevelHeight) + ' ' + FloatToStr(-aBevelHeight-dh) + ',' + FloatToStr(aBevelHeight)
              + ' ' + FloatToStr(-aBevelHeight - dh) + ',0 ' + FloatToStr(-aWidth + (aBevelHeight+dh)*2 + dh + aBevelHeight) + ',0 ' + FloatToStr(-aWidth + (aBevelHeight+dh)*2) + ',0'
              + ' ' + FloatToStr(-dh) + ',0 ' + FloatToStr(-aBevelHeight-dh) + ',' + FloatToStr(-aBevelHeight) + ' ' + FloatToStr(-aBevelHeight-dh) + ',' + FloatToStr(-aBevelHeight)
            + ' z">'
        + '</path>'
-       + '<path id="' + aBaseName + '_bevel_r" fill="' + aColor2 + '" stroke="none"'
+       + '<path id="' + aBaseName + '_bevel_r" fill="' + aColSideRight + '" stroke="none"'
        + '  d="M ' + FloatToStr(aWidth) + ',' + FloatToStr(aHeight)
            + ' c 0,0 ' + FloatToStr(-aBevelWidth) + ','  + FloatToStr(-dw) + ' ' + FloatToStr(-aBevelWidth) + ',' + FloatToStr(-aBevelWidth-dw)
              + ' 0,' + FloatToStr(-aBevelWidth - dw) + ' 0,' + FloatToStr(-aHeight + (aBevelWidth+dw)*2 + dw + aBevelWidth) + ' 0,' + FloatToStr(-aHeight + (aBevelWidth+dw)*2)
              + ' 0,' + FloatToStr(-dw) + ' ' + FloatToStr(aBevelWidth) + ',' + FloatToStr(-aBevelWidth-dw) + ' ' + FloatToStr(aBevelWidth) + ',' + FloatToStr(-aBevelWidth-dw)
            + ' z">'
        + '</path>'
-       + '<path id="' + aBaseName + '_bevel_b" fill="' + aColor2 + '" stroke="none"'
+       + '<path id="' + aBaseName + '_bevel_b" fill="' + aColSideBottom + '" stroke="none"'
        + '  d="M 0,' + FloatToStr(aHeight)
            + ' c 0,0 ' + FloatToStr(dh) + ','  + FloatToStr(-aBevelHeight) + ' ' + FloatToStr(aBevelHeight+dh) + ',' + FloatToStr(-aBevelHeight)
              + ' ' + FloatToStr(aBevelHeight + dh) + ',0 ' + FloatToStr(aWidth - (aBevelHeight+dh)*2 - dh - aBevelHeight) + ',0 ' + FloatToStr(aWidth - (aBevelHeight+dh)*2) + ',0'
@@ -373,20 +386,20 @@ var Control : TG2GraphChildControl;
        + '</path>';
     end;
 
-    function Bevel( aBaseName : string; aWidth, aHeight, aBevelWidth : integer; aColor1, aColor2 : string): string;
+    function Bevel( aBaseName : string; aWidth, aHeight, aBevelWidth : single; aColSideLeft, aColSideTop, aColSideRight, aColSideBottom : string): string;
     begin
        Result :=
-         '<path id="' + aBaseName + '_bevel_l" fill="' + aColor1 + '" stroke="none"'
-       + '  d="M 0,0 l ' + IntToStr(aBevelWidth) + ','  + IntToStr(aBevelWidth) + ' v ' + IntToStr((aHeight - aBevelWidth*2)) + ' l ' + IntToStr(-aBevelWidth) + ','  + IntToStr(aBevelWidth) + ' z">'
+         '<path id="' + aBaseName + '_bevel_l" fill="' + aColSideLeft + '" stroke="none"'
+       + '  d="M 0,0 l ' + FloatToStr(aBevelWidth) + ','  + FloatToStr(aBevelWidth) + ' v ' + FloatToStr((aHeight - aBevelWidth*2)) + ' l ' + FloatToStr(-aBevelWidth) + ','  + FloatToStr(aBevelWidth) + ' z">'
        + '</path>'
-       + '<path id="' + aBaseName + '_bevel_t" fill="' + aColor1 + '" stroke="none"'
-       + '  d="M 0,0 h ' + IntToStr(aWidth) + ' l ' + IntToStr(-aBevelWidth) + ','  + IntToStr(aBevelWidth) + ' h ' + IntToStr(-(aWidth - aBevelWidth*2)) + ' z">'
+       + '<path id="' + aBaseName + '_bevel_t" fill="' + aColSideTop + '" stroke="none"'
+       + '  d="M 0,0 h ' + FloatToStr(aWidth) + ' l ' + FloatToStr(-aBevelWidth) + ','  + FloatToStr(aBevelWidth) + ' h ' + FloatToStr(-(aWidth - aBevelWidth*2)) + ' z">'
        + '</path>'
-       + '<path id="' + aBaseName + '_bevel_r" fill="' + aColor2 + '" stroke="none"'
-       + '  d="M ' + IntToStr(aWidth) + ',0 v ' + IntToStr(aHeight) + ' l ' + IntToStr(-aBevelWidth) + ','  + IntToStr(-aBevelWidth) + ' v ' + IntToStr(-(aHeight - aBevelWidth*2)) + ' z">'
+       + '<path id="' + aBaseName + '_bevel_r" fill="' + aColSideRight + '" stroke="none"'
+       + '  d="M ' + FloatToStr(aWidth) + ',0 v ' + FloatToStr(aHeight) + ' l ' + FloatToStr(-aBevelWidth) + ','  + FloatToStr(-aBevelWidth) + ' v ' + FloatToStr(-(aHeight - aBevelWidth*2)) + ' z">'
        + '</path>'
-       + '<path id="' + aBaseName + '_bevel_b" fill="' + aColor2 + '" stroke="none"'
-       + '  d="M 0, ' + IntToStr(aHeight) + ' l ' + IntToStr(aBevelWidth) + ','  + IntToStr(-aBevelWidth) + ' h ' + IntToStr((aWidth - aBevelWidth*2)) + ' l ' + IntToStr(aBevelWidth) + ','  + IntToStr(aBevelWidth) +' z">'
+       + '<path id="' + aBaseName + '_bevel_b" fill="' + aColSideBottom + '" stroke="none"'
+       + '  d="M 0, ' + FloatToStr(aHeight) + ' l ' + FloatToStr(aBevelWidth) + ','  + FloatToStr(-aBevelWidth) + ' h ' + FloatToStr((aWidth - aBevelWidth*2)) + ' l ' + FloatToStr(aBevelWidth) + ','  + FloatToStr(aBevelWidth) +' z">'
        + '</path>';
     end;
 
@@ -693,7 +706,8 @@ var Control : TG2GraphChildControl;
       Result :=  aBaseName + '_' + FloatToStr(aWidth) + 'x' + FloatToStr(aHeight) + 'x' + FloatToStr(aBevelWidth);
     end;
 
-    function NiceButton( aBaseName : string; aWidth, aHeight, aBevelWidth, aBevelHeight : single; aColSideLight, aColSideDark, aColBG, aColFace : string ): string;
+    function NiceButton( aBaseName : string; aWidth, aHeight, aBevelWidth, aBevelHeight : single;
+                         aColSideLeft, aColSideTop, aColSideRight, aColSideBottom, aColBG, aColFace : string ): string;
     var id : string;
     begin
        id := GetIDBtnText( aBaseName, aWidth, aHeight, aBevelWidth);
@@ -709,7 +723,7 @@ var Control : TG2GraphChildControl;
        + '    <rect id="' + id + '_bg" x="0" y="0" width="' + FloatToStr(aWidth) + '" height="' + FloatToStr(aHeight) + '" fill="' + aColBG + '" stroke="black" stroke-width="0.5"/>'
 
        + '    <g id="' + id + '_bevel">'
-       + NiceBevel( id, aWidth, aHeight, aBevelWidth, aBevelHeight, aColSideLight, aColSideDark)
+       + NiceBevel( id, aWidth, aHeight, aBevelWidth, aBevelHeight, aColSideLeft, aColSideTop, aColSideRight, aColSideBottom)
        + '    </g>'
 
        + '    <rect id="' + id + '_face" x="' + FloatToStr(aBevelWidth) + '" y="' + FloatToStr(aBevelHeight) + '" width="' + FloatToStr(aWidth-aBevelWidth*2) + '" height="' + FloatToStr(aHeight-aBevelHeight*2) + '" rx="0.75" fill="' + aColFace + '" stroke="none"/>'
@@ -718,7 +732,58 @@ var Control : TG2GraphChildControl;
        + '</g>';
     end;
 
-    procedure CreateButtonText( aNode : TDomNode; aWidth, aHeight, aBevelWidth : single);
+    procedure CreateBtnTextSideGradient( aNode : TDomNode; aID : string; x1, x2, y1, y2 : single; aColor1, aColor2 : string);
+    var StopsNode : TDomNode;
+        S : TStringStream;
+    begin
+      StopsNode := CreateGradientNodeForStopPoints( aNode, aID + '_stops');
+      CreateGradientPoint( StopsNode, 0, aColor1);
+      CreateGradientPoint( StopsNode, 100, aColor2);
+
+      S := TStringStream.Create(
+         '<linearGradient'
+       + ' id="' + aID + '"'
+       + ' gradientUnits="objectBoundingBox"'
+       + ' x1="' + FloatToStr(x1) + '"'
+       + ' x2="' + FloatToStr(x2) + '"'
+       + ' y1="' + FloatToStr(y1) + '"'
+       + ' y2="' + FloatToStr(y2) + '"'
+       + ' xlink:href="#' +aID + '_stops' + '">'
+       + '</linearGradient>');
+      try
+        ReadXMLFragment( aNode, S);
+      finally
+        S.Free;
+      end;
+    end;
+
+    procedure CreateBtFaceGradient( aNode : TDomNode; aID : string; cx, cy, fx, fy, r : single; aColor1, aColor2 : string);
+    var StopsNode : TDomNode;
+        S : TStringStream;
+    begin
+      StopsNode := CreateGradientNodeForStopPoints( aNode, aID + '_stops');
+      CreateGradientPoint( StopsNode, 0, aColor1);
+      CreateGradientPoint( StopsNode, 100, aColor2);
+
+      S := TStringStream.Create(
+         '<radialGradient'
+       + ' id="' + aID + '"'
+       + ' gradientUnits="objectBoundingBox"'
+       + ' cx="' + FloatToStr(cx) + '"'
+       + ' cy="' + FloatToStr(cy) + '"'
+       + ' fx="' + FloatToStr(fx) + '"'
+       + ' fy="' + FloatToStr(fy) + '"'
+       + ' r="' + FloatToStr(r) + '"'
+       + ' xlink:href="#' +aID + '_stops' + '">'
+       + '</radialGradient>');
+      try
+        ReadXMLFragment( aNode, S);
+      finally
+        S.Free;
+      end;
+    end;
+
+    procedure CreateButtonTextUp( aNode : TDomNode; aWidth, aHeight, aBevelWidth : single);
     var S : TStringStream;
         bw : integer;
     begin
@@ -734,7 +799,8 @@ var Control : TG2GraphChildControl;
        + '    </g>'
        + '  </g>'
        + '</g>');}
-       S := TStringStream.Create( NiceButton( idBtnText, aWidth, aHeight, aBevelWidth, aBevelWidth, cBtnSideLight, cBtnSideDark, cBtnSideMedium, cBtnFace));
+       S := TStringStream.Create( NiceButton( idBtnTextUp, aWidth, aHeight, aBevelWidth, aBevelWidth,
+                  cBtnSideLight, cBtnSideLight, cBtnSideDark, cBtnSideDark, cBtnSideMedium, cBtnFace));
       try
         ReadXMLFragment( aNode, S);
       finally
@@ -742,18 +808,52 @@ var Control : TG2GraphChildControl;
       end;
     end;
 
-    procedure FindOrAddButtonText( aWidth, aHeight, aBevelWidth : single);
+    procedure CreateButtonTextDown( aNode : TDomNode; aWidth, aHeight, aBevelWidth : single);
+    var S : TStringStream;
+    begin
+       S := TStringStream.Create( NiceButton( idBtnTextDown, aWidth, aHeight, aBevelWidth, aBevelWidth,
+                  'url(#btnTextGradienSideLeft)', 'url(#btnTextGradienSideTop)', 'url(#btnTextGradienSideRight)', 'url(#btnTextGradienSideBottom)',
+                  '#00ffcc', 'url(#btnTextGradienFace)'));
+      try
+        ReadXMLFragment( aNode, S);
+      finally
+        S.Free;
+      end;
+    end;
+
+    procedure FindOrAddButtonTextUp( aWidth, aHeight, aBevelWidth : single);
     var id : string;
     begin
-      id := idBtnText + '_def_' + FloatToStr(aWidth) + 'x' + FloatToStr(aHeight) + 'x' + FloatToStr(aBevelWidth);
+      id := idBtnTextUp + '_def_' + FloatToStr(aWidth) + 'x' + FloatToStr(aHeight) + 'x' + FloatToStr(aBevelWidth);
 
-      ButtonTextNode := GButtonTextSectionNode.FirstChild;
-      while (ButtonTextNode <> nil) and (TDomELement(ButtonTextNode).GetAttribute('id') <> id) do
-        ButtonTextNode := ButtonTextNode.NextSibling;
+      ButtonTextUpNode := GButtonTextUpSectionNode.FirstChild;
+      while (ButtonTextUpNode <> nil) and (TDomELement(ButtonTextUpNode).GetAttribute('id') <> id) do
+        ButtonTextUpNode := ButtonTextUpNode.NextSibling;
 
-      if not assigned(ButtonTextNode) then begin
-        GButtonTextDefNode := CreateSectionPlaceholder( GButtonTextSectionNode, id, btc, 0);
-        CreateButtonText( GButtonTextDefNode, aWidth, aHeight, aBevelWidth);
+      if not assigned(ButtonTextUpNode) then begin
+        GButtonTextUpDefNode := CreateSectionPlaceholder( GButtonTextUpSectionNode, id, btc, 0);
+        CreateButtonTextUp( GButtonTextUpDefNode, aWidth, aHeight, aBevelWidth);
+
+
+        GButtonTextDownDefNode := CreateSectionPlaceholder( GButtonTextDownSectionNode, id, btc, 0);
+        CreateButtonTextDown( GButtonTextDownDefNode, aWidth, aHeight, aBevelWidth);
+
+        btc := btc + trunc(aWidth) + 20;
+      end;
+    end;
+
+    procedure FindOrAddButtonTextDown( aWidth, aHeight, aBevelWidth : single);
+    var id : string;
+    begin
+      id := idBtnTextDown + '_def_' + FloatToStr(aWidth) + 'x' + FloatToStr(aHeight) + 'x' + FloatToStr(aBevelWidth);
+
+      ButtonTextDownNode := GButtonTextDownSectionNode.FirstChild;
+      while (ButtonTextDownNode <> nil) and (TDomELement(ButtonTextDownNode).GetAttribute('id') <> id) do
+        ButtonTextDownNode := ButtonTextDownNode.NextSibling;
+
+      if not assigned(ButtonTextDownNode) then begin
+        GButtonTextDownDefNode := CreateSectionPlaceholder( GButtonTextDownSectionNode, id, btc, 0);
+        CreateButtonTextDown( GButtonTextDownDefNode, aWidth, aHeight, aBevelWidth);
         btc := btc + trunc(aWidth) + 20;
       end;
     end;
@@ -765,15 +865,15 @@ var Control : TG2GraphChildControl;
       w := 11;
       h := 11;
       d := 1;
-      FindOrAddButtonText(w, h, d);
+      FindOrAddButtonTextUp(w, h, d);
 
       S := TStringStream.Create(
          '<g id="' + idBtnIncDecHorz + '">'
        + ' <desc>Button inc-dec horizontal for G2 editor</desc>'
        + ' <g id="' + idBtnIncDecHorz + '_parts">'
 
-       + Use( idBtnIncDecHorz + '_dec', GetIDBtnText( idBtnText, w, h, d), 0, 0)
-       + Use( idBtnIncDecHorz + '_inc', GetIDBtnText( idBtnText, w, h, d), w, 0)
+       + Use( idBtnIncDecHorz + '_dec', GetIDBtnText( idBtnTextUp, w, h, d), 0, 0)
+       + Use( idBtnIncDecHorz + '_inc', GetIDBtnText( idBtnTextUp, w, h, d), w, 0)
 
        + ' </g>'
        + '</g>');
@@ -791,15 +891,15 @@ var Control : TG2GraphChildControl;
       w := 11;
       h := 9;
       d := 1;
-      FindOrAddButtonText(w, h, d);
+      FindOrAddButtonTextUp(w, h, d);
 
       S := TStringStream.Create(
          '<g id="' + idBtnIncDecVert + '">'
        + ' <desc>Button inc-dec vertical for G2 editor</desc>'
        + ' <g id="g2_btnIncDecVert_parts">'
 
-       + Use( idBtnIncDecVert + '_dec', GetIDBtnText( idBtnText, w, h, d), 0, 0)
-       + Use( idBtnIncDecVert + '_inc', GetIDBtnText( idBtnText, w, h, d), 0, h)
+       + Use( idBtnIncDecVert + '_dec', GetIDBtnText( idBtnTextUp, w, h, d), 0, 0)
+       + Use( idBtnIncDecVert + '_inc', GetIDBtnText( idBtnTextUp, w, h, d), 0, h)
 
        + ' </g>'
        + '</g>');
@@ -852,6 +952,77 @@ var Control : TG2GraphChildControl;
        end;
     end;
 
+    function GetIDBtnRadio( aBaseID : string; aWidth, aHeight : single): string;
+    begin
+      Result := aBaseID + '_' + FloatToStr(aWidth) + 'x' + FloatToStr(aHeight);
+    end;
+
+    procedure CreateBtnRadioUp( aNode : TDomNode; aWidth, aHeight : single);
+    var S : TStringStream;
+        bw : single;
+        id : string;
+    begin
+      bw := 2;
+      id := GetIDBtnRadio( idBtnRadioUp, aWidth, aHeight);
+      S := TStringStream.Create(
+         '<g id="' + id + '">'
+       + '  <desc>Button radio up for G2 editor</desc>'
+       + '  <g id="' + id + '_parts">'
+       + '     <rect id="' + id + '_bg" fill="black" stroke="none" x="0" y="0" width="' + FloatToStr(aWidth) + '" height="' + FloatToStr(aHeight) + '" />'
+       + Bevel( id, aWidth, aHeight, bw, '#e6e6e6', '#e6e6e6', '#e6e6e6', '#e6e6e6')
+       + '     <rect id="' + id + '_face" fill="url(#btnRadioUpGradientFace)" stroke="none" x="' + FloatToStr(bw) + '" y="' + FloatToStr(bw) + '" width="' + FloatToStr(aWidth-bw*2) + '" height="' + FloatToStr(aHeight-bw*2) + '" />'
+       + '  </g>'
+       + '</g>');
+      try
+        ReadXMLFragment( aNode, S);
+      finally
+        S.Free;
+      end;
+    end;
+
+    procedure CreateBtnRadioDown( aNode : TDomNode; aWidth, aHeight : single);
+    var S : TStringStream;
+        bw : integer;
+        id : string;
+    begin
+      bw := 2;
+      id := GetIDBtnRadio( idBtnRadioDown, aWidth, aHeight);
+      S := TStringStream.Create(
+         '<g id="' + id + '">'
+       + '  <desc>Button radio down for G2 editor</desc>'
+       + '  <g id="' + id + '_parts">'
+       + '     <rect id="' + id + '_bg" fill="black" stroke="none" x="0" y="0" width="' + FloatToStr(aWidth) + '" height="' + FloatToStr(aHeight) + '" />'
+       + Bevel( id, aWidth, aHeight, bw, 'url(#btnRadioGradienSideLeft)', 'url(#btnRadioGradienSideTop)', 'url(#btnRadioGradienSideRight)', 'url(#btnRadioGradienSideBottom)')
+       + '     <rect id="' + id + '_face" fill="url(#btnRadioGradienFace)" stroke="none" x="' + FloatToStr(bw) + '" y="' + FloatToStr(bw) + '" width="' + FloatToStr(aWidth-bw*2) + '" height="' + FloatToStr(aHeight-bw*2) + '" />'
+       + '  </g>'
+       + '</g>');
+      try
+        ReadXMLFragment( aNode, S);
+      finally
+        S.Free;
+      end;
+    end;
+
+    procedure FindOrAddBtnRadio( aWidth, aHeight : single);
+    var id : string;
+    begin
+      id := idBtnRadioUp + '_def_' + FloatToStr(aWidth) + 'x' + FloatToStr(aHeight);
+
+      btnRadioUpNode := GBtnRadioUpSectionNode.FirstChild;
+      while (btnRadioUpNode <> nil) and (TDomELement(btnRadioUpNode).GetAttribute('id') <>  id) do
+        btnRadioUpNode := btnRadioUpNode.NextSibling;
+
+      if not assigned(btnRadioUpNode) then begin
+        GBtnRadioUpDefNode := CreateSectionPlaceholder( GBtnRadioUpSectionNode, id, rbc, 0);
+        CreateBtnRadioUp( GBtnRadioUpDefNode, aWidth, aHeight);
+
+        GBtnRadioDownDefNode := CreateSectionPlaceholder( GBtnRadioDownSectionNode, id, rbc, 0);
+        CreateBtnRadioDown( GBtnRadioDownDefNode, aWidth, aHeight);
+
+        rbc := rbc + trunc(aWidth) + 30;
+      end;
+    end;
+
     function GetIDPartSel( aWidth, aHeight : single): string;
     begin
       Result := idPartSel + '_' + FloatToStr(aWidth) + 'x' + FloatToStr(aHeight);
@@ -894,6 +1065,47 @@ var Control : TG2GraphChildControl;
          psc := psc + aWidth + 30;
        end;
     end;
+
+    function GetIDGraph( aWidth, aHeight : single): string;
+    begin
+      Result := idGraph + '_' + FloatToStr(aWidth) + 'x' + FloatToStr(aHeight);
+    end;
+
+    procedure CreateGraph( aNode : TDomNode; aWidth, aHeight : integer);
+    var S : TStringStream;
+        id : string;
+    begin
+      id := GetIDGraph( aWidth, aHeight);
+      S := TStringStream.Create(
+         '<g id="' + id + '">'
+       + '  <desc>Graph for G2 editor</desc>'
+       + '  <g id="' + id + '_parts">'
+       + '     <rect id="' + id + '_window" fill="blue" stroke="black" x="0" y="0" width="' + IntToStr(aWidth) + '" height="' + IntToStr(aHeight) + '" />'
+       + '  </g>'
+       + '</g>');
+      try
+        ReadXMLFragment( aNode, S);
+      finally
+        S.Free;
+      end;
+    end;
+
+    procedure FindOrAddGraph( aWidth, aHeight : integer);
+    var id : string;
+    begin
+      id := idGraph + '_def_'  + IntToStr(aWidth) + 'x' + IntToStr(aHeight);
+
+       GraphNode := GGraphSectionNode.FirstChild;
+       while (GraphNode <> nil) and (TDomELement(GraphNode).GetAttribute('id') <>  id) do
+         GraphNode := GraphNode.NextSibling;
+
+       if not assigned(GraphNode) then begin
+         GGraphDefNode := CreateSectionPlaceholder( GGraphSectionNode, id, gc, 0);
+         CreateGraph( GGraphDefNode, aWidth, aHeight);
+         gc := gc + aWidth + 30;
+       end;
+    end;
+
 
     function Gradient( id : string; x1, y1, x2, y2 : single; Color1, Color2 : string ): string;
     begin
@@ -1007,7 +1219,7 @@ var Control : TG2GraphChildControl;
     begin
       bw := 1;
       S := TStringStream.Create( NiceButton( idSlider + '_knob', aWidth, aHeight, aBevelWidth, aBevelHeight,
-                  cSldrKnobSideLight, cSldrKnobSideDark, cSldrKnobSideMedium, cSldrKnobFace));
+                  cSldrKnobSideLight, cSldrKnobSideLight, cSldrKnobSideDark, cSldrKnobSideDark, cSldrKnobSideMedium, cSldrKnobFace));
       try
         ReadXMLFragment( aNode, S);
       finally
@@ -1085,9 +1297,10 @@ var Control : TG2GraphChildControl;
 
     procedure CreateModule( aNode : TDomNode);
     var GModuleNode, GCtrlNode, DescNode, PanelNode, UseNode : TDOMNode;
-        l, m, x, y, w, h, dx, dy, symbol_id : integer;
+        l, m, n, x, y, w, h, dx, dy, symbol_id : integer;
         module_id, control_id, ref_id : string;
         RadioButton : TG2GraphButtonRadio;
+        RadioButtonEdit : TG2GraphButtonRadioEdit;
         Connector : TG2GraphConnector;
     begin
       module_id := idModule + '_' + IntToStr(FModule.TypeID);
@@ -1130,13 +1343,13 @@ var Control : TG2GraphChildControl;
 
         if Control is TG2GraphButtonText then begin
 
-          FindOrAddButtonText( Control.Width, Control.Height, 2);
+          FindOrAddButtonTextUp( Control.Width, Control.Height, 2);
 
           GCtrlNode := Doc.CreateElement('g');
           GModuleNode.AppendChild(GCtrlNode);
           TDOMElement(GCtrlNode).SetAttribute('id', 'g2_module_' + IntToStr(FModule.TypeID) + '_gctrl_' + IntToStr(l));
 
-          CreateUse( GCtrlNode, control_id, GetIDBtnText( idBtnText, Control.Width, Control.Height, 2), Control.Left, Control.Top);
+          CreateUse( GCtrlNode, control_id, GetIDBtnText( idBtnTextUp, Control.Width, Control.Height, 2), Control.Left, Control.Top);
 
           for m := 0 to (Control as TG2GraphButton).ImageList.Count - 1 do begin
             symbol_id := AddSymbolFromBitmap( (Control as TG2GraphButton).ImageList.Items[m]);
@@ -1195,15 +1408,40 @@ var Control : TG2GraphChildControl;
               end;
             end;
 
-            FindOrAddButtonFlat( w, h);
+            FindOrAddBtnRadio( w, h);
 
             x := RadioButton.Left;
             y := RadioButton.Top;
             for m := 0 to RadioButton.ButtonCount - 1 do begin
-              CreateUse( GModuleNode, control_id + '_el_'+ IntToStr(m), GetIDBtnFlat( w, h), x, y);
+              if m = 0 then
+                CreateUse( GModuleNode, control_id + '_el_'+ IntToStr(m), GetIDBtnRadio( idBtnRadioDown, w, h), x, y)
+              else
+                CreateUse( GModuleNode, control_id + '_el_'+ IntToStr(m), GetIDBtnRadio( idBtnRadioUp, w, h), x, y);
               x := x + dx;
               y := y + dy;
             end;
+          end;
+        end;
+
+        if Control is TG2GraphButtonRadioEdit then begin
+          RadioButtonEdit := Control as TG2GraphButtonRadioEdit;
+
+          w := RadioButtonEdit.Width div RadioButtonEdit.ButtonColumns;
+          h := RadioButtonEdit.Height div RadioButtonEdit.ButtonRows;
+          y := RadioButtonEdit.Top;
+          for m := 0 to RadioButtonEdit.ButtonRows - 1 do begin
+            x := RadioButtonEdit.Left;
+            for n := 0 to RadioButtonEdit.ButtonColumns - 1 do begin
+
+              FindOrAddBtnRadio( w, h);
+              if (m = 0) and (n=0) then
+                CreateUse( GModuleNode, control_id + '_el_'+ IntToStr(m), GetIDBtnRadio( idBtnRadioDown, w, h), x, y)
+              else
+                CreateUse( GModuleNode, control_id + '_el_'+ IntToStr(m), GetIDBtnRadio( idBtnRadioUp, w, h), x, y);
+
+              x := x + w;
+            end;
+            y := y + h;
           end;
         end;
 
@@ -1230,6 +1468,13 @@ var Control : TG2GraphChildControl;
           FindOrAddPartSel( Control.Width, Control.Height);
 
           CreateUse( GModuleNode, control_id, GetIDPartSel( Control.Width, Control.Height), Control.Left, Control.Top);
+        end;
+
+        if Control is TG2GraphGraph then begin
+
+          FindOrAddGraph( Control.Width, Control.Height);
+
+          CreateUse( GModuleNode, control_id, GetIDGraph( Control.Width, Control.Height), Control.Left, Control.Top);
         end;
 
         if Control is TG2GraphLedGreen then begin
@@ -1279,14 +1524,20 @@ begin
 
     knob_section := 0;
     led_section := 50;
-    buttontext_section := 100;
-    buttonflat_section := 150;
-    textfield_section := 200;
-    symbol_section := 250;
-    btnIncDec_section := 300;
-    partsel_section := 350;
-    connector_section := 400;
-    module_section := 450;
+    minivu_section := 100;
+    buttontext_up_section := 150;
+    buttontext_down_section := 200;
+    buttonflat_section := 250;
+    btnradioup_section := 300;
+    btnradiodown_section := 350;
+    textfield_section := 400;
+    symbol_section := 450;
+    btnIncDec_section := 500;
+    levelshift_section := 550;
+    partsel_section := 600;
+    graph_section := 650;
+    connector_section := 700;
+    module_section := 750;
 
     mr := 0;
     mc := 0;
@@ -1299,9 +1550,26 @@ begin
     bidc := 0;
     psc := 0;
     cc := 0;
+    minivu_c := 0;
+    gc := 0;
+    rbc := 0;
+    lsc := 0;
 
     CreateModulePanelGradients;
     CreateKnobSideGradient( DefsNode, 11);
+    CreateBtnTextSideGradient( DefsNode, 'btnTextGradienSideLeft', 0.5, 1, 0.5, 0.5, '#005544', '#80ffe6');
+    CreateBtnTextSideGradient( DefsNode, 'btnTextGradienSideTop', 0.5, 0.5, 0.5, 1, '#005544', '#80ffe6');
+    CreateBtnTextSideGradient( DefsNode, 'btnTextGradienSideRight', 0.5, 0.0, 0.5, 0.5, '#005544', '#80ffe6');
+    CreateBtnTextSideGradient( DefsNode, 'btnTextGradienSideBottom', 0.5, 0.5, 0.5, 0.0, '#005544', '#80ffe6');
+    CreateBtFaceGradient( DefsNode, 'btnTextGradienFace', 0.5, 0.5, 0.5, 0.5, 1, '#aaffee', '#80ffe6');
+
+    CreateBtnTextSideGradient( DefsNode, 'btnRadioGradienSideLeft', 0.25, 1, 0.5, 0.5, '#4d4d4d', '#ffdd55');
+    CreateBtnTextSideGradient( DefsNode, 'btnRadioGradienSideTop', 0.5, 0.5, 0.25, 1, '#4d4d4d', '#ffdd55');
+    CreateBtnTextSideGradient( DefsNode, 'btnRadioGradienSideRight', 0.75, 0.0, 0.5, 0.5, '#4d4d4d', '#ffdd55');
+    CreateBtnTextSideGradient( DefsNode, 'btnRadioGradienSideBottom', 0.5, 0.5, 0.75, 0.0, '#4d4d4d', '#ffdd55');
+    CreateBtFaceGradient( DefsNode, 'btnRadioGradienFace', 0.5, 0.5, 0.5, 0.5, 1, '#ffffff', '#ffeeaa');
+
+    CreateBtFaceGradient( DefsNode, 'btnRadioUpGradientFace', 0.5, 0.5, 0.5, 0.5, 1, '#ffffff', '#f2f2f2');
 
     GMainNode := Doc.CreateElement('g');
     RootNode.AppendChild(GMainNode);
@@ -1349,10 +1617,14 @@ begin
     CreateLedGreen( GLedDefNode);
     lc := lc + 40;
 
+    GMiniVUSectionNode := CreateSection( GMainNode, 'minivuSection', minivu_section, 'Mini VU section');
+    minivu_c := minivu_c + 200;
+
     GTextFieldSectionNode := CreateSection( GMainNode, 'textfieldSection', textfield_section, 'Text field section');
     tfc := tfc + 200;
 
-    GButtonTextSectionNode := CreateSection( GMainNode, 'btnTextSection', buttontext_section, 'Button text section');
+    GButtonTextUpSectionNode := CreateSection( GMainNode, 'btnTextUpSection', buttontext_up_section, 'Button text up section');
+    GButtonTextDownSectionNode := CreateSection( GMainNode, 'btnTextDownSection', buttontext_down_section, 'Button text down section');
     btc := btc + 200;
 
     GButtonFlatSectionNode := CreateSection( GMainNode, 'btnFlatSection', buttonflat_section, 'Button flat section');
@@ -1369,8 +1641,18 @@ begin
     CreateBtnIncDecVert( GBtnIncDecDefNode);
     bidc := bidc + 40;
 
+    GLevelShiftSectionNode := CreateSection( GMainNode, 'levelShiftSection', levelshift_section, 'Level shift section');
+    lsc := lsc + 200;
+
+    GBtnRadioUpSectionNode := CreateSection( GMainNode, 'btnRadionUpSection', btnRadioUp_section, 'Button radio up section');
+    GBtnRadioDownSectionNode := CreateSection( GMainNode, 'btnRadionDownSection', btnRadioDown_section, 'Button radio down section');
+    rbc := rbc + 200;
+
     GPartSelSectionNode := CreateSection( GMainNode, 'partselSection', partsel_section, 'Part selector section');
     psc := psc + 200;
+
+    GGraphSectionNode := CreateSection( GMainNode, 'graphSection', graph_section, 'Graph section');
+    gc := gc + 200;
 
     GSymbolSectionNode := CreateSection( GMainNode, 'symbolSection', symbol_section, 'Symbol section');
     sc := sc + 200;
