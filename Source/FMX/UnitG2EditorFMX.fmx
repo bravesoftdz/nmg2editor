@@ -4,74 +4,78 @@ object Form1: TForm1
   Caption = 'Form1'
   ClientHeight = 672
   ClientWidth = 963
-  StyleBook = StyleBook1
-  FormFactor.Width = 1680
-  FormFactor.Height = 1050
-  FormFactor.Devices = [dkDesktop]
+  Visible = False
   OnCreate = FormCreate
-  OnClose = FormClose
   OnDestroy = FormDestroy
+  OnClose = FormClose
+  StyleBook = StyleBook1
+  StyleLookup = 'backgroundstyle'
   object MenuBar1: TMenuBar
     Align = alTop
-    Height = 25.000000000000000000
     Width = 963.000000000000000000
+    Height = 25.000000000000000000
+    StyleLookup = 'menubarstyle'
+    TabOrder = 0
     object MenuItem1: TMenuItem
-      Height = 23.000000000000000000
-      Position.X = 1.000000000000000000
-      Position.Y = 1.000000000000000000
+      Position.Point = '(2,2)'
+      Width = 35.500000000000000000
+      Height = 20.000000000000000000
       StyleLookup = 'menubaritemstyle'
+      TabOrder = 0
+      ShortCut = 0
       Text = 'File'
-      Width = 32.000000000000000000
       object MenuItem2: TMenuItem
-        Height = 50.000000000000000000
         Locked = True
-        Text = 'Load patch'
         Width = 50.000000000000000000
+        Height = 50.000000000000000000
         OnClick = MenuItem2Click
+        TabOrder = 0
+        ShortCut = 0
+        Text = 'Load patch'
       end
     end
   end
   object Panel1: TPanel
     Align = alTop
-    Height = 26.000000000000000000
-    Position.Y = 25.000000000000000000
+    Position.Point = '(0,25)'
     Width = 963.000000000000000000
+    Height = 26.000000000000000000
+    TabOrder = 1
     object cbUSBActive: TCheckBox
-      DisableFocusEffect = False
-      Height = 19.000000000000000000
-      Position.X = 7.000000000000000000
-      Position.Y = 3.000000000000000000
-      Text = 'Online'
+      Position.Point = '(7,3)'
       Width = 73.000000000000000000
+      Height = 19.000000000000000000
+      TabOrder = 0
+      Text = 'Online'
     end
     object Label1: TLabel
-      Height = 15.000000000000000000
-      Position.X = 448.000000000000000000
-      Position.Y = 4.000000000000000000
-      Text = 'Zoom'
+      Position.Point = '(448,4)'
       Width = 41.000000000000000000
+      Height = 15.000000000000000000
+      TabOrder = 1
+      Text = 'Zoom'
     end
     object TrackBar1: TTrackBar
-      DisableFocusEffect = False
-      Height = 20.000000000000000000
-      Max = 5.000000000000000000
-      Min = 1.000000000000000000
-      Orientation = orHorizontal
-      Position.X = 488.000000000000000000
-      Position.Y = 3.000000000000000000
-      Value = 1.000000000000000000
+      Position.Point = '(488,3)'
       Width = 145.000000000000000000
+      Height = 20.000000000000000000
+      TabOrder = 2
+      Min = 1.000000000000000000
+      Max = 5.000000000000000000
+      Orientation = orHorizontal
+      Value = 1.000000000000000000
       OnChange = TrackBar1Change
     end
   end
   object Splitter1: TSplitter
     Align = alBottom
     Cursor = crVSplit
-    Height = 5.000000000000000000
-    MinSize = 20.000000000000000000
-    Position.Y = 506.000000000000000000
-    StyleLookup = 'Splitter1Style1'
+    Position.Point = '(0,506)'
     Width = 963.000000000000000000
+    Height = 5.000000000000000000
+    StyleLookup = 'Splitter1Style1'
+    TabOrder = 2
+    MinSize = 20.000000000000000000
   end
   object StyleBook1: TStyleBook
     Resource.Strings = (
@@ -359,44 +363,42 @@ object Form1: TForm1
     Top = 114
   end
   object ScrollboxVA: TScrollBox
-    Touch.InteractiveGestures = [igPan]
     Align = alClient
-    Height = 455.000000000000000000
-    MouseTracking = True
-    Position.Y = 51.000000000000000000
+    Position.Point = '(0,51)'
     Width = 963.000000000000000000
+    Height = 455.000000000000000000
+    TabOrder = 3
+    MouseTracking = True
     object LayoutZoomVA: TLayout
-      Height = 377.000000000000000000
-      Position.X = 8.000000000000000000
-      Position.Y = 8.000000000000000000
+      Position.Point = '(8,8)'
       Width = 721.000000000000000000
+      Height = 377.000000000000000000
       object LayoutVA: TG2FMXPatchArea
+        Position.Point = '(8,8)'
+        Width = 697.000000000000000000
         Height = 353.000000000000000000
         HitTest = False
-        Position.X = 8.000000000000000000
-        Position.Y = 8.000000000000000000
-        Width = 697.000000000000000000
+        TabOrder = 0
       end
     end
   end
   object ScrollBoxFX: TScrollBox
-    Touch.InteractiveGestures = [igPan]
     Align = alBottom
-    Height = 161.000000000000000000
-    MouseTracking = True
-    Position.Y = 511.000000000000000000
+    Position.Point = '(0,511)'
     Width = 963.000000000000000000
+    Height = 161.000000000000000000
+    TabOrder = 4
+    MouseTracking = True
     object LayoutZoomFX: TLayout
-      Height = 145.000000000000000000
-      Position.X = 8.000000000000000000
-      Position.Y = 8.000000000000000000
+      Position.Point = '(8,8)'
       Width = 721.000000000000000000
+      Height = 145.000000000000000000
       object LayoutFX: TG2FMXPatchArea
+        Position.Point = '(8,16)'
+        Width = 705.000000000000000000
         Height = 113.000000000000000000
         HitTest = False
-        Position.X = 8.000000000000000000
-        Position.Y = 16.000000000000000000
-        Width = 705.000000000000000000
+        TabOrder = 0
       end
     end
   end

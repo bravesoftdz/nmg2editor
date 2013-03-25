@@ -1,0 +1,48 @@
+﻿	<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+		<PropertyGroup>
+			<ProjectGuid>{AA93D57B-2A8A-4BCF-8098-5D5AD5ED34A1}</ProjectGuid>
+		</PropertyGroup>
+		<ItemGroup>
+			<Projects Include="G2_editor_FMX.dproj">
+				<Dependencies/>
+			</Projects>
+			<Projects Include="..\..\nmg2_FMX_controls\G2FMXPackage.dproj">
+				<Dependencies/>
+			</Projects>
+		</ItemGroup>
+		<ProjectExtensions>
+			<Borland.Personality>Default.Personality.12</Borland.Personality>
+			<Borland.ProjectType/>
+			<BorlandProject>
+				<Default.Personality/>
+			</BorlandProject>
+		</ProjectExtensions>
+		<Target Name="G2_editor_FMX">
+			<MSBuild Projects="G2_editor_FMX.dproj"/>
+		</Target>
+		<Target Name="G2_editor_FMX:Clean">
+			<MSBuild Projects="G2_editor_FMX.dproj" Targets="Clean"/>
+		</Target>
+		<Target Name="G2_editor_FMX:Make">
+			<MSBuild Projects="G2_editor_FMX.dproj" Targets="Make"/>
+		</Target>
+		<Target Name="G2FMXPackage">
+			<MSBuild Projects="..\..\nmg2_FMX_controls\G2FMXPackage.dproj"/>
+		</Target>
+		<Target Name="G2FMXPackage:Clean">
+			<MSBuild Projects="..\..\nmg2_FMX_controls\G2FMXPackage.dproj" Targets="Clean"/>
+		</Target>
+		<Target Name="G2FMXPackage:Make">
+			<MSBuild Projects="..\..\nmg2_FMX_controls\G2FMXPackage.dproj" Targets="Make"/>
+		</Target>
+		<Target Name="Build">
+			<CallTarget Targets="G2_editor_FMX;G2FMXPackage"/>
+		</Target>
+		<Target Name="Clean">
+			<CallTarget Targets="G2_editor_FMX:Clean;G2FMXPackage:Clean"/>
+		</Target>
+		<Target Name="Make">
+			<CallTarget Targets="G2_editor_FMX:Make;G2FMXPackage:Make"/>
+		</Target>
+		<Import Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')" Project="$(BDS)\Bin\CodeGear.Group.Targets"/>
+	</Project>

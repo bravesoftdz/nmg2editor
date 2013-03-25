@@ -556,16 +556,15 @@ var Control : TG2GraphChildControl;
        + ' transform="translate(' + FloatToStr(dx) + ',' + FloatToStr(dy) + ')"/>'
     end;
 
-    procedure CreateUse( aNode : TDomNode; aID, aRef : string; dx, dy : integer);
-    var UseNode : TDomNode;
+    function CreateUse( aNode : TDomNode; aID, aRef : string; dx, dy : integer): TDomNode;
     begin
-      UseNode := Doc.CreateElement('use');
-      aNode.AppendChild(UseNode);
-      TDOMElement(UseNode).SetAttribute('id', aID);
-      TDOMElement(UseNode).SetAttribute('xlink:href', '#' + aRef);
-      TDOMElement(UseNode).SetAttribute('transform', 'translate(' + IntToStr(dx) + ',' + IntToStr(dy) + ')');
-      TDOMElement(UseNode).SetAttribute('x', '0');
-      TDOMElement(UseNode).SetAttribute('y', '0');
+      Result := Doc.CreateElement('use');
+      aNode.AppendChild(Result);
+      TDOMElement(Result).SetAttribute('id', aID);
+      TDOMElement(Result).SetAttribute('xlink:href', '#' + aRef);
+      TDOMElement(Result).SetAttribute('transform', 'translate(' + IntToStr(dx) + ',' + IntToStr(dy) + ')');
+      TDOMElement(Result).SetAttribute('x', '0');
+      TDOMElement(Result).SetAttribute('y', '0');
     end;
 
     procedure CreateSymbol( aNode : TDomNode; index : string; aWidth, aHeight : integer);
@@ -1023,6 +1022,28 @@ var Control : TG2GraphChildControl;
       end;
     end;
 
+    procedure CreateLevelShift( aNode : TDomNode; aWidth, aHeight : single);
+    var S : TStringStream;
+        bw : single;
+        id : string;
+    begin
+      bw := 1;
+      id := idLevelShift;
+      S := TStringStream.Create(
+         '<g id="' + id + '">'
+       + '  <desc>Level shiftfor G2 editor</desc>'
+       + '  <g id="' + id + '_parts">'
+       + '     <rect id="' + id + '_bg" fill="black" stroke="none" x="0" y="0" width="' + FloatToStr(aWidth) + '" height="' + FloatToStr(aHeight) + '" />'
+       + '     <rect id="' + id + '_face" fill="white" stroke="none" x="' + FloatToStr(bw) + '" y="' + FloatToStr(bw) + '" width="' + FloatToStr(aWidth-bw*2) + '" height="' + FloatToStr(aHeight-bw*2) + '" rx="' + FloatToStr(bw) + '" />'
+       + '  </g>'
+       + '</g>');
+      try
+        ReadXMLFragment( aNode, S);
+      finally
+        S.Free;
+      end;
+    end;
+
     function GetIDPartSel( aWidth, aHeight : single): string;
     begin
       Result := idPartSel + '_' + FloatToStr(aWidth) + 'x' + FloatToStr(aHeight);
@@ -1296,7 +1317,7 @@ var Control : TG2GraphChildControl;
     end;
 
     procedure CreateModule( aNode : TDomNode);
-    var GModuleNode, GCtrlNode, DescNode, PanelNode, UseNode : TDOMNode;
+    var GModuleNode, ParamLinkNode, ConnLinkNode, DescNode, PanelNode, UseNode : TDOMNode;
         l, m, n, x, y, w, h, dx, dy, symbol_id : integer;
         module_id, control_id, ref_id : string;
         RadioButton : TG2GraphButtonRadio;
@@ -1345,18 +1366,20 @@ var Control : TG2GraphChildControl;
 
           FindOrAddButtonTextUp( Control.Width, Control.Height, 2);
 
-          GCtrlNode := Doc.CreateElement('g');
-          GModuleNode.AppendChild(GCtrlNode);
-          TDOMElement(GCtrlNode).SetAttribute('id', 'g2_module_' + IntToStr(FModule.TypeID) + '_gctrl_' + IntToStr(l));
+          ParamLinkNode := Doc.CreateElement('g');
+          GModuleNode.AppendChild(ParamLinkNode);
+          TDOMElement(ParamLinkNode).SetAttribute('id', 'g2_module_' + IntToStr(FModule.TypeID) + '_paramlink_' + IntToStr(Control.ID));
+          TDOMElement(ParamLinkNode).SetAttribute('nmg2.CodeRef', IntToStr(Control.Parameter.ParamIndex));
+          TDOMElement(ParamLinkNode).SetAttribute('nmg2.InfoFunc', IntTostr(Control.Parameter.InfoFunctionIndex));
 
-          CreateUse( GCtrlNode, control_id, GetIDBtnText( idBtnTextUp, Control.Width, Control.Height, 2), Control.Left, Control.Top);
+          UseNode := CreateUse( ParamLinkNode, control_id, GetIDBtnText( idBtnTextUp, Control.Width, Control.Height, 2), Control.Left, Control.Top);
 
           for m := 0 to (Control as TG2GraphButton).ImageList.Count - 1 do begin
             symbol_id := AddSymbolFromBitmap( (Control as TG2GraphButton).ImageList.Items[m]);
             w := (BitmapList[symbol_id] as TBitmap).Width;
             h := (BitmapList[symbol_id] as TBitmap).Height;
 
-            CreateUse( GCtrlNode, control_id + '_symbol_' + IntToStr(m), idSymbol + '_' + IntToStr(symbol_id), Control.Left + Control.Width div 2 - w div 2, Control.Top + Control.Height div 2 - h div 2);
+            CreateUse( ParamLinkNode, control_id + '_symbol_' + IntToStr(m), idSymbol + '_' + IntToStr(symbol_id), Control.Left + Control.Width div 2 - w div 2, Control.Top + Control.Height div 2 - h div 2);
           end;
         end;
 
@@ -1372,13 +1395,17 @@ var Control : TG2GraphChildControl;
 
         if Control is TG2GraphButtonFlat then begin
 
-          FindOrAddButtonFlat( Control.Width, Control.Height);
+          if Control is TG2GraphLevelShift then begin
+            CreateUse( GModuleNode, control_id, idLevelShift, Control.Left, Control.Top);
+          end else begin
+            FindOrAddButtonFlat( Control.Width, Control.Height);
 
-          for m := 0 to (Control as TG2GraphButton).ImageList.Count - 1 do begin
-            AddSymbolFromBitmap( (Control as TG2GraphButton).ImageList.Items[m]);
+            for m := 0 to (Control as TG2GraphButton).ImageList.Count - 1 do begin
+              AddSymbolFromBitmap( (Control as TG2GraphButton).ImageList.Items[m]);
+            end;
+
+            CreateUse( GModuleNode, control_id, GetIDBtnFlat( Control.Width, Control.Height), Control.Left, Control.Top);
           end;
-
-          CreateUse( GModuleNode, control_id, GetIDBtnFlat( Control.Width, Control.Height), Control.Left, Control.Top);
         end;
 
         if Control is TG2GraphButtonRadio then begin
@@ -1487,20 +1514,29 @@ var Control : TG2GraphChildControl;
 
         if Control is TG2GraphConnector then begin
           Connector := Control as TG2GraphConnector;
+
+          ConnLinkNode := Doc.CreateElement('g');
+          GModuleNode.AppendChild(ConnLinkNode);
+          TDOMElement(ConnLinkNode).SetAttribute('id', 'g2_module_' + IntToStr(FModule.TypeID) + '_connlink_' + IntToStr(Control.ID));
+          TDOMElement(ConnLinkNode).SetAttribute('nmg2.CodeRef', IntToStr(Connector.Data.ConnectorIndex));
+
+          UseNode := nil;
           if Connector.Data.ConnectorKind = ckInput then begin
             case Connector.Data.ConnectorDefColor of
-            COLOR_YELLOW : CreateUse( GModuleNode, control_id, idConnectorIn + '_yellow', Control.Left, Control.Top);
-            COLOR_BLUE : CreateUse( GModuleNode, control_id, idConnectorIn + '_blue', Control.Left, Control.Top);
-            COLOR_RED : CreateUse( GModuleNode, control_id, idConnectorIn + '_red', Control.Left, Control.Top);
+            COLOR_YELLOW : UseNode := CreateUse( ConnLinkNode, control_id, idConnectorIn + '_yellow', Control.Left, Control.Top);
+            COLOR_BLUE : UseNode := CreateUse( ConnLinkNode, control_id, idConnectorIn + '_blue', Control.Left, Control.Top);
+            COLOR_RED : UseNode := CreateUse( ConnLinkNode, control_id, idConnectorIn + '_red', Control.Left, Control.Top);
             end;
           end;
 
-          if Connector.Data.ConnectorKind = ckOutput then
+          if Connector.Data.ConnectorKind = ckOutput then begin
             case Connector.Data.ConnectorDefColor of
-            COLOR_YELLOW : CreateUse( GModuleNode, control_id, idConnectorOut + '_yellow', Control.Left, Control.Top);
-            COLOR_BLUE : CreateUse( GModuleNode, control_id, idConnectorOut + '_blue', Control.Left, Control.Top);
-            COLOR_RED : CreateUse( GModuleNode, control_id, idConnectorOut + '_red', Control.Left, Control.Top);
+            COLOR_YELLOW : UseNode := CreateUse( ConnLinkNode, control_id, idConnectorOut + '_yellow', Control.Left, Control.Top);
+            COLOR_BLUE : UseNode := CreateUse( ConnLinkNode, control_id, idConnectorOut + '_blue', Control.Left, Control.Top);
+            COLOR_RED : UseNode := CreateUse( ConnLinkNode, control_id, idConnectorOut + '_red', Control.Left, Control.Top);
             end;
+          end;
+
         end;
       end;
     end;
@@ -1515,6 +1551,7 @@ begin
     TDOMElement(RootNode).SetAttribute('xmlns:cc','http://creativecommons.org/ns#');
     TDOMElement(RootNode).SetAttribute('xmlns:rdf','http://www.w3.org/1999/02/22-rdf-syntax-ns#');
     TDOMElement(RootNode).SetAttribute('xmlns:svg','http://www.w3.org/2000/svg');
+    TDOMElement(RootNode).SetAttribute('xmlns:nmg2','http://www.bverhue/g2dev');
     TDOMElement(RootNode).SetAttribute('xmlns','http://www.w3.org/2000/svg');
     TDOMElement(RootNode).SetAttribute('xmlns:xlink','http://www.w3.org/1999/xlink');
 
@@ -1643,6 +1680,10 @@ begin
 
     GLevelShiftSectionNode := CreateSection( GMainNode, 'levelShiftSection', levelshift_section, 'Level shift section');
     lsc := lsc + 200;
+
+    GLevelShiftDefNode := CreateSectionPlaceholder( GLevelShiftSectionNode, idLevelShift + '_def', lsc, 0);
+    CreateLevelShift( GLevelShiftDefNode, 13, 12);
+    lsc := lsc + 40;
 
     GBtnRadioUpSectionNode := CreateSection( GMainNode, 'btnRadionUpSection', btnRadioUp_section, 'Button radio up section');
     GBtnRadioDownSectionNode := CreateSection( GMainNode, 'btnRadionDownSection', btnRadioDown_section, 'Button radio down section');
