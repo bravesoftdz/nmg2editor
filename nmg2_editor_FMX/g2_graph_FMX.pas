@@ -256,6 +256,41 @@ type
     vy : single;
   end;
 
+  TBitmapRect = class
+  private
+    FRect : TRectF;
+    FBitmap : TBitmap;
+  protected
+    function Getactive: boolean;
+    procedure SetActive( aValue : boolean);
+  public
+    constructor Create;
+    destructor Destroy; override;
+
+    property Active : boolean read GetActive write Setactive;
+    property Rect : TRectF read FRect write FRect;
+    property Bitmap : TBitmap read FBitmap write FBitmap;
+  end;
+
+  TBitmapBuffer = class(TControl)
+  private
+    FBitmapList : TObjectList;
+    Fdx, Fdy : single;
+    FCols, FRows : integer;
+    FCableList : TCableList;
+    FRedrawBuffer : boolean;
+  public
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+    procedure Paint; override;
+    procedure Clear;
+
+    property dX : single read Fdx;
+    property dY : single read Fdy;
+    property CableList : TCableList read FCableList write FCableList;
+    property RedrawBuffer : boolean read FRedrawBuffer write FRedrawBuffer;
+  end;
+
   TSVGG2Cable = class(TControl)
   private
     FP1, FP2 : TPointF;
@@ -276,6 +311,7 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     procedure Paint; override;
+    procedure PaintBuffer( aBuffer : TBitmapBuffer);
     procedure StartTimer;
     procedure InitCable;
   published
@@ -352,6 +388,14 @@ begin
       Result := n.TextContent;
     end;
   end;
+end;
+
+function ConvertToAlpha( aColor : integer): integer;
+begin
+  Result := $ff000000
+          + (aColor and $000000ff) shl 16
+          + (aColor and $0000ff00)
+          + (aColor and $00ff0000) shr 16;
 end;
 
 //==============================================================================
@@ -911,7 +955,6 @@ begin
   end;
 end;
 
-
 //==============================================================================
 //
 //                               TSVGKnob
@@ -1129,6 +1172,122 @@ begin
   FSVGControl.Parent := FParent;
 end;
 
+//==============================================================================
+//
+//                                TBitmapRect
+//
+//==============================================================================
+
+constructor TBitmapRect.Create;
+begin
+  FRect := RectF(0,0,0,0);
+  FBitmap := nil;
+end;
+
+destructor TBitmapRect.Destroy;
+begin
+  if assigned(FBitmap) then
+    FBitmap.Free;
+  inherited;
+end;
+
+function TBitmapRect.Getactive: boolean;
+begin
+  Result := assigned(FBitmap);
+end;
+
+procedure TBitmapRect.SetActive(aValue: boolean);
+begin
+  if assigned(FBitmap) then begin
+    if aValue = False then begin
+      FBitmap.Free;
+    end;
+  end else begin
+    if aValue then begin
+      FBitmap := TBitmap.Create(trunc(FRect.Width) + 1, trunc(FRect.Height) + 1);
+    end;
+  end;
+end;
+
+//==============================================================================
+//
+//                                TBitmapBuffer
+//
+//==============================================================================
+
+constructor TBitmapBuffer.Create(AOwner: TComponent);
+begin
+  inherited;
+  FBitmapList := TObjectList.Create( True);
+
+  FCols := 20;
+  FRows := 20;
+  Fdx := 100;
+  Fdy := 80;
+
+  Width := FCols * Fdx;
+  Height := FRows * Fdy;
+
+  Clear;
+  FRedrawBuffer := True;
+
+  Hittest := False;
+end;
+
+destructor TBitmapBuffer.Destroy;
+begin
+  FBitmapList.Free;
+  inherited;
+end;
+
+procedure TBitmapBuffer.Clear;
+var i, j : integer;
+    BitmapRect : TBitmapRect;
+begin
+  FBitmapList.Clear;
+  for i := 0 to FRows - 1 do
+    for j := 0 to FCols - 1 do begin
+      BitmapRect := TBitmapRect.Create;
+      BitmapRect.Rect := RectF( j*Fdx, i*Fdy, (j+1)*Fdx, (i+1)*Fdy);
+      FBitmapList.Add( BitmapRect);
+    end;
+end;
+
+procedure TBitmapBuffer.Paint;
+var i, j, k : integer;
+    BitmapRect : TBitmapRect;
+begin
+  if assigned(FCableList) then begin
+
+    if FRedrawBuffer then begin
+      Clear;
+      for i := 0 to FCableList.Count - 1 do begin
+        (FCableList[i] as TG2GraphCableFMX).FSVGControl.PaintBuffer(self);
+      end;
+      FRedrawBuffer := False;
+    end;
+
+    Canvas.BeginScene;
+    try
+      Canvas.Stroke.Color := claBlack;
+      Canvas.Fill.Color := claRed;
+
+      for i := 0 to FRows - 1 do
+        for j := 0 to FCols - 1 do begin
+          k := (i * FCols) + j;
+          BitmapRect := FBitmapList.Items[k] as TBitmapRect;
+
+          if BitmapRect.Active then begin
+            Canvas.DrawRect(RectF(j*Fdx,i*Fdy,(j+1)*Fdx,(i+1)*Fdy), 0, 0, [], 1);
+
+            Canvas.DrawBitmap( BitmapRect.Bitmap, RectF(0,0,Fdx,Fdy), RectF(j*Fdx,i*Fdy,(j+1)*Fdx,(i+1)*Fdy), AbsoluteOpacity );
+          end;
+        end;
+    finally
+      Canvas.EndScene;
+    end;
+  end;
+end;
 
 //==============================================================================
 //
@@ -1335,7 +1494,6 @@ begin
   Canvas.BeginScene;
   Path := TPathData.Create;
   try
-
     Canvas.Stroke.Kind := TBrushKind.bkNone;
 
     Canvas.Fill.Kind := TBrushKind.bkGradient;
@@ -1392,6 +1550,109 @@ begin
   finally
     Path.Free;
     Canvas.EndScene;
+  end;
+end;
+
+procedure TSVGG2Cable.PaintBuffer(aBuffer: TBitmapBuffer);
+var i, j : integer;
+    P1, P2, P3, P4, V, N, G1, G2 : TPointF;
+    L, d : single;
+    BB : TRectF;
+    BitmapRect : TBitmapRect;
+    Path : TPathData;
+    SaveMatrix : TMatrix;
+begin
+  d := 1.5;
+
+  for i := 1 to FNodeCount - 1 do begin
+    V.X := FNodes[i].x - FNodes[i-1].x;
+    V.Y := FNodes[i].y - FNodes[i-1].y;
+    N.X := V.Y;
+    N.Y := -V.X;
+    L := sqrt( N.X * N.X + N.Y * N.Y);
+    if L <> 0 then begin
+      N.X := N.X / L;
+      N.Y := N.Y / L;
+    end;
+
+    P1.X := FNodes[i-1].x + N.X*d;//  - Position.X;
+    P1.Y := FNodes[i-1].y + N.Y*d;//  - Position.Y;
+    P2.X := FNodes[i].x + N.X*d;//  - Position.X;
+    P2.Y := FNodes[i].y + N.Y*d;//  - Position.Y;
+    P3.X := FNodes[i].x - N.X*d;//  - Position.X;
+    P3.Y := FNodes[i].y - N.Y*d;//  - Position.Y;
+    P4.X := FNodes[i-1].x - N.X*d;//  - Position.X;
+    P4.Y := FNodes[i-1].y - N.Y*d;//  - Position.Y;
+
+    // Calc bounding box for segment
+    BB.Left := min(min(min( p1.X, p2.X), p3.X), p4.X);
+    BB.Top := min(min(min( p1.Y, p2.Y), p3.Y), p4.Y);
+    BB.Right := max(max(max( p1.X, p2.X), p3.X), p4.X);
+    BB.Bottom := max(max(max( p1.Y, p2.Y), p3.Y), p4.Y);
+
+    G1.X := P1.X + (P2.X - P1.X)/2;
+    G1.Y := P1.Y + (P2.Y - P1.Y)/2;
+    G2.X := P4.X + (P3.X - P4.X)/2;
+    G2.Y := P4.Y + (P3.Y - P4.Y)/2;
+
+    if (BB.Right - BB.Left) <> 0 then begin
+      G1.X := (G1.X - BB.Left) / (BB.Right - BB.Left);
+      G2.X := (G2.X - BB.Left) / (BB.Right - BB.Left);
+    end;
+
+    if (BB.Bottom - BB.Top) <> 0 then begin
+      G1.Y := (G1.Y - BB.Top) / (BB.Bottom - BB.Top);
+      G2.Y := (G2.Y - BB.Top) / (BB.Bottom - BB.Top);
+    end;
+
+    {R := BB;
+    R.Left := R.Left + Position.X;
+    R.Top := R.Top + Position.Y;
+    R.Right := R.Right + Position.X;
+    R.Bottom := R.Bottom + Position.Y;}
+
+    // Paint on all overlapping squares
+    Path := TPathData.Create;
+    try
+      Path.Clear;
+      Path.MoveTo( P1);
+      Path.LineTo( P2);
+      Path.LineTo( P3);
+      Path.LineTo( P4);
+      Path.ClosePath;
+
+      for j := 0 to aBuffer.FBitmapList.Count - 1 do begin
+        BitMapRect := aBuffer.FBitmapList.Items[j] as TBitmapRect;
+        if BitMapRect.Rect.IntersectsWith( BB) then begin
+          BitMapRect.Active := True;
+
+          BitMapRect.FBitmap.Canvas.BeginScene;
+          try
+            SaveMatrix := BitMapRect.FBitmap.Canvas.Matrix;
+
+            BitMapRect.FBitmap.Canvas.Stroke.Kind := TBrushKind.bkNone;
+            BitMapRect.FBitmap.Canvas.SetMatrix( CreateTranslateMatrix(  {Position.X} - BitMapRect.Rect.Left,
+                                                                         {Position.Y} - BitMapRect.Rect.Top));
+
+            BitMapRect.FBitmap.Canvas.Fill.Kind := TBrushKind.bkGradient;
+            BitMapRect.FBitmap.Canvas.Fill.Gradient.Color := claBlack;
+            BitMapRect.FBitmap.Canvas.Fill.Gradient.Color1 := ConvertToAlpha( CableColors[ FData.CableColor]);
+            BitMapRect.FBitmap.Canvas.Fill.Gradient.StartPosition.Point := PointF( G1.X, G1.Y);
+            BitMapRect.FBitmap.Canvas.Fill.Gradient.StopPosition.Point  := PointF( G2.X, G2.Y);
+
+
+            BitMapRect.FBitmap.Canvas.FillPath( Path, 1);
+            //BitMapRect.FBitmap.Canvas.DrawPath( Path, 1);
+
+            BitMapRect.FBitmap.Canvas.SetMatrix(SaveMatrix);
+          finally
+            BitMapRect.FBitmap.Canvas.EndScene;
+          end;
+        end;
+      end;
+    finally
+      Path.Free;
+    end;
   end;
 end;
 
@@ -1658,7 +1919,5 @@ begin
     FPanel.Stroke.Color := claBlack;
   Repaint;
 end;
-
-
 
 end.

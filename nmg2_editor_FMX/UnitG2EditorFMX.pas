@@ -70,6 +70,9 @@ type
     FSVGSelection : TSVGSelection;
     FSVGModule : TSVGG2Module;
     FSVGControl : TSVGG2Control;
+
+    FCableImage : TBitmapBuffer;
+
     FDX, FDY : single;
     procedure ApplicationIdle(Sender: TObject; var Done: Boolean);
     function CreateSVGGroup: TSVGGroup;
@@ -160,6 +163,10 @@ begin
   FPatch.Layout := lZoom;
   FPatch.OnCreateModuleFMX := CreateModuleFMX;
 
+  FCableImage := TBitmapBuffer.Create(self);
+  lZoom.AddObject(FCableImage);
+  FCableImage.CableList := FPatch.CableList[1];
+
   //Application.OnIdle := ApplicationIdle;
 end;
 
@@ -179,6 +186,8 @@ var PatchName : string;
     FileStream : TFileStream;
     aFileName : string;
 begin
+  FSVGSelection.UnselectAll;
+
   if OpenDialog1.Execute then begin
     aFileName := OpenDialog1.FileName;
 
@@ -197,6 +206,9 @@ begin
 
       FPatch.Init;
       FPatch.LoadFromFile(FileStream, nil);
+      FCableImage.BringToFront;
+      FCableImage.RedrawBuffer := True;
+
 
       CalcLayoutDimensions;
     finally
