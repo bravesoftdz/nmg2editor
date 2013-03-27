@@ -78,6 +78,48 @@ type
     property    OnCreateModuleFMX : TCreateModuleFMXEvent read FOnCreateModuleFMX write FOnCreateModuleFMX;
   end;
 
+  TBitmapRect = class
+  private
+    FRect : TRectF;
+    FBitmap : TBitmap;
+    FZoom : single;
+  protected
+    function Getactive: boolean;
+    procedure SetActive( aValue : boolean);
+    procedure SetZoom( aValue : single);
+  public
+    constructor Create;
+    destructor Destroy; override;
+
+    property Active : boolean read GetActive write Setactive;
+    property Rect : TRectF read FRect write FRect;
+    property Zoom : single read FZoom write SetZoom;
+    property Bitmap : TBitmap read FBitmap write FBitmap;
+  end;
+
+  TBitmapBuffer = class(TControl)
+  private
+    FBitmapList : TObjectList;
+    Fdx, Fdy : single;
+    FCols, FRows : integer;
+    FCableList : TCableList;
+    FRedrawBuffer : boolean;
+    FZoom : single;
+  protected
+    procedure SetZoom( aValue : single);
+  public
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+    procedure Paint; override;
+    procedure Clear;
+
+    property dX : single read Fdx;
+    property dY : single read Fdy;
+    property CableList : TCableList read FCableList write FCableList;
+    property RedrawBuffer : boolean read FRedrawBuffer write FRedrawBuffer;
+    property Zoom : single read FZoom write SetZoom;
+  end;
+
   TSVGG2Control = class;
   TSVGG2Module = class;
 
@@ -254,41 +296,6 @@ type
     y  : single;
     vx : single;
     vy : single;
-  end;
-
-  TBitmapRect = class
-  private
-    FRect : TRectF;
-    FBitmap : TBitmap;
-  protected
-    function Getactive: boolean;
-    procedure SetActive( aValue : boolean);
-  public
-    constructor Create;
-    destructor Destroy; override;
-
-    property Active : boolean read GetActive write Setactive;
-    property Rect : TRectF read FRect write FRect;
-    property Bitmap : TBitmap read FBitmap write FBitmap;
-  end;
-
-  TBitmapBuffer = class(TControl)
-  private
-    FBitmapList : TObjectList;
-    Fdx, Fdy : single;
-    FCols, FRows : integer;
-    FCableList : TCableList;
-    FRedrawBuffer : boolean;
-  public
-    constructor Create(AOwner: TComponent); override;
-    destructor Destroy; override;
-    procedure Paint; override;
-    procedure Clear;
-
-    property dX : single read Fdx;
-    property dY : single read Fdy;
-    property CableList : TCableList read FCableList write FCableList;
-    property RedrawBuffer : boolean read FRedrawBuffer write FRedrawBuffer;
   end;
 
   TSVGG2Cable = class(TControl)
@@ -1181,6 +1188,7 @@ end;
 constructor TBitmapRect.Create;
 begin
   FRect := RectF(0,0,0,0);
+  FZoom := 1;
   FBitmap := nil;
 end;
 
@@ -1204,10 +1212,23 @@ begin
     end;
   end else begin
     if aValue then begin
-      FBitmap := TBitmap.Create(trunc(FRect.Width) + 1, trunc(FRect.Height) + 1);
+      FBitmap := TBitmap.Create(trunc(FRect.Width*FZoom) + 1, trunc(FRect.Height*FZoom) + 1);
+      //FBitmap.Canvas.SetMatrix( CreateScaleMatrix(FZoom, FZoom));
     end;
   end;
 end;
+
+procedure TBitmapRect.SetZoom( aValue : single);
+begin
+  if aValue <> FZoom then begin
+    FZoom := aValue;
+    if assigned(FBitmap) then begin
+      FBitmap.SetSize(trunc(FRect.Width*FZoom) + 1, trunc(FRect.Height*FZoom) + 1);
+      //FBitmap.Canvas.SetMatrix( CreateScaleMatrix(FZoom, FZoom));
+    end;
+  end;
+end;
+
 
 //==============================================================================
 //
@@ -1224,12 +1245,14 @@ begin
   FRows := 20;
   Fdx := 100;
   Fdy := 80;
+  FZoom := 1;
 
-  Width := FCols * Fdx;
-  Height := FRows * Fdy;
+  Width := FCols * Fdx * FZoom;
+  Height := FRows * Fdy * FZoom;
 
   Clear;
   FRedrawBuffer := True;
+
 
   Hittest := False;
 end;
@@ -1238,6 +1261,21 @@ destructor TBitmapBuffer.Destroy;
 begin
   FBitmapList.Free;
   inherited;
+end;
+
+procedure TBitmapBuffer.SetZoom(aValue: Single);
+var i : integer;
+begin
+  if aValue <> FZoom then begin
+    FZoom := aValue;
+    Width := FCols * Fdx * FZoom;
+    Height := FRows * Fdy * FZoom;
+    for i := 0 to FBitmapList.Count - 1 do begin
+      (FBitmapList[i] as TBitmapRect).Zoom := aValue;
+    end;
+    FRedrawBuffer := True;
+    Repaint;
+  end;
 end;
 
 procedure TBitmapBuffer.Clear;
@@ -1249,6 +1287,7 @@ begin
     for j := 0 to FCols - 1 do begin
       BitmapRect := TBitmapRect.Create;
       BitmapRect.Rect := RectF( j*Fdx, i*Fdy, (j+1)*Fdx, (i+1)*Fdy);
+      BitmapRect.Zoom := FZoom;
       FBitmapList.Add( BitmapRect);
     end;
 end;
@@ -1278,9 +1317,9 @@ begin
           BitmapRect := FBitmapList.Items[k] as TBitmapRect;
 
           if BitmapRect.Active then begin
-            Canvas.DrawRect(RectF(j*Fdx,i*Fdy,(j+1)*Fdx,(i+1)*Fdy), 0, 0, [], 1);
+            Canvas.DrawRect(RectF(j*Fdx*FZoom,i*Fdy*FZoom,(j+1)*Fdx*FZoom,(i+1)*Fdy*FZoom), 0, 0, [], 1);
 
-            Canvas.DrawBitmap( BitmapRect.Bitmap, RectF(0,0,Fdx,Fdy), RectF(j*Fdx,i*Fdy,(j+1)*Fdx,(i+1)*Fdy), AbsoluteOpacity );
+            Canvas.DrawBitmap( BitmapRect.Bitmap, RectF(0,0,Fdx*FZoom,Fdy*FZoom), RectF(j*Fdx*FZoom,i*Fdy*FZoom,(j+1)*Fdx*FZoom,(i+1)*Fdy*FZoom), AbsoluteOpacity );
           end;
         end;
     finally
@@ -1557,7 +1596,7 @@ procedure TSVGG2Cable.PaintBuffer(aBuffer: TBitmapBuffer);
 var i, j : integer;
     P1, P2, P3, P4, V, N, G1, G2 : TPointF;
     L, d : single;
-    BB : TRectF;
+    ElementBoundsRect : TRectF;
     BitmapRect : TBitmapRect;
     Path : TPathData;
     SaveMatrix : TMatrix;
@@ -1585,27 +1624,27 @@ begin
     P4.Y := FNodes[i-1].y - N.Y*d;//  - Position.Y;
 
     // Calc bounding box for segment
-    BB.Left := min(min(min( p1.X, p2.X), p3.X), p4.X);
-    BB.Top := min(min(min( p1.Y, p2.Y), p3.Y), p4.Y);
-    BB.Right := max(max(max( p1.X, p2.X), p3.X), p4.X);
-    BB.Bottom := max(max(max( p1.Y, p2.Y), p3.Y), p4.Y);
+    ElementBoundsRect.Left := min(min(min( p1.X, p2.X), p3.X), p4.X);
+    ElementBoundsRect.Top := min(min(min( p1.Y, p2.Y), p3.Y), p4.Y);
+    ElementBoundsRect.Right := max(max(max( p1.X, p2.X), p3.X), p4.X);
+    ElementBoundsRect.Bottom := max(max(max( p1.Y, p2.Y), p3.Y), p4.Y);
 
     G1.X := P1.X + (P2.X - P1.X)/2;
     G1.Y := P1.Y + (P2.Y - P1.Y)/2;
     G2.X := P4.X + (P3.X - P4.X)/2;
     G2.Y := P4.Y + (P3.Y - P4.Y)/2;
 
-    if (BB.Right - BB.Left) <> 0 then begin
-      G1.X := (G1.X - BB.Left) / (BB.Right - BB.Left);
-      G2.X := (G2.X - BB.Left) / (BB.Right - BB.Left);
+    if (ElementBoundsRect.Right - ElementBoundsRect.Left) <> 0 then begin
+      G1.X := (G1.X - ElementBoundsRect.Left) / (ElementBoundsRect.Right - ElementBoundsRect.Left);
+      G2.X := (G2.X - ElementBoundsRect.Left) / (ElementBoundsRect.Right - ElementBoundsRect.Left);
     end;
 
-    if (BB.Bottom - BB.Top) <> 0 then begin
-      G1.Y := (G1.Y - BB.Top) / (BB.Bottom - BB.Top);
-      G2.Y := (G2.Y - BB.Top) / (BB.Bottom - BB.Top);
+    if (ElementBoundsRect.Bottom - ElementBoundsRect.Top) <> 0 then begin
+      G1.Y := (G1.Y - ElementBoundsRect.Top) / (ElementBoundsRect.Bottom - ElementBoundsRect.Top);
+      G2.Y := (G2.Y - ElementBoundsRect.Top) / (ElementBoundsRect.Bottom - ElementBoundsRect.Top);
     end;
 
-    {R := BB;
+    {R := ElementBoundsRect;
     R.Left := R.Left + Position.X;
     R.Top := R.Top + Position.Y;
     R.Right := R.Right + Position.X;
@@ -1623,7 +1662,7 @@ begin
 
       for j := 0 to aBuffer.FBitmapList.Count - 1 do begin
         BitMapRect := aBuffer.FBitmapList.Items[j] as TBitmapRect;
-        if BitMapRect.Rect.IntersectsWith( BB) then begin
+        if BitMapRect.Rect.IntersectsWith( ElementBoundsRect) then begin
           BitMapRect.Active := True;
 
           BitMapRect.FBitmap.Canvas.BeginScene;
@@ -1631,8 +1670,11 @@ begin
             SaveMatrix := BitMapRect.FBitmap.Canvas.Matrix;
 
             BitMapRect.FBitmap.Canvas.Stroke.Kind := TBrushKind.bkNone;
-            BitMapRect.FBitmap.Canvas.SetMatrix( CreateTranslateMatrix(  {Position.X} - BitMapRect.Rect.Left,
-                                                                         {Position.Y} - BitMapRect.Rect.Top));
+            BitMapRect.FBitmap.Canvas.SetMatrix( {CreateTranslateMatrix(  -BitMapRect.Rect.Left,
+                                                                         -BitMapRect.Rect.Top)}
+              CreateTransformationMatrix( aBuffer.Zoom, aBuffer.Zoom, -BitMapRect.Rect.Left, -BitMapRect.Rect.Top, 0, 0, 0)
+                                          {MatrixMultiply( CreateTranslateMatrix(  -BitMapRect.Rect.Left,
+                                                                         -BitMapRect.Rect.Top), SaveMatrix)}  );
 
             BitMapRect.FBitmap.Canvas.Fill.Kind := TBrushKind.bkGradient;
             BitMapRect.FBitmap.Canvas.Fill.Gradient.Color := claBlack;

@@ -86,6 +86,14 @@ object frmSVGTest: TfrmSVGTest
       KeyboardType = vktDefault
       Password = False
     end
+    object Button1: TButton
+      Position.Point = '(720,0)'
+      Width = 80.000000000000000000
+      Height = 17.000000000000000000
+      OnClick = Button1Click
+      TabOrder = 8
+      Text = 'Button1'
+    end
   end
   object sb: TScrollBox
     Align = alClient
@@ -97,10 +105,10 @@ object frmSVGTest: TfrmSVGTest
     object lSize: TLayout
       Width = 721.000000000000000000
       Height = 481.000000000000000000
-      object lZoom: TLayout
-        Width = 681.000000000000000000
-        Height = 441.000000000000000000
-      end
+    end
+    object lZoom: TLayout
+      Width = 689.000000000000000000
+      Height = 449.000000000000000000
     end
   end
   object MainMenu1: TMainMenu

@@ -6,7 +6,7 @@ uses
   System.SysUtils, System.Types, System.UITypes, System.Classes, System.Variants,
   FMX.Types, FMX.Controls, FMX.Forms, FMX.Dialogs, FMX.Objects, FMX.Layouts,
   FMX.Memo, FMX.Ani, System.Contnrs, FMX.Edit, FMX.Effects, SVGControl,
-  g2_file, g2_usb, g2_graph_FMX, FMX.Menus, DOM, XMLRead;
+  g2_types,g2_file, g2_usb, g2_graph_FMX, FMX.Menus, DOM, XMLRead;
 
 type
   TSVGSelection = class(TLayout)
@@ -33,7 +33,6 @@ type
     tbZoom: TTrackBar;
     sb: TScrollBox;
     lSize: TLayout;
-    lZoom: TLayout;
     Edit1: TEdit;
     Edit2: TEdit;
     Label1: TLabel;
@@ -50,6 +49,8 @@ type
     miDelete: TMenuItem;
     Edit3: TEdit;
     Edit4: TEdit;
+    lZoom: TLayout;
+    Button1: TButton;
     procedure FormCreate(Sender: TObject);
     procedure tbZoomChange(Sender: TObject);
     procedure sbClick(Sender: TObject);
@@ -61,6 +62,7 @@ type
     procedure miPasteClick(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure miLoadClick(Sender: TObject);
+    procedure Button1Click(Sender: TObject);
   private
     { Private declarations }
 
@@ -164,7 +166,7 @@ begin
   FPatch.OnCreateModuleFMX := CreateModuleFMX;
 
   FCableImage := TBitmapBuffer.Create(self);
-  lZoom.AddObject(FCableImage);
+  lSize.AddObject(FCableImage);
   FCableImage.CableList := FPatch.CableList[1];
 
   //Application.OnIdle := ApplicationIdle;
@@ -222,6 +224,23 @@ begin
   //
 end;
 
+procedure TfrmSVGTest.Button1Click(Sender: TObject);
+var i : integer;
+    SVGModule : TSVGG2Module;
+begin
+  lZoom.Scale.X := 1;
+  lZoom.Scale.Y := 1;
+  for i := 0 to lZoom.ChildrenCount - 1 do begin
+    if lZoom.Children[i] is TSVGG2Module then begin
+      SVGModule := lZoom.Children[i] as TSVGG2Module;
+      SVGModule.Position.X := SVGModule.Data.Col * UNITS_COL * FZoom;
+      SVGModule.Position.Y := SVGModule.Data.Row * UNITS_ROW * FZoom;
+      SVGModule.Zoom := FZoom;
+      SVGModule.SVGRedraw;
+    end;
+  end;
+end;
+
 procedure TfrmSVGTest.CalcLayoutDimensions;
 var R : TRectF;
 begin
@@ -247,8 +266,9 @@ begin
     my := (sb.Height/2) / FZoom;
 
   FZoom := tbZoom.Value;
-  lZoom.Scale.X := FZoom;
-  lZoom.Scale.Y := FZoom;
+  //lZoom.Scale.X := FZoom;
+  //lZoom.Scale.Y := FZoom;
+  FCableImage.Zoom := FZoom;
   lSize.Width := lZoom.Width * FZoom;
   lSize.Height := lZoom.Height * FZoom;
 
