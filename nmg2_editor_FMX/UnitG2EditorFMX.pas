@@ -49,8 +49,6 @@ type
     miDelete: TMenuItem;
     Edit3: TEdit;
     Edit4: TEdit;
-    lZoom: TLayout;
-    Button1: TButton;
     procedure FormCreate(Sender: TObject);
     procedure tbZoomChange(Sender: TObject);
     procedure sbClick(Sender: TObject);
@@ -62,18 +60,16 @@ type
     procedure miPasteClick(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure miLoadClick(Sender: TObject);
-    procedure Button1Click(Sender: TObject);
   private
     { Private declarations }
-
-    FSVGSkin : TXMLDocument;
 
     FZoom : single;
     FSVGSelection : TSVGSelection;
     FSVGModule : TSVGG2Module;
     FSVGControl : TSVGG2Control;
 
-    FCableImage : TBitmapBuffer;
+    FCableBitmapBuffer : TCableBitmapBuffer;
+    FModuleBitmapBuffer : TModuleBitmapBuffer;
 
     FDX, FDY : single;
     procedure ApplicationIdle(Sender: TObject; var Done: Boolean);
@@ -146,8 +142,10 @@ begin
   FormatSettings.DecimalSeparator := '.';
   FZoom := tbZoom.Value;
 
+  SVGAgent := TG2SVGAgent.Create;
+
   FSVGSelection := TSVGSelection.Create(self);
-  FSVGSelection.Parent := lZoom;
+  FSVGSelection.Parent := FModuleBitmapBuffer;
   FSVGSelection.Position.X := 0;
   FSVGSelection.Position.Y := 0;
   FSVGSelection.Width := sb.Width / tbZoom.Value;
@@ -160,14 +158,17 @@ begin
   FG2.LoadModuleDefs('');
   FG2.IsServer := True;
 
+  FCableBitmapBuffer := TCableBitmapBuffer.Create(self);
+  lSize.AddObject(FCableBitmapBuffer);
+  FModuleBitmapBuffer := TModuleBitmapBuffer.Create(self);
+  lSize.AddObject(FModuleBitmapBuffer);
+
   FPatch := FG2.Performance.Slot[0].Patch as TG2GraphPatchFMX;
-  FPatch.SVGSkin := FSVGSkin;
-  FPatch.Layout := lZoom;
+  FPatch.Layout := FModuleBitmapBuffer;
   FPatch.OnCreateModuleFMX := CreateModuleFMX;
 
-  FCableImage := TBitmapBuffer.Create(self);
-  lSize.AddObject(FCableImage);
-  FCableImage.CableList := FPatch.CableList[1];
+  FCableBitmapBuffer.CableList := FPatch.CableList[1];
+  FModuleBitmapBuffer.ModuleList := FPatch.ModuleList[1];
 
   //Application.OnIdle := ApplicationIdle;
 end;
@@ -175,6 +176,7 @@ end;
 procedure TfrmSVGTest.FormDestroy(Sender: TObject);
 begin
   FG2.Free;
+  SVGAgent.Free;
 end;
 
 procedure TfrmSVGTest.ApplicationIdle(Sender: TObject; var Done: Boolean);
@@ -208,9 +210,8 @@ begin
 
       FPatch.Init;
       FPatch.LoadFromFile(FileStream, nil);
-      FCableImage.BringToFront;
-      FCableImage.RedrawBuffer := True;
-
+      FCableBitmapBuffer.BringToFront;
+      FCableBitmapBuffer.RedrawBuffer := True;
 
       CalcLayoutDimensions;
     finally
@@ -224,32 +225,18 @@ begin
   //
 end;
 
-procedure TfrmSVGTest.Button1Click(Sender: TObject);
-var i : integer;
-    SVGModule : TSVGG2Module;
-begin
-  lZoom.Scale.X := 1;
-  lZoom.Scale.Y := 1;
-  for i := 0 to lZoom.ChildrenCount - 1 do begin
-    if lZoom.Children[i] is TSVGG2Module then begin
-      SVGModule := lZoom.Children[i] as TSVGG2Module;
-      SVGModule.Position.X := SVGModule.Data.Col * UNITS_COL * FZoom;
-      SVGModule.Position.Y := SVGModule.Data.Row * UNITS_ROW * FZoom;
-      SVGModule.Zoom := FZoom;
-      SVGModule.SVGRedraw;
-    end;
-  end;
-end;
-
 procedure TfrmSVGTest.CalcLayoutDimensions;
 var R : TRectF;
 begin
-  R := RealignChildren( lZoom, 0, 0);
-
-  lZoom.Width := R.Right;
-  lZoom.Height := R.Bottom;
-  lSize.Width := lZoom.Width * tbZoom.Value;
-  lSize.Height := lZoom.Height * tbZoom.Value;
+  if assigned(FModuleBitmapBuffer) then begin
+    R := RealignChildren( FModuleBitmapBuffer, 0, 0);
+    FModuleBitmapBuffer.Width := R.Right * tbZoom.Value;
+    FModuleBitmapBuffer.Height := R.Bottom * tbZoom.Value;
+    lSize.Width := FModuleBitmapBuffer.Width;
+    lSize.Height := FModuleBitmapBuffer.Height;
+    FModuleBitmapBuffer.Width := lSize.Width;
+    FModuleBitmapBuffer.Height := lSize.Height;
+  end;
 end;
 
 procedure TfrmSVGTest.tbZoomChange(Sender: TObject);
@@ -268,9 +255,10 @@ begin
   FZoom := tbZoom.Value;
   //lZoom.Scale.X := FZoom;
   //lZoom.Scale.Y := FZoom;
-  FCableImage.Zoom := FZoom;
-  lSize.Width := lZoom.Width * FZoom;
-  lSize.Height := lZoom.Height * FZoom;
+  FModuleBitmapBuffer.Zoom := FZoom;
+  FCableBitmapBuffer.Zoom := FZoom;
+  lSize.Width := FModuleBitmapBuffer.Width * FZoom;
+  lSize.Height := FModuleBitmapBuffer.Height * FZoom;
 
   sb.HScrollBar.Value := mx * FZoom - (sb.Width/2);
   sb.VScrollBar.Value := my * FZoom - (sb.Height/2);
@@ -289,29 +277,12 @@ end;
 
 function TfrmSVGTest.CreateSVGGroup: TSVGGroup;
 begin
-  Result := TSVGGroup.Create(self);
-  Result.Parent := lZoom;
-  Result.Position.X := 50;
-  Result.Position.Y := 50;
-  Result.Width := 2;
-  Result.Height := 2;
-  Result.HitTest := True;
-  //Result.DPI := 93;
-
-  Result.OnMouseMove := SVGMouseMove;
-  Result.OnMouseUp := SVGMouseUp;
 end;
 
 procedure TfrmSVGTest.LoadSkin;
-var SVGAgent : TSVGAgent;
 begin
-  SVGAgent := TSVGAgent.Create;
-  try
-    SVGAgent.LoadFromFile( 'skin\g2_graphics.svg', FSVGSkin);
-    CalcLayoutDimensions;
-  finally
-    SVGAgent.Free;
-  end;
+  SVGAgent.LoadSkin( 'skin\g2_graphics.svg');
+  CalcLayoutDimensions;
 end;
 
 procedure TfrmSVGTest.sbClick(Sender: TObject);
@@ -328,7 +299,7 @@ begin
     // Get startpoint in lZoom layout
 
     P := PointF(X, Y);
-    P := lZoom.AbsoluteToLocal(P);
+    P := FModuleBitmapBuffer.AbsoluteToLocal(P);
 
     FDX := P.X;
     FDY := P.Y;
@@ -346,7 +317,7 @@ begin
 
     FSVGModule := Sender as TSVGG2Module;
     P := FSVGModule.LocalToAbsolute(PointF(X, Y));
-    P := lZoom.AbsoluteToLocal(P);
+    P := FModuleBitmapBuffer.AbsoluteToLocal(P);
 
     Edit3.Text := FSVGModule.ID + ' MsDn';
     Edit4.Text := FSVGModule.ID;
@@ -355,7 +326,9 @@ begin
     if assigned(FSVGControl) then begin
       Edit2.Text := FSVGControl.ID;
       FSVGControl.MouseDown( P);
-      FSVGModule.SVGRedraw;
+      FSVGControl.Redraw;
+      FSVGModule.Repaint;
+      //FSVGModule.Redraw;
     end;
   end;
 end;
@@ -370,19 +343,21 @@ begin
       if assigned(FSVGModule) then begin
 
         P := PointF(X, Y);
-        P := lZoom.AbsoluteToLocal(P);
+        P := FModuleBitmapBuffer.AbsoluteToLocal(P);
         dx := P.X - FDX;
         dy := P.Y - FDY;
 
         FSVGControl.MouseMove(P, dx, dy);
-        FSVGModule.SVGRedraw;
+        FSVGControl.Redraw;
+        FSVGModule.Repaint;
+        //FSVGModule.Redraw;
 
       end;
     end else
       if FSVGSelection.Active then begin
 
         P := PointF(X, Y);
-        P := lZoom.AbsoluteToLocal(P);
+        P := FModuleBitmapBuffer.AbsoluteToLocal(P);
 
         FSVGSelection.Position.X := P.X - FDX;
         FSVGSelection.Position.Y := P.Y - FDY;
@@ -399,7 +374,7 @@ begin
 
   FSVGModule := Sender as TSVGG2Module;
   P := FSVGModule.LocalToAbsolute(PointF(X, Y));
-  P := lZoom.AbsoluteToLocal(P);
+  P := FModuleBitmapBuffer.AbsoluteToLocal(P);
 
   Edit3.Text := FSVGModule.ID + ' MsMv';
 
@@ -466,7 +441,7 @@ begin
 
     Module := Sender as TSVGG2Module;
     P := Module.LocalToAbsolute(PointF(X, Y));
-    P := lZoom.AbsoluteToLocal(P);
+    P := FModuleBitmapBuffer.AbsoluteToLocal(P);
 
     Edit3.Text := Module.ID + ' MsUp';
     Edit4.Text := FSVGModule.ID;
@@ -483,14 +458,18 @@ begin
       FSVGControl := FSVGModule.SelectControl( PointF(X , Y));
       if assigned(FSVGControl) then begin
         FSVGControl.MouseUp( P);
-        FSVGModule.SVGRedraw;
+        FSVGControl.Redraw;
+        FSVGModule.Repaint;
+        //FSVGModule.Redraw;
       end;
 
     end else begin
 
       if assigned(FSVGControl)then begin
         FSVGControl.MouseUp( P);
-        FSVGModule.SVGRedraw;
+        FSVGControl.Redraw;
+        FSVGModule.Repaint;
+        //FSVGModule.Redraw;
       end;
 
       if not FSVGSelection.Selected(FSVGModule) then begin

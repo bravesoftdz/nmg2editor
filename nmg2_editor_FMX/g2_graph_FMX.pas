@@ -11,8 +11,16 @@ type
 
   TCreateModuleFMXEvent = procedure(Sender : TObject; Module : TG2GraphModuleFMX) of Object;
 
+  TG2SVGAgent = class( TSVGAgent)
+  private
+    FSVGDoc : TXMLDocument;
+  public
+    constructor Create; override;
+    destructor  Destroy; override;
+    procedure   LoadSkin( aFilename : string);
+  end;
+
   TG2GraphFMX = class( TG2USB)
-  // Contains the control for the VA and FX patching
   public
     constructor Create( AOwner: TComponent); override;
     destructor  Destroy; override;
@@ -45,8 +53,7 @@ type
     FSelectedControl    : TControl;
     FSelectedMorphIndex : integer;
 
-    FSVGSkin            : TXMLDocument;
-    FLayout             : TLayout;
+    FLayout             : TFMXObject;
 
     FOnCreateModuleFMX : TCreateModuleFMXEvent;
 
@@ -72,8 +79,7 @@ type
     property    Visible : boolean read FVisible write SetVisible;
     property    SelectedControl : TControl read FSelectedControl write SetSelectedControl;
     property    SelectedMorphIndex : integer read FSelectedMorphIndex write SetSelectedMorphIndex;
-    property    Layout : TLayout read FLayout write FLayout;
-    property    SVGSkin : TXMLDocument read FSVGSkin write FSVGSkin;
+    property    Layout : TFMXObject read FLayout write FLayout;
 
     property    OnCreateModuleFMX : TCreateModuleFMXEvent read FOnCreateModuleFMX write FOnCreateModuleFMX;
   end;
@@ -97,7 +103,7 @@ type
     property Bitmap : TBitmap read FBitmap write FBitmap;
   end;
 
-  TBitmapBuffer = class(TControl)
+  TCableBitmapBuffer = class(TControl)
   private
     FBitmapList : TObjectList;
     Fdx, Fdy : single;
@@ -136,7 +142,7 @@ type
     destructor  Destroy; override;
     function    CreateCopy( aPatchPart : TG2FilePatchPart) : TG2FileModule; override;
     function    CreateParameter: TG2FileParameter; override;
-    procedure   ParsePanelData( aParent : TFMXObject; aSkin : TXMLDocument; aModuleType : byte);
+    procedure   ParsePanelData( aParent : TFMXObject; aModuleType : byte);
     procedure   SetCol( aValue : TBits7); override;
     procedure   SetRow( aValue : TBits7); override;
     procedure   SetModuleColor( aValue : TBits8); override;
@@ -176,7 +182,16 @@ type
     property    Parent : TFmxObject read FParent write SetParent;
   end;
 
-  TSVGG2ParamLink = class(TSVGGroup)
+  TSVGG2Graphic = class(TSVGGroup)
+  private
+    FModule : TSVGG2Module;
+  public
+    constructor Create( AOwner: TComponent; aId : string; aSVGParent : TSVGGroup; aCTM : TMatrix); override;
+    destructor  Destroy; override;
+    procedure Redraw; virtual;
+  end;
+
+  TSVGG2ParamLink = class(TSVGG2Graphic)
   private
     FModule : TG2GraphModuleFMX;
     FCodeRef : integer;
@@ -185,29 +200,29 @@ type
     FTextFunc : integer;
     FDependencies : string;
   public
-    constructor Create( AOwner: TComponent); override;
+    constructor Create( AOwner: TComponent; aId : string; aSVGParent: TSVGGroup; aCTM : TMatrix); override;
     destructor  Destroy; override;
 
-    function    CreateGroup( aNode : TDOMNode; aParent : TSVGGroup; var aSubTreeOwner : TSVGGroup) : TSVGGroup; override;
+    function    CreateGroup( aNode : TDOMNode; aId : string; aSVGParent : TSVGGroup; aCTM : TMatrix; var aSubTreeOwner : TSVGGroup) : TSVGGroup; override;
   end;
 
-  TSVGG2ConnLink = class(TSVGGroup)
+  TSVGG2ConnLink = class(TSVGG2Graphic)
   private
     FModule : TG2GraphModuleFMX;
     FCodeRef : integer;
   public
-    constructor Create( AOwner: TComponent); override;
+    constructor Create( AOwner: TComponent;  aId : string; aSVGParent: TSVGGroup; aCTM : TMatrix); override;
     destructor  Destroy; override;
 
-    function    CreateGroup( aNode : TDOMNode; aParent : TSVGGroup; var aSubTreeOwner : TSVGGroup) : TSVGGroup; override;
+    function    CreateGroup( aNode : TDOMNode; aId : string; aSVGParent : TSVGGroup; aCTM : TMatrix; var aSubTreeOwner : TSVGGroup) : TSVGGroup; override;
   end;
 
-  TSVGG2Control = class(TSVGGroup)
+  TSVGG2Control = class(TSVGG2Graphic)
   private
     FParameter : TG2GraphParameterFMX;
   public
-    constructor Create( AOwner: TComponent); override;
-    destructor  Destroy; override;
+    constructor Create( AOwner: TComponent; aId : string; aSVGParent : TSVGGroup; aCTM : TMatrix); override;
+    destructor Destroy; override;
 
     procedure MouseDown( P : TPointF); virtual;
     procedure MouseMove( P : TPointF; dx, dy : single); virtual;
@@ -218,21 +233,21 @@ type
   private
     FControl : TSVGG2Control;
   public
-    constructor Create( AOwner: TComponent); override;
+    constructor Create( AOwner: TComponent; aId : string; aSVGParent : TSVGGroup; aCTM : TMatrix); override;
     destructor  Destroy; override;
 
     property    Control : TSVGG2Control read FControl write FControl;
   end;
 
-  TSVGBtnState = class(TSVGGroup)
+  TSVGBtnState = class(TSVGG2Graphic)
   private
     FControl : TSVGG2Control;
     FBtnBackground : TSVGHitPath;
   public
-    constructor Create( AOwner: TComponent); override;
+    constructor Create( AOwner: TComponent; aId : string; aSVGParent : TSVGGroup; aCTM : TMatrix); override;
     destructor  Destroy; override;
 
-    function    CreatePath( aNode : TDOMNode; aParent : TSVGGroup) : TSVGPath; override;
+    function    CreatePath( aNode : TDOMNode; aId : string; aSVGParent : TSVGGroup; aCTM : TMatrix) : TSVGPath; override;
     property    Control : TSVGG2Control read FControl write FControl;
   end;
 
@@ -245,8 +260,10 @@ type
   protected
     procedure   SetValue( aValue : single);
   public
-    constructor Create( AOwner: TComponent); override;
+    constructor Create( AOwner: TComponent; aId : string; aSVGParent : TSVGGroup; aCTM : TMatrix); override;
     destructor  Destroy; override;
+
+    procedure   Redraw; override;
 
     procedure   MouseDown( P : TPointF); override;
 
@@ -265,11 +282,11 @@ type
   protected
     procedure   SetValue( aValue : single);
   public
-    constructor Create( AOwner: TComponent); override;
+    constructor Create( AOwner: TComponent; aId : string; aSVGParent : TSVGGroup; aCTM : TMatrix); override;
     destructor  Destroy; override;
 
-    function    CreatePath( aNode : TDOMNode; aParent : TSVGGroup) : TSVGPath; override;
-    function    CreateGroup( aNode : TDOMNode; aParent : TSVGGroup; var aSubTreeOwner : TSVGGroup) : TSVGGroup; override;
+    function    CreatePath( aNode : TDOMNode; aId : string; aSVGParent : TSVGGroup; aCTM : TMatrix) : TSVGPath; override;
+    function    CreateGroup( aNode : TDOMNode; aId : string; aSVGParent : TSVGGroup; aCTM : TMatrix; var aSubTreeOwner : TSVGGroup) : TSVGGroup; override;
 
     procedure   MouseMove( P : TPointF; dx, dy : single); override;
 
@@ -283,10 +300,10 @@ type
   protected
     procedure   SetData( aValue: TG2FileConnector);
   public
-    constructor Create( AOwner: TComponent); override;
+    constructor Create( AOwner: TComponent; aId : string; aSVGParent : TSVGGroup; aCTM : TMatrix); override;
     destructor  Destroy; override;
 
-    function    CreatePath( aNode : TDOMNode; aParent : TSVGGroup) : TSVGPath; override;
+    function    CreatePath( aNode : TDOMNode; aId : string; aSVGParent : TSVGGroup; aCTM : TMatrix) : TSVGPath; override;
 
     property    Data : TG2FileConnector read FData write SetData;
   end;
@@ -318,7 +335,7 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     procedure Paint; override;
-    procedure PaintBuffer( aBuffer : TBitmapBuffer);
+    procedure PaintBuffer( aBuffer : TCableBitmapBuffer);
     procedure StartTimer;
     procedure InitCable;
   published
@@ -330,15 +347,21 @@ type
 
   TSVGG2Module = class(TSVGGroup)
   private
-    FSVGSkin : TXMLDocument;
-    FData : TG2GraphModuleFMX;
     FPanel : TSVGPath;
+    FData : TG2GraphModuleFMX;
+    FBitmap : TBitmap;
+    FZoom : single;
+    FRedrawBuffer : boolean;
+  protected
+    procedure   SetZoom( aValue : single);
   public
-    constructor Create( AOwner: TComponent); override;
+    constructor Create( AOwner: TComponent; aId : string; aSVGParent: TSVGGroup; aCTM : TMatrix); override;
     destructor  Destroy; override;
+    procedure   Paint; override;
+    procedure   Redraw;
 
-    function    CreatePath( aNode : TDOMNode; aParent : TSVGGroup) : TSVGPath; override;
-    function    CreateGroup( aNode : TDOMNode; aParent : TSVGGroup; var aSubTreeOwner : TSVGGroup) : TSVGGroup; override;
+    function    CreatePath( aNode : TDOMNode; aId : string; aSVGParent : TSVGGroup; aCTM : TMatrix) : TSVGPath; override;
+    function    CreateGroup( aNode : TDOMNode; aId : string; aSVGParent : TSVGGroup; aCTM : TMatrix; var aSubTreeOwner : TSVGGroup) : TSVGGroup; override;
 
     function    SelectControl( P : TPointF): TSVGG2Control;
 
@@ -349,9 +372,28 @@ type
     procedure   SetSelected( aValue : boolean);
 
     property    Data : TG2GraphModuleFMX read FData write FData;
+    property    Zoom : single read FZoom write SetZoom;
   end;
 
+  TModuleBitmapBuffer = class(TControl)
+  private
+    FModuleList : TModuleList;
+    FZoom : single;
+  protected
+    procedure SetZoom( aValue : single);
+  public
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+
+    property ModuleList : TModuleList read FModuleList write FModuleList;
+    property Zoom : single read FZoom write SetZoom;
+  end;
+
+
 function SubTextReplace( aText, aSubText, aReplaceText : string): string;
+
+var
+  SVGAgent : TG2SVGAgent;
 
 implementation
 
@@ -403,6 +445,29 @@ begin
           + (aColor and $000000ff) shl 16
           + (aColor and $0000ff00)
           + (aColor and $00ff0000) shr 16;
+end;
+
+//==============================================================================
+//
+//                             TG2SVGAgent
+//
+//==============================================================================
+
+constructor TG2SVGAgent.Create;
+begin
+  inherited;
+  FSVGDoc := TXMLDocument.Create;
+end;
+
+destructor TG2SVGAgent.Destroy;
+begin
+  FSVGDoc.Free;
+  inherited;
+end;
+
+procedure TG2SVGAgent.LoadSkin(aFilename: string);
+begin
+  LoadFromFile( aFilename, FSVGDoc);
 end;
 
 //==============================================================================
@@ -536,7 +601,7 @@ begin
 
       if (G2.ClientType <> ctVST) then begin
         if aLocation = ltVA then begin
-          Module.ParsePanelData( FLayout, FSVGSkin, aModuleType);
+          Module.ParsePanelData( FLayout, aModuleType);
         end else
           {if aLocation = ltFX then begin
             Module.Parent := (G2 as TG2Graph).FLayoutFX;
@@ -743,7 +808,7 @@ end;
 //
 //==============================================================================
 
-constructor TSVGG2ParamLink.Create(AOwner: TComponent);
+constructor TSVGG2ParamLink.Create( AOwner: TComponent; aId : string; aSVGParent: TSVGGroup; aCTM : TMatrix);
 begin
   inherited;
   FModule := nil;
@@ -754,28 +819,21 @@ begin
   FDependencies := '';
 end;
 
-function TSVGG2ParamLink.CreateGroup(aNode: TDOMNode; aParent: TSVGGroup;
-  var aSubTreeOwner: TSVGGroup): TSVGGroup;
+function TSVGG2ParamLink.CreateGroup(aNode: TDOMNode; aId : string; aSVGParent: TSVGGroup;
+  aCTM : TMatrix; var aSubTreeOwner: TSVGGroup): TSVGGroup;
 var BtnText : TSVGBtnText;
-    SVGAgent : TSVGAgent;
-    id, BtnDownId : string;
 begin
-  id := NodeID( aNode);
+  if pos('btnTextUp', aId)>0 then begin
+    BtnText := TSVGBtnText.Create(self, aId, aSVGParent, aCTM);
+    BtnText.FModule := FModule.FSVGControl;
+    BtnText.FBtnUp.FModule := FModule.FSVGControl;
+    BtnText.FBtnDown.FModule := FModule.FSVGControl;
 
-  if pos('btnTextUp', id)>0 then begin
-    BtnText := TSVGBtnText.Create(self);
     Result := BtnText.FBtnUp;
     aSubTreeOwner := Result;
-    aParent.Add(Result);
 
-    SVGAgent := TSVGAgent.Create;
-    try
-      BtnDownId := SubTextReplace(id, 'Up', 'Down');
-      aParent.Add(BtnText.FBtnDown);
-      SVGAgent.ParseSVG( aNode.OwnerDocument as TXMLDocument, BtnDownId, BtnText.FBtnDown);
-    finally
-      SVGAgent.Free;
-    end;
+
+    SVGAgent.ParseSVG( aNode.OwnerDocument as TXMLDocument, BtnText.FBtnDown.ID, BtnText.FBtnDown);
 
   end else begin
     Result := inherited;
@@ -793,34 +851,29 @@ end;
 //
 //==============================================================================
 
-constructor TSVGG2ConnLink.Create(AOwner: TComponent);
+constructor TSVGG2ConnLink.Create( AOwner: TComponent;  aId : string; aSVGParent: TSVGGroup; aCTM : TMatrix);
 begin
   inherited;
   FModule := nil;
   FCodeRef := 0;
 end;
 
-function TSVGG2ConnLink.CreateGroup(aNode: TDOMNode; aParent: TSVGGroup;
-  var aSubTreeOwner: TSVGGroup): TSVGGroup;
+function TSVGG2ConnLink.CreateGroup(aNode: TDOMNode; aId : string; aSVGParent: TSVGGroup;
+  aCTM : TMatrix; var aSubTreeOwner: TSVGGroup): TSVGGroup;
 var Connector : TSVGG2Connector;
-    id : string;
 begin
-  id := NodeID( aNode);
+  if (aId = 'connIn_blue') or (aId = 'connIn_red') or (aId = 'connIn_yellow') or (aId = 'connIn_orange') then begin
 
-  if (id = 'connIn_blue') or (id = 'connIn_red') or (id = 'connIn_yellow') or (id = 'connIn_orange') then begin
-
-    Connector := TSVGG2Connector.Create(self);
+    Connector := TSVGG2Connector.Create(self, aId, aSVGParent, aCTM);
     Connector.Data := FModule.InConnector[ FCodeRef];
     aSubTreeOwner := Connector;
-    aParent.Add(Connector);
     Result := Connector;
   end else
 
-  if (id = 'connOut_blue') or (id = 'connOut_red') or (id = 'connOut_yellow') or (id = 'connOut_orange') then begin
-    Connector := TSVGG2Connector.Create(self);
+  if (aId = 'connOut_blue') or (aId = 'connOut_red') or (aId = 'connOut_yellow') or (aId = 'connOut_orange') then begin
+    Connector := TSVGG2Connector.Create(self, aId, aSVGParent, aCTM);
     Connector.Data := FModule.OutConnector[ FCodeRef];
     aSubTreeOwner := Connector;
-    aParent.Add(Connector);
     Result := Connector;
 
   end else begin
@@ -836,15 +889,49 @@ end;
 
 //==============================================================================
 //
+//                                TSVGHitPath
+//
+//==============================================================================
+
+constructor TSVGG2Graphic.Create( AOwner: TComponent; aId : string; aSVGParent : TSVGGroup; aCTM : TMatrix);
+begin
+  inherited;
+  FModule := nil;
+end;
+
+destructor TSVGG2Graphic.Destroy;
+begin
+  inherited;
+end;
+
+procedure TSVGG2Graphic.Redraw;
+var SaveMatrix : TMatrix;
+begin
+  if assigned(FModule) then begin
+    FModule.FBitmap.Canvas.BeginScene;
+    try
+      SaveMatrix := FModule.FBitmap.Canvas.Matrix;
+      FModule.FBitmap.Canvas.SetMatrix( MatrixMultiply(CTM, CreateScaleMatrix(FModule.Zoom, FModule.Zoom)));
+      SVGPaint( FModule.FBitmap.Canvas);
+    finally
+      FModule.FBitmap.Canvas.SetMatrix(SaveMatrix);
+      FModule.FBitmap.Canvas.EndScene;
+    end;
+  end;
+end;
+
+//==============================================================================
+//
 //                               TSVGG2Control
 //
 //==============================================================================
 
 
-constructor TSVGG2Control.Create(AOwner: TComponent);
+constructor TSVGG2Control.Create( AOwner: TComponent; aId : string; aSVGParent : TSVGGroup; aCTM : TMatrix);
 begin
   inherited;
   FParameter := nil;
+  FModule := nil;
 end;
 
 destructor TSVGG2Control.Destroy;
@@ -873,7 +960,7 @@ end;
 //
 //==============================================================================
 
-constructor TSVGHitPath.Create(AOwner: TComponent);
+constructor TSVGHitPath.Create( AOwner: TComponent; aId : string; aSVGParent : TSVGGroup; aCTM : TMatrix);
 begin
   inherited;
   HitTest := True;
@@ -891,7 +978,7 @@ end;
 //
 //==============================================================================
 
-constructor TSVGBtnState.Create(AOwner: TComponent);
+constructor TSVGBtnState.Create( AOwner: TComponent; aId : string; aSVGParent : TSVGGroup; aCTM : TMatrix);
 begin
   inherited;
   FControl := AOwner as TSVGG2Control;
@@ -903,16 +990,17 @@ begin
   inherited;
 end;
 
-function TSVGBtnState.CreatePath(aNode: TDOMNode; aParent: TSVGGroup): TSVGPath;
+
+function TSVGBtnState.CreatePath( aNode: TDOMNode; aId : string; aSVGParent: TSVGGroup;
+  aCTM : TMatrix): TSVGPath;
 var id : string;
 begin
   id := NodeID( aNode);
 
 
   if pos('_bg', id)>0  then begin
-    FBtnBackground := TSVGHitPath.Create(self);
+    FBtnBackground := TSVGHitPath.Create(self, aId, aSVGParent, aCTM);
     FBtnBackground.Control := FControl;
-    aParent.Add(FBtnBackground);
     Result := FBtnBackground;
   end else
     result := inherited;
@@ -925,11 +1013,11 @@ end;
 //
 //==============================================================================
 
-constructor TSVGBtnText.Create(AOwner: TComponent);
+constructor TSVGBtnText.Create( AOwner: TComponent; aId : string; aSVGParent : TSVGGroup; aCTM : TMatrix);
 begin
   inherited;
-  FBtnUp := TSVGBtnState.Create(self);
-  FBtnDown := TSVGBtnState.Create(self);
+  FBtnUp := TSVGBtnState.Create(self, aId, aSVGParent, aCTM);
+  FBtnDown := TSVGBtnState.Create(self, SubTextReplace( aId, 'Up', 'Down'), aSVGParent, aCTM);
 
   FBtnUp.Visible := True;
   FBtnDown.Visible := False;
@@ -944,6 +1032,14 @@ end;
 procedure TSVGBtnText.MouseDown(P: TPointF);
 begin
   Value := 1 - Value;
+end;
+
+procedure TSVGBtnText.Redraw;
+begin
+  //if FBtnUp.Visible then
+    FBtnUp.Redraw;
+  //else
+    FBtnDown.Redraw;
 end;
 
 procedure TSVGBtnText.SetValue(aValue: single);
@@ -968,7 +1064,7 @@ end;
 //
 //==============================================================================
 
-constructor TSVGKnob.Create(AOwner: TComponent);
+constructor TSVGKnob.Create( AOwner: TComponent; aId : string; aSVGParent : TSVGGroup; aCTM : TMatrix);
 begin
   inherited;
 end;
@@ -985,33 +1081,26 @@ begin
   Value :=  dx / 100 * 360;
 end;
 
-function TSVGKnob.CreateGroup(aNode: TDOMNode; aParent : TSVGGroup;
-  var aSubTreeOwner: TSVGGroup): TSVGGroup;
-var n : TDOMNode;
-    id : string;
+function TSVGKnob.CreateGroup( aNode: TDOMNode; aId : string; aSVGParent : TSVGGroup;
+  aCTM : TMatrix; var aSubTreeOwner: TSVGGroup): TSVGGroup;
 begin
-  id := NodeID( aNode);
-
   Result := inherited;
 
-  if (id = 'gknobBig_needle') or (id = 'gknobMedium_needle') or (id = 'gknobSmall_needle') then begin
+  if (aId = 'gknobBig_needle') or (aId = 'gknobMedium_needle') or (aId = 'gknobSmall_needle') then begin
     FKnobNeedle := Result;
   end;
 end;
 
-function TSVGKnob.CreatePath(aNode: TDOMNode; aParent : TSVGGroup): TSVGPath;
-var id : string;
+function TSVGKnob.CreatePath( aNode: TDOMNode; aId : string; aSVGParent : TSVGGroup;
+  aCTM : TMatrix): TSVGPath;
 begin
-  id := NodeID( aNode);
-
-  if (id = 'knobBig_face') or (id = 'knobMedium_face') or (id = 'knobSmall_face') then begin
-    FKnobFace := TSVGHitPath.Create(self);
-    aParent.Add(FKnobFace);
+  if (aId = 'knobBig_face') or (aId = 'knobMedium_face') or (aId = 'knobSmall_face') then begin
+    FKnobFace := TSVGHitPath.Create(self, aId, aSVGParent, aCTM);
     FKnobFace.Control := self;
     Result := FKnobFace;
   end else begin
     Result := inherited;
-    if (id = 'knobBig_morph') or (id = 'knobMedium_morph') or (id = 'knobSmall_morph') then begin
+    if (aId = 'knobBig_morph') or (aId = 'knobMedium_morph') or (aId = 'knobSmall_morph') then begin
       FKnobMorph := Result;
     end;
   end;
@@ -1024,12 +1113,10 @@ begin
 
   FKnobMorph.Data.Clear;
   FKnobMorph.Data.MoveTo( PointF(0, 0));
-  FKnobMorph.Data.LineTo( PointF(100*sin(aAngle*PI/180), -100*cos(aAngle*PI/180)));
-  FKnobMorph.Data.AddArc( PointF(0,0), PointF(100,100), aAngle-90, 45);
+  FKnobMorph.Data.LineTo( PointF(10*sin(aAngle*PI/180), -10*cos(aAngle*PI/180)));
+  FKnobMorph.Data.AddArc( PointF(0,0), PointF(10,10), aAngle-90, 45);
   FKnobMorph.Data.ClosePath;
   FKnobMorph.Data.ApplyPathData;
-
-  //Repaint;
 end;
 
 procedure TSVGKnob.SetValue(aValue: single);
@@ -1046,7 +1133,7 @@ end;
 //
 //==============================================================================
 
-constructor TSVGG2Connector.Create(AOwner: TComponent);
+constructor TSVGG2Connector.Create( AOwner: TComponent; aId : string; aSVGParent : TSVGGroup; aCTM : TMatrix);
 begin
   inherited;
 end;
@@ -1056,15 +1143,11 @@ begin
   inherited;
 end;
 
-function TSVGG2Connector.CreatePath(aNode: TDOMNode;
-  aParent: TSVGGroup): TSVGPath;
-var id : string;
+function TSVGG2Connector.CreatePath(aNode: TDOMNode; aId : string;
+  aSVGParent: TSVGGroup; aCTM : TMatrix): TSVGPath;
 begin
-  id := NodeID( aNode);
-
-  if pos('_border', id)>0 then begin
-    FBorder := TSVGHitPath.Create(self);
-    aParent.Add(FBorder);
+  if pos('_border', aId)>0 then begin
+    FBorder := TSVGHitPath.Create(self, aId, aSVGParent, aCTM);
     FBorder.Control := self;
     Result := FBorder;
   end else begin
@@ -1213,7 +1296,6 @@ begin
   end else begin
     if aValue then begin
       FBitmap := TBitmap.Create(trunc(FRect.Width*FZoom) + 1, trunc(FRect.Height*FZoom) + 1);
-      //FBitmap.Canvas.SetMatrix( CreateScaleMatrix(FZoom, FZoom));
     end;
   end;
 end;
@@ -1224,7 +1306,6 @@ begin
     FZoom := aValue;
     if assigned(FBitmap) then begin
       FBitmap.SetSize(trunc(FRect.Width*FZoom) + 1, trunc(FRect.Height*FZoom) + 1);
-      //FBitmap.Canvas.SetMatrix( CreateScaleMatrix(FZoom, FZoom));
     end;
   end;
 end;
@@ -1232,11 +1313,11 @@ end;
 
 //==============================================================================
 //
-//                                TBitmapBuffer
+//                                TCableBitmapBuffer
 //
 //==============================================================================
 
-constructor TBitmapBuffer.Create(AOwner: TComponent);
+constructor TCableBitmapBuffer.Create(AOwner: TComponent);
 begin
   inherited;
   FBitmapList := TObjectList.Create( True);
@@ -1257,13 +1338,13 @@ begin
   Hittest := False;
 end;
 
-destructor TBitmapBuffer.Destroy;
+destructor TCableBitmapBuffer.Destroy;
 begin
   FBitmapList.Free;
   inherited;
 end;
 
-procedure TBitmapBuffer.SetZoom(aValue: Single);
+procedure TCableBitmapBuffer.SetZoom(aValue: Single);
 var i : integer;
 begin
   if aValue <> FZoom then begin
@@ -1278,7 +1359,7 @@ begin
   end;
 end;
 
-procedure TBitmapBuffer.Clear;
+procedure TCableBitmapBuffer.Clear;
 var i, j : integer;
     BitmapRect : TBitmapRect;
 begin
@@ -1292,7 +1373,7 @@ begin
     end;
 end;
 
-procedure TBitmapBuffer.Paint;
+procedure TCableBitmapBuffer.Paint;
 var i, j, k : integer;
     BitmapRect : TBitmapRect;
 begin
@@ -1317,7 +1398,7 @@ begin
           BitmapRect := FBitmapList.Items[k] as TBitmapRect;
 
           if BitmapRect.Active then begin
-            Canvas.DrawRect(RectF(j*Fdx*FZoom,i*Fdy*FZoom,(j+1)*Fdx*FZoom,(i+1)*Fdy*FZoom), 0, 0, [], 1);
+            //Canvas.DrawRect(RectF(j*Fdx*FZoom,i*Fdy*FZoom,(j+1)*Fdx*FZoom,(i+1)*Fdy*FZoom), 0, 0, [], 1);
 
             Canvas.DrawBitmap( BitmapRect.Bitmap, RectF(0,0,Fdx*FZoom,Fdy*FZoom), RectF(j*Fdx*FZoom,i*Fdy*FZoom,(j+1)*Fdx*FZoom,(i+1)*Fdy*FZoom), AbsoluteOpacity );
           end;
@@ -1592,11 +1673,11 @@ begin
   end;
 end;
 
-procedure TSVGG2Cable.PaintBuffer(aBuffer: TBitmapBuffer);
+procedure TSVGG2Cable.PaintBuffer(aBuffer: TCableBitmapBuffer);
 var i, j : integer;
     P1, P2, P3, P4, V, N, G1, G2 : TPointF;
     L, d : single;
-    ElementBoundsRect : TRectF;
+    R, ElementBoundsRect : TRectF;
     BitmapRect : TBitmapRect;
     Path : TPathData;
     SaveMatrix : TMatrix;
@@ -1669,18 +1750,18 @@ begin
           try
             SaveMatrix := BitMapRect.FBitmap.Canvas.Matrix;
 
-            BitMapRect.FBitmap.Canvas.Stroke.Kind := TBrushKind.bkNone;
             BitMapRect.FBitmap.Canvas.SetMatrix( {CreateTranslateMatrix(  -BitMapRect.Rect.Left,
                                                                          -BitMapRect.Rect.Top)}
               CreateTransformationMatrix( aBuffer.Zoom, aBuffer.Zoom, -BitMapRect.Rect.Left, -BitMapRect.Rect.Top, 0, 0, 0)
-                                          {MatrixMultiply( CreateTranslateMatrix(  -BitMapRect.Rect.Left,
-                                                                         -BitMapRect.Rect.Top), SaveMatrix)}  );
+                      );
 
             BitMapRect.FBitmap.Canvas.Fill.Kind := TBrushKind.bkGradient;
             BitMapRect.FBitmap.Canvas.Fill.Gradient.Color := claBlack;
             BitMapRect.FBitmap.Canvas.Fill.Gradient.Color1 := ConvertToAlpha( CableColors[ FData.CableColor]);
             BitMapRect.FBitmap.Canvas.Fill.Gradient.StartPosition.Point := PointF( G1.X, G1.Y);
             BitMapRect.FBitmap.Canvas.Fill.Gradient.StopPosition.Point  := PointF( G2.X, G2.Y);
+            //BitMapRect.FBitmap.Canvas.Fill.Color := ConvertToAlpha( CableColors[ FData.CableColor]);
+            BitMapRect.FBitmap.Canvas.Stroke.Kind := TBrushKind.bkNone;
 
 
             BitMapRect.FBitmap.Canvas.FillPath( Path, 1);
@@ -1777,22 +1858,17 @@ begin
     Result := 0;
 end;
 
-procedure TG2GraphModuleFMX.ParsePanelData(aParent: TFMXObject;
-  aSkin: TXMLDocument; aModuleType : byte);
-var SVGAgent : TSVGAgent;
+procedure TG2GraphModuleFMX.ParsePanelData(aParent: TFMXObject; aModuleType : byte);
+var id : string;
 begin
-  if assigned(aSkin) and assigned(aParent) then begin
-    SVGAgent := TSVGAgent.Create;
-    try
-      FSVGControl := TSVGG2Module.Create( self);
-      FSVGControl.Data := self;
-      FSVGControl.FSVGSkin := aSkin;
-      aParent.AddObject( FSVGControl);
+  if assigned(SVGAgent) and assigned(aParent) then begin
+      id := 'module_' + IntToStr(aModuleType);
 
-      SVGAgent.ParseSVG( aSkin, 'module_' + IntToStr(aModuleType), FSVGControl);
-    finally
-      SVGAgent.Free;
-    end;
+    FSVGControl := TSVGG2Module.Create( self, id, nil, CreateUnityMatrix);
+    FSVGControl.Data := self;
+    aParent.AddObject( FSVGControl);
+
+    SVGAgent.ParseSVG( SVGAgent.FSVGDoc, id, FSVGControl);
   end;
 end;
 
@@ -1838,38 +1914,49 @@ end;
 //
 //==============================================================================
 
-constructor TSVGG2Module.Create(AOwner: TComponent);
+constructor TSVGG2Module.Create( AOwner: TComponent; aId : string; aSVGParent: TSVGGroup; aCTM : TMatrix);
 begin
   inherited;
-  Buffered := True;
+  FZoom := 1;
+  FRedrawBuffer := True;
+  FBitmap := TBitmap.Create( trunc(Width) + 1, trunc(Height) + 1);
 end;
 
-function TSVGG2Module.CreateGroup(aNode: TDOMNode; aParent : TSVGGroup; var aSubTreeOwner : TSVGGroup): TSVGGroup;
-var id, AttributeValue : string;
+destructor TSVGG2Module.Destroy;
+begin
+  FBitmap.Free;
+  inherited;
+end;
+
+function TSVGG2Module.CreateGroup( aNode: TDOMNode; aId : string; aSVGParent : TSVGGroup;
+  aCTM : TMatrix; var aSubTreeOwner : TSVGGroup): TSVGGroup;
+var AttributeValue : string;
     ConnLink : TSVGG2ConnLink;
     ParamLink : TSVGG2ParamLink;
 begin
-  id := NodeID( aNode);
+  if pos('_paramlink_', aId)>0 then begin
 
-  if pos('_paramlink_', id)>0 then begin
-
-    ParamLink := TSVGG2ParamLink.Create(self);
+    ParamLink := TSVGG2ParamLink.Create(self, aId, aSVGParent, aCTM);
     aSubTreeOwner := ParamLink;
-    aParent.Add(ParamLink);
 
     ParamLink.FModule := FData;
+
     AttributeValue := NodeAttribute( aNode, 'nmg2.CodeRef');
     if AttributeValue <> '' then
       ParamLink.FCodeRef := StrToInt(AttributeValue);
+
     AttributeValue := NodeAttribute( aNode, 'nmg2.InfoFunc');
     if AttributeValue <> '' then
       ParamLink.FInfoFunc := StrToInt(AttributeValue);
+
     AttributeValue := NodeAttribute( aNode, 'nmg2.TextFunc');
     if AttributeValue <> '' then
       ParamLink.FTextFunc := StrToInt(AttributeValue);
+
     AttributeValue := NodeAttribute( aNode, 'nmg2.MasterRef');
     if AttributeValue <> '' then
       ParamLink.FMasterRef := StrToInt(AttributeValue);
+
     AttributeValue := NodeAttribute( aNode, 'nmg2.Dependencies');
     ParamLink.FDependencies := AttributeValue;
 
@@ -1877,13 +1964,13 @@ begin
 
   end else
 
-  if pos('_connlink_', id)>0 then begin
+  if pos('_connlink_', aId)>0 then begin
 
-    ConnLink := TSVGG2ConnLink.Create(self);
+    ConnLink := TSVGG2ConnLink.Create(self, aId, aSVGParent, aCTM);
     aSubTreeOwner := ConnLink;
-    aParent.Add(ConnLink);
 
     ConnLink.FModule := FData;
+
     AttributeValue := NodeAttribute( aNode, 'nmg2.CodeRef');
     if AttributeValue <> '' then
       ConnLink.FCodeRef := StrToInt(AttributeValue);
@@ -1892,30 +1979,23 @@ begin
 
   end else
 
-  if (id = 'knobBig') or (id = 'knobMedium') or (id = 'knobSmall') then begin
-    Result := TSVGKnob.Create(self);
+  if (aId = 'knobBig') or (aId = 'knobMedium') or (aId = 'knobSmall') then begin
+    Result := TSVGKnob.Create(self, aId, aSVGParent, aCTM);
+    (Result as TSVGKnob).FModule := self;
     aSubTreeOwner := Result;
-    aParent.Add(Result);
+
   end else
 
     Result := inherited;
 end;
 
-function TSVGG2Module.CreatePath(aNode: TDOMNode; aParent : TSVGGroup): TSVGPath;
-var n : TDOMNode;
-    id : string;
+function TSVGG2Module.CreatePath( aNode: TDOMNode; aId : string; aSVGParent : TSVGGroup;
+  aCTM : TMatrix): TSVGPath;
 begin
-  id := NodeID( aNode);
-
   Result := inherited;
 
-  if pos('_panel_', id) > 0 then
+  if pos('_panel_', aId) > 0 then
     FPanel := Result as TSVGPath;
-end;
-
-destructor TSVGG2Module.Destroy;
-begin
-  inherited;
 end;
 
 function TSVGG2Module.GetNewCol: TBits7;
@@ -1928,12 +2008,36 @@ begin
   Result := trunc((Position.Y) / UNITS_ROW);
 end;
 
+procedure TSVGG2Module.Paint;
+var SaveMatrix : TMatrix;
+begin
+  if FRedrawBuffer then begin
+    FBitmap.Canvas.BeginScene;
+    try
+      SaveMatrix := FBitmap.Canvas.Matrix;
+      FBitmap.Canvas.SetMatrix( CreateScaleMatrix(FZoom, FZoom));
+      SVGPaint( FBitmap.Canvas);
+    finally
+      FBitmap.Canvas.SetMatrix(SaveMatrix);
+      FRedrawBuffer := False;
+      FBitmap.Canvas.EndScene;
+    end;
+  end;
+  Canvas.DrawBitmap( FBitmap, RectF(0, 0, Width, Height), RectF(0, 0, Width, Height), AbsoluteOpacity);
+end;
+
+procedure TSVGG2Module.Redraw;
+begin
+  FRedrawBuffer := True;
+  Repaint;
+end;
+
 function TSVGG2Module.SelectControl( P : TPointF): TSVGG2Control;
 var SVGObject : TSVGObject;
     SVGHitPath : TSVGHitPath;
 begin
   Result := nil;
-  SVGObject := ObjectAtPt( P);
+  SVGObject := ObjectAtPt( PointF(P.X / FZoom, P.Y / FZoom) );
   if SVGObject is  TSVGHitPath then begin
     SVGHitPath := SVGObject as TSVGHitPath;
     Result := SVGHitPath.Control;
@@ -1941,15 +2045,9 @@ begin
 end;
 
 procedure TSVGG2Module.SetModuleColor(aValue: TBits8);
-var SVGAgent : TSVGAgent;
 begin
-  if assigned(FSVGSkin) then begin
-    SVGAgent := TSVGAgent.Create;
-    try
-      SVGAgent.ParseSVGPaintServer( FSVGSkin, 'PanelGradient_' + IntToStr(aValue), FPanel.Fill, RectF(0,0,1,1), RectF(0,0,1,1));
-    finally
-      SVGAgent.Free;
-    end;
+  if assigned(SVGAgent) then begin
+    SVGAgent.ParseSVGPaintServer( SVGAgent.FSVGDoc, 'PanelGradient_' + IntToStr(aValue), FPanel.Fill, RectF(0,0,1,1), RectF(0,0,1,1));
   end;
 end;
 
@@ -1961,5 +2059,54 @@ begin
     FPanel.Stroke.Color := claBlack;
   Repaint;
 end;
+
+procedure TSVGG2Module.SetZoom(aValue: single);
+begin
+  if aValue <> FZoom then begin
+    FZoom := aValue;
+    Position.X := FData.Col * UNITS_COL * FZoom;
+    Position.Y := FData.Row * UNITS_ROW * FZoom;
+    Width := UNITS_COL * FZoom;
+    Height := FData.HeightUnits * UNITS_ROW * FZoom;
+    FBitmap.SetSize( trunc(Width) + 1, trunc(Height) + 1);
+    FRedrawBuffer := True;
+  end;
+end;
+
+//==============================================================================
+//
+//                            TModuleBitmapBuffer
+//
+//==============================================================================
+
+constructor TModuleBitmapBuffer.Create(AOwner: TComponent);
+begin
+  inherited;
+
+  FZoom := 1;
+
+  Hittest := False;
+end;
+
+destructor TModuleBitmapBuffer.Destroy;
+begin
+  inherited;
+end;
+
+procedure TModuleBitmapBuffer.SetZoom(aValue: single);
+var i : integer;
+    SVGModule : TSVGG2Module;
+begin
+  if aValue <> FZoom then begin
+    FZoom := aValue;
+
+    for i := 0 to FModuleList.Count - 1 do begin
+      SVGModule := (FModuleList[i] as TG2GraphModuleFMX).FSVGControl;
+      SVGModule.Zoom := FZoom;
+    end;
+  end;
+end;
+
+
 
 end.
