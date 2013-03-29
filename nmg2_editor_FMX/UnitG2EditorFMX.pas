@@ -6,7 +6,7 @@ uses
   System.SysUtils, System.Types, System.UITypes, System.Classes, System.Variants,
   FMX.Types, FMX.Controls, FMX.Forms, FMX.Dialogs, FMX.Objects, FMX.Layouts,
   FMX.Memo, FMX.Ani, System.Contnrs, FMX.Edit, FMX.Effects, SVGControl,
-  g2_types,g2_file, g2_usb, g2_graph_FMX, FMX.Menus, DOM, XMLRead;
+  g2_types, g2_file, g2_usb, g2_graph_FMX, FMX.Menus, DOM, XMLRead;
 
 type
   TSVGSelection = class(TLayout)

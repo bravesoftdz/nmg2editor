@@ -11,9 +11,43 @@ type
 
   TCreateModuleFMXEvent = procedure(Sender : TObject; Module : TG2GraphModuleFMX) of Object;
 
-  TG2SVGAgent = class( TSVGAgent)
+  TG2SVGNode = class( TSVGNode)
+  private
+    FNode : TDomNode;
+  public
+    constructor Create;
+    destructor Destroy; override;
+
+    function CopyCursor: TSVGNode; override;
+    function ElementName: string; override;
+    function HasAttributes : boolean; override;
+    function GetAttribute( aAttributeName : string; var aValue: string): boolean; override;
+    function FindParent: boolean; override;
+    function FindFirstChild: boolean; override;
+    function FindNextChild: boolean; override;
+  end;
+
+  TG2SVGDoc = class( TSVGDoc)
   private
     FSVGDoc : TXMLDocument;
+    FRootNode : TDomNode;
+    FDefNodeList : TStringList;
+
+    procedure CreateIndex( aNode : TDOMNode);
+  public
+    constructor Create;
+    destructor Destroy; override;
+
+    function CreateCursor( aSVGID : string) : TSVGNode; override;
+    function FindRoot: TSVGNode; override;
+
+    procedure   LoadFromFile( aFileName : string; out aDoc : TXMLDocument);
+    procedure   DOMFromStream(AStream: TStream; out aDoc : TXMLDocument);
+    procedure   ErrorHandler( E: EXMLReadError);
+  end;
+
+  TG2SVGAgent = class( TSVGAgent)
+  protected
   public
     constructor Create; override;
     destructor  Destroy; override;
@@ -449,6 +483,200 @@ end;
 
 //==============================================================================
 //
+//                             TG2SVGNode
+//
+//==============================================================================
+
+constructor TG2SVGNode.Create;
+begin
+  FNode := nil;
+end;
+
+destructor TG2SVGNode.Destroy;
+begin
+  inherited;
+end;
+
+function TG2SVGNode.FindFirstChild: boolean;
+begin
+  Result := False;
+  if assigned(FNode) and  FNode.HasChildNodes then begin
+    FNode := FNode.FirstChild;
+    Result := True;
+  end;
+end;
+
+function TG2SVGNode.FindNextChild: boolean;
+var n : TDomNode;
+begin
+  Result := False;
+  if assigned(FNode) then begin
+    n := FNode.NextSibling;
+    if assigned(n) then begin
+      FNode := n;
+      Result := True;
+    end;
+  end;
+end;
+
+function TG2SVGNode.FindParent: boolean;
+var n : TDomNode;
+begin
+  Result := False;
+  if assigned(FNode) then begin
+    n := FNode.ParentNode;
+    if assigned(n) then begin
+      FNode := n;
+      Result := True;
+    end;
+  end;
+end;
+
+function TG2SVGNode.HasAttributes: boolean;
+begin
+  Result := False;
+  if assigned(FNode) then begin
+    Result := (FNode.HasAttributes);
+  end;
+end;
+
+function TG2SVGNode.GetAttribute( aAttributeName : string; var aValue: string): boolean;
+var n : TDomNode;
+begin
+  Result := False;
+  if assigned(FNode) and (FNode.HasAttributes) then begin
+    n := FNode.Attributes.GetNamedItem(aAttributeName);
+    if assigned(n) then begin
+      aValue := n.TextContent;
+      Result := True;
+    end;
+  end;
+end;
+
+//==============================================================================
+//
+//                             TG2SVGDoc
+//
+//==============================================================================
+
+constructor TG2SVGDoc.Create;
+begin
+  FSVGDoc := TXMLDocument.Create;
+  FDefNodeList := TStringList.Create;
+  FRootNode := nil;
+end;
+
+destructor TG2SVGDoc.Destroy;
+begin
+  FDefNodeList.Free;
+  FSVGDoc.Free;
+  inherited;
+end;
+
+function TG2SVGDoc.CreateCursor( aSVGID : string): TSVGNode;
+begin
+  Result := TG2SVGNode.Create;
+end;
+
+procedure TG2SVGDoc.CreateIndex( aNode : TDOMNode);
+var c : TDOMNodeList;
+    n : TDOMNode;
+    i, j : integer;
+begin
+  c := aNode.GetChildNodes;
+  for i := 0 to c.Count - 1 do begin
+
+    if c[i].Attributes <> nil then begin
+      n := c[i].Attributes.GetNamedItem('id');
+      if n <> nil then begin
+        j := FDefNodeList.Add(n.TextContent);
+        FDefNodeList.Objects[j] := c[i];
+      end;
+
+      n := c[i].Attributes.GetNamedItem('xml:id');
+      if n <> nil then begin
+        j := FDefNodeList.Add(n.TextContent);
+        FDefNodeList.Objects[j] := c[i];
+      end;
+    end;
+
+    CreateIndex( c[i]);
+  end;
+end;
+
+function TG2SVGDoc.XMLFindRoot: TSVGNode;
+begin
+  // SGV can occur 2x, as DOCUMENT_TYPE_NODE or ELEMENT_NODE
+  FRootNode := FSVGDoc.FindNode('svg');
+
+  if not assigned(FRootNode) then
+    raise Exception.Create('Root node "svg" not found.');
+
+  if (FRootNode.NextSibling <> nil) and (FRootNode.NextSibling.NodeName = 'svg') then
+    FRootNode := FRootNode.NextSibling;
+
+  if not assigned(FRootNode) then
+    raise Exception.Create('Root node "svg" not found.');
+end;
+
+procedure TG2SVGDoc.DOMFromStream( AStream: TStream; out aDoc : TXMLDocument);
+var
+  Parser: TDOMParser;
+  Src: TXMLInputSource;
+begin
+  // create a parser object
+  Parser := TDOMParser.Create;
+  // and the input source
+  Src := TXMLInputSource.Create(AStream);
+  try
+    // we want validation
+    Parser.Options.Validate := False;
+    Parser.Options.PreserveWhitespace := True;
+    Parser.Options.IgnoreComments := True;
+    // assign a error handler which will receive notifications
+    Parser.OnError := ErrorHandler;
+    // now do the job
+    Parser.Parse(Src, aDoc);
+    // ...and cleanup
+
+    // SGV can occur 2x, as DOCUMENT_TYPE_NODE or ELEMENT_NODE
+    FRootNode := aDoc.FindNode('svg');
+
+    if not assigned(FRootNode) then
+      raise Exception.Create('Root node "svg" not found.');
+
+    if (FRootNode.NextSibling <> nil) and (FRootNode.NextSibling.NodeName = 'svg') then
+      FRootNode := FRootNode.NextSibling;
+
+    if not assigned(FRootNode) then
+      raise Exception.Create('Root node "svg" not found.');
+
+    CreateIndex( FRootNode);
+  finally
+    Src.Free;
+    Parser.Free;
+  end;
+end;
+
+procedure TG2SVGDoc.ErrorHandler(E: EXMLReadError);
+begin
+  if E.Severity = esError then;  // we are interested in validation errors only
+    raise Exception.create(E.Message);
+end;
+
+procedure TG2SVGDoc.LoadFromFile( aFileName: string; out aDoc : TXMLDocument);
+var FileStream : TFileStream;
+begin
+  FileStream := TFileStream.Create( aFileName, fmOpenRead+fmShareDenyWrite);
+  try
+    DomFromStream( FileStream, aDoc);
+  finally
+    FileStream.Free;
+  end;
+end;
+
+//==============================================================================
+//
 //                             TG2SVGAgent
 //
 //==============================================================================
@@ -456,12 +684,10 @@ end;
 constructor TG2SVGAgent.Create;
 begin
   inherited;
-  FSVGDoc := TXMLDocument.Create;
 end;
 
 destructor TG2SVGAgent.Destroy;
 begin
-  FSVGDoc.Free;
   inherited;
 end;
 
@@ -469,6 +695,8 @@ procedure TG2SVGAgent.LoadSkin(aFilename: string);
 begin
   LoadFromFile( aFilename, FSVGDoc);
 end;
+
+
 
 //==============================================================================
 //
@@ -510,7 +738,6 @@ end;
 
 destructor TG2GraphPerformanceFMX.Destroy;
 begin
-
   inherited;
 end;
 

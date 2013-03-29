@@ -59,7 +59,7 @@
   <MainForm PosX="0" PosY="45" SizeX="1403" SizeY="899" Visible="True"/>
   <DirectorySettings G2oolsFolder="C:\Users\Bruno\Downloads\g2ools_15_190\g2ools-1.5\" ModuleHelpFile="C:\Program Files (x86)\Clavia\Nord Modular G2 v1.62\Nord Modular G2 Editor v1.62.chm"/>
   <PatchBrowserSettings BaseFolder="C:\Users\Bruno\Documents\Nord Modular Patches\G2 Patches\" SelectedTab="1" ExternalSortCol="2" InternalSortCol="0"/>
-  <PatchBrowserForm PosX="150" PosY="150" SizeX="546" SizeY="438" Visible="False"/>
+  <PatchBrowserForm PosX="75" PosY="75" SizeX="546" SizeY="438" Visible="False"/>
   <PatchManagerForm PosX="653" PosY="219" SizeX="727" SizeY="656" Visible="False"/>
   <SettingsForm PosX="752" PosY="258" SizeX="528" SizeY="466" Visible="False"/>
   <ParameterPagesForm PosX="0" PosY="762" SizeX="575" SizeY="180" Visible="False"/>
