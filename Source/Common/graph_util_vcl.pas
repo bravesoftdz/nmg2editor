@@ -473,6 +473,11 @@ function CompareBitmap( Bitmap1, Bitmap2 : TBitmap): boolean;
 var i, j : integer;
     LScan1, LScan2 : PRGBTripleArray;
 begin
+  if (not assigned(Bitmap1)) or (not assigned(Bitmap2)) then begin
+    Result := False;
+    exit;
+  end;
+
   // Only 24bit valid!
   if Bitmap1.Pixelformat <> pf24bit then
     raise Exception.Create('Only 24bit bmp valid.');

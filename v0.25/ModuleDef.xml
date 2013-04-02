@@ -10871,7 +10871,7 @@
     <PageIndex>11</PageIndex>
     <ShortName>OscPerc</ShortName>
     <LongName>Osc Percussion</LongName>
-    <Height>2</Height>
+    <Height>3</Height>
     <Inputs>
       <Connector>
         <Name>Pitch</Name>

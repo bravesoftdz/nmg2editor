@@ -3,10 +3,11 @@ unit UnitG2EditorFMX;
 interface
 
 uses
-  System.SysUtils, System.Types, System.UITypes, System.Classes, System.Variants,
+  System.SysUtils, System.Types, System.UITypes, System.Classes,
+  System.Variants, System.Contnrs,
   FMX.Types, FMX.Controls, FMX.Forms, FMX.Dialogs, FMX.Objects, FMX.Layouts,
-  FMX.Memo, FMX.Ani, System.Contnrs, FMX.Edit, FMX.Effects, SVGControl,
-  g2_types, g2_file, g2_usb, g2_graph_FMX, FMX.Menus, DOM, XMLRead;
+  FMX.Memo, FMX.Ani, FMX.Edit, FMX.Effects, SVGControl,
+  g2_types, g2_file, g2_usb, g2_graph_FMX, FMX.Menus;
 
 type
   TSVGSelection = class(TLayout)
@@ -49,6 +50,7 @@ type
     miDelete: TMenuItem;
     Edit3: TEdit;
     Edit4: TEdit;
+    TimerZoom: TTimer;
     procedure FormCreate(Sender: TObject);
     procedure tbZoomChange(Sender: TObject);
     procedure sbClick(Sender: TObject);
@@ -60,6 +62,7 @@ type
     procedure miPasteClick(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure miLoadClick(Sender: TObject);
+    procedure TimerZoomTimer(Sender: TObject);
   private
     { Private declarations }
 
@@ -191,6 +194,8 @@ var PatchName : string;
     aFileName : string;
 begin
   FSVGSelection.UnselectAll;
+  FSVGModule :=  nil;
+  FSVGControl := nil;
 
   if OpenDialog1.Execute then begin
     aFileName := OpenDialog1.FileName;
@@ -229,13 +234,13 @@ procedure TfrmSVGTest.CalcLayoutDimensions;
 var R : TRectF;
 begin
   if assigned(FModuleBitmapBuffer) then begin
-    R := RealignChildren( FModuleBitmapBuffer, 0, 0);
+    {R := RealignChildren( FModuleBitmapBuffer, 0, 0);
     FModuleBitmapBuffer.Width := R.Right * tbZoom.Value;
     FModuleBitmapBuffer.Height := R.Bottom * tbZoom.Value;
     lSize.Width := FModuleBitmapBuffer.Width;
     lSize.Height := FModuleBitmapBuffer.Height;
     FModuleBitmapBuffer.Width := lSize.Width;
-    FModuleBitmapBuffer.Height := lSize.Height;
+    FModuleBitmapBuffer.Height := lSize.Height;}
   end;
 end;
 
@@ -253,15 +258,39 @@ begin
     my := (sb.Height/2) / FZoom;
 
   FZoom := tbZoom.Value;
-  //lZoom.Scale.X := FZoom;
-  //lZoom.Scale.Y := FZoom;
-  FModuleBitmapBuffer.Zoom := FZoom;
-  FCableBitmapBuffer.Zoom := FZoom;
+  //FModuleBitmapBuffer.Zoom := FZoom;
+  //FCableBitmapBuffer.Zoom := FZoom;
+  FModuleBitmapBuffer.Scale.X := 1 + (FZoom - FModuleBitmapBuffer.Zoom);
+  FModuleBitmapBuffer.Scale.Y := 1 + (FZoom - FModuleBitmapBuffer.Zoom);
+  FCableBitmapBuffer.Scale.X := 1 + (FZoom - FCableBitmapBuffer.Zoom);
+  FCableBitmapBuffer.Scale.Y := 1 + (FZoom - FCableBitmapBuffer.Zoom);
+
   lSize.Width := FModuleBitmapBuffer.Width * FZoom;
   lSize.Height := FModuleBitmapBuffer.Height * FZoom;
 
   sb.HScrollBar.Value := mx * FZoom - (sb.Width/2);
   sb.VScrollBar.Value := my * FZoom - (sb.Height/2);
+
+  TimerZoom.Enabled := False;
+  TimerZoom.Enabled := True;
+end;
+
+procedure TfrmSVGTest.TimerZoomTimer(Sender: TObject);
+begin
+  TimerZoom.Enabled := False;
+
+  FModuleBitmapBuffer.Scale.X := 1;
+  FModuleBitmapBuffer.Scale.Y := 1;
+  FModuleBitmapBuffer.Zoom := FZoom;
+
+  FModuleBitmapBuffer.Width := (FModuleBitmapBuffer.MaxCol + 3) * UNITS_COL * FZoom;
+  FModuleBitmapBuffer.Height := (FModuleBitmapBuffer.MaxRow + 6) * UNITS_ROW * FZoom;
+  lSize.Width := FModuleBitmapBuffer.Width;
+  lSize.Height := FModuleBitmapBuffer.Height;
+
+  FCableBitmapBuffer.Scale.X := 1;
+  FCableBitmapBuffer.Scale.Y := 1;
+  FCableBitmapBuffer.Zoom := FZoom;
 end;
 
 procedure TfrmSVGTest.CreateModuleFMX(Sender: TObject;

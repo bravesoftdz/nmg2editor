@@ -78,7 +78,7 @@
 			<BCC_SourceDebuggingOn>true</BCC_SourceDebuggingOn>
 			<ILINK_FullDebugInfo>true</ILINK_FullDebugInfo>
 			<DCC_ExeOutput>..\..\v0.25</DCC_ExeOutput>
-			<DCC_UnitSearchPath>CCR;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+			<DCC_UnitSearchPath>C:\Users\Bruno\Delphi\SVG\NativeXML;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
 			<VerInfo_Locale>1033</VerInfo_Locale>
 			<VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
 			<DCC_RemoteDebug>false</DCC_RemoteDebug>
@@ -110,6 +110,8 @@
 			<DCCReference Include="..\..\Source\Common\G2_USB.pas"/>
 			<DCCReference Include="..\..\Source\Common\LibUSBWinDyn.pas"/>
 			<DCCReference Include="..\g2_graph_FMX.pas"/>
+			<DCCReference Include="..\..\..\SVG\SVGXMLWrapperFPC.pas"/>
+			<DCCReference Include="..\..\..\SVG\SVGXMLWrapperNativeXML.pas"/>
 			<None Include="Profiling\AQtimeModule1.aqt"/>
 			<BuildConfiguration Include="Release">
 				<Key>Cfg_2</Key>

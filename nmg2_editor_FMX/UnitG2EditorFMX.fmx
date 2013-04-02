@@ -168,4 +168,11 @@ object frmSVGTest: TfrmSVGTest
       end
     end
   end
+  object TimerZoom: TTimer
+    Enabled = False
+    Interval = 100
+    OnTimer = TimerZoomTimer
+    Left = 576
+    Top = 48
+  end
 end

@@ -271,6 +271,8 @@ const
   cBtnSideMedium = '#ac9393';
   cBtnSideLight = '#e3dbdb';
 
+  cBtnFlatFace = '#ececec';
+
   cKnobFace = '#ececec';
   cKnobBorder = '#000000';
 
@@ -280,12 +282,15 @@ const
   cSldrKnobSideLight = '#e6e6e6';
 
   cPartSelWindow = '#e9c6af';
+  cPartselSelected = '#dfdbaa';
   cPartSelBtn = '#deaa87';
 
   idSymbol = 'symbol';
   idLabel = 'label';
-  idLedGreen = 'ledGreen';
-  idLedSequencer = 'ledSeq';
+  idLedOffGreen = 'ledGreenOff';
+  idLedOffSequencer = 'ledSeqOff';
+  idLedOnGreen = 'ledGreenOn';
+  idLedOnSequencer = 'ledSeqOn';
   idMiniVU = 'miniVU';
   idTxtField = 'txtField';
   idBtnTextUp = 'btnTextUp';
@@ -302,21 +307,25 @@ const
   idKnobResetMedium = 'knobResetmedium';
   idKnobReset = 'knobReset';
   idKnobSmall = 'knobSmall';
+  idKnobBtns = 'knobBtns';
   idConnectorIn = 'connIn';
   idConnectorOut = 'connOut';
   idPartSel = 'partSel';
   idGraph = 'graph';
   idModule = 'module';
+  idPanelBackground = 'patchbackground';
 
 var Control : TG2GraphChildControl;
     BitMapList : TObjectList;
-    Bitmap : TBitmap;
+    Bitmap, TextBitmap : TBitmap;
     i, j, k : integer;
     symbol_section, knob_section, buttontext_up_section, buttontext_down_section,
-    buttonflat_section, textfield_section, led_section, btnIncDec_section, partsel_section,
-    connector_section, graph_section, minivu_section, btnRadioUp_section, btnRadioDown_section,
-    levelshift_section, module_section,
-    mr, mc, btc, bfc, kc, tfc, sc, lc, lsc, bidc, psc, cc, gc, minivu_c, rbc: integer;
+    buttonflat_section, textfield_section, led_off_section, led_on_section, btnIncDec_section,
+    partsel_section, connector_section, graph_section, minivu_section, btnRadioUp_section,
+    btnRadioDown_section, levelshift_section, module_section, uipanel_section,
+    btnflatoptions_section, partseloptions_section,
+    mr, mc, btc, bfc, kc, tfc, sc, loffc, lonc, lsc, bidc, psc, cc, gc, minivu_c,
+    rbc, uir, bfoc, psoc: integer;
     new_filename : string;
     Doc : TXMLDocument;
     RootNode, DefsNode, GMainNode,
@@ -326,7 +335,8 @@ var Control : TG2GraphChildControl;
     GButtonTextDownSectionNode, GButtonTextDownDefNode, ButtonTextDownNode,
     GButtonFlatSectionNode, GButtonFlatDefNode, ButtonFlatNode,
     GKnobSectionNode, GKnobDefNode, KnobNode,
-    GLedSectionNode, GLedDefNode, LedNode,
+    GLedOffSectionNode, GLedOffDefNode, LedOffNode,
+    GLedOnSectionNode, GLedOnDefNode, LedOnNode,
     GMiniVUSectionNode, GMiniVUDefNode, MiniVUNode,
     GGraphSectionNode, GGraphDefNode, GraphNode,
     GBtnIncDecSectionNode, GBtnIncDecDefNode, BtnIncDecNode,
@@ -335,9 +345,60 @@ var Control : TG2GraphChildControl;
     GBtnRadioDownSectionNode, GBtnRadioDownDefNode, BtnRadioDownNode,
     GPartSelSectionNode, GPartSelDefNode, PartSelNode,
     GConnectorSectionNode, GConnectorDefNode, ConnectorNode,
+    GButtonFlatOptionsSectionNode, GButtonFlatOptionsDefNode, ButtonFlatOptionsNode,
+    GPartSelOptionsSectionNode, GPartSelOptionsDefNode, PartSelOptionsNode,
     GModuleSectionNode, GModuleDefNode, ModuleNode,
-    GModuleColorSectionNode, GModuleColorDefNode, ModuleColorNode : TDomNode;
+    GModuleColorSectionNode, GModuleColorDefNode, ModuleColorNode,
+    GUIPanelSectionNode, GUIPanelDefNode, UIPanelNode : TDomNode;
+    id_smallarrow_up, id_smallarrow_down, id_smallarrow_left, id_smallarrow_right : integer;
 
+    function Darker(c : integer; f : byte): integer;
+    var R, G, B : byte;
+
+      function sub( comp : byte): byte;
+      begin
+        if comp - f > 0 then
+          result := comp - f
+        else
+          result := 0;
+      end;
+
+    begin
+      //if c < 0 then
+      //  c := ColorToRGB(c);
+
+      R := (c and $000000FF);
+      G := (c and $0000FF00) shr 8;
+      B := (c and $00FF0000) shr 16;
+
+      result := sub(B) * 65536
+              + sub(G) * 256
+              + sub(R);
+    end;
+
+    function Lighter(c : integer; f : byte): integer;
+    var R, G, B : byte;
+
+      function add( comp : byte): byte;
+      begin
+        if comp + f < 255 then
+          result := comp + f
+        else
+          result := 255;
+      end;
+
+    begin
+      //if c < 0 then
+      //  c := ColorToRGB(c);
+
+      R := (c and $000000FF);
+      G := (c and $0000FF00) shr 8;
+      B := (c and $00FF0000) shr 16;
+
+      result := add(B) * 65536
+              + add(G) * 256
+              + add(R);
+    end;
 
     function FindBitmap( aBitmap : TBitmap): integer;
     begin
@@ -506,15 +567,17 @@ var Control : TG2GraphChildControl;
 
     procedure CreateModulePanelGradients;
     var j : integer;
-        svg_color : string;
+        color : integer;
+        svg_color1, svg_color2 : string;
     begin
       for j := 0 to 24 do begin
-        svg_color := '#' +  IntToHex( (ModuleColors[j] and $00FF0000) shr 32
-                                    + (ModuleColors[j] and $0000FF00)
-                                    + (ModuleColors[j] and $000000FF) shl 32, 6);
-        CreateModulePanelGradient( DefsNode, 'PanelGradient_' + IntToStr(j), '#F0F0F0', svg_color);
+        color := (ModuleColors[j] and $00FF0000) shr 32
+               + (ModuleColors[j] and $0000FF00)
+               + (ModuleColors[j] and $000000FF) shl 32;
+        svg_color1 := '#' +  IntToHex( Lighter(Color,40), 6);
+        svg_color2 := '#' +  IntToHex( Color, 6);
+        CreateModulePanelGradient( DefsNode, 'PanelGradient_' + IntToStr(j), svg_color1{'#F0F0F0'} , svg_color2);
       end;
-
     end;
 
     procedure CreateLabel( aNode : TDomNode; x, y : integer; aText : string; aFontSize : integer);
@@ -527,7 +590,6 @@ var Control : TG2GraphChildControl;
       p := pos('&', aText);
       if p>0 then
         aText[p]:= '+';
-
 
       S := TStringStream.Create(
          '<g id="' + id + '">'
@@ -611,12 +673,109 @@ var Control : TG2GraphChildControl;
       end;
     end;
 
+    function AddSymbol( aId : integer): integer;
+    var id : string;
+    begin
+
+      GSymbolDefNode := CreateSectionPlaceholder( GSymbolSectionNode, id, sc, 0);
+      CreateSymbol( GSymbolDefNode, IntToStr(Result), (BitmapList[Result] as TBitmap).Width, (BitmapList[Result] as TBitmap).Height);
+      sc := sc + (BitmapList[Result] as TBitmap).Width + 20;
+    end;
+
+    procedure CreateSymbolSmallArrowUp;
+    var S : TStringStream;
+        def_id : string;
+    begin
+      BitMapList.Add(nil);
+      id_smallarrow_up := BitmapList.Count -1;
+
+      def_id := idSymbol + '_' + IntToStr(id_smallarrow_up) + '_def';
+
+      GSymbolDefNode := CreateSectionPlaceholder( GSymbolSectionNode, def_id, sc, 0);
+      sc := sc + 20;
+
+      S := TStringStream.Create(
+        '  <path id="' + idSymbol + '_' + IntToStr(id_smallarrow_up) + '" fill="black" stroke="none"'
+        + ' d="M0,3 h6 l-3,-3 z" />');
+      try
+        ReadXMLFragment( GSymbolDefNode, S);
+      finally
+        S.Free;
+      end;
+    end;
+
+    procedure CreateSymbolSmallArrowDown;
+    var S : TStringStream;
+        def_id : string;
+    begin
+      BitMapList.Add(nil);
+      id_smallarrow_down := BitmapList.Count -1;
+
+      def_id := idSymbol + '_' + IntToStr(id_smallarrow_down) + '_def';
+
+      GSymbolDefNode := CreateSectionPlaceholder( GSymbolSectionNode, def_id, sc, 0);
+      sc := sc + 20;
+
+      S := TStringStream.Create(
+        '  <path id="' + idSymbol + '_' + IntToStr(id_smallarrow_down) + '" fill="black" stroke="none"'
+        + ' d="M0,0 h6 l-3,3 z" />');
+      try
+        ReadXMLFragment( GSymbolDefNode, S);
+      finally
+        S.Free;
+      end;
+    end;
+
+    procedure CreateSymbolSmallArrowLeft;
+    var S : TStringStream;
+        def_id : string;
+    begin
+      BitMapList.Add(nil);
+      id_smallarrow_left := BitmapList.Count -1;
+
+      def_id := idSymbol + '_' + IntToStr(id_smallarrow_left) + '_def';
+
+      GSymbolDefNode := CreateSectionPlaceholder( GSymbolSectionNode, def_id, sc, 0);
+      sc := sc + 20;
+
+      S := TStringStream.Create(
+        '  <path id="' + idSymbol + '_' + IntToStr(id_smallarrow_left) + '" fill="black" stroke="none"'
+        + ' d="M3,0 v6 l-3,-3 z" />');
+      try
+        ReadXMLFragment( GSymbolDefNode, S);
+      finally
+        S.Free;
+      end;
+    end;
+
+    procedure CreateSymbolSmallArrowRight;
+    var S : TStringStream;
+        def_id : string;
+    begin
+      BitMapList.Add(nil);
+      id_smallarrow_right := BitmapList.Count -1;
+
+      def_id := idSymbol + '_' + IntToStr(id_smallarrow_right) + '_def';
+
+      GSymbolDefNode := CreateSectionPlaceholder( GSymbolSectionNode, def_id, sc, 0);
+      sc := sc + 20;
+
+      S := TStringStream.Create(
+        '  <path id="' + idSymbol + '_' + IntToStr(id_smallarrow_right) + '" fill="black" stroke="none"'
+        + ' d="M0,0 v6 l3,-3 z" />');
+      try
+        ReadXMLFragment( GSymbolDefNode, S);
+      finally
+        S.Free;
+      end;
+    end;
+
     procedure CreateLedSeq( aNode : TDomNode);
     var S : TStringStream;
         bw : integer;
         id : string;
     begin
-      id := idLedSequencer;
+      id := idLedOffSequencer;
 
       bw := 1;
       S := TStringStream.Create(
@@ -639,7 +798,7 @@ var Control : TG2GraphChildControl;
         bw : integer;
         id : string;
     begin
-      id := idLedGreen;
+      id := idLedOffGreen;
 
       bw := 1;
       S := TStringStream.Create(
@@ -868,12 +1027,22 @@ var Control : TG2GraphChildControl;
 
       S := TStringStream.Create(
          '<g id="' + idBtnIncDecHorz + '">'
-       + ' <desc>Button inc-dec horizontal for G2 editor</desc>'
-       + ' <g id="' + idBtnIncDecHorz + '_parts">'
+        + ' <desc>Button inc-dec horizontal for G2 editor</desc>'
+          + ' <g id="' + idBtnIncDecHorz + '_parts">'
 
-       + Use( idBtnIncDecHorz + '_dec', GetIDBtnText( idBtnTextUp, w, h, d), 0, 0)
-       + Use( idBtnIncDecHorz + '_inc', GetIDBtnText( idBtnTextUp, w, h, d), w, 0)
+               + Use( idBtnIncDecHorz + '_dec', GetIDBtnText( idBtnTextUp, w, h, d), 0, 0)
 
+               + ' <use id="' + idBtnIncDecHorz + '_' + IntToStr(id_smallarrow_left) + '_symbol' + '"'
+                  + ' xlink:href="#' + idSymbol + '_' + IntToStr(id_smallarrow_left) + '"'
+                  + ' transform="translate(' + FloatToStr(w/2 - 3/2) + ',' + FloatToStr(h/2 - 6/2) + ')"'
+                  + ' x="0" y="0" />'
+
+              + Use( idBtnIncDecHorz + '_inc', GetIDBtnText( idBtnTextUp, w, h, d), w, 0)
+
+               + ' <use id="' + idBtnIncDecHorz + '_' + IntToStr(id_smallarrow_right) + '_symbol' + '"'
+                  + ' xlink:href="#' + idSymbol + '_' + IntToStr(id_smallarrow_right) + '"'
+                  + ' transform="translate(' + FloatToStr(w + w/2 - 3/2) + ',' + FloatToStr(h/2 - 6/2) + ')"'
+                  + ' x="0" y="0" />'
        + ' </g>'
        + '</g>');
       try
@@ -895,10 +1064,21 @@ var Control : TG2GraphChildControl;
       S := TStringStream.Create(
          '<g id="' + idBtnIncDecVert + '">'
        + ' <desc>Button inc-dec vertical for G2 editor</desc>'
-       + ' <g id="g2_btnIncDecVert_parts">'
+         + ' <g id="g2_btnIncDecVert_parts">'
 
-       + Use( idBtnIncDecVert + '_dec', GetIDBtnText( idBtnTextUp, w, h, d), 0, 0)
-       + Use( idBtnIncDecVert + '_inc', GetIDBtnText( idBtnTextUp, w, h, d), 0, h)
+               + Use( idBtnIncDecVert + '_dec', GetIDBtnText( idBtnTextUp, w, h, d), 0, 0)
+
+               + ' <use id="' + idBtnIncDecHorz + '_' + IntToStr(id_smallarrow_up) + '_symbol' + '"'
+                  + ' xlink:href="#' + idSymbol + '_' + IntToStr(id_smallarrow_up) + '"'
+                  + ' transform="translate(' + FloatToStr(w/2 - 6/2) + ',' + FloatToStr(h/2 - 3/2) + ')"'
+                  + ' x="0" y="0" />'
+
+               + Use( idBtnIncDecVert + '_inc', GetIDBtnText( idBtnTextUp, w, h, d), 0, h)
+
+               + ' <use id="' + idBtnIncDecHorz + '_' + IntToStr(id_smallarrow_down) + '_symbol' + '"'
+                  + ' xlink:href="#' + idSymbol + '_' + IntToStr(id_smallarrow_down) + '"'
+                  + ' transform="translate(' + FloatToStr(w/2 - 6/2) + ',' + FloatToStr(h + h/2 - 3/2) + ')"'
+                  + ' x="0" y="0" />'
 
        + ' </g>'
        + '</g>');
@@ -916,16 +1096,18 @@ var Control : TG2GraphChildControl;
 
     procedure CreateButtonFlat( aNode : TDomNode; aWidth, aHeight : integer);
     var S : TStringStream;
-        bw : integer;
+        rx, bw : single;
         id : string;
     begin
       bw := 1;
+      rx := 1;
       id := GetIDBtnFlat( aWidth, aHeight);
       S := TStringStream.Create(
          '<g id="' + id + '">'
        + '  <desc>Button flat for G2 editor</desc>'
        + '  <g id="' + id + '_parts">'
-       + '     <rect id="' + id + '_face" fill="lightgray" stroke="black" x="0" y="0" width="' + IntToStr(aWidth) + '" height="' + IntToStr(aHeight) + '" />'
+       + '     <rect id="' + id + '_bg" fill="black" stroke="none" x="0" y="0" width="' + IntToStr(aWidth) + '" height="' + IntToStr(aHeight) + '" />'
+       + '     <rect id="' + id + '_face" fill="' + cBtnFlatFace + '" stroke="none" rx="' + FloatToStr(rx) + '" x="' + FloatToStr(bw) + '" y="' + FloatToStr(bw) + '" width="' + FloatToStr(aWidth-bw*2) + '" height="' + FloatToStr(aHeight-bw*2) + '" />'
        + '  </g>'
        + '</g>');
       try
@@ -950,6 +1132,127 @@ var Control : TG2GraphChildControl;
          bfc := bfc + aWidth + 30;
        end;
     end;
+
+    function GetIDBtnFlatOption( aWidth, aHeight : single; aParamID : integer): string;
+    begin
+      Result := idBtnFlat + 'Options_' + IntToStr(aParamID) + '_' + FloatToStr(aWidth) + 'x' + FloatToStr(aHeight);
+    end;
+
+    procedure CreateButtonFlatOptions( aNode : TDomNode; aWidth, aHeight : integer; aBtnFlat : TG2GraphButtonFlat);
+    var S : TStringStream;
+        SVGText, txt : string;
+        ParamID, symbol_id, o, tw, th : integer;
+        id : string;
+        ParamDef : TXMLParamDefType;
+        dx, dy, w, h : single;
+    begin
+      {ParamDef := G2_module_def.FParamDefList.ParamDef[ aParamID];
+      if not assigned(ParamDef) then
+        exit;}
+      ParamID := aBtnFlat.Parameter.ParamID;
+      id := GetIDBtnFlatOption( aWidth, aHeight, ParamID);
+
+      SVGText :=
+         '<g id="' + id + '">'
+       + '  <desc>Button flat options for G2 editor</desc>'
+       + '  <g id="' + id + '_parts">';
+
+      dx := 0;
+      dy := 0;
+      if (aBtnFlat.ImageList.Count > 0) then begin
+        for o := 0 to aBtnFlat.ImageList.Count - 1 do begin
+
+          symbol_id := AddSymbolFromBitmap( aBtnFlat.ImageList.Items[o]);
+
+          w := (BitmapList[symbol_id] as TBitmap).Width;
+          h := (BitmapList[symbol_id] as TBitmap).Height;
+
+          SVGText := SVGText
+          + '<g id="' + id + '_' + IntToStr(o) + '">'
+            + '<use id="' + id + '_' + IntToStr(o) + '_btn' + '"'
+              + ' xlink:href="#' + GetIDBtnFlat( Control.Width, Control.Height) + '"'
+              + ' transform="translate(' + FloatToStr(dx) + ',' + FloatToStr(dy) + ')"'
+              + ' x="0" y="0" />'
+
+            + '<use id="' + id + '_' + IntToStr(o) + '_symbol' + '"'
+              + ' xlink:href="#' + idSymbol + '_' + IntToStr(symbol_id) + '"'
+              + ' transform="translate(' + FloatToStr( dx + aWidth/2 - w/2) + ',' + FloatToStr( dy + aHeight/2 - h/2) + ')"'
+              + ' x="0" y="0" />'
+          + '</g>';
+
+          dy := dy + aHeight;
+
+        end;
+      end else begin
+        for o := 0 to aBtnFlat.ButtonText.Count - 1 do begin
+
+          txt := aBtnFlat.ButtonText[o];
+
+          TextBitmap.Canvas.Font.Name := 'Arial';
+          TextBitmap.Canvas.Font.Size := 7;
+          tw := TextBitmap.Canvas.TextWidth( trim(txt)) - 9;
+          //th := TextBitmap.Canvas.TextHeight( txt);
+          th := 5;
+
+
+          SVGText := SVGText
+          + '<g id="' + id + '_' + IntToStr(o) + '">'
+            + '<use id="' + id + '_' + IntToStr(o) + '_btn' + '"'
+              + ' xlink:href="#' + GetIDBtnFlat( aWidth, aHeight) + '"'
+              + ' transform="translate(' + FloatToStr(dx) + ',' + FloatToStr(dy) + ')"'
+              + ' x="0" y="0" />'
+
+            + '<text id="' + id + '_' + IntToStr(o) + '_text' + '"'
+              + ' style="font-size:7px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial" xml:space="preserve"'
+              + ' transform="translate(' + FloatToStr( aWidth/2 - tw/2) + ',' + FloatToStr( dy + aHeight/2 + th/2) + ')"'
+              + ' x="0" y="0">'
+            + txt
+            + '</text>'
+
+          + '</g>';
+
+          dy := dy + aHeight;
+
+        end;
+      end;
+
+      SVGText := SVGText
+       + '  </g>'
+       + '</g>';
+
+      S := TStringStream.Create( SVGText);
+      try
+        ReadXMLFragment( aNode, S);
+      finally
+        S.Free;
+      end;
+    end;
+
+    procedure FindOrAddButtonFlatOptions( aWidth, aHeight : integer; aBtnFlat : TG2GraphButtonFlat);
+    var id : string;
+        ParamID : integer;
+    begin
+      FindOrAddButtonFlat( Control.Width, Control.Height);
+
+      //for m := 0 to (Control as TG2GraphButton).ImageList.Count - 1 do begin
+      //  AddSymbolFromBitmap( (Control as TG2GraphButton).ImageList.Items[m]);
+      //end;
+
+      ParamID := aBtnFlat.Parameter.ParamID;
+
+      id := idBtnFlat + 'Options_def_' + IntToStr(ParamID) + '_' + IntToStr(aWidth) + 'x' + IntToStr(aHeight);
+
+      ButtonFlatOptionsNode := GButtonFlatOptionsSectionNode.FirstChild;
+      while (ButtonFlatOptionsNode <> nil) and (TDomELement(ButtonFlatOptionsNode).GetAttribute('id') <>  id) do
+        ButtonFlatOptionsNode := ButtonFlatOptionsNode.NextSibling;
+
+      if not assigned(ButtonFlatOptionsNode) then begin
+        GButtonFlatOptionsDefNode := CreateSectionPlaceholder( GButtonFlatOptionsSectionNode, id, bfoc, 0);
+        CreateButtonFlatOptions( GButtonFlatOptionsDefNode, aWidth, aHeight, aBtnFlat);
+        bfoc := bfoc + aWidth + 30;
+      end;
+    end;
+
 
     function GetIDBtnRadio( aBaseID : string; aWidth, aHeight : single): string;
     begin
@@ -988,12 +1291,12 @@ var Control : TG2GraphChildControl;
       id := GetIDBtnRadio( idBtnRadioDown, aWidth, aHeight);
       S := TStringStream.Create(
          '<g id="' + id + '">'
-       + '  <desc>Button radio down for G2 editor</desc>'
-       + '  <g id="' + id + '_parts">'
-       + '     <rect id="' + id + '_bg" fill="black" stroke="none" x="0" y="0" width="' + FloatToStr(aWidth) + '" height="' + FloatToStr(aHeight) + '" />'
-       + Bevel( id, aWidth, aHeight, bw, 'url(#btnRadioGradienSideLeft)', 'url(#btnRadioGradienSideTop)', 'url(#btnRadioGradienSideRight)', 'url(#btnRadioGradienSideBottom)')
-       + '     <rect id="' + id + '_face" fill="url(#btnRadioGradienFace)" stroke="none" x="' + FloatToStr(bw) + '" y="' + FloatToStr(bw) + '" width="' + FloatToStr(aWidth-bw*2) + '" height="' + FloatToStr(aHeight-bw*2) + '" />'
-       + '  </g>'
+        + ' <desc>Button radio down for G2 editor</desc>'
+          + ' <g id="' + id + '_parts">'
+            + ' <rect id="' + id + '_bg" fill="black" stroke="none" x="0" y="0" width="' + FloatToStr(aWidth) + '" height="' + FloatToStr(aHeight) + '" />'
+                  + Bevel( id, aWidth, aHeight, bw, 'url(#btnRadioGradienSideLeft)', 'url(#btnRadioGradienSideTop)', 'url(#btnRadioGradienSideRight)', 'url(#btnRadioGradienSideBottom)')
+            + ' <rect id="' + id + '_face" fill="url(#btnRadioGradienFace)" stroke="none" x="' + FloatToStr(bw) + '" y="' + FloatToStr(bw) + '" width="' + FloatToStr(aWidth-bw*2) + '" height="' + FloatToStr(aHeight-bw*2) + '" />'
+       + ' </g>'
        + '</g>');
       try
         ReadXMLFragment( aNode, S);
@@ -1058,11 +1361,16 @@ var Control : TG2GraphChildControl;
       bw := 9;
       S := TStringStream.Create(
          '<g id="' + id + '">'
-       + '  <desc>Part selector for G2 editor</desc>'
-       + '  <g id="' + id + '_parts">'
-       + '     <rect id="' + id + '_window" fill="' + cPartselWindow + '" stroke="black" x="0" y="0" width="' + IntToStr(aWidth) + '" height="' + IntToStr(aHeight) + '" />'
-       + '     <rect id="' + id + '_button" fill="' + cPartselBtn + '" stroke="black" x="' +  IntToStr(aWidth - bw) + '" y="0" width="' + IntToStr(bw) + '" height="' + IntToStr(aHeight) + '" />'
-       + '  </g>'
+        + ' <desc>Part selector for G2 editor</desc>'
+          + ' <g id="' + id + '_parts">'
+            + ' <rect id="' + id + '_window" fill="' + cPartselWindow + '" stroke="black" x="0" y="0" width="' + IntToStr(aWidth) + '" height="' + IntToStr(aHeight) + '" />'
+            + ' <rect id="' + id + '_button" fill="' + cPartselBtn + '" stroke="black" x="' +  IntToStr(aWidth - bw) + '" y="0" width="' + IntToStr(bw) + '" height="' + IntToStr(aHeight) + '" />'
+            + ' <use id="' + id + '_' + IntToStr(id_smallarrow_down) + '_symbol' + '"'
+              + ' xlink:href="#' + idSymbol + '_' + IntToStr(id_smallarrow_down) + '"'
+              + ' transform="translate(' + FloatToStr((aWidth-bw) + bw/2 - 6/2) + ',' + FloatToStr( aHeight/2 - 3/2) + ')"'
+              + ' x="0" y="0" />'
+
+        + ' </g>'
        + '</g>');
       try
         ReadXMLFragment( aNode, S);
@@ -1085,6 +1393,94 @@ var Control : TG2GraphChildControl;
          CreatePartSelector( GPartSelDefNode, aWidth, aHeight);
          psc := psc + aWidth + 30;
        end;
+    end;
+
+    function GetIDPartSelOption( aWidth, aHeight : single; aParamID : integer): string;
+    begin
+      Result := idPartSel + 'Options_' + IntToStr(aParamID) + '_' + FloatToStr(aWidth) + 'x' + FloatToStr(aHeight);
+    end;
+
+    procedure CreatePartSelOptions( aNode : TDomNode; aWidth, aHeight : integer; aPartSel : TG2GraphPartSelector);
+    var S : TStringStream;
+        SVGText : string;
+        ParamID, symbol_id, o : integer;
+        id : string;
+        dx, dy, w, h : single;
+    begin
+      ParamID := aPartSel.Parameter.ParamID;
+      id := GetIDBtnFlatOption( aWidth, aHeight, ParamID);
+
+      SVGText :=
+         '<g id="' + id + '">'
+       + '  <desc>Button flat options for G2 editor</desc>'
+       + '  <g id="' + id + '_parts">';
+
+      dx := 0;
+      dy := 0;
+      if (aPartSel.ImageList.Count > 0) then begin
+        for o := 0 to aPartSel.HighValue do begin
+
+          symbol_id := AddSymbolFromBitmap( aPartSel.ImageList.Items[o]);
+
+          w := (BitmapList[symbol_id] as TBitmap).Width;
+          h := (BitmapList[symbol_id] as TBitmap).Height;
+
+          SVGText := SVGText
+          + '<g id="' + id + '_' + IntToStr(o) + '">'
+            + '<rect id="' + id + '_window"'
+              + ' transform="translate(' + FloatToStr(dx) + ',' + FloatToStr(dy) + ')"';
+
+          if o = 0 then
+            SVGText := SVGText
+              + ' fill="' + cPartselSelected + '"'
+          else
+            SVGText := SVGText
+              + ' fill="' + cPartselWindow + '"';
+
+          SVGText := SVGText
+              + ' stroke="black"'
+              + ' x="0" y="0" width="' + IntToStr(aWidth) + '" height="' + IntToStr(aHeight) + '" />'
+
+            + '<use id="' + id + '_' + IntToStr(o) + '_symbol' + '"'
+              + ' xlink:href="#' + idSymbol + '_' + IntToStr(symbol_id) + '"'
+              + ' transform="translate(' + FloatToStr( dx + aWidth/2 - w/2) + ',' + FloatToStr( dy + aHeight/2 - h/2) + ')"'
+              + ' x="0" y="0" />'
+          + '</g>';
+
+          dy := dy + aHeight;
+
+        end;
+      end;
+
+      SVGText := SVGText
+       + '  </g>'
+       + '</g>';
+
+      S := TStringStream.Create( SVGText);
+      try
+        ReadXMLFragment( aNode, S);
+      finally
+        S.Free;
+      end;
+    end;
+
+    procedure FindOrAddPartSelOptions( aWidth, aHeight : integer; aPartSel : TG2GraphPartSelector);
+    var id : string;
+        ParamID : integer;
+    begin
+      ParamID := aPartSel.Parameter.ParamID;
+
+      id := idPartSel + 'Options_def_' + IntToStr(ParamID) + '_' + IntToStr(aWidth) + 'x' + IntToStr(aHeight);
+
+      PartSelOptionsNode := GPartSelOptionsSectionNode.FirstChild;
+      while (PartSelOptionsNode <> nil) and (TDomELement(PartSelOptionsNode).GetAttribute('id') <>  id) do
+        PartSelOptionsNode := PartSelOptionsNode.NextSibling;
+
+      if not assigned(PartSelOptionsNode) then begin
+        GPartSelOptionsDefNode := CreateSectionPlaceholder( GPartSelOptionsSectionNode, id, psoc, 0);
+        CreatePartSelOptions( GPartSelOptionsDefNode, aWidth, aHeight, aPartSel);
+        psoc := psoc + aWidth + 30;
+      end;
     end;
 
     function GetIDGraph( aWidth, aHeight : single): string;
@@ -1127,7 +1523,6 @@ var Control : TG2GraphChildControl;
        end;
     end;
 
-
     function Gradient( id : string; x1, y1, x2, y2 : single; Color1, Color2 : string ): string;
     begin
       Result :=
@@ -1158,6 +1553,7 @@ var Control : TG2GraphChildControl;
          '<g id="' + id + '">'
        + '  <desc>Knob for G2 editor</desc>'
        + '  <rect id="' + id + '_sel" x="0" y="0" width="' + FLoatToStr(w) + '" height="' + FloatToStr(h) + '" fill="none" stroke="blue" stroke-width="0.2"/>';
+
        if reset then begin
          svg := svg
        + '  <g>'
@@ -1178,6 +1574,12 @@ var Control : TG2GraphChildControl;
        + '      <path id="' + id + '_morph" d="M0,0 v' + FLoatToStr(-r_side) + ' a' + FloatToStr(r_side) + ',' + FLoatToStr(r_side) + ' 0 0,0 ' + FloatToStr(-r_side) + ',' + FloatToStr(r_side) + ' z" fill="red" stroke="none" opacity="0.5" />'
        + '    </g>'
        + '  </g>'
+
+         + '<use id="' + idKnobBtns + '_use"'
+              + ' xlink:href="#' + idKnobBtns + '"'
+              + ' transform="translate(' + FloatToStr( c_x - 10.5) + ',' + FloatToStr(h - 9) + ')"'
+              + ' x="0" y="0" />'
+
        + '</g>';
 
       S := TStringStream.Create(svg);
@@ -1232,6 +1634,43 @@ var Control : TG2GraphChildControl;
     begin
       id := idKnobSmall;
       CreateKnob( aNode, id, 18, 22, 9, 9, 9, 6, false);
+    end;
+
+    procedure CreateKnobButtons( aNode : TDomNode);
+    var S : TStringStream;
+        id, temp : string;
+        w, h, bw : single;
+    begin
+      w := 11;
+      h := 9;
+      bw := 1;
+      temp :=
+      '<g id="' + idKnobBtns + '">'
+        + '<rect id="' + idKnobBtns + '_bg" fill="white" stroke="none"'
+             + ' x="0" y="0"  width="' + FloatToStr(w*2-bw) + '" height="' + FloatToStr(h) + '"/>'
+
+        + '<rect id="' + idKnobBtns + '_left" fill="' + cBtnFlatFace + '" stroke="none"'
+             + ' x="' + FloatToStr(bw) + '" y="' + FloatToStr(bw) + '" width="' + FloatToStr(w - bw*2) + '" height="' + FloatToStr(h - bw*2) + '"/>'
+
+        + ' <use id="' + idKnobBtns + '_' + IntToStr(id_smallarrow_left) + '_symbol' + '"'
+             + ' xlink:href="#' + idSymbol + '_' + IntToStr(id_smallarrow_down) + '"'
+             + ' transform="translate(' + FloatToStr(w/2 - 6/2) + ',' + FloatToStr(h/2 - 3/2) + ')"'
+             + ' x="0" y="0" />'
+
+        +  '<rect id="' + idKnobBtns + '_right" fill="' + cBtnFlatFace + '" stroke="none"'
+             + ' x="' + FloatToStr(w) + '" y="' + FloatToStr(bw) + '" width="' + FloatToStr(w - bw*2) + '" height="' + FloatToStr(h - bw*2) + '"/>'
+
+        + ' <use id="' + idKnobBtns + '_' + IntToStr(id_smallarrow_up) + '_symbol' + '"'
+             + ' xlink:href="#' + idSymbol + '_' + IntToStr(id_smallarrow_up) + '"'
+             + ' transform="translate(' + FloatToStr(w - bw + w/2 - 6/2) + ',' + FloatToStr(h/2 - 3/2) + ')"'
+             + ' x="0" y="0" />'
+       + '</g>';
+      S := TStringStream.Create( temp);
+      try
+        ReadXMLFragment( aNode, S);
+      finally
+        S.Free;
+      end;
     end;
 
     procedure CreateKnobSliderKnob( aNode : TDomNode; aWidth, aHeight, aBevelWidth, aBevelHeight : single);
@@ -1318,7 +1757,7 @@ var Control : TG2GraphChildControl;
 
     procedure CreateModule( aNode : TDomNode);
     var GModuleNode, ParamLinkNode, ConnLinkNode, DescNode, PanelNode, UseNode : TDOMNode;
-        l, m, n, x, y, w, h, dx, dy, symbol_id : integer;
+        l, m, n, x, y, w, h, dx, dy, symbol_id, ParamID : integer;
         module_id, control_id, ref_id : string;
         RadioButton : TG2GraphButtonRadio;
         RadioButtonEdit : TG2GraphButtonRadioEdit;
@@ -1371,6 +1810,7 @@ var Control : TG2GraphChildControl;
           TDOMElement(ParamLinkNode).SetAttribute('id', 'g2_module_' + IntToStr(FModule.TypeID) + '_paramlink_' + IntToStr(Control.ID));
           TDOMElement(ParamLinkNode).SetAttribute('nmg2.CodeRef', IntToStr(Control.Parameter.ParamIndex));
           TDOMElement(ParamLinkNode).SetAttribute('nmg2.InfoFunc', IntTostr(Control.Parameter.InfoFunctionIndex));
+          TDOMElement(ParamLinkNode).SetAttribute('nmg2.CtrlType', 'btnText');
 
           UseNode := CreateUse( ParamLinkNode, control_id, GetIDBtnText( idBtnTextUp, Control.Width, Control.Height, 2), Control.Left, Control.Top);
 
@@ -1387,9 +1827,23 @@ var Control : TG2GraphChildControl;
 
           if (Control as TG2GraphButtonIncDec).Orientation = otHorizontal then begin
 
-            CreateUse( GModuleNode, control_id, idBtnIncDecHorz, Control.Left, Control.Top);
+            ParamLinkNode := Doc.CreateElement('g');
+            GModuleNode.AppendChild(ParamLinkNode);
+            TDOMElement(ParamLinkNode).SetAttribute('id', 'g2_module_' + IntToStr(FModule.TypeID) + '_paramlink_' + IntToStr(Control.ID));
+            TDOMElement(ParamLinkNode).SetAttribute('nmg2.CodeRef', IntToStr(Control.Parameter.ParamIndex));
+            TDOMElement(ParamLinkNode).SetAttribute('nmg2.InfoFunc', IntTostr(Control.Parameter.InfoFunctionIndex));
+            TDOMElement(ParamLinkNode).SetAttribute('nmg2.CtrlType', 'btnIncDec');
+
+            CreateUse( ParamLinkNode, control_id, idBtnIncDecHorz, Control.Left, Control.Top);
           end else begin
-            CreateUse( GModuleNode, control_id, idBtnIncDecVert, Control.Left, Control.Top);
+            ParamLinkNode := Doc.CreateElement('g');
+            GModuleNode.AppendChild(ParamLinkNode);
+            TDOMElement(ParamLinkNode).SetAttribute('id', 'g2_module_' + IntToStr(FModule.TypeID) + '_paramlink_' + IntToStr(Control.ID));
+            TDOMElement(ParamLinkNode).SetAttribute('nmg2.CodeRef', IntToStr(Control.Parameter.ParamIndex));
+            TDOMElement(ParamLinkNode).SetAttribute('nmg2.InfoFunc', IntTostr(Control.Parameter.InfoFunctionIndex));
+            TDOMElement(ParamLinkNode).SetAttribute('nmg2.CtrlType', 'btnIncDec');
+
+            CreateUse(ParamLinkNode, control_id, idBtnIncDecVert, Control.Left, Control.Top);
           end;
         end;
 
@@ -1398,18 +1852,30 @@ var Control : TG2GraphChildControl;
           if Control is TG2GraphLevelShift then begin
             CreateUse( GModuleNode, control_id, idLevelShift, Control.Left, Control.Top);
           end else begin
-            FindOrAddButtonFlat( Control.Width, Control.Height);
+            ParamID := Control.Parameter.ParamID;
 
-            for m := 0 to (Control as TG2GraphButton).ImageList.Count - 1 do begin
-              AddSymbolFromBitmap( (Control as TG2GraphButton).ImageList.Items[m]);
-            end;
+            FindOrAddButtonFlatOptions( Control.Width, Control.Height, Control as TG2GraphButtonFlat);
 
-            CreateUse( GModuleNode, control_id, GetIDBtnFlat( Control.Width, Control.Height), Control.Left, Control.Top);
+            ParamLinkNode := Doc.CreateElement('g');
+            GModuleNode.AppendChild(ParamLinkNode);
+            TDOMElement(ParamLinkNode).SetAttribute('id', 'g2_module_' + IntToStr(FModule.TypeID) + '_paramlink_' + IntToStr(Control.ID));
+            TDOMElement(ParamLinkNode).SetAttribute('nmg2.CodeRef', IntToStr(Control.Parameter.ParamIndex));
+            TDOMElement(ParamLinkNode).SetAttribute('nmg2.InfoFunc', IntTostr(Control.Parameter.InfoFunctionIndex));
+            TDOMElement(ParamLinkNode).SetAttribute('nmg2.CtrlType', 'btnFlat');
+
+            CreateUse( ParamLinkNode, control_id, GetIDBtnFlatOption( Control.Width, Control.Height, ParamID) + '_0' , Control.Left, Control.Top);
           end;
         end;
 
         if Control is TG2GraphButtonRadio then begin
           RadioButton := Control as TG2GraphButtonRadio;
+
+          ParamLinkNode := Doc.CreateElement('g');
+          GModuleNode.AppendChild(ParamLinkNode);
+          TDOMElement(ParamLinkNode).SetAttribute('id', 'g2_module_' + IntToStr(FModule.TypeID) + '_paramlink_' + IntToStr(Control.ID));
+          TDOMElement(ParamLinkNode).SetAttribute('nmg2.CodeRef', IntToStr(Control.Parameter.ParamIndex));
+          TDOMElement(ParamLinkNode).SetAttribute('nmg2.InfoFunc', IntTostr(Control.Parameter.InfoFunctionIndex));
+            TDOMElement(ParamLinkNode).SetAttribute('nmg2.CtrlType', 'btnRadio');
 
           if RadioButton.ButtonCount > 0 then begin
 
@@ -1441,9 +1907,9 @@ var Control : TG2GraphChildControl;
             y := RadioButton.Top;
             for m := 0 to RadioButton.ButtonCount - 1 do begin
               if m = 0 then
-                CreateUse( GModuleNode, control_id + '_el_'+ IntToStr(m), GetIDBtnRadio( idBtnRadioDown, w, h), x, y)
+                CreateUse( ParamLinkNode, control_id + '_el_'+ IntToStr(m), GetIDBtnRadio( idBtnRadioDown, w, h), x, y)
               else
-                CreateUse( GModuleNode, control_id + '_el_'+ IntToStr(m), GetIDBtnRadio( idBtnRadioUp, w, h), x, y);
+                CreateUse( ParamLinkNode, control_id + '_el_'+ IntToStr(m), GetIDBtnRadio( idBtnRadioUp, w, h), x, y);
               x := x + dx;
               y := y + dy;
             end;
@@ -1452,6 +1918,13 @@ var Control : TG2GraphChildControl;
 
         if Control is TG2GraphButtonRadioEdit then begin
           RadioButtonEdit := Control as TG2GraphButtonRadioEdit;
+
+          ParamLinkNode := Doc.CreateElement('g');
+          GModuleNode.AppendChild(ParamLinkNode);
+          TDOMElement(ParamLinkNode).SetAttribute('id', 'g2_module_' + IntToStr(FModule.TypeID) + '_paramlink_' + IntToStr(Control.ID));
+          TDOMElement(ParamLinkNode).SetAttribute('nmg2.CodeRef', IntToStr(Control.Parameter.ParamIndex));
+          TDOMElement(ParamLinkNode).SetAttribute('nmg2.InfoFunc', IntTostr(Control.Parameter.InfoFunctionIndex));
+          TDOMElement(ParamLinkNode).SetAttribute('nmg2.CtrlType', 'btnRadioEdit');
 
           w := RadioButtonEdit.Width div RadioButtonEdit.ButtonColumns;
           h := RadioButtonEdit.Height div RadioButtonEdit.ButtonRows;
@@ -1462,9 +1935,9 @@ var Control : TG2GraphChildControl;
 
               FindOrAddBtnRadio( w, h);
               if (m = 0) and (n=0) then
-                CreateUse( GModuleNode, control_id + '_el_'+ IntToStr(m), GetIDBtnRadio( idBtnRadioDown, w, h), x, y)
+                CreateUse( ParamLinkNode, control_id + '_el_'+ IntToStr(m), GetIDBtnRadio( idBtnRadioDown, w, h), x, y)
               else
-                CreateUse( GModuleNode, control_id + '_el_'+ IntToStr(m), GetIDBtnRadio( idBtnRadioUp, w, h), x, y);
+                CreateUse( ParamLinkNode, control_id + '_el_'+ IntToStr(m), GetIDBtnRadio( idBtnRadioUp, w, h), x, y);
 
               x := x + w;
             end;
@@ -1474,10 +1947,17 @@ var Control : TG2GraphChildControl;
 
         if Control is TG2GraphKnob then begin
 
+          ParamLinkNode := Doc.CreateElement('g');
+          GModuleNode.AppendChild(ParamLinkNode);
+          TDOMElement(ParamLinkNode).SetAttribute('id', 'g2_module_' + IntToStr(FModule.TypeID) + '_paramlink_' + IntToStr(Control.ID));
+          TDOMElement(ParamLinkNode).SetAttribute('nmg2.CodeRef', IntToStr(Control.Parameter.ParamIndex));
+          TDOMElement(ParamLinkNode).SetAttribute('nmg2.InfoFunc', IntTostr(Control.Parameter.InfoFunctionIndex));
+          TDOMElement(ParamLinkNode).SetAttribute('nmg2.CtrlType', 'Knob');
+
           if (Control as TG2GraphKnob).KnobType = ktSlider then begin
 
-            CreateUse( GModuleNode, control_id + '_el_1', idSlider, Control.Left, Control.Top);
-            CreateUse( GModuleNode, control_id + '_el_2', idBtnIncDecVert, Control.Left, Control.Top + 46);
+            CreateUse( ParamLinkNode, control_id + '_el_1', idSlider, Control.Left, Control.Top);
+            CreateUse( ParamLinkNode, control_id + '_el_2', idBtnIncDecVert, Control.Left, Control.Top + 46);
           end else begin
             case (Control as TG2GraphKnob).KnobType of
               ktBig : ref_id := idKnobBig;
@@ -1486,7 +1966,7 @@ var Control : TG2GraphChildControl;
               ktReset : ref_id := idKnobReset;
               ktSmall : ref_id := idKnobSmall;
             end;
-            CreateUse( GModuleNode, control_id, ref_id, Control.Left, Control.Top);
+            CreateUse( ParamLinkNode, control_id, ref_id, Control.Left, Control.Top);
           end;
         end;
 
@@ -1494,7 +1974,16 @@ var Control : TG2GraphChildControl;
 
           FindOrAddPartSel( Control.Width, Control.Height);
 
-          CreateUse( GModuleNode, control_id, GetIDPartSel( Control.Width, Control.Height), Control.Left, Control.Top);
+          ParamLinkNode := Doc.CreateElement('g');
+          GModuleNode.AppendChild(ParamLinkNode);
+          TDOMElement(ParamLinkNode).SetAttribute('id', 'g2_module_' + IntToStr(FModule.TypeID) + '_paramlink_' + IntToStr(Control.ID));
+          TDOMElement(ParamLinkNode).SetAttribute('nmg2.CodeRef', IntToStr(Control.Parameter.ParamIndex));
+          TDOMElement(ParamLinkNode).SetAttribute('nmg2.InfoFunc', IntTostr(Control.Parameter.InfoFunctionIndex));
+          TDOMElement(ParamLinkNode).SetAttribute('nmg2.CtrlType', 'partSel');
+
+          CreateUse( ParamLinkNode, control_id, GetIDPartSel( Control.Width, Control.Height), Control.Left, Control.Top);
+
+          FindOrAddPartSelOptions( Control.Width, Control.Height, (Control as TG2GraphPartSelector));
         end;
 
         if Control is TG2GraphGraph then begin
@@ -1506,8 +1995,8 @@ var Control : TG2GraphChildControl;
 
         if Control is TG2GraphLedGreen then begin
           case (Control as TG2GraphLedGreen).FType of
-            ltGreen : ref_id := idLedGreen;
-            ltSequencer : ref_id := idLedSequencer;
+            ltGreen : ref_id := idLedOffGreen;
+            ltSequencer : ref_id := idLedOffSequencer;
           end;
           CreateUse( GModuleNode, control_id, ref_id, Control.Left, Control.Top);
         end;
@@ -1541,9 +2030,36 @@ var Control : TG2GraphChildControl;
       end;
     end;
 
+    procedure CreateBackground( aNode : TDomNode);
+    var S : TStringStream;
+        rx, bw : single;
+        id : string;
+    begin
+      bw := 1;
+      rx := 1;
+      id := idPanelBackground;
+      S := TStringStream.Create(
+         '<g id="' + id + '">'
+       + '  <desc>Patch background for G2 editor</desc>'
+       + '  <g id="' + id + '_parts">'
+       + '     <rect id="' + id + '_bg" fill="#483737" stroke="none" x="0" y="0" width="' + IntToStr(UNITS_COL) + '" height="' + IntToStr(UNITS_ROW) + '" />'
+       + '     <rect id="' + id + '_leftrail" fill="lightgray" stroke="none" x="' + IntToStr(0) + '" y="' + IntToStr(0) + '" width="' + IntToStr(UNITS_ROW) + '" height="' + IntToStr(UNITS_ROW) + '" />'
+       + '     <rect id="' + id + '_rightrail" fill="lightgray" stroke="none" x="' + IntToStr(UNITS_COL - UNITS_ROW) + '" y="' + IntToStr(0) + '" width="' + IntToStr(UNITS_ROW) + '" height="' + IntToStr(UNITS_ROW) + '" />'
+       + '     <circle id="' + id + '_lefthole" cx="' + FloatToStr(UNITS_ROW/2) + '" cy="' + FloatToStr(UNITS_ROW/2) + '" r="' + FloatToStr(UNITS_ROW * 0.3) + '" fill="#483737" stroke="none"  />'
+       + '     <circle id="' + id + '_rightthole" cx="' + FloatToStr(UNITS_COL - UNITS_ROW/2) + '" cy="' + FloatToStr(UNITS_ROW/2) + '" r="' + FloatToStr(UNITS_ROW * 0.3) + '" fill="#483737" stroke="none"  />'
+       + '  </g>'
+       + '</g>');
+      try
+        ReadXMLFragment( aNode, S);
+      finally
+        S.Free;
+      end;
+    end;
+
 begin
   Doc := TXMLDocument.Create;
   BitMapList := TObjectList.Create(True);
+  TextBitmap := TBitmap.Create;
   try
     RootNode := Doc.CreateElement('svg');
     Doc.AppendChild(RootNode);
@@ -1559,22 +2075,26 @@ begin
     RootNode.AppendChild( DefsNode);
     TDOMElement(DefsNode).SetAttribute('id', 'g2_defs');
 
-    knob_section := 0;
-    led_section := 50;
-    minivu_section := 100;
-    buttontext_up_section := 150;
-    buttontext_down_section := 200;
-    buttonflat_section := 250;
-    btnradioup_section := 300;
-    btnradiodown_section := 350;
-    textfield_section := 400;
-    symbol_section := 450;
-    btnIncDec_section := 500;
-    levelshift_section := 550;
-    partsel_section := 600;
-    graph_section := 650;
-    connector_section := 700;
-    module_section := 750;
+    symbol_section := 0;
+    knob_section := 50;
+    led_off_section := 100;
+    led_on_section := 150;
+    minivu_section := 200;
+    buttontext_up_section := 250;
+    buttontext_down_section := 300;
+    buttonflat_section := 350;
+    btnradioup_section := 400;
+    btnradiodown_section := 450;
+    textfield_section := 500;
+    btnIncDec_section := 550;
+    levelshift_section := 600;
+    partsel_section := 650;
+    graph_section := 700;
+    connector_section := 750;
+    btnflatoptions_section := 800;
+    partseloptions_section := 900;
+    module_section := 1100;
+    uipanel_section := module_section + 3500;
 
     mr := 0;
     mc := 0;
@@ -1583,7 +2103,8 @@ begin
     kc := 0;
     tfc := 0;
     sc := 0;
-    lc := 0;
+    loffc := 0;
+    lonc := 0;
     bidc := 0;
     psc := 0;
     cc := 0;
@@ -1591,6 +2112,9 @@ begin
     gc := 0;
     rbc := 0;
     lsc := 0;
+    uir := 0;
+    bfoc := 0;
+    psoc := 0;
 
     CreateModulePanelGradients;
     CreateKnobSideGradient( DefsNode, 11);
@@ -1612,8 +2136,20 @@ begin
     RootNode.AppendChild(GMainNode);
     TDOMElement(GMainNode).SetAttribute('id', 'g2_main');
 
+    GSymbolSectionNode := CreateSection( GMainNode, 'symbolSection', symbol_section, 'Symbol section');
+    sc := sc + 200;
+
+    CreateSymbolSmallArrowUp;
+    CreateSymbolSmallArrowDown;
+    CreateSymbolSmallArrowLeft;
+    CreateSymbolSmallArrowRight;
+
     GKnobSectionNode := CreateSection( GMainNode, 'knobSection', knob_section, 'Knob section');
     kc := kc + 200;
+
+    GKnobDefNode := CreateSectionPlaceholder( GKnobSectionNode, idKnobBtns + '_def', kc, 0);
+    CreateKnobButtons( GKnobDefNode);
+    kc := kc + 40;
 
     GKnobDefNode := CreateSectionPlaceholder( GKnobSectionNode, idKnobBig + '_def', kc, 0);
     CreateKnobBig( GKnobDefNode);
@@ -1636,23 +2172,34 @@ begin
     kc := kc + 40;
 
     GKnobDefNode := CreateSectionPlaceholder( GKnobSectionNode, idSlider + 'knob_def', kc, 0);
-    CreateKnobSliderKnob( GKnobDefNode, 11, 6, 0.5, 1.5);
+    CreateKnobSliderKnob( GKnobDefNode, 11, 6, 0.3, 1.0);
     kc := kc + 40;
 
     GKnobDefNode := CreateSectionPlaceholder( GKnobSectionNode, idSlider + '_def', kc, 0);
     CreateKnobSlider( GKnobDefNode);
     kc := kc + 40;
 
-    GLedSectionNode := CreateSection( GMainNode, 'ledOffSection', led_section, 'Led off section');
-    lc := lc + 200;
+    GLedOffSectionNode := CreateSection( GMainNode, 'ledOffSection', led_off_section, 'Led off section');
+    loffc := loffc + 200;
 
-    GLedDefNode := CreateSectionPlaceholder( GLedSectionNode, idLedSequencer + '_def', lc, 0);
-    CreateLedSeq( GLedDefNode);
-    lc := lc + 40;
+    GLedOffDefNode := CreateSectionPlaceholder( GLedOffSectionNode, idLedOffSequencer + '_def', loffc, 0);
+    CreateLedSeq( GLedOffDefNode);
+    loffc := loffc + 40;
 
-    GLedDefNode := CreateSectionPlaceholder( GLedSectionNode, idLedGreen + '_def', lc, 0);
-    CreateLedGreen( GLedDefNode);
-    lc := lc + 40;
+    GLedOffDefNode := CreateSectionPlaceholder( GLedOffSectionNode, idLedOffGreen + '_def', loffc, 0);
+    CreateLedGreen( GLedOffDefNode);
+    loffc := loffc + 40;
+
+    GLedOnSectionNode := CreateSection( GMainNode, 'ledOffSection', led_on_section, 'Led on section');
+    lonc := lonc + 200;
+
+    GLedOnDefNode := CreateSectionPlaceholder( GLedOnSectionNode, idLedOnSequencer + '_def', lonc, 0);
+    CreateLedSeq( GLedOnDefNode);
+    lonc := lonc + 40;
+
+    GLedOnDefNode := CreateSectionPlaceholder( GLedOnSectionNode, idLedOnGreen + '_def', lonc, 0);
+    CreateLedGreen( GLedOnDefNode);
+    lonc := lonc + 40;
 
     GMiniVUSectionNode := CreateSection( GMainNode, 'minivuSection', minivu_section, 'Mini VU section');
     minivu_c := minivu_c + 200;
@@ -1695,9 +2242,6 @@ begin
     GGraphSectionNode := CreateSection( GMainNode, 'graphSection', graph_section, 'Graph section');
     gc := gc + 200;
 
-    GSymbolSectionNode := CreateSection( GMainNode, 'symbolSection', symbol_section, 'Symbol section');
-    sc := sc + 200;
-
     GConnectorSectionNode := CreateSection( GMainNode, 'connectorSection', connector_section, 'Connector section');
     cc := cc + 200;
 
@@ -1732,6 +2276,12 @@ begin
     GConnectorDefNode := CreateSectionPlaceholder( GConnectorSectionNode, idConnectorOut + '_orange_def', cc, 0);
     CreateOutConnector( GConnectorDefNode, idConnectorOut + '_orange', '#FFC050');
     cc := cc + 40;
+
+    GButtonFlatOptionsSectionNode := CreateSection( GMainNode, 'btnFlatOptionsSection', btnflatoptions_section, 'Btn flat options section');
+    bfoc := bfoc + 200;
+
+    GPartSelOptionsSectionNode := CreateSection( GMainNode, 'partSelOptionsSection', partseloptions_section, 'Part selector options section');
+    psoc := psoc + 200;
 
     GModuleSectionNode := CreateSection( GMainNode, 'moduleSection', module_section, 'Module section');
 
@@ -1792,11 +2342,23 @@ begin
         UnloadModule
       end;
     end;
-    for i := 0 to BitmapList.Count - 1 do
-      (BitmapList.Items[i] as TBitmap).SaveToFile('Skin\Symbol_' + IntToStr(i) + '.bmp');
+
+
+    GUIPanelSectionNode := CreateSection( GMainNode, 'UIPanelSection', uipanel_section, 'User interf. panel section');
+    uir := uir + 60;
+
+    GUIPanelDefNode := CreateSectionPlaceholder( GUIPanelSectionNode, idPanelBackground + '_def', 0, uir);
+    CreateBackground( GUIPanelDefNode);
+    uir := uir + 40;
+
+    for i := 0 to BitmapList.Count - 1 do begin
+      if assigned(BitmapList.Items[i]) then
+        (BitmapList.Items[i] as TBitmap).SaveToFile('Skin\Symbol_' + IntToStr(i) + '.bmp');
+    end;
 
     WriteXMLFile( Doc, 'Skin\g2_graphics.svg');
   finally
+    TextBitmap.Free;
     BitMapList.Free;
     Doc.Free;
   end;
