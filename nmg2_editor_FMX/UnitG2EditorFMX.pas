@@ -1,5 +1,25 @@
 unit UnitG2EditorFMX;
 
+//  ////////////////////////////////////////////////////////////////////////////
+//
+//  Copyright (C) 2011 Bruno Verhue
+//
+//  This program is free software; you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation; either version 2 of the License, or
+//  (at your option) any later version.
+//
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//
+//  You should have received a copy of the GNU General Public License
+//  along with this program; if not, write to the Free Software
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+//
+//  ////////////////////////////////////////////////////////////////////////////
+
 interface
 
 uses
@@ -69,7 +89,9 @@ type
     FZoom : single;
     FSVGSelection : TSVGSelection;
     FSVGModule : TSVGG2Module;
-    FSVGControl : TSVGG2Control;
+    FSVGHitpath : TSVGHitpath;
+    FSVGCtrlSelected,
+    FSVGCtrlOver : TSVGG2Control;
 
     FCableBitmapBuffer : TCableBitmapBuffer;
     FModuleBitmapBuffer : TModuleBitmapBuffer;
@@ -195,7 +217,8 @@ var PatchName : string;
 begin
   FSVGSelection.UnselectAll;
   FSVGModule :=  nil;
-  FSVGControl := nil;
+  FSVGCtrlSelected := nil;
+  FSVGCtrlOver := nil;
 
   if OpenDialog1.Execute then begin
     aFileName := OpenDialog1.FileName;
@@ -332,7 +355,7 @@ begin
 
     FDX := P.X;
     FDY := P.Y;
-    FSVGControl := nil;
+    FSVGCtrlSelected := nil;
     FSVGModule := nil;
   end;
 end;
@@ -351,13 +374,10 @@ begin
     Edit3.Text := FSVGModule.ID + ' MsDn';
     Edit4.Text := FSVGModule.ID;
 
-    FSVGControl := FSVGModule.SelectControl( PointF(X , Y));
-    if assigned(FSVGControl) then begin
-      Edit2.Text := FSVGControl.ID;
-      FSVGControl.MouseDown( P);
-      FSVGControl.Redraw;
-      FSVGModule.Repaint;
-      //FSVGModule.Redraw;
+    FSVGHitpath := FSVGModule.SelectHitpath( PointF(X , Y));
+    if assigned( FSVGHitpath) then begin
+      Edit2.Text := FSVGHitpath.ID;
+      FSVGHitpath.MouseDown( P);
     end;
   end;
 end;
@@ -368,7 +388,7 @@ var dx, dy : single;
     P: TPointF;
 begin
   if (ssLeft in Shift) then
-    if assigned(FSVGControl) then begin
+    if assigned(FSVGHitpath) then begin
       if assigned(FSVGModule) then begin
 
         P := PointF(X, Y);
@@ -376,11 +396,7 @@ begin
         dx := P.X - FDX;
         dy := P.Y - FDY;
 
-        FSVGControl.MouseMove(P, dx, dy);
-        FSVGControl.Redraw;
-        FSVGModule.Repaint;
-        //FSVGModule.Redraw;
-
+        FSVGHitpath.MouseMove( P, dx, dy);
       end;
     end else
       if FSVGSelection.Active then begin
@@ -397,6 +413,7 @@ procedure TfrmSVGTest.SVGMouseMove(Sender: TObject; Shift: TShiftState;
   X, Y: Single);
 var
   P: TPointF;
+  Control : TSVGG2Control;
 begin
   if not(Sender is TSVGG2Module) then
     exit;
@@ -410,13 +427,13 @@ begin
   if (ssLeft in Shift) then begin
 
     if (abs(P.X-FDX)>0.1) or (abs(P.Y-FDY)>0.1) then begin
-      if (not assigned(FSVGControl)) and (not FSVGSelection.Active) then begin
+      if (not assigned(FSVGCtrlSelected)) and (not FSVGSelection.Active) then begin
         // Select something...
 
         // Check if movement is over a control
-        FSVGControl := FSVGModule.SelectControl( PointF(X , Y));
-        if assigned(FSVGControl) then begin
-          Edit2.Text := FSVGControl.ID;
+        FSVGCtrlSelected := FSVGModule.SelectControl( PointF(X , Y));
+        if assigned(FSVGCtrlSelected) then begin
+          Edit2.Text := FSVGCtrlSelected.ID;
           // If the parentcontrol isn't currently selected, select it here
           if not FSVGSelection.Selected(FSVGModule) then begin
             if ssShift in Shift then
@@ -446,6 +463,18 @@ begin
           FDY := P.Y;
         end;
       end;
+    end;
+  end else begin
+    Control := FSVGModule.SelectControl( PointF(X , Y));
+    if assigned(Control) then begin
+      if assigned(FSVGCtrlOver) and (FSVGCtrlOver <> Control) then
+        FSVGCtrlOver.MouseLeave;
+      FSVGCtrlOver := Control;
+      FSVGCtrlOver.MouseMove( P, nil, P.X-FDX, P.Y-FDY);
+    end else begin
+      if assigned(FSVGCtrlOver) then
+        FSVGCtrlOver.MouseLeave;
+      FSVGCtrlOver := nil;
     end;
   end;
 end;
@@ -477,28 +506,23 @@ begin
 
     if not(assigned(FSVGModule)) then begin
       FSVGModule := Module;
-      FSVGControl := nil;
+      FSVGCtrlSelected := nil;
 
       if ssShift in Shift then
         FSVGSelection.AddToSelection( FSVGModule)
       else
         FSVGSelection.SelectObject( FSVGModule);
 
-      FSVGControl := FSVGModule.SelectControl( PointF(X , Y));
-      if assigned(FSVGControl) then begin
-        FSVGControl.MouseUp( P);
-        FSVGControl.Redraw;
-        FSVGModule.Repaint;
-        //FSVGModule.Redraw;
+      FSVGHitpath := FSVGModule.SelectHitpath( PointF(X, Y));
+      if assigned(FSVGHitpath) then begin
+        FSVGHitpath.MouseUp( P);
       end;
+
 
     end else begin
 
-      if assigned(FSVGControl)then begin
-        FSVGControl.MouseUp( P);
-        FSVGControl.Redraw;
-        FSVGModule.Repaint;
-        //FSVGModule.Redraw;
+      if assigned(FSVGHitpath) then begin
+        FSVGHitpath.MouseUp( P);
       end;
 
       if not FSVGSelection.Selected(FSVGModule) then begin

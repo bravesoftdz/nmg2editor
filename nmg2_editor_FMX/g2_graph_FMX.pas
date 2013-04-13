@@ -1,5 +1,26 @@
 unit g2_graph_FMX;
 
+//  ////////////////////////////////////////////////////////////////////////////
+//
+//  Copyright (C) 2011 Bruno Verhue
+//
+//  This program is free software; you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation; either version 2 of the License, or
+//  (at your option) any later version.
+//
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//
+//  You should have received a copy of the GNU General Public License
+//  along with this program; if not, write to the Free Software
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+//
+//  ////////////////////////////////////////////////////////////////////////////
+
+
 interface
 uses
   System.SysUtils, System.Types, System.UITypes, System.Classes, System.Variants,
@@ -226,6 +247,8 @@ type
   TSVGG2Control = class(TSVGG2Graphic)
   private
     FParameter : TG2GraphParameterFMX;
+  protected
+    function    GetValue: single;
   public
     constructor Create( AOwner: TComponent; aId : string; aSVGParent : TSVGGroup; aCTM, aUserMatrix : TMatrix); override;
     destructor Destroy; override;
@@ -233,24 +256,33 @@ type
     procedure MouseDown( P : TPointF; aHitPath : TSVGHitPath); virtual;
     procedure MouseMove( P : TPointF; aHitPath : TSVGHitPath; dx, dy : single); virtual;
     procedure MouseUp( P : TPointF; aHitPath : TSVGHitPath); virtual;
+    procedure MouseLeave; virtual;
   end;
 
   TSVGHitPath = class(TSVGPath)
   private
     FControl : TSVGG2Control;
+    FBtnIndex : integer;
   public
     constructor Create( AOwner: TComponent; aId : string; aSVGParent : TSVGGroup; aCTM, aUserMatrix : TMatrix); override;
     destructor  Destroy; override;
 
+    procedure MouseDown( P : TPointF); virtual;
+    procedure MouseMove( P : TPointF; dx, dy : single); virtual;
+    procedure MouseUp( P : TPointF); virtual;
+    procedure MouseLeave; virtual;
+
     property    Control : TSVGG2Control read FControl write FControl;
+    property    BtnIndex : integer read FBtnIndex write FBtnIndex;
   end;
 
   TSVGBtnState = class(TSVGG2Graphic)
   private
     FControl : TSVGG2Control;
+    FBtnIndex : integer;
     FBtnBackground : TSVGHitPath;
   public
-    constructor Create( AOwner: TComponent; aId : string; aSVGParent : TSVGGroup; aCTM, aUserMatrix : TMatrix); override;
+    constructor Create( aControl: TSVGG2Control; aBtnIndex : integer; aId : string; aSVGParent : TSVGGroup; aCTM, aUserMatrix : TMatrix);
     destructor  Destroy; override;
 
     function    CreatePath( aNode : TSVGNode; aId : string; aSVGParent : TSVGGroup; aCTM, aUserMatrix : TMatrix) : TSVGPath; override;
@@ -262,7 +294,6 @@ type
     FBtnUp   : TSVGBtnState;
     FBtnDown : TSVGBtnState;
   protected
-    function    GetValue : single;
     procedure   SetValue( aValue : single);
   public
     constructor Create( AOwner: TComponent; aId : string; aSVGParent : TSVGGroup; aCTM, aUserMatrix : TMatrix); override;
@@ -282,7 +313,6 @@ type
     FBtnIncUp   : TSVGBtnState;
     FBtnIncDown : TSVGBtnState;
   protected
-    function    GetValue : single;
     procedure   SetValue( aValue : single);
   public
     constructor Create( AOwner: TComponent; aId : string; aSVGParent : TSVGGroup; aCTM, aUserMatrix : TMatrix); override;
@@ -302,15 +332,18 @@ type
   TSVGKnob = class(TSVGG2Control)
   private
     FKnobNeedle : TSVGGroup;
+    FKnobSel : TSVGHitPath;
     FKnobFace : TSVGHitPath;
     FKnobMorph : TSVGPath;
+    FKnobBtns : TSVGGroup;
+    FKnobCenterBtnOff : TSVGBtnState;
+    FKnobCenterBtnOn : TSVGBtnState;
 
     FStartPoint : TPointF;
     FStartValue : single;
 
     procedure   SetLayoutAngle( aLayout : TSVGGroup; aAngle : single);
   protected
-    function    GetValue: single;
     procedure   SetValue( aValue : single);
   public
     constructor Create( AOwner: TComponent; aId : string; aSVGParent : TSVGGroup; aCTM, aUserMatrix : TMatrix); override;
@@ -319,9 +352,41 @@ type
 
     function    CreatePath( aNode : TSVGNode; aId : string; aSVGParent : TSVGGroup; aCTM, aUserMatrix : TMatrix) : TSVGPath; override;
     function    CreateGroup( aNode : TSVGNode; aId : string; aSVGParent : TSVGGroup; aCTM, aUserMatrix : TMatrix; var aSubTreeOwner : TSVGGroup) : TSVGGroup; override;
+    function    CreateUse( aUseNode, aRefNode : TSVGNode; aUseID : string; aSVGParent : TSVGGroup; aCTM, aUserMatrix : TMatrix; var aSubTreeOwner : TSVGGroup) : TSVGGroup; override;
 
     procedure   MouseDown( P : TPointF; aHitPath : TSVGHitPath); override;
     procedure   MouseMove( P : TPointF; aHitPath : TSVGHitPath; dx, dy : single); override;
+    procedure   MouseUp( P : TPointF; aHitPath : TSVGHitPath); override;
+    procedure   MouseLeave; override;
+
+    property    Value : single read GetValue write SetValue;
+  end;
+
+  TSVGSlider = class(TSVGG2Control)
+  private
+    FSliderSel : TSVGHitPath;
+    FSliderFace : TSVGHitPath;
+    FSliderMorph : TSVGPath;
+    FSliderBtn : TSVGBtnState;
+
+    FStartPoint : TPointF;
+    FStartValue : single;
+
+    procedure   SetSliderPos( aValue : single);
+  protected
+    procedure   SetValue( aValue : single);
+  public
+    constructor Create( AOwner: TComponent; aId : string; aSVGParent : TSVGGroup; aCTM, aUserMatrix : TMatrix); override;
+    destructor  Destroy; override;
+    procedure   SVGPaint( aCanvas : TCanvas); override;
+
+    function    CreatePath( aNode : TSVGNode; aId : string; aSVGParent : TSVGGroup; aCTM, aUserMatrix : TMatrix) : TSVGPath; override;
+    function    CreateUse( aUseNode, aRefNode : TSVGNode; aUseID : string; aSVGParent : TSVGGroup; aCTM, aUserMatrix : TMatrix; var aSubTreeOwner : TSVGGroup) : TSVGGroup; override;
+
+    procedure   MouseDown( P : TPointF; aHitPath : TSVGHitPath); override;
+    procedure   MouseMove( P : TPointF; aHitPath : TSVGHitPath; dx, dy : single); override;
+    procedure   MouseUp( P : TPointF; aHitPath : TSVGHitPath); override;
+    procedure   MouseLeave; override;
 
     property    Value : single read GetValue write SetValue;
   end;
@@ -400,6 +465,7 @@ type
     function    CreateGroup( aNode : TSVGNode; aId : string; aSVGParent : TSVGGroup; aCTM, aUserMatrix : TMatrix; var aSubTreeOwner : TSVGGroup) : TSVGGroup; override;
 
     function    SelectControl( P : TPointF): TSVGG2Control;
+    function    SelectHitpath( P : TPointF): TSVGHitpath;
 
     function    GetNewCol: TBits7;
     function    GetNewRow: TBits7;
@@ -558,7 +624,6 @@ end;
 //                              TG2GraphPatchFMX
 //
 //==============================================================================
-
 
 constructor TG2GraphPatchFMX.Create(AOwner: TComponent);
 begin
@@ -841,6 +906,7 @@ function TSVGG2ParamLink.CreateGroup(aNode: TSVGNode; aId : string; aSVGParent: 
 var BtnText : TSVGBtnText;
     BtnIncDec : TSVGBtnIncDec;
     Knob : TSVGKnob;
+    Slider : TSVGSlider;
 begin
   if pos('btnTextUp', aId)>0 then begin
     BtnText := TSVGBtnText.Create(self, aId, aSVGParent, aCTM, aUserMatrix);
@@ -853,7 +919,7 @@ begin
     Result := BtnText.FBtnUp;
     aSubTreeOwner := Result;
 
-    SVGAgent.ParseSVG( BtnText.FBtnDown.ID, BtnText.FBtnDown, CreateUnityMatrix);
+    SVGAgent.ParseSVG( BtnText.FBtnDown.ID, BtnText.FBtnDown, aCTM);
 
   end else
 
@@ -877,12 +943,22 @@ begin
 
   end else
 
-  if (aId = 'knobBig') or (aId = 'knobMedium') or (aId = 'knobSmall') then begin
+  if (aId = 'knobBig') or (aId = 'knobMedium') or (aId = 'knobSmall') or (aID = 'knobReset') or (aId = 'knobResetmedium') then begin
     Knob := TSVGKnob.Create(self, aId, aSVGParent, aCTM, aUserMatrix);
     Knob.FModule := FModule.FSVGControl;
     (FModule.Parameter[ FCodeRef] as TG2GraphParameterFMX).AssignControl( Knob);
 
     Result := Knob;
+    aSubTreeOwner := Result;
+
+  end else
+
+  if pos('slider', aId)>0 then begin
+    Slider := TSVGSlider.Create(self, aId, aSVGParent, aCTM, aUserMatrix);
+    Slider.FModule := FModule.FSVGControl;
+    (FModule.Parameter[ FCodeRef] as TG2GraphParameterFMX).AssignControl( Slider);
+
+    Result := Slider;
     aSubTreeOwner := Result;
 
   end else
@@ -939,7 +1015,7 @@ end;
 
 //==============================================================================
 //
-//                                TSVGHitPath
+//                                TSVGG2Graphic
 //
 //==============================================================================
 
@@ -961,7 +1037,7 @@ begin
     FModule.FBitmap.Canvas.BeginScene;
     try
       SaveMatrix := FModule.FBitmap.Canvas.Matrix;
-      FModule.FBitmap.Canvas.SetMatrix( MatrixMultiply(CTM, CreateScaleMatrix(FModule.Zoom, FModule.Zoom)));
+      FModule.FBitmap.Canvas.SetMatrix( MatrixMultiply(SVGParent.CTM, CreateScaleMatrix(FModule.Zoom, FModule.Zoom)));
       SVGPaint( FModule.FBitmap.Canvas);
     finally
       FModule.FBitmap.Canvas.SetMatrix(SaveMatrix);
@@ -976,7 +1052,6 @@ end;
 //
 //==============================================================================
 
-
 constructor TSVGG2Control.Create( AOwner: TComponent; aId : string; aSVGParent : TSVGGroup; aCTM, aUserMatrix : TMatrix);
 begin
   inherited;
@@ -989,19 +1064,41 @@ begin
   inherited;
 end;
 
+function TSVGG2Control.GetValue: single;
+begin
+  if (FParameter.HighValue - FParameter.LowValue + 1) <> 0 then
+    Result := (FParameter.GetParameterValue - FParameter.LowValue) / (FParameter.HighValue - FParameter.LowValue + 1)
+  else
+    Result := 0;
+end;
+
 procedure TSVGG2Control.MouseDown(P: TPointF; aHitPath : TSVGHitPath);
 begin
-//
+  Redraw;
+  if assigned(FModule) then
+    FModule.Repaint;
+end;
+
+procedure TSVGG2Control.MouseLeave;
+begin
+  Redraw;
+  if assigned(FModule) then
+    //FModule.Repaint;
+    FModule.Redraw;
 end;
 
 procedure TSVGG2Control.MouseMove(P: TPointF; aHitPath : TSVGHitPath; dx, dy: single);
 begin
-//
+  Redraw;
+  if assigned(FModule) then
+    FModule.Repaint;
 end;
 
 procedure TSVGG2Control.MouseUp(P: TPointF; aHitPath : TSVGHitPath);
 begin
-//
+  Redraw;
+  if assigned(FModule) then
+    FModule.Repaint;
 end;
 
 //==============================================================================
@@ -1015,11 +1112,36 @@ begin
   inherited;
   HitTest := True;
   FControl := nil;
+  FBtnIndex := -1;
 end;
 
 destructor TSVGHitPath.Destroy;
 begin
   inherited;
+end;
+
+procedure TSVGHitPath.MouseDown(P: TPointF);
+begin
+  if assigned(FControl) then
+    FControl.MouseDown( P, self);
+end;
+
+procedure TSVGHitPath.MouseLeave;
+begin
+  if assigned(FControl) then
+    FControl.MouseLeave;
+end;
+
+procedure TSVGHitPath.MouseMove(P: TPointF; dx, dy: single);
+begin
+  if assigned(FControl) then
+    FControl.MouseMove( P, self, dx, dy);
+end;
+
+procedure TSVGHitPath.MouseUp(P: TPointF);
+begin
+  if assigned(FControl) then
+    FControl.MouseUp( P, self);
 end;
 
 //==============================================================================
@@ -1028,10 +1150,11 @@ end;
 //
 //==============================================================================
 
-constructor TSVGBtnState.Create( AOwner: TComponent; aId : string; aSVGParent : TSVGGroup; aCTM, aUserMatrix : TMatrix);
+constructor TSVGBtnState.Create( aControl: TSVGG2Control; aBtnIndex : integer; aId : string; aSVGParent : TSVGGroup; aCTM, aUserMatrix : TMatrix);
 begin
-  inherited;
-  FControl := AOwner as TSVGG2Control;
+  inherited Create( aControl, aId, aSVGParent, aCTM, aUserMatrix);
+  FControl := AControl;
+  FBtnIndex := aBtnIndex;
   FBtnBackground := nil;
 end;
 
@@ -1040,7 +1163,6 @@ begin
   inherited;
 end;
 
-
 function TSVGBtnState.CreatePath( aNode: TSVGNode; aId : string; aSVGParent: TSVGGroup;
   aCTM, aUserMatrix : TMatrix): TSVGPath;
 var id : string;
@@ -1048,11 +1170,11 @@ begin
   if pos('_bg', aId)>0  then begin
     FBtnBackground := TSVGHitPath.Create(self, aId, aSVGParent, aCTM, aUserMatrix);
     FBtnBackground.Control := FControl;
+    FBtnBackground.BtnIndex := FBtnIndex;
     Result := FBtnBackground;
   end else
     result := inherited;
 end;
-
 
 //==============================================================================
 //
@@ -1063,8 +1185,8 @@ end;
 constructor TSVGBtnText.Create( AOwner: TComponent; aId : string; aSVGParent : TSVGGroup; aCTM, aUserMatrix : TMatrix);
 begin
   inherited;
-  FBtnUp := TSVGBtnState.Create(self, aId, aSVGParent, aCTM, aUserMatrix);
-  FBtnDown := TSVGBtnState.Create(self, SubTextReplace( aId, 'Up', 'Down'), aSVGParent, aCTM, aUserMatrix);
+  FBtnUp := TSVGBtnState.Create(self, 0, aId, aSVGParent, aCTM, aUserMatrix);
+  FBtnDown := TSVGBtnState.Create(self, 0, SubTextReplace( aId, 'Up', 'Down'), aSVGParent, aCTM, aUserMatrix);
 
   FBtnUp.Visible := True;
   FBtnDown.Visible := False;
@@ -1097,11 +1219,6 @@ procedure TSVGBtnText.Redraw;
 begin
   FBtnUp.Redraw;
   FBtnDown.Redraw;
-end;
-
-function TSVGBtnText.GetValue: single;
-begin
-  Result := FParameter.GetParameterValue;
 end;
 
 procedure TSVGBtnText.SetValue(aValue: single);
@@ -1138,10 +1255,6 @@ begin
   inherited;
 end;
 
-function TSVGBtnIncDec.GetValue : single;
-begin
-end;
-
 procedure TSVGBtnIncDec.SetValue( aValue : single);
 begin
 end;
@@ -1153,14 +1266,36 @@ end;
 
 procedure TSVGBtnIncDec.Redraw;
 begin
+  FBtnDecUp.Redraw;
+  FBtnDecDown.Redraw;
+  FBtnIncUp.Redraw;
+  FBtnIncDown.Redraw;
 end;
 
 procedure TSVGBtnIncDec.MouseDown( P : TPointF; aHitPath : TSVGHitPath);
 begin
+  if (aHitPath.BtnIndex = 0) then begin
+    FBtnDecUp.Visible := False;
+    FBtnDecDown.Visible := True;
+  end;
+  if (aHitPath.BtnIndex = 1) then begin
+    FBtnIncUp.Visible := False;
+    FBtnIncDown.Visible := True;
+  end;
+  inherited;
 end;
 
 procedure TSVGBtnIncDec.MouseUp( P : TPointF; aHitPath : TSVGHitPath);
 begin
+  if (aHitPath.BtnIndex = 0) then begin
+    FBtnDecUp.Visible := True;
+    FBtnDecDown.Visible := False;
+  end;
+  if (aHitPath.BtnIndex = 1) then begin
+    FBtnIncUp.Visible := True;
+    FBtnIncDown.Visible := False;
+  end;
+  inherited;
 end;
 
 function TSVGBtnIncDec.CreateGroup( aNode : TSVGNode; aId : string;
@@ -1174,8 +1309,8 @@ function TSVGBtnIncDec.CreateUse( aUseNode, aRefNode : TSVGNode; aUseID : string
 begin
   if pos('btnIncDecVert_dec', aUseId)>0 then begin
 
-    FBtnDecUp := TSVGBtnState.Create(self, aUseId, aSVGParent, aCTM, aUserMatrix);
-    FBtnDecDown := TSVGBtnState.Create(self, SubTextReplace( aUseId, 'Up', 'Down'), aSVGParent, aCTM, aUserMatrix);
+    FBtnDecUp := TSVGBtnState.Create(self, 0, aUseId, aSVGParent, aCTM, aUserMatrix);
+    FBtnDecDown := TSVGBtnState.Create(self, 0, SubTextReplace( aUseId, 'Up', 'Down'), aSVGParent, aCTM, aUserMatrix);
     FBtnDecDown.Visible := False;
 
     FBtnDecUp.FModule := FModule;
@@ -1191,8 +1326,8 @@ begin
 
   if pos('btnIncDecVert_inc', aUseId)>0 then begin
 
-    FBtnIncUp := TSVGBtnState.Create(self, aUseId, aSVGParent, aCTM, aUserMatrix);
-    FBtnIncDown := TSVGBtnState.Create(self, SubTextReplace( aUseId, 'Up', 'Down'), aSVGParent, aCTM, aUserMatrix);
+    FBtnIncUp := TSVGBtnState.Create(self, 1, aUseId, aSVGParent, aCTM, aUserMatrix);
+    FBtnIncDown := TSVGBtnState.Create(self, 1, SubTextReplace( aUseId, 'Up', 'Down'), aSVGParent, aCTM, aUserMatrix);
     FBtnIncDown.Visible := False;
 
     FBtnIncUp.FModule := FModule;
@@ -1203,6 +1338,39 @@ begin
 
     SVGAgent.ParseSVG( 'btnTextUp_11x9x1', FBtnIncUp, aCTM);
     SVGAgent.ParseSVG( 'btnTextDown_11x9x1', FBtnIncDown, aCTM);
+  end else
+
+  if pos('btnIncDecHorz_dec', aUseId)>0 then begin
+
+    FBtnDecUp := TSVGBtnState.Create(self, 0, aUseId, aSVGParent, aCTM, aUserMatrix);
+    FBtnDecDown := TSVGBtnState.Create(self, 0, SubTextReplace( aUseId, 'Up', 'Down'), aSVGParent, aCTM, aUserMatrix);
+    FBtnDecDown.Visible := False;
+
+    FBtnDecUp.FModule := FModule;
+    FBtnDecDown.FModule := FModule;
+
+    Result := nil;
+    aSubTreeOwner := Result;
+
+    SVGAgent.ParseSVG( 'btnTextUp_11x11x1', FBtnDecUp, aCTM);
+    SVGAgent.ParseSVG( 'btnTextDown_11x11x1', FBtnDecDown, aCTM);
+
+  end else
+
+  if pos('btnIncDecHorz_inc', aUseId)>0 then begin
+
+    FBtnIncUp := TSVGBtnState.Create(self, 1, aUseId, aSVGParent, aCTM, aUserMatrix);
+    FBtnIncDown := TSVGBtnState.Create(self, 1, SubTextReplace( aUseId, 'Up', 'Down'), aSVGParent, aCTM, aUserMatrix);
+    FBtnIncDown.Visible := False;
+
+    FBtnIncUp.FModule := FModule;
+    FBtnIncDown.FModule := FModule;
+
+    Result := nil;
+    aSubTreeOwner := Result;
+
+    SVGAgent.ParseSVG( 'btnTextUp_11x11x1', FBtnIncUp, aCTM);
+    SVGAgent.ParseSVG( 'btnTextDown_11x11x1', FBtnIncDown, aCTM);
   end else
 
     Result := inherited;
@@ -1226,15 +1394,43 @@ end;
 
 procedure TSVGKnob.MouseDown( P : TPointF; aHitPath : TSVGHitPath);
 begin
+  if aHitPath = FKnobFace then begin
+    FStartPoint := P;
+    FStartValue := Value;
+  end;
+
+  if assigned(FKnobCenterBtnOn) and assigned(FKnobCenterBtnOff) then
+    if (aHitPath = FKnobCenterBtnOff.FBtnBackground) or (aHitPath = FKnobCenterBtnOn.FBtnBackground) then begin
+      FStartValue := 0;
+      Value := 0.5;
+    end;
+
   inherited;
-  FStartPoint := P;
-  FStartValue := Value;
 end;
 
 procedure TSVGKnob.MouseMove( P: TPointF; aHitPath : TSVGHitPath; dx, dy: single);
 begin
+  if assigned(FKnobBtns) and (not FKnobBtns.Visible) then begin
+    FKnobBtns.Visible := True;
+  end;
+
+  if aHitPath = FKnobFace then begin
+    Value := (P.X - FStartPoint.X) / 100;
+  end;
+
   inherited;
-  Value := (P.X - FStartPoint.X) / 100;
+end;
+
+procedure TSVGKnob.MouseUp( P : TPointF; aHitPath : TSVGHitPath);
+begin
+  inherited;
+end;
+
+procedure TSVGKnob.MouseLeave;
+begin
+  FKnobBtns.Visible := False;
+
+  inherited;
 end;
 
 function TSVGKnob.CreateGroup( aNode: TSVGNode; aId : string; aSVGParent : TSVGGroup;
@@ -1242,55 +1438,89 @@ function TSVGKnob.CreateGroup( aNode: TSVGNode; aId : string; aSVGParent : TSVGG
 begin
   Result := inherited;
 
-  if (aId = 'gknobBig_needle') or (aId = 'gknobMedium_needle') or (aId = 'gknobSmall_needle') then begin
+  if (aId = 'gknobBig_needle') or (aId = 'gknobMedium_needle') or (aId = 'gknobSmall_needle')
+     or (aId = 'gknobResetmedium_needle') or (aId = 'gknobReset_needle') then begin
     FKnobNeedle := Result;
+  end;
+
+  if (aId = 'knobBtns') then begin
+    FKnobBtns := Result;
+    FKnobBtns.Visible := False;
   end;
 end;
 
 function TSVGKnob.CreatePath( aNode: TSVGNode; aId : string; aSVGParent : TSVGGroup;
   aCTM, aUserMatrix : TMatrix): TSVGPath;
 begin
-  if (aId = 'knobBig_face') or (aId = 'knobMedium_face') or (aId = 'knobSmall_face') then begin
+  if (aId = 'knobBig_sel') or (aId = 'knobMedium_sel') or (aId = 'knobSmall_sel')
+     or (aId = 'knobResetmedium_sel') or (aId = 'knobReset_sel') then begin
+    FKnobSel := TSVGHitPath.Create(self, aId, aSVGParent, aCTM, aUserMatrix);
+    FKnobSel.Control := self;
+    Result := FKnobSel;
+  end else
+
+  if (aId = 'knobBig_face') or (aId = 'knobMedium_face') or (aId = 'knobSmall_face')
+     or (aId = 'knobResetmedium_face') or (aId = 'knobReset_face') then begin
     FKnobFace := TSVGHitPath.Create(self, aId, aSVGParent, aCTM, aUserMatrix);
     FKnobFace.Control := self;
     Result := FKnobFace;
-  end else begin
+  end else
+
+  begin
     Result := inherited;
-    if (aId = 'knobBig_morph') or (aId = 'knobMedium_morph') or (aId = 'knobSmall_morph') then begin
+    if (aId = 'knobBig_morph') or (aId = 'knobMedium_morph') or (aId = 'knobSmall_morph')
+       or (aId = 'knobResetmedium_morph') or (aId = 'knobReset_morph') then begin
       FKnobMorph := Result;
     end;
   end;
 end;
 
+function TSVGKnob.CreateUse( aUseNode, aRefNode : TSVGNode; aUseID : string; aSVGParent : TSVGGroup; aCTM, aUserMatrix : TMatrix; var aSubTreeOwner : TSVGGroup) : TSVGGroup;
+begin
+  if pos('knobCenterBtn', aUseId)>0 then begin
+
+    FKnobCenterBtnOn := TSVGBtnState.Create(self, 0, aUseId, aSVGParent, aCTM, aUserMatrix);
+    FKnobCenterBtnOff := TSVGBtnState.Create(self, 0, SubTextReplace( aUseId, 'on', 'off'), aSVGParent, aCTM, aUserMatrix);
+    FKnobCenterBtnOn.Visible := False;
+
+    FKnobCenterBtnOn.FModule := FModule;
+    FKnobCenterBtnOff.FModule := FModule;
+
+    Result := nil;
+    aSubTreeOwner := Result;
+
+    SVGAgent.ParseSVG( 'knobCenterBtn_off', FKnobCenterBtnOff, aCTM);
+    SVGAgent.ParseSVG( 'knobCenterBtn_on', FKnobCenterBtnOn, aCTM);
+
+  end else
+    Result := inherited;
+end;
+
 procedure TSVGKnob.SetLayoutAngle(aLayout: TSVGGroup; aAngle: single);
 var MorphPath : string;
 begin
-  aLayout.Transform(1,1,0,0, aAngle*PI/180, 0,0);
+  if assigned(aLayout) then
+    aLayout.Transform(1,1,0,0, aAngle*PI/180, 0,0);
 
-  FKnobMorph.Data.Clear;
-  FKnobMorph.Data.MoveTo( PointF(0, 0));
-  FKnobMorph.Data.LineTo( PointF(10*sin(aAngle*PI/180), -10*cos(aAngle*PI/180)));
-  FKnobMorph.Data.AddArc( PointF(0,0), PointF(10,10), aAngle-90, 45);
-  FKnobMorph.Data.ClosePath;
-  FKnobMorph.Data.ApplyPathData;
-end;
+  if assigned(FKnobMorph) then begin
 
-function TSVGKnob.GetValue: single;
-begin
-  if FParameter.HighValue - FParameter.LowValue <> 0 then
-    Result := (FParameter.GetParameterValue - FParameter.LowValue) / (FParameter.HighValue - FParameter.LowValue)
-  else
-    Result := 0;
+    FKnobMorph.Data.Clear;
+    FKnobMorph.Data.MoveTo( PointF(0, 0));
+    FKnobMorph.Data.LineTo( PointF(10*sin(aAngle*PI/180), -10*cos(aAngle*PI/180)));
+    FKnobMorph.Data.AddArc( PointF(0,0), PointF(10,10), aAngle-90, 45);
+    FKnobMorph.Data.ClosePath;
+    FKnobMorph.Data.ApplyPathData;
+  end;
 end;
 
 procedure TSVGKnob.SetValue(aValue: single);
 var NewValue : byte;
 begin
-  NewValue := trunc((FStartValue + aValue) * (FParameter.HighValue - FParameter.LowValue) + FParameter.LowValue);
+  NewValue := trunc((FStartValue + aValue) * (FParameter.HighValue - FParameter.LowValue+1) + FParameter.LowValue);
   if (NewValue>=FParameter.LowValue) and (NewValue<=FParameter.HighValue) then
     if NewValue <> FParameter.GetParameterValue then begin
       FParameter.SetParameterValue(NewValue);
-      SetLayoutAngle( FKnobNeedle, aValue);
+      //SetLayoutAngle( FKnobNeedle, aValue);
     end;
 end;
 
@@ -1299,9 +1529,126 @@ var f : single;
 begin
   SetLayoutAngle( FKnobNeedle, Value * 270 - 135);
 
-  if FParameter.GetMorphValue(0,0) = 0 then
+  if assigned(FKnobMorph) and (FParameter.GetMorphValue(0,0) = 0) then
     FKnobMorph.Visible := False;
 
+  if assigned(FKnobCenterBtnOn) and assigned(FKnobCenterBtnOff) then
+    if Value = 0.5 then begin
+      FKnobCenterBtnOn.Visible := True;
+      FKnobCenterBtnOff.Visible := False;
+    end else begin
+      FKnobCenterBtnOn.Visible := False;
+      FKnobCenterBtnOff.Visible := True;
+    end;
+
+  inherited;
+end;
+
+//==============================================================================
+//
+//                               TSVGSlider
+//
+//==============================================================================
+
+constructor TSVGSlider.Create( AOwner: TComponent; aId : string; aSVGParent : TSVGGroup; aCTM, aUserMatrix : TMatrix);
+begin
+  inherited;
+end;
+
+destructor TSVGSlider.Destroy;
+begin
+  inherited;
+end;
+
+procedure TSVGSlider.SetSliderPos( aValue : single);
+begin
+  if assigned(FSliderBtn) then
+    FSliderBtn.Transform(1,1,0,aValue,0,0,0);
+
+  if assigned(FSliderMorph) then begin
+
+    FSliderMorph.Data.Clear;
+    //FSliderMorph.Data.MoveTo( PointF(0, 0));
+    //FSliderMorph.Data.ClosePath;
+    //FSliderMorph.Data.ApplyPathData;
+  end;
+end;
+
+procedure TSVGSlider.SetValue( aValue : single);
+var NewValue : byte;
+begin
+  NewValue := trunc((FStartValue + aValue) * (FParameter.HighValue - FParameter.LowValue+1) + FParameter.LowValue);
+  if (NewValue>=FParameter.LowValue) and (NewValue<=FParameter.HighValue) then
+    if NewValue <> FParameter.GetParameterValue then begin
+      FParameter.SetParameterValue(NewValue);
+    end;
+end;
+
+procedure TSVGSlider.SVGPaint( aCanvas : TCanvas);
+begin
+  SetSliderPos( (FSliderFace.Height - FSliderBtn.Height) - (FSliderFace.Height - FSliderBtn.Height) * Value);
+  inherited;
+end;
+
+function TSVGSlider.CreatePath( aNode : TSVGNode; aId : string; aSVGParent : TSVGGroup; aCTM, aUserMatrix : TMatrix) : TSVGPath;
+begin
+  if (aId = 'slider_face') then begin
+    FSliderFace := TSVGHitPath.Create(self, aId, aSVGParent, aCTM, aUserMatrix);
+    FSliderFace.Control := self;
+    Result := FSliderFace;
+  end else
+
+  begin
+    Result := inherited;
+    if (aId = 'slider_morph') then begin
+      FSliderMorph := Result;
+    end;
+  end;
+end;
+
+function TSVGSlider.CreateUse( aUseNode, aRefNode : TSVGNode; aUseID : string; aSVGParent : TSVGGroup; aCTM, aUserMatrix : TMatrix; var aSubTreeOwner : TSVGGroup) : TSVGGroup;
+begin
+  if pos('slider_knob', aUseId)>0 then begin
+
+    FSliderBtn := TSVGBtnState.Create(self, 0, aUseId, aSVGParent, aCTM, aUserMatrix);
+
+    FSliderBtn.FModule := FModule;
+
+    Result := nil;
+    aSubTreeOwner := Result;
+
+    SVGAgent.ParseSVG( 'slider_knob_11x6x0.3', FSliderBtn, aCTM);
+
+  end else
+    Result := inherited;
+end;
+
+procedure TSVGSlider.MouseDown( P : TPointF; aHitPath : TSVGHitPath);
+begin
+  if aHitPath = FSliderBtn.FBtnBackground then begin
+    FStartPoint := P;
+    FStartValue := Value;
+  end;
+
+  inherited;
+end;
+
+procedure TSVGSlider.MouseMove( P : TPointF; aHitPath : TSVGHitPath; dx, dy : single);
+begin
+  if aHitPath = FSliderBtn.FBtnBackground then begin
+    Value := (FStartPoint.Y - P.Y) / 100;
+  end;
+
+  inherited;
+end;
+
+procedure TSVGSlider.MouseUp( P : TPointF; aHitPath : TSVGHitPath);
+begin
+  inherited;
+end;
+
+procedure TSVGSlider.MouseLeave;
+begin
   inherited;
 end;
 
@@ -2223,6 +2570,16 @@ procedure TSVGG2Module.Redraw;
 begin
   FRedrawBuffer := True;
   Repaint;
+end;
+
+function TSVGG2Module.SelectHitpath( P : TPointF): TSVGHitpath;
+var SVGObject : TSVGObject;
+begin
+  Result := nil;
+  SVGObject := ObjectAtPt( PointF(P.X / FZoom, P.Y / FZoom) );
+  if SVGObject is  TSVGHitPath then begin
+    Result := SVGObject as TSVGHitPath;
+  end;
 end;
 
 function TSVGG2Module.SelectControl( P : TPointF): TSVGG2Control;

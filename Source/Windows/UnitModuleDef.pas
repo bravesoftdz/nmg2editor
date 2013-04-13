@@ -308,6 +308,7 @@ const
   idKnobReset = 'knobReset';
   idKnobSmall = 'knobSmall';
   idKnobBtns = 'knobBtns';
+  idKnobCenterBtn = 'knobCenterBtn';
   idConnectorIn = 'connIn';
   idConnectorOut = 'connOut';
   idPartSel = 'partSel';
@@ -861,7 +862,7 @@ var Control : TG2GraphChildControl;
 
     function GetIDBtnText( aBaseName : string; aWidth, aHeight, aBevelWidth : single): string;
     begin
-      Result :=  aBaseName + '_' + FloatToStr(aWidth) + 'x' + FloatToStr(aHeight) + 'x' + FloatToStr(aBevelWidth);
+      Result :=  aBaseName + '_' + FloatToStr(trunc(aWidth*10)/10) + 'x' + FloatToStr(trunc(aHeight*10)/10) + 'x' + FloatToStr(trunc(aBevelWidth*10)/10);
     end;
 
     function NiceButton( aBaseName : string; aWidth, aHeight, aBevelWidth, aBevelHeight : single;
@@ -1289,13 +1290,22 @@ var Control : TG2GraphChildControl;
     begin
       bw := 2;
       id := GetIDBtnRadio( idBtnRadioDown, aWidth, aHeight);
-      S := TStringStream.Create(
+      {S := TStringStream.Create(
          '<g id="' + id + '">'
         + ' <desc>Button radio down for G2 editor</desc>'
           + ' <g id="' + id + '_parts">'
             + ' <rect id="' + id + '_bg" fill="black" stroke="none" x="0" y="0" width="' + FloatToStr(aWidth) + '" height="' + FloatToStr(aHeight) + '" />'
                   + Bevel( id, aWidth, aHeight, bw, 'url(#btnRadioGradienSideLeft)', 'url(#btnRadioGradienSideTop)', 'url(#btnRadioGradienSideRight)', 'url(#btnRadioGradienSideBottom)')
             + ' <rect id="' + id + '_face" fill="url(#btnRadioGradienFace)" stroke="none" x="' + FloatToStr(bw) + '" y="' + FloatToStr(bw) + '" width="' + FloatToStr(aWidth-bw*2) + '" height="' + FloatToStr(aHeight-bw*2) + '" />'
+       + ' </g>'
+       + '</g>');}
+      S := TStringStream.Create(
+         '<g id="' + id + '">'
+        + ' <desc>Button radio down for G2 editor</desc>'
+          + ' <g id="' + id + '_parts">'
+            + ' <rect id="' + id + '_bg" fill="black" stroke="none" x="0" y="0" width="' + FloatToStr(aWidth) + '" height="' + FloatToStr(aHeight) + '" />'
+                  + Bevel( id, aWidth, aHeight, bw, 'url(#btnTextGradienSideLeft)', 'url(#btnTextGradienSideTop)', 'url(#btnTextGradienSideRight)', 'url(#btnTextGradienSideBottom)')
+            + ' <rect id="' + id + '_face" fill="url(#btnTextGradienFace)" stroke="none" x="' + FloatToStr(bw) + '" y="' + FloatToStr(bw) + '" width="' + FloatToStr(aWidth-bw*2) + '" height="' + FloatToStr(aHeight-bw*2) + '" />'
        + ' </g>'
        + '</g>');
       try
@@ -1556,9 +1566,13 @@ var Control : TG2GraphChildControl;
 
        if reset then begin
          svg := svg
-       + '  <g>'
+       {+ '  <g>'
        + '    <path id="' + id + '_cntrBtn" d="M' + FloatToStr((w - 10)/2) + ',0 h10 l -5,4 z" fill="lime" stroke="black" opacity="1" />'
-       + '  </g>';
+       + '  </g>';}
+         + '<use id="' + idKnobCenterBtn + '_use"'
+              + ' xlink:href="#' + idKnobCenterBtn + '_on"'
+              + ' transform="translate(' + FloatToStr( c_x - 5) + ',' + FloatToStr(0) + ')"'
+              + ' x="0" y="0" />'
        end;
 
        svg := svg
@@ -1619,7 +1633,7 @@ var Control : TG2GraphChildControl;
     var id : string;
     begin
       id := idKnobResetMedium;
-      CreateKnob( aNode, id, 20, 30, 10, 16, 10, 7, true);
+      CreateKnob( aNode, id, 20, 30, 10, 15, 10, 7, true);
     end;
 
     procedure CreateKnobReset( aNode : TDomNode);
@@ -1673,6 +1687,40 @@ var Control : TG2GraphChildControl;
       end;
     end;
 
+    procedure CreateCenterBtnOff( aNode : TDomNode);
+    var S : TStringStream;
+        id : string;
+        w : single;
+    begin
+      w := 10;
+      S := TStringStream.Create(
+         '<g id="' + idKnobCenterBtn + '_off">'
+       + '  <path id="' + idKnobCenterBtn + '_off_bg" d="M' + FloatToStr((w - 10)/2) + ',0 h10 l -5,4 z" fill="gray" stroke="black" opacity="1" />'
+       + '</g>');
+      try
+        ReadXMLFragment( aNode, S);
+      finally
+        S.Free;
+      end;
+    end;
+
+    procedure CreateCenterBtnOn( aNode : TDomNode);
+    var S : TStringStream;
+        id : string;
+        w : single;
+    begin
+      w := 10;
+      S := TStringStream.Create(
+         '<g id="' + idKnobCenterBtn + '_on">'
+       + '  <path id="' + idKnobCenterBtn + '_on_bg" d="M' + FloatToStr((w - 10)/2) + ',0 h10 l -5,4 z" fill="lime" stroke="black" opacity="1" />'
+       + '</g>');
+      try
+        ReadXMLFragment( aNode, S);
+      finally
+        S.Free;
+      end;
+    end;
+
     procedure CreateKnobSliderKnob( aNode : TDomNode; aWidth, aHeight, aBevelWidth, aBevelHeight : single);
     var S : TStringStream;
         bw : integer;
@@ -1699,7 +1747,7 @@ var Control : TG2GraphChildControl;
        + '     <rect id="' + idSlider + '_bevel" fill="gray" stroke="none" x="0" y="0" width="11" height="45" />'
        + '     <rect id="' + idSlider + '_face" fill="lightgray" stroke="none" x="' + IntToStr(bw) + '" y="' + IntToStr(bw) + '" width="' + IntToStr(11 - bw*2) + '" height="' + IntToStr(45 - bw*2) + '" />'
        //+ '     <rect id="' + idSlider + '_btn" fill="gray" stroke="none" x="0" y="40" width="11" height="5" />'
-       + Use( idSlider + '_knob', GetIDBtnText( idSlider + '_knob', 11, 6, 0.5), 0, 0)
+       + Use( idSlider + '_knob', GetIDBtnText( idSlider + '_knob', 11, 6, 0.3), 0, 0)
        + '  </g>'
        + '</g>');
       try
@@ -2149,6 +2197,14 @@ begin
 
     GKnobDefNode := CreateSectionPlaceholder( GKnobSectionNode, idKnobBtns + '_def', kc, 0);
     CreateKnobButtons( GKnobDefNode);
+    kc := kc + 40;
+
+    GKnobDefNode := CreateSectionPlaceholder( GKnobSectionNode, idKnobCenterBtn + '_off_def', kc, 0);
+    CreateCenterBtnOff( GKnobDefNode);
+    kc := kc + 40;
+
+    GKnobDefNode := CreateSectionPlaceholder( GKnobSectionNode, idKnobCenterBtn + '_on_def', kc, 0);
+    CreateCenterBtnOn( GKnobDefNode);
     kc := kc + 40;
 
     GKnobDefNode := CreateSectionPlaceholder( GKnobSectionNode, idKnobBig + '_def', kc, 0);

@@ -10558,7 +10558,7 @@
     <PageIndex>1</PageIndex>
     <ShortName>LfoB</ShortName>
     <LongName>LFO B</LongName>
-    <Height>3</Height>
+    <Height>4</Height>
     <Inputs>
       <Connector>
         <Name>Rate</Name>
