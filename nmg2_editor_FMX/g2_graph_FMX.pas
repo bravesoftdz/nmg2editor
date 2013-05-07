@@ -108,47 +108,6 @@ type
     property    OnCreateModuleFMX : TCreateModuleFMXEvent read FOnCreateModuleFMX write FOnCreateModuleFMX;
   end;
 
-  TBitmapRect = class
-  private
-    FRect : TRectF;
-    FBitmap : TBitmap;
-    FZoom : single;
-  protected
-    function Getactive: boolean;
-    procedure SetActive( aValue : boolean);
-    procedure SetZoom( aValue : single);
-  public
-    constructor Create;
-    destructor Destroy; override;
-
-    property Active : boolean read GetActive write Setactive;
-    property Rect : TRectF read FRect write FRect;
-    property Zoom : single read FZoom write SetZoom;
-    property Bitmap : TBitmap read FBitmap write FBitmap;
-  end;
-
-  TCableBitmapBuffer = class(TControl)
-  private
-    FBitmapList : TObjectList;
-    Fdx, Fdy : single;
-    FCols, FRows : integer;
-    FCableList : TCableList;
-    FRedrawBuffer : boolean;
-    FZoom : single;
-  protected
-    procedure SetZoom( aValue : single);
-  public
-    constructor Create(AOwner: TComponent); override;
-    destructor Destroy; override;
-    procedure Paint; override;
-    procedure Clear;
-
-    property dX : single read Fdx;
-    property dY : single read Fdy;
-    property CableList : TCableList read FCableList write FCableList;
-    property RedrawBuffer : boolean read FRedrawBuffer write FRedrawBuffer;
-    property Zoom : single read FZoom write SetZoom;
-  end;
 
   TSVGG2Control = class;
   TSVGG2Module = class;
@@ -227,8 +186,6 @@ type
   public
     constructor Create( AOwner: TComponent; aId : string; aSVGParent: TSVGGroup; aCTM, aUserMatrix : TMatrix); override;
     destructor  Destroy; override;
-
-    function    CreateGroup( aNode : TSVGNode; aId : string; aSVGParent : TSVGGroup; aCTM, aUserMatrix : TMatrix; var aSubTreeOwner : TSVGGroup) : TSVGGroup; override;
   end;
 
   TSVGG2ConnLink = class(TSVGG2Graphic)
@@ -301,6 +258,8 @@ type
     procedure   SVGPaint( aCanvas : TCanvas); override;
     procedure   Redraw; override;
 
+    function    CreateUse( aUseNode, aRefNode : TSVGNode; aUseID : string; aSVGParent : TSVGGroup; aCTM, aUserMatrix : TMatrix; var aSubTreeOwner : TSVGGroup) : TSVGGroup; override;
+
     procedure   MouseDown( P : TPointF; aHitPath : TSVGHitPath); override;
 
     property    Value : single read GetValue write SetValue;
@@ -327,6 +286,29 @@ type
     procedure   MouseUp( P : TPointF; aHitPath : TSVGHitPath); override;
 
     property    Value : single read GetValue write SetValue;
+  end;
+
+  TSVGBtnRadio = class(TSVGG2Control)
+  private
+    FBtnCount : integer;
+    FBtnUp   : array of TSVGBtnState;
+    FBtnDown : array of TSVGBtnState;
+  protected
+    procedure   SetBtnCount( aValue : integer);
+    procedure   SetValue( aValue : single);
+  public
+    constructor Create( AOwner: TComponent; aId : string; aSVGParent : TSVGGroup; aCTM, aUserMatrix : TMatrix); override;
+    destructor  Destroy; override;
+    procedure   Redraw; override;
+    procedure   SVGPaint( aCanvas : TCanvas); override;
+
+    function    CreateUse( aUseNode, aRefNode : TSVGNode; aUseID : string; aSVGParent : TSVGGroup; aCTM, aUserMatrix : TMatrix; var aSubTreeOwner : TSVGGroup) : TSVGGroup; override;
+
+    procedure   MouseDown( P : TPointF; aHitPath : TSVGHitPath); override;
+    procedure   MouseUp( P : TPointF; aHitPath : TSVGHitPath); override;
+
+    property    Value : single read GetValue write SetValue;
+    property    BtnCount : integer read FBtnCount write SetBtnCount;
   end;
 
   TSVGKnob = class(TSVGG2Control)
@@ -404,6 +386,54 @@ type
     function    CreatePath( aNode : TSVGNode; aId : string; aSVGParent : TSVGGroup; aCTM, aUserMatrix : TMatrix) : TSVGPath; override;
 
     property    Data : TG2FileConnector read FData write SetData;
+  end;
+
+  TCableStyle = ( csFlat, csGradient);
+
+  TBitmapRect = class
+  private
+    FRect : TRectF;
+    FBitmap : TBitmap;
+    FZoom : single;
+  protected
+    function Getactive: boolean;
+    procedure SetActive( aValue : boolean);
+    procedure SetZoom( aValue : single);
+  public
+    constructor Create;
+    destructor Destroy; override;
+
+    property Active : boolean read GetActive write Setactive;
+    property Rect : TRectF read FRect write FRect;
+    property Zoom : single read FZoom write SetZoom;
+    property Bitmap : TBitmap read FBitmap write FBitmap;
+  end;
+
+  TCableBitmapBuffer = class(TControl)
+  private
+    FBitmapList : TObjectList;
+    Fdx, Fdy : single;
+    FCols, FRows : integer;
+    FCableList : TCableList;
+    FRedrawBuffer : boolean;
+    FZoom : single;
+    FCableStyle : TCableStyle;
+  protected
+    procedure SetZoom( aValue : single);
+    procedure SetCableStyle( aValue : TCableStyle);
+  public
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+    procedure Paint; override;
+    procedure Clear;
+    procedure Resize; override;
+
+    property dX : single read Fdx;
+    property dY : single read Fdy;
+    property CableList : TCableList read FCableList write FCableList;
+    property RedrawBuffer : boolean read FRedrawBuffer write FRedrawBuffer;
+    property Zoom : single read FZoom write SetZoom;
+    property CableStyle : TCableStyle read FCableStyle write SetCableStyle;
   end;
 
   TNode = class
@@ -499,6 +529,8 @@ type
   end;
 
 function SubTextReplace( aText, aSubText, aReplaceText : string): string;
+function DecodeButtonStateElement( aValue : string; var aName, aState, aSize : string): boolean;
+function DecodeModuleControlElement( aValue : string; var aModuleID, aCtrlID, aIndex : integer): boolean;
 
 var
   SVGAgent : TG2SVGAgent;
@@ -529,6 +561,128 @@ begin
           + (aColor and $000000ff) shl 16
           + (aColor and $0000ff00)
           + (aColor and $00ff0000) shr 16;
+end;
+
+function SubtractText( aSubstr, aStr : string): string;
+var p : integer;
+begin
+  p := pos(aSubstr, aStr);
+  if p > 0 then
+    Result := copy(aStr, p + Length(aSubstr), Length(aStr) - Length(aSubstr))
+  else
+    Result := aStr;
+end;
+
+function GetDelimitedText( aStr : string; aDelimiter : char; var aEndOfStr : boolean): string;
+var i : integer;
+begin
+  Result := '';
+  i := 1;
+  while (i<=length(aStr)) and (aStr[i]<>aDelimiter) do begin
+    Result := Result + aStr[i];
+    inc(i);
+  end;
+  aEndOfStr := not(i<length(aStr));
+end;
+
+function ExtractValueStr( var aStr : string; aName : string; aDelimiter : char; var aEndOfStr : boolean; var aValue : string): boolean;
+var p : integer;
+    temp : string;
+begin
+  Result := True;
+  p := pos(aName, aStr);
+  if p = 0 then begin
+    Result := False;
+    exit;
+  end;
+
+  aStr := SubtractText(aName, aStr);
+  temp := GetDelimitedText( aStr, aDelimiter, aEndOfStr);
+
+  if not(aEndOfStr) then
+    aStr := SubtractText(temp + '_', aStr)
+  else
+    aStr := SubtractText(temp, aStr);
+
+  aValue := temp;
+end;
+
+function ExtractValueInt( var aStr : string; aName : string; aDelimiter : char; var aEndOfStr : boolean; var aValue : integer): boolean;
+var p, c : integer;
+    temp : string;
+begin
+  Result := True;
+  p := pos(aName, aStr);
+  if p = 0 then begin
+    Result := False;
+    exit;
+  end;
+
+  aStr := SubtractText(aName, aStr);
+  temp := GetDelimitedText( aStr, aDelimiter, aEndOfStr);
+
+  if not(aEndOfStr) then
+    aStr := SubtractText(temp + '_', aStr)
+  else
+    aStr := SubtractText(temp, aStr);
+
+  val(temp, aValue, c);
+  if c>0 then begin
+    Result := False;
+    exit;
+  end;
+end;
+
+function DecodeButtonStateElement( aValue : string; var aName, aState, aSize : string): boolean;
+var EndOfStr : boolean;
+begin
+  Result := True;
+  aValue := Lowercase(aValue);
+
+  aName := GetDelimitedText(aValue, '_', EndOfStr);
+  if not(EndOfStr) then
+    aValue := SubtractText(aName + '_', aValue)
+  else
+    aValue := SubtractText(aName, aValue);
+
+  aState := GetDelimitedText(aValue, '_', EndOfStr);
+  if not(EndOfStr) then
+    aValue := SubtractText(aState + '_', aValue)
+  else
+    aValue := SubtractText(aState, aValue);
+
+  aSize := GetDelimitedText(aValue, '_', EndOfStr);
+  if not(EndOfStr) then
+    aValue := SubtractText(aSize + '_', aValue)
+  else
+    aValue := SubtractText(aSize, aValue);
+end;
+
+function DecodeModuleControlElement( aValue : string; var aModuleID, aCtrlID, aIndex : integer): boolean;
+var EndOfStr : boolean;
+begin
+  Result := True;
+  aValue := Lowercase(aValue);
+
+  if not ExtractValueInt(aValue, 'module_', '_', EndOfStr, aModuleID) then begin
+    Result := False;
+    exit;
+  end;
+
+  if not ExtractValueInt(aValue, 'ctrl_', '_', EndOfStr, aCtrlID) then begin
+    Result := False;
+    exit;
+  end;
+
+  if EndOfStr then begin
+    aIndex := 0;
+    exit;
+  end else begin
+    if not ExtractValueInt(aValue, 'el_', '_', EndOfStr, aIndex) then begin
+      Result := False;
+      exit;
+    end;
+  end;
 end;
 
 //==============================================================================
@@ -899,71 +1053,7 @@ begin
   FInfoFunc := 0;
   FTextFunc := 0;
   FDependencies := '';
-end;
-
-function TSVGG2ParamLink.CreateGroup(aNode: TSVGNode; aId : string; aSVGParent: TSVGGroup;
-  aCTM, aUserMatrix : TMatrix; var aSubTreeOwner: TSVGGroup): TSVGGroup;
-var BtnText : TSVGBtnText;
-    BtnIncDec : TSVGBtnIncDec;
-    Knob : TSVGKnob;
-    Slider : TSVGSlider;
-begin
-  if pos('btnTextUp', aId)>0 then begin
-    BtnText := TSVGBtnText.Create(self, aId, aSVGParent, aCTM, aUserMatrix);
-    BtnText.FModule := FModule.FSVGControl;
-    (FModule.Parameter[ FCodeRef] as TG2GraphParameterFMX).AssignControl( BtnText);
-
-    BtnText.FBtnUp.FModule := FModule.FSVGControl;
-    BtnText.FBtnDown.FModule := FModule.FSVGControl;
-
-    Result := BtnText.FBtnUp;
-    aSubTreeOwner := Result;
-
-    SVGAgent.ParseSVG( BtnText.FBtnDown.ID, BtnText.FBtnDown, aCTM);
-
-  end else
-
-  if pos('btnIncDecHorz', aId)>0 then begin
-    BtnIncDec := TSVGBtnIncDec.Create(self, aId, aSVGParent, aCTM, aUserMatrix);
-    BtnIncDec.FModule := FModule.FSVGControl;
-    (FModule.Parameter[ FCodeRef] as TG2GraphParameterFMX).AssignControl( BtnIncDec);
-
-    Result := BtnIncDec;
-    aSubTreeOwner := Result;
-
-  end else
-
-  if pos('btnIncDecVert', aId)>0 then begin
-    BtnIncDec := TSVGBtnIncDec.Create(self, aId, aSVGParent, aCTM, aUserMatrix);
-    BtnIncDec.FModule := FModule.FSVGControl;
-    (FModule.Parameter[ FCodeRef] as TG2GraphParameterFMX).AssignControl( BtnIncDec);
-
-    Result := BtnIncDec;
-    aSubTreeOwner := Result;
-
-  end else
-
-  if (aId = 'knobBig') or (aId = 'knobMedium') or (aId = 'knobSmall') or (aID = 'knobReset') or (aId = 'knobResetmedium') then begin
-    Knob := TSVGKnob.Create(self, aId, aSVGParent, aCTM, aUserMatrix);
-    Knob.FModule := FModule.FSVGControl;
-    (FModule.Parameter[ FCodeRef] as TG2GraphParameterFMX).AssignControl( Knob);
-
-    Result := Knob;
-    aSubTreeOwner := Result;
-
-  end else
-
-  if pos('slider', aId)>0 then begin
-    Slider := TSVGSlider.Create(self, aId, aSVGParent, aCTM, aUserMatrix);
-    Slider.FModule := FModule.FSVGControl;
-    (FModule.Parameter[ FCodeRef] as TG2GraphParameterFMX).AssignControl( Slider);
-
-    Result := Slider;
-    aSubTreeOwner := Result;
-
-  end else
-
-    Result := inherited;
+  FCtrlType := '';
 end;
 
 destructor TSVGG2ParamLink.Destroy;
@@ -1186,7 +1276,7 @@ constructor TSVGBtnText.Create( AOwner: TComponent; aId : string; aSVGParent : T
 begin
   inherited;
   FBtnUp := TSVGBtnState.Create(self, 0, aId, aSVGParent, aCTM, aUserMatrix);
-  FBtnDown := TSVGBtnState.Create(self, 0, SubTextReplace( aId, 'Up', 'Down'), aSVGParent, aCTM, aUserMatrix);
+  FBtnDown := TSVGBtnState.Create(self, 0, SubTextReplace( aId, 'up', 'down'), aSVGParent, aCTM, aUserMatrix);
 
   FBtnUp.Visible := True;
   FBtnDown.Visible := False;
@@ -1237,6 +1327,43 @@ begin
         FBtnDown.Visible := True;
       end;
     end;
+end;
+
+function TSVGBtnText.CreateUse(aUseNode, aRefNode: TSVGNode; aUseID: string;
+  aSVGParent: TSVGGroup; aCTM, aUserMatrix: TMatrix;
+  var aSubTreeOwner: TSVGGroup): TSVGGroup;
+var ModuleId, CtrlID, Index : integer;
+    RefID, GraphName, Size, State : string;
+    AttributeValue : string;
+begin
+  if DecodeModuleControlElement( aUseID, ModuleID, CtrlID, Index) then begin
+    if aRefNode.GetAttribute( 'id', AttributeValue) then begin
+      RefId := AttributeValue;
+      if DecodeButtonStateElement( RefId, GraphName, State, Size) then begin
+
+        if State = 'up' then begin
+          FBtnUp := TSVGBtnState.Create(self, index, RefId, aSVGParent, aCTM, aUserMatrix);
+          FBtnDown := TSVGBtnState.Create(self, index, SubTextReplace( RefId, 'up', 'down'), aSVGParent, aCTM, aUserMatrix);
+        end else begin
+          FBtnDown := TSVGBtnState.Create(self, index, RefId, aSVGParent, aCTM, aUserMatrix);
+          FBtnUp := TSVGBtnState.Create(self, index, SubTextReplace( RefId, 'down', 'up'), aSVGParent, aCTM, aUserMatrix);
+        end;
+
+        FBtnDown.Visible := False;
+
+        FBtnUp.FModule := FModule;
+        FBtnDown.FModule := FModule;
+
+        Result := nil;
+        aSubTreeOwner := Result;
+
+        SVGAgent.ParseSVG( 'btnText_up_' + Size, FBtnUp, aCTM);
+        SVGAgent.ParseSVG( 'btnText_down_' + Size, FBtnDown, aCTM);
+
+      end;
+    end;
+  end else
+    Result := inherited;
 end;
 
 //==============================================================================
@@ -1310,7 +1437,7 @@ begin
   if pos('btnIncDecVert_dec', aUseId)>0 then begin
 
     FBtnDecUp := TSVGBtnState.Create(self, 0, aUseId, aSVGParent, aCTM, aUserMatrix);
-    FBtnDecDown := TSVGBtnState.Create(self, 0, SubTextReplace( aUseId, 'Up', 'Down'), aSVGParent, aCTM, aUserMatrix);
+    FBtnDecDown := TSVGBtnState.Create(self, 0, SubTextReplace( aUseId, 'up', 'down'), aSVGParent, aCTM, aUserMatrix);
     FBtnDecDown.Visible := False;
 
     FBtnDecUp.FModule := FModule;
@@ -1319,15 +1446,15 @@ begin
     Result := nil;
     aSubTreeOwner := Result;
 
-    SVGAgent.ParseSVG( 'btnTextUp_11x9x1', FBtnDecUp, aCTM);
-    SVGAgent.ParseSVG( 'btnTextDown_11x9x1', FBtnDecDown, aCTM);
+    SVGAgent.ParseSVG( 'btnText_up_11x9x1', FBtnDecUp, aCTM);
+    SVGAgent.ParseSVG( 'btnText_down_11x9x1', FBtnDecDown, aCTM);
 
   end else
 
   if pos('btnIncDecVert_inc', aUseId)>0 then begin
 
     FBtnIncUp := TSVGBtnState.Create(self, 1, aUseId, aSVGParent, aCTM, aUserMatrix);
-    FBtnIncDown := TSVGBtnState.Create(self, 1, SubTextReplace( aUseId, 'Up', 'Down'), aSVGParent, aCTM, aUserMatrix);
+    FBtnIncDown := TSVGBtnState.Create(self, 1, SubTextReplace( aUseId, 'up', 'down'), aSVGParent, aCTM, aUserMatrix);
     FBtnIncDown.Visible := False;
 
     FBtnIncUp.FModule := FModule;
@@ -1336,14 +1463,14 @@ begin
     Result := nil;
     aSubTreeOwner := Result;
 
-    SVGAgent.ParseSVG( 'btnTextUp_11x9x1', FBtnIncUp, aCTM);
-    SVGAgent.ParseSVG( 'btnTextDown_11x9x1', FBtnIncDown, aCTM);
+    SVGAgent.ParseSVG( 'btnText_up_11x9x1', FBtnIncUp, aCTM);
+    SVGAgent.ParseSVG( 'btnText_down_11x9x1', FBtnIncDown, aCTM);
   end else
 
   if pos('btnIncDecHorz_dec', aUseId)>0 then begin
 
     FBtnDecUp := TSVGBtnState.Create(self, 0, aUseId, aSVGParent, aCTM, aUserMatrix);
-    FBtnDecDown := TSVGBtnState.Create(self, 0, SubTextReplace( aUseId, 'Up', 'Down'), aSVGParent, aCTM, aUserMatrix);
+    FBtnDecDown := TSVGBtnState.Create(self, 0, SubTextReplace( aUseId, 'up', 'down'), aSVGParent, aCTM, aUserMatrix);
     FBtnDecDown.Visible := False;
 
     FBtnDecUp.FModule := FModule;
@@ -1352,15 +1479,15 @@ begin
     Result := nil;
     aSubTreeOwner := Result;
 
-    SVGAgent.ParseSVG( 'btnTextUp_11x11x1', FBtnDecUp, aCTM);
-    SVGAgent.ParseSVG( 'btnTextDown_11x11x1', FBtnDecDown, aCTM);
+    SVGAgent.ParseSVG( 'btnText_up_11x11x1', FBtnDecUp, aCTM);
+    SVGAgent.ParseSVG( 'btnText_down_11x11x1', FBtnDecDown, aCTM);
 
   end else
 
   if pos('btnIncDecHorz_inc', aUseId)>0 then begin
 
     FBtnIncUp := TSVGBtnState.Create(self, 1, aUseId, aSVGParent, aCTM, aUserMatrix);
-    FBtnIncDown := TSVGBtnState.Create(self, 1, SubTextReplace( aUseId, 'Up', 'Down'), aSVGParent, aCTM, aUserMatrix);
+    FBtnIncDown := TSVGBtnState.Create(self, 1, SubTextReplace( aUseId, 'up', 'down'), aSVGParent, aCTM, aUserMatrix);
     FBtnIncDown.Visible := False;
 
     FBtnIncUp.FModule := FModule;
@@ -1369,12 +1496,154 @@ begin
     Result := nil;
     aSubTreeOwner := Result;
 
-    SVGAgent.ParseSVG( 'btnTextUp_11x11x1', FBtnIncUp, aCTM);
-    SVGAgent.ParseSVG( 'btnTextDown_11x11x1', FBtnIncDown, aCTM);
+    SVGAgent.ParseSVG( 'btnText_up_11x11x1', FBtnIncUp, aCTM);
+    SVGAgent.ParseSVG( 'btnText_down_11x11x1', FBtnIncDown, aCTM);
   end else
 
     Result := inherited;
 end;
+
+//==============================================================================
+//
+//                               TSVGBtnRadio
+//
+//==============================================================================
+
+constructor TSVGBtnRadio.Create( AOwner: TComponent; aId : string; aSVGParent : TSVGGroup; aCTM, aUserMatrix : TMatrix);
+begin
+  inherited;
+end;
+
+destructor TSVGBtnRadio.Destroy;
+var i : integer;
+begin
+  for i := 0 to Length(FBtnUp)-1 do
+    FBtnUp[i].Free;
+
+  for i := 0 to Length(FBtnDown)-1 do
+    FBtnDown[i].Free;
+  inherited;
+end;
+
+procedure TSVGBtnRadio.SetBtnCount(aValue: integer);
+var i : integer;
+begin
+  if FBtnCount <> aValue then begin
+    FBtnCount := aValue;
+  end;
+end;
+
+procedure TSVGBtnRadio.SetValue( aValue : single);
+var NewValue : byte;
+    i, index : integer;
+begin
+  NewValue := trunc(aValue * (FParameter.HighValue - FParameter.LowValue) + FParameter.LowValue);
+  if (NewValue>=FParameter.LowValue) and (NewValue<=FParameter.HighValue) then
+    if NewValue <> FParameter.GetParameterValue then begin
+      FParameter.SetParameterValue(NewValue);
+    end;
+
+  for i := 0 to Length(FBtnUp)-1 do begin
+    if i <> NewValue then begin
+      if FBtnDown[i].Visible then begin
+        FBtnDown[i].Visible := False;
+        FBtnUp[i].Visible := True;
+      end;
+    end else begin
+      if not FBtnDown[i].Visible then begin
+        FBtnDown[i].Visible := True;
+        FBtnUp[i].Visible := False;
+      end;
+    end;
+  end;
+end;
+
+procedure TSVGBtnRadio.SVGPaint(aCanvas: TCanvas);
+var i, index : integer;
+begin
+  index := FParameter.GetParameterValue;
+
+  for i := 0 to Length(FBtnUp)-1 do begin
+    if i <> index then begin
+      if FBtnDown[i].Visible then begin
+        FBtnDown[i].Visible := False;
+        FBtnUp[i].Visible := True;
+      end;
+    end else begin
+      if not FBtnDown[i].Visible then begin
+        FBtnDown[i].Visible := True;
+        FBtnUp[i].Visible := False;
+      end;
+    end;
+  end;
+
+  inherited;
+end;
+
+procedure TSVGBtnRadio.Redraw;
+var i : integer;
+begin
+  for i := 0 to Length(FBtnUp)-1 do
+    FBtnUp[i].Redraw;
+
+  for i := 0 to Length(FBtnDown)-1 do
+    FBtnDown[i].Redraw;
+end;
+
+procedure TSVGBtnRadio.MouseDown( P : TPointF; aHitPath : TSVGHitPath);
+begin
+  Value := aHitPath.BtnIndex / (Length(FBtnDown) - 1);
+
+  inherited;
+end;
+
+procedure TSVGBtnRadio.MouseUp( P : TPointF; aHitPath : TSVGHitPath);
+begin
+
+  inherited;
+end;
+
+function TSVGBtnRadio.CreateUse( aUseNode, aRefNode : TSVGNode; aUseID : string; aSVGParent : TSVGGroup; aCTM, aUserMatrix : TMatrix; var aSubTreeOwner : TSVGGroup) : TSVGGroup;
+var ModuleId, CtrlID, Index : integer;
+    RefID, GraphName, Size, State : string;
+    AttributeValue : string;
+begin
+  if DecodeModuleControlElement( aUseID, ModuleID, CtrlID, Index) then begin
+    if aRefNode.GetAttribute( 'id', AttributeValue) then begin
+      RefId := AttributeValue;
+      if DecodeButtonStateElement( RefId, GraphName, State, Size) then begin
+
+        if (index+1) > Length(FBtnUp) then
+          SetLength(FBtnUp, index+1);
+
+        if (index+1) > Length(FBtnDown) then
+          SetLength(FBtnDown, index+1);
+
+        if State = 'up' then begin
+          FBtnUp[Index] := TSVGBtnState.Create(self, index, RefId, aSVGParent, aCTM, aUserMatrix);
+          FBtnDown[Index] := TSVGBtnState.Create(self, index, SubTextReplace( RefId, 'up', 'down'), aSVGParent, aCTM, aUserMatrix);
+        end else begin
+          FBtnDown[Index] := TSVGBtnState.Create(self, index, RefId, aSVGParent, aCTM, aUserMatrix);
+          FBtnUp[Index] := TSVGBtnState.Create(self, index, SubTextReplace( RefId, 'down', 'up'), aSVGParent, aCTM, aUserMatrix);
+        end;
+
+        FBtnDown[Index].Visible := False;
+
+        FBtnUp[Index].FModule := FModule;
+        FBtnDown[Index].FModule := FModule;
+
+        Result := nil;
+        aSubTreeOwner := Result;
+
+        SVGAgent.ParseSVG( 'btnRadio_up_' + Size, FBtnUp[Index], aCTM);
+        SVGAgent.ParseSVG( 'btnRadio_down_' + Size, FBtnDown[Index], aCTM);
+
+      end;
+    end;
+  end else
+    Result := inherited;
+end;
+
 
 //==============================================================================
 //
@@ -1586,7 +1855,8 @@ end;
 
 procedure TSVGSlider.SVGPaint( aCanvas : TCanvas);
 begin
-  SetSliderPos( (FSliderFace.Height - FSliderBtn.Height) - (FSliderFace.Height - FSliderBtn.Height) * Value);
+  if assigned(FSliderFace) and assigned(FSliderBtn) then
+    SetSliderPos( (FSliderFace.Height - FSliderBtn.Height) - (FSliderFace.Height - FSliderBtn.Height) * Value);
   inherited;
 end;
 
@@ -1848,18 +2118,17 @@ begin
   inherited;
   FBitmapList := TObjectList.Create( True);
 
-  FCols := 20;
-  FRows := 20;
   Fdx := 100;
   Fdy := 80;
   FZoom := 1;
 
-  Width := FCols * Fdx * FZoom;
-  Height := FRows * Fdy * FZoom;
+  FCols := trunc(Width * FZoom / Fdx)+1;
+  FRows := trunc(Height * FZoom / Fdy)+1;
 
   Clear;
+  FCableStyle := csFlat;
+  //FCableStyle := csGradient;
   FRedrawBuffer := True;
-
 
   Hittest := False;
 end;
@@ -1870,13 +2139,20 @@ begin
   inherited;
 end;
 
+procedure TCableBitmapBuffer.SetCableStyle(aValue: TCableStyle);
+begin
+  if aValue <> FCableStyle then begin
+    FCableStyle := aValue;
+    FRedrawBuffer := True;
+    Repaint;
+  end;
+end;
+
 procedure TCableBitmapBuffer.SetZoom(aValue: Single);
 var i : integer;
 begin
   if aValue <> FZoom then begin
     FZoom := aValue;
-    Width := FCols * Fdx * FZoom;
-    Height := FRows * Fdy * FZoom;
     for i := 0 to FBitmapList.Count - 1 do begin
       (FBitmapList[i] as TBitmapRect).Zoom := aValue;
     end;
@@ -1924,7 +2200,7 @@ begin
           BitmapRect := FBitmapList.Items[k] as TBitmapRect;
 
           if BitmapRect.Active then begin
-            //Canvas.DrawRect(RectF(j*Fdx*FZoom,i*Fdy*FZoom,(j+1)*Fdx*FZoom,(i+1)*Fdy*FZoom), 0, 0, [], 1);
+            Canvas.DrawRect(RectF(j*Fdx*FZoom,i*Fdy*FZoom,(j+1)*Fdx*FZoom,(i+1)*Fdy*FZoom), 0, 0, [], 1);
 
             Canvas.DrawBitmap( BitmapRect.Bitmap, RectF(0,0,Fdx*FZoom,Fdy*FZoom), RectF(j*Fdx*FZoom,i*Fdy*FZoom,(j+1)*Fdx*FZoom,(i+1)*Fdy*FZoom), AbsoluteOpacity );
           end;
@@ -1934,6 +2210,18 @@ begin
     end;
   end;
 end;
+
+procedure TCableBitmapBuffer.Resize;
+begin
+  FCols := trunc(Width  / Fdx)+1;
+  FRows := trunc(Height / Fdy)+1;
+  Fdx := 100/FZoom;
+  Fdy := 80/FZoom;
+
+  FRedrawBuffer := True;
+
+  inherited;
+end;
 
 //==============================================================================
 //
@@ -2223,7 +2511,8 @@ var i, j : integer;
     Path : TPathData;
     SaveMatrix : TMatrix;
 begin
-  d := 1.5;
+  //d := 1.5;
+  d:=1;
 
   for i := 1 to FNodeCount - 1 do begin
     V.X := FNodes[i].x - FNodes[i-1].x;
@@ -2286,16 +2575,21 @@ begin
             SaveMatrix := BitMapRect.FBitmap.Canvas.Matrix;
 
             BitMapRect.FBitmap.Canvas.SetMatrix(
-              CreateTransformationMatrix( aBuffer.Zoom, aBuffer.Zoom, -BitMapRect.Rect.Left, -BitMapRect.Rect.Top, 0, 0, 0));
+                    CreateTransformationMatrix( aBuffer.Zoom, aBuffer.Zoom, -BitMapRect.Rect.Left, -BitMapRect.Rect.Top, 0, 0, 0));
 
-            BitMapRect.FBitmap.Canvas.Fill.Kind := TBrushKind.bkGradient;
-            BitMapRect.FBitmap.Canvas.Fill.Gradient.Color := claBlack;
-            BitMapRect.FBitmap.Canvas.Fill.Gradient.Color1 := ConvertToAlpha( CableColors[ FData.CableColor]);
-            BitMapRect.FBitmap.Canvas.Fill.Gradient.StartPosition.Point := PointF( G1.X, G1.Y);
-            BitMapRect.FBitmap.Canvas.Fill.Gradient.StopPosition.Point  := PointF( G2.X, G2.Y);
-            //BitMapRect.FBitmap.Canvas.Fill.Color := ConvertToAlpha( CableColors[ FData.CableColor]);
-            BitMapRect.FBitmap.Canvas.Stroke.Kind := TBrushKind.bkNone;
+            if aBuffer.CableStyle = csFlat then begin
+              BitMapRect.FBitmap.Canvas.Fill.Color := ConvertToAlpha( CableColors[ FData.CableColor]);
+              BitMapRect.FBitmap.Canvas.Stroke.Kind := TBrushKind.bkNone;
+            end;
 
+            if aBuffer.CableStyle = csGradient then begin
+              BitMapRect.FBitmap.Canvas.Fill.Kind := TBrushKind.bkGradient;
+              BitMapRect.FBitmap.Canvas.Fill.Gradient.Color := claBlack;
+              BitMapRect.FBitmap.Canvas.Fill.Gradient.Color1 := ConvertToAlpha( CableColors[ FData.CableColor]);
+              BitMapRect.FBitmap.Canvas.Fill.Gradient.StartPosition.Point := PointF( G1.X, G1.Y);
+              BitMapRect.FBitmap.Canvas.Fill.Gradient.StopPosition.Point  := PointF( G2.X, G2.Y);
+              BitMapRect.FBitmap.Canvas.Stroke.Kind := TBrushKind.bkNone;
+            end;
 
             BitMapRect.FBitmap.Canvas.FillPath( Path, 1);
             //BitMapRect.FBitmap.Canvas.DrawPath( Path, 1);
@@ -2482,10 +2776,17 @@ function TSVGG2Module.CreateGroup( aNode: TSVGNode; aId : string; aSVGParent : T
 var AttributeValue : string;
     ConnLink : TSVGG2ConnLink;
     ParamLink : TSVGG2ParamLink;
+    BtnText : TSVGBtnText;
+    BtnRadio : TSVGBtnRadio;
+    BtnIncDec : TSVGBtnIncDec;
+    BtnCount : integer;
+    Knob : TSVGKnob;
+    Slider : TSVGSlider;
 begin
   if pos('_paramlink_', aId)>0 then begin
 
     ParamLink := TSVGG2ParamLink.Create(self, aId, aSVGParent, aCTM, aUserMatrix);
+    Result := ParamLink;
     aSubTreeOwner := ParamLink;
 
     ParamLink.FModule := FData;
@@ -2508,7 +2809,90 @@ begin
     if aNode.GetAttribute( 'nmg2.CtrlType', AttributeValue) then
       ParamLink.FCtrlType := AttributeValue;
 
-    Result := ParamLink;
+    if ParamLink.FCtrlType = 'btnText' then begin
+
+      BtnText := TSVGBtnText.Create(self, aId, aSVGParent, aCTM, aUserMatrix);
+      BtnText.FModule := self;
+      (Data.Parameter[ ParamLink.FCodeRef] as TG2GraphParameterFMX).AssignControl( BtnText);
+
+      BtnText.FModule := self;
+
+      Result := BtnText;
+      aSubTreeOwner := Result;
+
+    end else
+
+    if ParamLink.FCtrlType = 'btnRadio' then begin
+
+      BtnCount := 0;
+      if aNode.GetAttribute( 'nmg2.ButtonCount', AttributeValue) then
+         BtnCount := StrToInt(AttributeValue);
+
+      BtnRadio := TSVGBtnRadio.Create(self, aId, aSVGParent, aCTM, aUserMatrix);
+      BtnRadio.FModule := self;
+      BtnRadio.BtnCount := BtnCount;
+      (Data.Parameter[ ParamLink.FCodeRef] as TG2GraphParameterFMX).AssignControl( BtnRadio);
+
+      Result := BtnRadio;
+      aSubTreeOwner := Result;
+
+    end else
+
+    if ParamLink.FCtrlType = 'btnRadioEdit' then begin
+
+      BtnCount := 0;
+      if aNode.GetAttribute( 'nmg2.ButtonCount', AttributeValue) then
+         BtnCount := StrToInt(AttributeValue);
+
+      BtnRadio := TSVGBtnRadio.Create(self, aId, aSVGParent, aCTM, aUserMatrix);
+      BtnRadio.FModule := self;
+      BtnRadio.BtnCount := BtnCount;
+      (Data.Parameter[ ParamLink.FCodeRef] as TG2GraphParameterFMX).AssignControl( BtnRadio);
+
+      Result := BtnRadio;
+      aSubTreeOwner := Result;
+
+    end else
+
+    if ParamLink.FCtrlType = 'btnIncDec' then begin
+
+      BtnIncDec := TSVGBtnIncDec.Create(self, aId, aSVGParent, aCTM, aUserMatrix);
+      BtnIncDec.FModule := self;
+      (Data.Parameter[ ParamLink.FCodeRef] as TG2GraphParameterFMX).AssignControl( BtnIncDec);
+
+      Result := BtnIncDec;
+      aSubTreeOwner := Result;
+
+    end else
+
+    if ParamLink.FCtrlType = 'Knob' then begin
+
+      if aNode.GetAttribute( 'nmg2.CtrlStyle', AttributeValue) then begin
+        if LowerCase(AttributeValue) = 'slider' then begin
+
+          Slider := TSVGSlider.Create(self, aId, aSVGParent, aCTM, aUserMatrix);
+          Slider.FModule := self;
+          (Data.Parameter[ ParamLink.FCodeRef] as TG2GraphParameterFMX).AssignControl( Slider);
+
+          Result := Slider;
+          aSubTreeOwner := Result;
+
+        end else
+          if (LowerCase(AttributeValue) = 'big') or
+             (LowerCase(AttributeValue) = 'medium') or
+             (LowerCase(AttributeValue) = 'mediumreset') or
+             (LowerCase(AttributeValue) = 'reset') or
+             (LowerCase(AttributeValue) = 'small') then begin
+
+            Knob := TSVGKnob.Create(self, aId, aSVGParent, aCTM, aUserMatrix);
+            Knob.FModule := self;
+            (Data.Parameter[ ParamLink.FCodeRef] as TG2GraphParameterFMX).AssignControl( Knob);
+
+            Result := Knob;
+            aSubTreeOwner := Result;
+          end;
+      end;
+    end;
 
   end else
 

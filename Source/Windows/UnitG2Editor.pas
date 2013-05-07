@@ -504,6 +504,8 @@ type
     aPerfRename: TAction;
     btClockRun: TG2GraphButtonText;
     Patchbrowser1: TMenuItem;
+    aPatchBuffer: TAction;
+    Patchbuffer1: TMenuItem;
 
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
@@ -625,6 +627,7 @@ type
     procedure btClockRunClick(Sender: TObject);
     procedure gdMasterClockMouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
+    procedure aPatchBufferExecute(Sender: TObject);
 
   private
     { Private declarations }
@@ -754,7 +757,8 @@ uses
   UnitLog, UnitPatchSettings, UnitParameterPages, UnitSeqGrid,
   UnitSynthSettings, UnitPerfSettings, UnitEditLabel, UnitSettings,
   UnitEditorTools, UnitPatchBrowser, UnitModuleDef, UnitPatchNotes,
-  UnitMidiMapping, UnitPatchManager, UnitPatchBrowserFilterModules;
+  UnitMidiMapping, UnitPatchManager, UnitPatchBrowserFilterModules,
+  UnitPatchBuffer;
 
 {$IFNDEF FPC}
   {$R *.dfm}
@@ -3509,6 +3513,11 @@ end;
 procedure TfrmG2Main.aPatchBrowserExecute(Sender: TObject);
 begin
   frmPatchBrowser.Show;
+end;
+
+procedure TfrmG2Main.aPatchBufferExecute(Sender: TObject);
+begin
+  frmPatchBuffer.Show;
 end;
 
 procedure TfrmG2Main.aPatchManagerExecute(Sender: TObject);

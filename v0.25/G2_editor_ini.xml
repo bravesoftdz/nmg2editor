@@ -56,13 +56,13 @@
     <CTRL_MIDI_ASSIGNMENT CC="40" Note="0" Channel="0" MaxValue="127" MinValue="0" ControlPath="/frmParameterPages/skP1" ControlIndex="0"/>
     <CTRL_MIDI_ASSIGNMENT CC="47" Note="0" Channel="0" MaxValue="127" MinValue="0" ControlPath="/frmParameterPages/skP8" ControlIndex="0"/>
   </CTRL_MIDI_ASSIGNMENT_LIST>
-  <MainForm PosX="231" PosY="33" SizeX="1403" SizeY="899" Visible="True"/>
+  <MainForm PosX="19" PosY="62" SizeX="1160" SizeY="899" Visible="True"/>
   <DirectorySettings G2oolsFolder="C:\Users\Bruno\Downloads\g2ools_15_190\g2ools-1.5\" ModuleHelpFile="C:\Program Files (x86)\Clavia\Nord Modular G2 v1.62\Nord Modular G2 Editor v1.62.chm"/>
   <PatchBrowserSettings BaseFolder="C:\Users\Bruno\Documents\Nord Modular Patches\G2 Patches\" SelectedTab="1" ExternalSortCol="2" InternalSortCol="0"/>
-  <PatchBrowserForm PosX="100" PosY="100" SizeX="546" SizeY="438" Visible="False"/>
+  <PatchBrowserForm PosX="150" PosY="150" SizeX="546" SizeY="438" Visible="False"/>
   <PatchManagerForm PosX="525" PosY="181" SizeX="727" SizeY="656" Visible="False"/>
   <SettingsForm PosX="752" PosY="258" SizeX="528" SizeY="466" Visible="False"/>
-  <ParameterPagesForm PosX="0" PosY="762" SizeX="575" SizeY="180" Visible="False"/>
+  <ParameterPagesForm PosX="61" PosY="736" SizeX="575" SizeY="180" Visible="False"/>
   <PatchSettingsForm PosX="0" PosY="601" SizeX="608" SizeY="185" Visible="False"/>
   <EditorToolsForm PosX="977" PosY="565" SizeX="151" SizeY="261" Visible="False"/>
   <PatchNotesForm PosX="0" PosY="55" SizeX="611" SizeY="514" Visible="False"/>

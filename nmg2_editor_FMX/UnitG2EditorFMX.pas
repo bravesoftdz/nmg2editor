@@ -71,6 +71,11 @@ type
     Edit3: TEdit;
     Edit4: TEdit;
     TimerZoom: TTimer;
+    Button1: TButton;
+    Button2: TButton;
+    Button3: TButton;
+    Label4: TLabel;
+    eMemory: TEdit;
     procedure FormCreate(Sender: TObject);
     procedure tbZoomChange(Sender: TObject);
     procedure sbClick(Sender: TObject);
@@ -83,6 +88,9 @@ type
     procedure FormDestroy(Sender: TObject);
     procedure miLoadClick(Sender: TObject);
     procedure TimerZoomTimer(Sender: TObject);
+    procedure Button1Click(Sender: TObject);
+    procedure Button2Click(Sender: TObject);
+    procedure Button3Click(Sender: TObject);
   private
     { Private declarations }
 
@@ -105,6 +113,7 @@ type
     FPatch : TG2GraphPatchFMX;
     procedure CalcLayoutDimensions;
     procedure LoadSkin;
+    procedure SetZoom( aZoom : single);
 
     procedure CreateModuleFMX(Sender : TObject; Module : TG2GraphModuleFMX);
 
@@ -155,6 +164,18 @@ begin
   end;
 end;
 
+function MemoryUsed: cardinal;
+var st: TMemoryManagerState;
+    sb: TSmallBlockTypeState;
+begin
+  GetMemoryManagerState(st);
+  result := st.TotalAllocatedMediumBlockSize + st.TotalAllocatedLargeBlockSize;
+  for sb in st.SmallBlockTypeStates do begin
+    result := result + sb.UseableBlockSize * sb.AllocatedBlockCount;
+  end;
+  frmSVGTest.eMemory.Text := IntToStr(result);
+end;
+
 //==============================================================================
 //
 //                               TfrmSVGTest
@@ -185,6 +206,7 @@ begin
 
   FCableBitmapBuffer := TCableBitmapBuffer.Create(self);
   lSize.AddObject(FCableBitmapBuffer);
+  FCableBitmapBuffer.SetBounds(0,0,2000,1500);
   FModuleBitmapBuffer := TModuleBitmapBuffer.Create(self);
   lSize.AddObject(FModuleBitmapBuffer);
 
@@ -196,6 +218,7 @@ begin
   FModuleBitmapBuffer.ModuleList := FPatch.ModuleList[1];
 
   //Application.OnIdle := ApplicationIdle;
+  MemoryUsed;
 end;
 
 procedure TfrmSVGTest.FormDestroy(Sender: TObject);
@@ -246,11 +269,27 @@ begin
       FileStream.Free;
     end;
   end;
+  MemoryUsed;
 end;
 
 procedure TfrmSVGTest.miPasteClick(Sender: TObject);
 begin
   //
+end;
+
+procedure TfrmSVGTest.Button1Click(Sender: TObject);
+begin
+  SetZoom(0.5);
+end;
+
+procedure TfrmSVGTest.Button2Click(Sender: TObject);
+begin
+  SetZoom(1);
+end;
+
+procedure TfrmSVGTest.Button3Click(Sender: TObject);
+begin
+  SetZoom(2);
 end;
 
 procedure TfrmSVGTest.CalcLayoutDimensions;
@@ -267,6 +306,44 @@ begin
   end;
 end;
 
+procedure TfrmSVGTest.SetZoom(aZoom: single);
+var mx, my : single;
+begin
+  if sb.HScrollBar.Visible then
+    mx := (sb.Width/2 + sb.HScrollBar.Value) / FZoom
+  else
+    mx := (sb.Width/2) / FZoom;
+
+  if sb.VScrollBar.Visible then
+    my := (sb.Height/2 + sb.VScrollBar.Value) / FZoom
+  else
+    my := (sb.Height/2) / FZoom;
+
+  FZoom := aZoom;
+
+  FModuleBitmapBuffer.Scale.X := 1;
+  FModuleBitmapBuffer.Scale.Y := 1;
+  FModuleBitmapBuffer.Zoom := FZoom;
+
+  //FModuleBitmapBuffer.Width := (FModuleBitmapBuffer.MaxCol + 3) * UNITS_COL * FZoom;
+  //FModuleBitmapBuffer.Height := (FModuleBitmapBuffer.MaxRow + 6) * UNITS_ROW * FZoom;
+  FModuleBitmapBuffer.SetBounds(0,0,
+                                (FModuleBitmapBuffer.MaxCol + 3) * UNITS_COL * FZoom,
+                                (FModuleBitmapBuffer.MaxRow + 6) * UNITS_ROW * FZoom);
+  lSize.Width := FModuleBitmapBuffer.Width;
+  lSize.Height := FModuleBitmapBuffer.Height;
+
+  FCableBitmapBuffer.Scale.X := 1;
+  FCableBitmapBuffer.Scale.Y := 1;
+  FCableBitmapBuffer.Zoom := FZoom;
+  FCableBitmapBuffer.SetBounds(0,0, FModuleBitmapBuffer.Width, FModuleBitmapBuffer.Height);
+
+  sb.HScrollBar.Value := mx * FZoom - (sb.Width/2);
+  sb.VScrollBar.Value := my * FZoom - (sb.Height/2);
+
+  MemoryUsed;
+end;
+
 procedure TfrmSVGTest.tbZoomChange(Sender: TObject);
 var mx, my : single;
 begin
@@ -281,12 +358,11 @@ begin
     my := (sb.Height/2) / FZoom;
 
   FZoom := tbZoom.Value;
-  //FModuleBitmapBuffer.Zoom := FZoom;
-  //FCableBitmapBuffer.Zoom := FZoom;
-  FModuleBitmapBuffer.Scale.X := 1 + (FZoom - FModuleBitmapBuffer.Zoom);
-  FModuleBitmapBuffer.Scale.Y := 1 + (FZoom - FModuleBitmapBuffer.Zoom);
-  FCableBitmapBuffer.Scale.X := 1 + (FZoom - FCableBitmapBuffer.Zoom);
-  FCableBitmapBuffer.Scale.Y := 1 + (FZoom - FCableBitmapBuffer.Zoom);
+
+  FModuleBitmapBuffer.Scale.X := (FZoom/FModuleBitmapBuffer.Zoom);
+  FModuleBitmapBuffer.Scale.Y := (FZoom/FModuleBitmapBuffer.Zoom);
+  FCableBitmapBuffer.Scale.X := (FZoom/FCableBitmapBuffer.Zoom);
+  FCableBitmapBuffer.Scale.Y := (FZoom/FCableBitmapBuffer.Zoom);
 
   lSize.Width := FModuleBitmapBuffer.Width * FZoom;
   lSize.Height := FModuleBitmapBuffer.Height * FZoom;
@@ -314,6 +390,8 @@ begin
   FCableBitmapBuffer.Scale.X := 1;
   FCableBitmapBuffer.Scale.Y := 1;
   FCableBitmapBuffer.Zoom := FZoom;
+
+  MemoryUsed;
 end;
 
 procedure TfrmSVGTest.CreateModuleFMX(Sender: TObject;

@@ -293,14 +293,12 @@ const
   idLedOnSequencer = 'ledSeqOn';
   idMiniVU = 'miniVU';
   idTxtField = 'txtField';
-  idBtnTextUp = 'btnTextUp';
-  idBtnTextDown = 'btnTextDown';
+  idBtnText = 'btnText';
   idBtnFlat = 'btnFlat';
   idBtnIncDecHorz = 'btnIncDecHorz';
   idBtnIncDecVert = 'btnIncDecVert';
   idLevelShift = 'levelShift';
-  idBtnRadioUp = 'btnRadioUp';
-  idBtnRadioDown = 'btnRadioDown';
+  idBtnRadio = 'btnRadio';
   idSlider = 'slider';
   idKnobBig = 'knobBig';
   idKnobMedium = 'knobMedium';
@@ -958,7 +956,7 @@ var Control : TG2GraphChildControl;
        + '    </g>'
        + '  </g>'
        + '</g>');}
-       S := TStringStream.Create( NiceButton( idBtnTextUp, aWidth, aHeight, aBevelWidth, aBevelWidth,
+       S := TStringStream.Create( NiceButton( idBtnText + '_up', aWidth, aHeight, aBevelWidth, aBevelWidth,
                   cBtnSideLight, cBtnSideLight, cBtnSideDark, cBtnSideDark, cBtnSideMedium, cBtnFace));
       try
         ReadXMLFragment( aNode, S);
@@ -970,7 +968,7 @@ var Control : TG2GraphChildControl;
     procedure CreateButtonTextDown( aNode : TDomNode; aWidth, aHeight, aBevelWidth : single);
     var S : TStringStream;
     begin
-       S := TStringStream.Create( NiceButton( idBtnTextDown, aWidth, aHeight, aBevelWidth, aBevelWidth,
+       S := TStringStream.Create( NiceButton( idBtnText + '_down', aWidth, aHeight, aBevelWidth, aBevelWidth,
                   'url(#btnTextGradienSideLeft)', 'url(#btnTextGradienSideTop)', 'url(#btnTextGradienSideRight)', 'url(#btnTextGradienSideBottom)',
                   '#00ffcc', 'url(#btnTextGradienFace)'));
       try
@@ -983,7 +981,7 @@ var Control : TG2GraphChildControl;
     procedure FindOrAddButtonTextUp( aWidth, aHeight, aBevelWidth : single);
     var id : string;
     begin
-      id := idBtnTextUp + '_def_' + FloatToStr(aWidth) + 'x' + FloatToStr(aHeight) + 'x' + FloatToStr(aBevelWidth);
+      id := idBtnText + '_up' + '_def_' + FloatToStr(aWidth) + 'x' + FloatToStr(aHeight) + 'x' + FloatToStr(aBevelWidth);
 
       ButtonTextUpNode := GButtonTextUpSectionNode.FirstChild;
       while (ButtonTextUpNode <> nil) and (TDomELement(ButtonTextUpNode).GetAttribute('id') <> id) do
@@ -1004,7 +1002,7 @@ var Control : TG2GraphChildControl;
     procedure FindOrAddButtonTextDown( aWidth, aHeight, aBevelWidth : single);
     var id : string;
     begin
-      id := idBtnTextDown + '_def_' + FloatToStr(aWidth) + 'x' + FloatToStr(aHeight) + 'x' + FloatToStr(aBevelWidth);
+      id := idBtnText + '_down' + '_def_' + FloatToStr(aWidth) + 'x' + FloatToStr(aHeight) + 'x' + FloatToStr(aBevelWidth);
 
       ButtonTextDownNode := GButtonTextDownSectionNode.FirstChild;
       while (ButtonTextDownNode <> nil) and (TDomELement(ButtonTextDownNode).GetAttribute('id') <> id) do
@@ -1031,14 +1029,14 @@ var Control : TG2GraphChildControl;
         + ' <desc>Button inc-dec horizontal for G2 editor</desc>'
           + ' <g id="' + idBtnIncDecHorz + '_parts">'
 
-               + Use( idBtnIncDecHorz + '_dec', GetIDBtnText( idBtnTextUp, w, h, d), 0, 0)
+               + Use( idBtnIncDecHorz + '_dec', GetIDBtnText( idBtnText + '_up', w, h, d), 0, 0)
 
                + ' <use id="' + idBtnIncDecHorz + '_' + IntToStr(id_smallarrow_left) + '_symbol' + '"'
                   + ' xlink:href="#' + idSymbol + '_' + IntToStr(id_smallarrow_left) + '"'
                   + ' transform="translate(' + FloatToStr(w/2 - 3/2) + ',' + FloatToStr(h/2 - 6/2) + ')"'
                   + ' x="0" y="0" />'
 
-              + Use( idBtnIncDecHorz + '_inc', GetIDBtnText( idBtnTextUp, w, h, d), w, 0)
+              + Use( idBtnIncDecHorz + '_inc', GetIDBtnText( idBtnText + '_up', w, h, d), w, 0)
 
                + ' <use id="' + idBtnIncDecHorz + '_' + IntToStr(id_smallarrow_right) + '_symbol' + '"'
                   + ' xlink:href="#' + idSymbol + '_' + IntToStr(id_smallarrow_right) + '"'
@@ -1067,14 +1065,14 @@ var Control : TG2GraphChildControl;
        + ' <desc>Button inc-dec vertical for G2 editor</desc>'
          + ' <g id="g2_btnIncDecVert_parts">'
 
-               + Use( idBtnIncDecVert + '_dec', GetIDBtnText( idBtnTextUp, w, h, d), 0, 0)
+               + Use( idBtnIncDecVert + '_dec', GetIDBtnText( idBtnText + '_up', w, h, d), 0, 0)
 
                + ' <use id="' + idBtnIncDecHorz + '_' + IntToStr(id_smallarrow_up) + '_symbol' + '"'
                   + ' xlink:href="#' + idSymbol + '_' + IntToStr(id_smallarrow_up) + '"'
                   + ' transform="translate(' + FloatToStr(w/2 - 6/2) + ',' + FloatToStr(h/2 - 3/2) + ')"'
                   + ' x="0" y="0" />'
 
-               + Use( idBtnIncDecVert + '_inc', GetIDBtnText( idBtnTextUp, w, h, d), 0, h)
+               + Use( idBtnIncDecVert + '_inc', GetIDBtnText( idBtnText +'_up', w, h, d), 0, h)
 
                + ' <use id="' + idBtnIncDecHorz + '_' + IntToStr(id_smallarrow_down) + '_symbol' + '"'
                   + ' xlink:href="#' + idSymbol + '_' + IntToStr(id_smallarrow_down) + '"'
@@ -1187,13 +1185,19 @@ var Control : TG2GraphChildControl;
       end else begin
         for o := 0 to aBtnFlat.ButtonText.Count - 1 do begin
 
-          txt := aBtnFlat.ButtonText[o];
 
-          TextBitmap.Canvas.Font.Name := 'Arial';
-          TextBitmap.Canvas.Font.Size := 7;
-          tw := TextBitmap.Canvas.TextWidth( trim(txt)) - 9;
-          //th := TextBitmap.Canvas.TextHeight( txt);
-          th := 5;
+          txt := aBtnFlat.ButtonText[o];
+
+
+          TextBitmap.Canvas.Font.Name := 'Arial';
+
+          TextBitmap.Canvas.Font.Size := 7;
+
+          tw := TextBitmap.Canvas.TextWidth( trim(txt)) - 9;
+
+          //th := TextBitmap.Canvas.TextHeight( txt);
+
+          th := 5;
 
 
           SVGText := SVGText
@@ -1266,7 +1270,7 @@ var Control : TG2GraphChildControl;
         id : string;
     begin
       bw := 2;
-      id := GetIDBtnRadio( idBtnRadioUp, aWidth, aHeight);
+      id := GetIDBtnRadio( idBtnRadio + '_up', aWidth, aHeight);
       S := TStringStream.Create(
          '<g id="' + id + '">'
        + '  <desc>Button radio up for G2 editor</desc>'
@@ -1289,7 +1293,7 @@ var Control : TG2GraphChildControl;
         id : string;
     begin
       bw := 2;
-      id := GetIDBtnRadio( idBtnRadioDown, aWidth, aHeight);
+      id := GetIDBtnRadio( idBtnRadio + '_down', aWidth, aHeight);
       {S := TStringStream.Create(
          '<g id="' + id + '">'
         + ' <desc>Button radio down for G2 editor</desc>'
@@ -1318,7 +1322,7 @@ var Control : TG2GraphChildControl;
     procedure FindOrAddBtnRadio( aWidth, aHeight : single);
     var id : string;
     begin
-      id := idBtnRadioUp + '_def_' + FloatToStr(aWidth) + 'x' + FloatToStr(aHeight);
+      id := idBtnRadio + '_up' + '_def_' + FloatToStr(aWidth) + 'x' + FloatToStr(aHeight);
 
       btnRadioUpNode := GBtnRadioUpSectionNode.FirstChild;
       while (btnRadioUpNode <> nil) and (TDomELement(btnRadioUpNode).GetAttribute('id') <>  id) do
@@ -1860,7 +1864,7 @@ var Control : TG2GraphChildControl;
           TDOMElement(ParamLinkNode).SetAttribute('nmg2.InfoFunc', IntTostr(Control.Parameter.InfoFunctionIndex));
           TDOMElement(ParamLinkNode).SetAttribute('nmg2.CtrlType', 'btnText');
 
-          UseNode := CreateUse( ParamLinkNode, control_id, GetIDBtnText( idBtnTextUp, Control.Width, Control.Height, 2), Control.Left, Control.Top);
+          UseNode := CreateUse( ParamLinkNode, control_id, GetIDBtnText( idBtnText + '_up', Control.Width, Control.Height, 2), Control.Left, Control.Top);
 
           for m := 0 to (Control as TG2GraphButton).ImageList.Count - 1 do begin
             symbol_id := AddSymbolFromBitmap( (Control as TG2GraphButton).ImageList.Items[m]);
@@ -1955,9 +1959,9 @@ var Control : TG2GraphChildControl;
             y := RadioButton.Top;
             for m := 0 to RadioButton.ButtonCount - 1 do begin
               if m = 0 then
-                CreateUse( ParamLinkNode, control_id + '_el_'+ IntToStr(m), GetIDBtnRadio( idBtnRadioDown, w, h), x, y)
+                CreateUse( ParamLinkNode, control_id + '_el_'+ IntToStr(m), GetIDBtnRadio( idBtnRadio + '_down', w, h), x, y)
               else
-                CreateUse( ParamLinkNode, control_id + '_el_'+ IntToStr(m), GetIDBtnRadio( idBtnRadioUp, w, h), x, y);
+                CreateUse( ParamLinkNode, control_id + '_el_'+ IntToStr(m), GetIDBtnRadio( idBtnRadio + '_up', w, h), x, y);
               x := x + dx;
               y := y + dy;
             end;
@@ -1983,9 +1987,9 @@ var Control : TG2GraphChildControl;
 
               FindOrAddBtnRadio( w, h);
               if (m = 0) and (n=0) then
-                CreateUse( ParamLinkNode, control_id + '_el_'+ IntToStr(m), GetIDBtnRadio( idBtnRadioDown, w, h), x, y)
+                CreateUse( ParamLinkNode, control_id + '_el_'+ IntToStr(m), GetIDBtnRadio( idBtnRadio + '_down', w, h), x, y)
               else
-                CreateUse( ParamLinkNode, control_id + '_el_'+ IntToStr(m), GetIDBtnRadio( idBtnRadioUp, w, h), x, y);
+                CreateUse( ParamLinkNode, control_id + '_el_'+ IntToStr(m), GetIDBtnRadio( idBtnRadio + '_up', w, h), x, y);
 
               x := x + w;
             end;
@@ -2003,16 +2007,37 @@ var Control : TG2GraphChildControl;
           TDOMElement(ParamLinkNode).SetAttribute('nmg2.CtrlType', 'Knob');
 
           if (Control as TG2GraphKnob).KnobType = ktSlider then begin
+            TDOMElement(ParamLinkNode).SetAttribute('nmg2.CtrlStyle', 'slider');
 
             CreateUse( ParamLinkNode, control_id + '_el_1', idSlider, Control.Left, Control.Top);
             CreateUse( ParamLinkNode, control_id + '_el_2', idBtnIncDecVert, Control.Left, Control.Top + 46);
           end else begin
             case (Control as TG2GraphKnob).KnobType of
-              ktBig : ref_id := idKnobBig;
-              ktMedium : ref_id := idKnobMedium;
-              ktResetMedium : ref_id := idKnobResetMedium;
-              ktReset : ref_id := idKnobReset;
-              ktSmall : ref_id := idKnobSmall;
+              ktBig : 
+                begin
+              	  ref_id := idKnobBig;
+                  TDOMElement(ParamLinkNode).SetAttribute('nmg2.CtrlStyle', 'big');
+              	end;  
+              ktMedium : 
+                begin 
+                  ref_id := idKnobMedium;
+                  TDOMElement(ParamLinkNode).SetAttribute('nmg2.CtrlStyle', 'medium');
+                end;  
+              ktResetMedium : 
+                begin
+                  ref_id := idKnobResetMedium;
+                  TDOMElement(ParamLinkNode).SetAttribute('nmg2.CtrlStyle', 'resetMedium');
+                end;  
+              ktReset : 
+                begin
+                  ref_id := idKnobReset;
+                  TDOMElement(ParamLinkNode).SetAttribute('nmg2.CtrlStyle', 'reset');
+                end;  
+              ktSmall : 
+                begin
+                  ref_id := idKnobSmall;
+                  TDOMElement(ParamLinkNode).SetAttribute('nmg2.CtrlStyle', 'small');
+                end;  
             end;
             CreateUse( ParamLinkNode, control_id, ref_id, Control.Left, Control.Top);
           end;

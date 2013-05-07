@@ -1094,6 +1094,9 @@ object frmG2Main: TfrmG2Main
       object Patchbrowser1: TMenuItem
         Action = aPatchBrowser
       end
+      object Patchbuffer1: TMenuItem
+        Action = aPatchBuffer
+      end
       object N22: TMenuItem
         Caption = '-'
       end
@@ -1264,6 +1267,7 @@ object frmG2Main: TfrmG2Main
     end
     object Def1: TMenuItem
       Caption = 'Edit module def. (dev)'
+      Enabled = False
       OnClick = Def1Click
     end
     object N18: TMenuItem
@@ -1647,6 +1651,11 @@ object frmG2Main: TfrmG2Main
       Category = 'File'
       Caption = 'Rename performance'
       OnExecute = aPerfRenameExecute
+    end
+    object aPatchBuffer: TAction
+      Category = 'View'
+      Caption = 'Patch buffer'
+      OnExecute = aPatchBufferExecute
     end
   end
   object ResponseTimer: TTimer

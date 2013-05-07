@@ -44,7 +44,8 @@ uses
   graph_util_vcl in '..\..\Source\Common\graph_util_vcl.pas',
   fastbitmap in '..\..\Source\Common\fastbitmap.pas',
   JawsCtrls in '..\..\Source\Common\JawsCtrls.pas',
-  MusicalKeyboard in '..\..\Source\Common\MusicalKeyboard.pas';
+  MusicalKeyboard in '..\..\Source\Common\MusicalKeyboard.pas',
+  UnitPatchBuffer in '..\..\Source\Windows\UnitPatchBuffer.pas' {frmPatchBuffer};
 
 {$R *.res}
 
@@ -70,6 +71,7 @@ begin
   Application.CreateForm(TfrmMidiMapping, frmMidiMapping);
   Application.CreateForm(TfrmSettings, frmSettings);
   Application.CreateForm(TfrmModuleDef, frmModuleDef);
+  Application.CreateForm(TfrmPatchBuffer, frmPatchBuffer);
   frmG2Main.StartupTimer.Enabled := True;
   Application.Run;
 end.
