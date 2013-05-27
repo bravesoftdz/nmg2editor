@@ -47,7 +47,7 @@ uses
   g2_types, g2_database, g2_file, g2_classes, g2_midi;
 
 const
-   EXPLENATIONS : array[0..20] of string =
+   EXPLENATIONS : array[0..21] of string =
 { 0}      ('Is Server : If checked, the G2 VST or other OS G2 editors can connect to this editor using the TCP-IP settings. Only the server editor can have a direct USB connection to the G2 synth, so in a normal setup this one should be checked.',
 { 1}       'Port : The port number for the server editor.',
 { 2}       'Host : TCP-IP address of the PC the server editor is running on.',
@@ -68,7 +68,8 @@ const
 {17}       'Patch root folder : Set the root folder of your g2 patch library on disk for use in the patch browser.',
 {18}       'Module help file : Set to "Nord Modular G2 Editor v1.62.chm".',
 {19}       'G2ools folder : Set to the folder containing the g2ools executables.',
-{20}       'Ctrl midi out : The midi port to send controller midi messages from the editor (parameter feedback).');
+{20}       'Ctrl midi out : The midi port to send controller midi messages from the editor (parameter feedback).',
+{21}       'Here you can set de folder containing the patches that are initially loaded in the patch buffer.');
 
 type
   TfrmSettings = class(TForm)
@@ -135,6 +136,9 @@ type
     Panel4: TPanel;
     Panel5: TPanel;
     bCreateG2VSTIni: TButton;
+    ePatchBufferFolder: TEdit;
+    bSelectPatchBufferFolder: TButton;
+    StaticText19: TStaticText;
     procedure Button2Click(Sender: TObject);
     procedure IdUDPServer1Status(ASender: TObject; const AStatus: TIdStatus;
       const AStatusText: string);
@@ -182,6 +186,8 @@ type
     procedure clbCtrlMidiInDevicesEnter(Sender: TObject);
     procedure clbCtrlMidiOutDevicesEnter(Sender: TObject);
     procedure bCreateG2VSTIniClick(Sender: TObject);
+    procedure bSelectPatchBufferFolderClick(Sender: TObject);
+    procedure ePatchBufferFolderEnter(Sender: TObject);
   private
     { Private declarations }
     FDisableControls : boolean;
@@ -296,6 +302,7 @@ var Doc : TXMLDocument;
     RootNode, SynthNode : TDOMNode;
     mi, mo : integer;
     PatchBrowserSettingsNode : TXMLPatchBrowserSettingsType;
+    PatchBufferSettingsNode : TXMLPatchBufferSettingsType;
     DirSettingsNode : TXMLDirectorySettingsType;
     MidiSettingsNode : TXMLMidiDeviceType;
     CtrlMidiDeviceListNode : TDOMNode;
@@ -408,6 +415,11 @@ begin
         ePatchRootFolder.Text := String(PatchBrowserSettingsNode.BaseFolder);
       end;
 
+      PatchBufferSettingsNode := TXMLPatchBufferSettingsType(RootNode.FindNode('PatchBufferSettings'));
+      if assigned(PatchBufferSettingsNode) then begin
+        ePatchBufferFolder.Text := String(PatchBufferSettingsNode.Folder);
+      end;
+
       FormSettingsNode := TXMLFormSettingsType(RootNode.FindNode('SettingsForm'));
       if assigned(FormSettingsNode) then begin
         Left := FormSettingsNode.PosX;
@@ -472,6 +484,29 @@ begin
   OpenDialog1.Filter := 'compiled help files (*.chm)|*.chm';
   if OpenDialog1.Execute then
       eModuleHelpFile.Text := OpenDialog1.FileName;;
+  frmG2Main.UpdateControls;
+end;
+
+procedure TfrmSettings.bSelectPatchBufferFolderClick(Sender: TObject);
+var FDir : string;
+begin
+  if Win32MajorVersion >= 6 then
+    with TFileOpenDialog.Create(nil) do
+      try
+        Title := 'Select Directory';
+        Options := [fdoPickFolders, fdoPathMustExist, fdoForceFileSystem]; // YMMV
+        OkButtonLabel := 'Select';
+        DefaultFolder := FDir;
+        FileName := FDir;
+        if Execute then
+          ePatchBufferFolder.Text := FileName;
+      finally
+        Free;
+      end
+  else
+    if SelectDirectory('Select Directory', ExtractFileDrive(FDir), FDir,
+               [sdNewUI, sdNewFolder]) then
+      ePatchBufferFolder.Text := FDir;
   frmG2Main.UpdateControls;
 end;
 
@@ -984,6 +1019,11 @@ end;
 procedure TfrmSettings.eModuleHelpFileEnter(Sender: TObject);
 begin
   lExplenation.Caption := EXPLENATIONS[18];
+end;
+
+procedure TfrmSettings.ePatchBufferFolderEnter(Sender: TObject);
+begin
+  lExplenation.Caption := EXPLENATIONS[21];
 end;
 
 procedure TfrmSettings.ePatchRootFolderEnter(Sender: TObject);

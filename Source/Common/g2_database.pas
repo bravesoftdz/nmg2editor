@@ -224,6 +224,14 @@ type
     property SelectedTab : integer read Get_SelectedTab write Set_SelectedTab;
   end;
 
+  TXMLPatchBufferSettingsType = class(TDOMElement)
+  protected
+    function Get_Folder: AnsiString;
+    procedure Set_Folder( aValue : AnsiString);
+  public
+    property Folder: AnsiString read Get_Folder write Set_Folder;
+  end;
+
   TXMLDirectorySettingsType = class(TDOMElement)
   protected
     function Get_G2oolsFolder: AnsiString;
@@ -1167,6 +1175,16 @@ begin
   SetAttribute('OnlyTextMenus', BoolToStr(aValue));
 end;
 
+{ TXMLPatchBufferSettingsType }
 
+function TXMLPatchBufferSettingsType.Get_Folder: AnsiString;
+begin
+  Result := GetAttribute('Folder');
+end;
+
+procedure TXMLPatchBufferSettingsType.Set_Folder(aValue: AnsiString);
+begin
+  SetAttribute('Folder', aValue);
+end;
 
 end.

@@ -30,15 +30,11 @@ object frmSettings: TfrmSettings
     object TabSheet3: TTabSheet
       Caption = 'General'
       ImageIndex = 2
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object GroupBox1: TGroupBox
         Left = 12
         Top = 24
         Width = 485
-        Height = 145
+        Height = 153
         Caption = 'Folders'
         TabOrder = 0
         object bSelectPtachRootFolder: TButton
@@ -47,7 +43,7 @@ object frmSettings: TfrmSettings
           Width = 35
           Height = 25
           Caption = '...'
-          TabOrder = 0
+          TabOrder = 2
           OnClick = bSelectPtachRootFolderClick
         end
         object StaticText12: TStaticText
@@ -57,7 +53,7 @@ object frmSettings: TfrmSettings
           Height = 17
           Caption = 'Patch root folder'
           FocusControl = ePatchRootFolder
-          TabOrder = 1
+          TabOrder = 0
           TabStop = True
         end
         object ePatchRootFolder: DEdit
@@ -65,7 +61,7 @@ object frmSettings: TfrmSettings
           Top = 26
           Width = 301
           Height = 21
-          TabOrder = 2
+          TabOrder = 1
           OnEnter = ePatchRootFolderEnter
         end
         object StaticText16: TStaticText
@@ -82,14 +78,14 @@ object frmSettings: TfrmSettings
           Width = 66
           Height = 17
           Caption = 'g2ools folder'
-          TabOrder = 4
+          TabOrder = 6
         end
         object eModuleHelpFile: TEdit
           Left = 112
           Top = 56
           Width = 301
           Height = 21
-          TabOrder = 5
+          TabOrder = 4
           OnEnter = eModuleHelpFileEnter
         end
         object eG2oolsFolder: TEdit
@@ -97,7 +93,7 @@ object frmSettings: TfrmSettings
           Top = 85
           Width = 301
           Height = 21
-          TabOrder = 6
+          TabOrder = 7
           OnEnter = eG2oolsFolderEnter
         end
         object bSelectModuleHelpFile: TButton
@@ -106,7 +102,7 @@ object frmSettings: TfrmSettings
           Width = 35
           Height = 25
           Caption = '...'
-          TabOrder = 7
+          TabOrder = 5
           OnClick = bSelectModuleHelpFileClick
         end
         object bSelectG2oolsFolder: TButton
@@ -118,10 +114,35 @@ object frmSettings: TfrmSettings
           TabOrder = 8
           OnClick = bSelectG2oolsFolderClick
         end
+        object ePatchBufferFolder: TEdit
+          Left = 112
+          Top = 114
+          Width = 301
+          Height = 21
+          TabOrder = 10
+          OnEnter = ePatchBufferFolderEnter
+        end
+        object bSelectPatchBufferFolder: TButton
+          Left = 423
+          Top = 114
+          Width = 35
+          Height = 25
+          Caption = '...'
+          TabOrder = 11
+          OnClick = bSelectPatchBufferFolderClick
+        end
+        object StaticText19: TStaticText
+          Left = 11
+          Top = 118
+          Width = 95
+          Height = 17
+          Caption = 'Patch buffer folder'
+          TabOrder = 9
+        end
       end
       object GroupBox2: TGroupBox
         Left = 12
-        Top = 175
+        Top = 191
         Width = 485
         Height = 82
         Caption = 'USB Message log'
@@ -141,10 +162,6 @@ object frmSettings: TfrmSettings
     object TabSheet6: TTabSheet
       Caption = 'Ctrl Midi'
       ImageIndex = 5
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object StaticText6: TStaticText
         Left = 17
         Top = 21
@@ -196,10 +213,6 @@ object frmSettings: TfrmSettings
     end
     object TabSheet1: TTabSheet
       Caption = 'TCP-IP'
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object cbIsServer: TCheckBox
         Left = 198
         Top = 62
@@ -295,10 +308,6 @@ object frmSettings: TfrmSettings
     object TabSheet4: TTabSheet
       Caption = 'Midi sysex'
       ImageIndex = 3
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object StaticText5: TStaticText
         Left = 19
         Top = 189
@@ -358,10 +367,6 @@ object frmSettings: TfrmSettings
     object TabSheet5: TTabSheet
       Caption = 'Editor'
       ImageIndex = 4
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object cbSlotStripColor: TColorBox
         Left = 184
         Top = 88
@@ -511,10 +516,6 @@ object frmSettings: TfrmSettings
       Caption = 'OSC'
       ImageIndex = 1
       TabVisible = False
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object Panel1: TPanel
         Left = 0
         Top = 0
@@ -597,8 +598,8 @@ object frmSettings: TfrmSettings
     object lExplenation: TStaticText
       Left = 1
       Top = 1
-      Width = 97
-      Height = 17
+      Width = 520
+      Height = 61
       Align = alClient
       Alignment = taCenter
       Caption = 'Application settings'

@@ -115,7 +115,7 @@ type
     constructor Create( AOwner: TComponent); override;
     destructor  Destroy; override;
     function    GetSelectedPatch : TG2GraphPatch;
-    procedure   SetModuleParent( aValue: TG2GraphScrollbox);
+    procedure   SetModuleParent( aLocation : TLocationType; aValue: TG2GraphScrollbox);
     procedure   SetScrollboxVA( aValue : TG2GraphScrollbox);
     procedure   SetScrollboxFX( aValue : TG2GraphScrollbox);
     procedure   Invalidate;
@@ -1826,8 +1826,8 @@ begin
   inherited;
 end;
 
-procedure TG2Graph.SetModuleParent( aValue: TG2GraphScrollbox);
-var p, l, m : integer;
+procedure TG2Graph.SetModuleParent( aLocation : TLocationType; aValue: TG2GraphScrollbox);
+var p, m : integer;
     Slot : TG2FileSlot;
     Patch : TG2GraphPatch;
     ModuleList : TModuleList;
@@ -1844,8 +1844,8 @@ begin
 
         if aValue = nil then begin
 
-          for l := 0 to 1 do begin
-            ModuleList := Patch.ModuleList[l];
+          //for l := 0 to 1 do begin
+            ModuleList := Patch.ModuleList[ord(aLocation)];
             for m := 0 to ModuleList.Count - 1 do begin
               Module := ModuleList[m] as TG2GraphModule;
               if assigned(Module) then begin
@@ -1853,7 +1853,7 @@ begin
                 Module.Visible := True;
               end;
             end;
-          end;
+          //end;
 
         end else begin
           ModuleList := Patch.ModuleList[ord(aValue.Location)];
@@ -1875,18 +1875,18 @@ procedure TG2Graph.SetScrollboxFX( aValue: TG2GraphScrollbox);
 begin
   if not assigned(aValue) then begin
     if assigned( FScrollboxFX) and assigned( FScrollboxFX.G2) then begin
-      FScrollboxFX.G2.SetModuleParent(nil);
+      FScrollboxFX.G2.SetModuleParent( ltFX, nil);
       FScrollboxFX.G2 := nil;
     end;
     FScrollboxFX := aValue;
   end else begin
     if assigned( aValue) and assigned( aValue.G2) then begin
-      aValue.G2.SetModuleParent(nil);
+      aValue.G2.SetModuleParent( ltFX, nil);
     end;
     FScrollboxFX := aValue;
     FScrollboxFX.G2 := self;
     FScrollboxFX.Location := ltFX;
-    SetModuleParent( FScrollboxFX);
+    SetModuleParent( ltFX, FScrollboxFX);
   end;
 end;
 
@@ -1894,18 +1894,18 @@ procedure TG2Graph.SetScrollboxVA( aValue: TG2GraphScrollbox);
 begin
   if not assigned(aValue) then begin
     if assigned( FScrollboxVA) and assigned( FScrollboxVA.G2) then begin
-      FScrollboxVA.G2.SetModuleParent(nil);
+      FScrollboxVA.G2.SetModuleParent( ltVA, nil);
       FScrollboxVA.G2 := nil;
     end;
     FScrollboxVA := aValue;
   end else begin
     if assigned( aValue) and assigned( aValue.G2) then begin
-      aValue.G2.SetModuleParent(nil);
+      aValue.G2.SetModuleParent( ltVA, nil);
     end;
     FScrollboxVA := aValue;
     FScrollboxVA.G2 := self;
     FScrollboxVA.Location := ltVA;
-    SetModuleParent( FScrollboxVA);
+    SetModuleParent( ltVA, FScrollboxVA);
   end;
 end;
 

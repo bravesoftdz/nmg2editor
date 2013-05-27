@@ -137,6 +137,19 @@ unit UnitG2Editor;
 // Restructured code repository (svn)
 // Made a html help file
 
+// v2.6
+// ===============
+
+// Fixed some issues with starting/stopping master clock and setting master tempo.
+// Added module category "Test" on request, containing two testing modules: Red2Blue and Blue2Red
+
+// v2.7
+// ===============
+
+// Added a batch buffer function
+// Added patch load calculcation (not completely accurate yet!)
+
+
 // Todo :
 // Move modules
 // Edit Midi assignment dialog
@@ -280,6 +293,10 @@ type
     FG2btMute        : TG2GraphButtonText;
     FG2dVoices       : TG2GraphDisplay;
     FG2idVoiceMode   : TG2GraphButtonIncDec;
+    FG2dPatchLoadVAMem : TG2GraphDisplay;
+    FG2dPatchLoadVACycles : TG2GraphDisplay;
+    FG2dPatchLoadFXMem : TG2GraphDisplay;
+    FG2dPatchLoadFXCycles : TG2GraphDisplay;
     FG2kMorphArray   : array[0..7] of TG2GraphKnob;
     FG2btMorphArray  : array[0..7] of TG2GraphButtonFlat;
     FpuVariationMenu : TPopupMenu;
@@ -506,6 +523,12 @@ type
     Patchbrowser1: TMenuItem;
     aPatchBuffer: TAction;
     Patchbuffer1: TMenuItem;
+    Panel1: TPanel;
+    tbLibrary: TTabControl;
+    tvFiles: TTreeView;
+    Splitter2: TSplitter;
+    G2Buffer: TG2;
+    iFiles: TImageList;
 
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
@@ -623,11 +646,14 @@ type
     procedure G2MidiClockReceive(Sender : TObject; SenderID : integer; BPM : integer);
     procedure G2ClockRunChange( Sender : TObject; SenderID : integer; Status : boolean);
     procedure G2ClockBPMChange( Sender : TObject; SenderID : integer; BPM : integer);
+    procedure G2PatchLoadChange( Sender : TObject; SenderID : integer; Slot : byte);
     procedure G2AfterGetAssignedVoices(Sender : TObject);
     procedure btClockRunClick(Sender: TObject);
     procedure gdMasterClockMouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
     procedure aPatchBufferExecute(Sender: TObject);
+    procedure tbLibraryChange(Sender: TObject);
+    procedure tvFilesDblClick(Sender: TObject);
 
   private
     { Private declarations }
@@ -652,6 +678,8 @@ type
     function  SelectedG2: TG2;
     function  FirstG2 : TG2;
     procedure SelectG2( G2Index : integer);
+
+    procedure SelectBuffer( aValue : boolean);
 
     procedure AddModule( aModuleType : byte);
     procedure DoAddModule( Sender: TObject);
@@ -719,6 +747,9 @@ type
     function  GetConnectorName( aConnector : TG2FileConnector) : string;
     function  GetCableName( aCable : TG2FileCable) : string;
     procedure SetOnlyTextMenus( aValue : boolean);
+
+    procedure ReadDir( aTreeView : TTreeView; aNode : TTreeNode; aPath : string);
+    procedure ReadFileDir;
 
     procedure CopyPatchSelection;
     procedure DeletePatchSelection;
@@ -794,7 +825,9 @@ begin
     aForm.Height := aHeight;
 end;
 
-// ==== TSlotPanel =============================================================
+////////////////////////////////////////////////////////////////////////////////
+//  TSlotPanel
+////////////////////////////////////////////////////////////////////////////////
 
 constructor TSlotPanel.Create(AOwner: TComponent; aSlot : TG2Slot);
 var i : integer;
@@ -922,11 +955,35 @@ begin
   FG2idVoiceMode.HightlightColor := G_HighlightColor;
   FG2idVoiceMode.OnChange := VoiceModeChange;
 
+  FG2dPatchLoadVACycles := TG2GraphDisplay.Create(self);
+  FG2dPatchLoadVACycles.Parent := Self;
+  FG2dPatchLoadVACycles.SetBounds( 725, 2, 32, 12);
+  FG2dPatchLoadVACycles.Line[0] := '0.0';
+  FG2dPatchLoadVACycles.Color := CL_DISPLAY_BACKGRND;
+
+  FG2dPatchLoadVAMem := TG2GraphDisplay.Create(self);
+  FG2dPatchLoadVAMem.Parent := Self;
+  FG2dPatchLoadVAMem.SetBounds( 725, 17, 32, 12);
+  FG2dPatchLoadVAMem.Line[0] := '0.0';
+  FG2dPatchLoadVAMem.Color := CL_DISPLAY_BACKGRND;
+
+  FG2dPatchLoadFXCycles := TG2GraphDisplay.Create(self);
+  FG2dPatchLoadFXCycles.Parent := Self;
+  FG2dPatchLoadFXCycles.SetBounds( 760, 2, 32, 12);
+  FG2dPatchLoadFXCycles.Line[0] := '0.0';
+  FG2dPatchLoadFXCycles.Color := CL_DISPLAY_BACKGRND;
+
+  FG2dPatchLoadFXMem := TG2GraphDisplay.Create(self);
+  FG2dPatchLoadFXMem.Parent := Self;
+  FG2dPatchLoadFXMem.SetBounds( 760, 17, 32, 12);
+  FG2dPatchLoadFXMem.Line[0] := '0.0';
+  FG2dPatchLoadFXMem.Color := CL_DISPLAY_BACKGRND;
+
   for i := 0 to 7 do begin
     FG2kMorphArray[i] := TG2GraphKnob.Create(self);
     FG2kMorphArray[i].Parent := Self;
     FG2kMorphArray[i].KnobType := ktExtraSmall;
-    FG2kMorphArray[i].SetBounds( 737 + i * 40 + 10, 2, 18, 18);
+    FG2kMorphArray[i].SetBounds( 804 + i * 40 + 10, 2, 18, 18);
     FG2kMorphArray[i].Tag := i;
     if i = (FSlot.Patch as TG2Patch).SelectedMorphIndex then
       FG2kMorphArray[i].Color := CL_KNOB_MORPH_SELECTED
@@ -939,7 +996,7 @@ begin
 
     FG2btMorphArray[i] := TG2GraphButtonFlat.Create(self);
     FG2btMorphArray[i].Parent := Self;
-    FG2btMorphArray[i].SetBounds( 737 + i * 40, 20, 38, 11);
+    FG2btMorphArray[i].SetBounds( 804 + i * 40, 20, 38, 11);
     FG2btMorphArray[i].ParentColor := False;
     FG2btMorphArray[i].Bevel := True;
     FG2btMorphArray[i].Color := clBtnFace;
@@ -1137,8 +1194,9 @@ begin
   (FSlot.Patch as TG2Patch).MessSetPatchDescription( FPatchDescription);
 end;
 
-// ==== Main app ===============================================================
-// =============================================================================
+////////////////////////////////////////////////////////////////////////////////
+//  Main app
+////////////////////////////////////////////////////////////////////////////////
 
 procedure TfrmG2Main.FormCreate(Sender: TObject);
 var ModuleMap : TBitmap;
@@ -1279,6 +1337,7 @@ begin
   G2.OnClockBPMChange := G2ClockBPMChange;
   G2.OnAfterBankDownload := G2AfterBankDownload;
   G2.OnAfterGetAssignedVoices := G2AfterGetAssignedVoices;
+  G2.OnPatchLoadChange := G2PatchLoadChange;
 
   FG2List.Add(G2);
 
@@ -1342,37 +1401,30 @@ begin
   UpdateControls;
   sbVA.Invalidate;
   sbFX.Invalidate;
-
-  {if assigned(frmParameterPages) then
-    frmParameterPages.UpdateControls;
-
-  if assigned(frmPatchSettings) then
-    frmPatchSettings.UpdateControls;
-
-  if assigned(frmSettings) then
-    frmSettings.UpdateControls;
-
-  if assigned(frmSynthSettings) then
-    frmSynthSettings.updateDialog;
-
-  if assigned(frmPerfSettings) then
-    frmPerfSettings.updateDialog;
-
-  if assigned(frmEditorTools) then
-    frmEditorTools.UpdateControls;
-
-  if assigned(frmPatchManager) then begin
-    frmPatchManager.TabControl1Change(self);
-  end;}
-
 end;
+
+
+procedure TfrmG2Main.SelectBuffer(aValue: boolean);
+begin
+  if aValue then begin
+    G2Buffer.ScrollboxVA := sbVA;
+    G2Buffer.ScrollboxFX := sbFX;
+    sbVA.BackGroundColor := $00660000;
+    sbFX.BackgroundColor := $00880000;
+  end else begin
+    sbVA.BackGroundColor := $00404040;
+    sbFX.BackgroundColor := $00505050;
+    SelectedG2.ScrollboxVA := sbVA;
+    SelectedG2.ScrollboxFX := sbFX;
+  end;
+  sbVA.Invalidate;
+  sbFX.Invalidate;
+end;
+
 
 procedure TfrmG2Main.FormShow(Sender: TObject);
 begin
-  {cbLogMessages.Checked := True;
-  cbLogMessagesClick(self);}
-
-  //StartupTimer.Enabled := True;
+  //
 end;
 
 procedure TfrmG2Main.StartupTimerTimer(Sender: TObject);
@@ -1406,6 +1458,8 @@ begin
 
   Initialized := True;
 
+  ReadFileDir;
+
   UpdateControls;
 end;
 
@@ -1422,7 +1476,7 @@ begin
   end;
 
   if ClientsConnected then
-   CanClose := MessageDlg('There are ' + IntToStr( G2.GetClientCount) + ' G2 clients connected to this server, do you really want to close the connection?',
+    CanClose := MessageDlg('There are ' + IntToStr( G2.GetClientCount) + ' G2 clients connected to this server, do you really want to close the connection?',
            mtWarning, mbOKCancel, 0) = mrOk;
 end;
 
@@ -1439,8 +1493,10 @@ end;
 
 procedure TfrmG2Main.FormDestroy(Sender: TObject);
 begin
-  if assigned(FCopyPatch) then
+  if assigned(FCopyPatch) then begin
     FCopyPatch.Free;
+    FCopyPatch := nil;
+  end;
 
   FEditorSettingsList.Free;
   FG2List.Free;
@@ -1574,6 +1630,7 @@ var Doc : TXMLDocument;
     CtrlMidiAssignmentListNode : TDOMElement;
     CtrlMidiAssignmentNode : TXMLCtrlMidiassignmentType;
     PatchBrowserSettingsNode : TXMLPatchBrowserSettingsType;
+    PatchBufferSettingsNode : TXMLPatchBufferSettingsType;
     DirSettingsNode : TXMLDirectorySettingsType;
     FormSettingsNode : TXMLFormSettingsType;
     G2 : TG2;
@@ -1677,6 +1734,10 @@ begin
     PatchBrowserSettingsNode.ExternalSortCol := frmPatchBrowser.FExternalSortCol;
     PatchBrowserSettingsNode.InternalSortCol := frmPatchBrowser.FInternalSortCol;
 
+    PatchBufferSettingsNode := TXMLPatchBufferSettingsType(Doc.CreateElement('PatchBufferSettings'));
+    RootNode.AppendChild(PatchBufferSettingsNode);
+    PatchBufferSettingsNode.Folder := AnsiString(frmSettings.ePatchbufferFolder.Text);
+
     FormSettingsNode := TXMLFormSettingsTYpe(Doc.CreateElement('PatchBrowserForm'));
     RootNode.AppendChild(FormSettingsNode);
     FormSettingsNode.PosX := frmPatchBrowser.Left;
@@ -1692,6 +1753,14 @@ begin
     FormSettingsNode.SizeX := frmPatchManager.Width;
     FormSettingsNode.SizeY := frmPatchManager.Height;
     FormSettingsNode.Visible := frmPatchManager.Visible;
+
+    FormSettingsNode := TXMLFormSettingsTYpe(Doc.CreateElement('PatchBufferForm'));
+    RootNode.AppendChild(FormSettingsNode);
+    FormSettingsNode.PosX := frmPatchBuffer.Left;
+    FormSettingsNode.PosY := frmPatchBuffer.Top;
+    FormSettingsNode.SizeX := frmPatchBuffer.Width;
+    FormSettingsNode.SizeY := frmPatchBuffer.Height;
+    FormSettingsNode.Visible := frmPatchBuffer.Visible;
 
     FormSettingsNode := TXMLFormSettingsTYpe(Doc.CreateElement('SettingsForm'));
     RootNode.AppendChild(FormSettingsNode);
@@ -2255,7 +2324,9 @@ begin
 end;
 
 
-// ==== File menu ==============================================================
+////////////////////////////////////////////////////////////////////////////////
+//  File menu
+////////////////////////////////////////////////////////////////////////////////
 
 procedure TfrmG2Main.aDownloadPatchExecute(Sender: TObject);
 var G2 : TG2;
@@ -2736,7 +2807,9 @@ begin
 end;
 
 
-// ==== Selection menu =========================================================
+////////////////////////////////////////////////////////////////////////////////
+//  Selection menu
+////////////////////////////////////////////////////////////////////////////////
 
 procedure TfrmG2Main.SetOnlyTextMenus( aValue : boolean);
 begin
@@ -3492,7 +3565,9 @@ begin
   UpdateAddMenu;
 end;
 
-// ==== View menu ==============================================================
+////////////////////////////////////////////////////////////////////////////////
+//  View menu
+////////////////////////////////////////////////////////////////////////////////
 
 procedure TfrmG2Main.aSynthSettingsExecute(Sender: TObject);
 begin
@@ -3550,7 +3625,9 @@ begin
   frmEditorTools.Show;
 end;
 
-// ==== Module menu ============================================================
+////////////////////////////////////////////////////////////////////////////////
+//  Module menu
+////////////////////////////////////////////////////////////////////////////////
 
 procedure TfrmG2Main.CreateAddModuleMenu;
 var i, j, k : integer;
@@ -3781,7 +3858,9 @@ begin
     AddModule( Tag);
 end;
 
-// ==== Parameter menu =========================================================
+////////////////////////////////////////////////////////////////////////////////
+//  Parameter menu
+////////////////////////////////////////////////////////////////////////////////
 
 procedure TfrmG2Main.CreateParamMenu;
 var i, j, Page, PageColumn, Param : integer;
@@ -4073,7 +4152,9 @@ begin
 end;
 
 
-// ==== Connector menu =========================================================
+////////////////////////////////////////////////////////////////////////////////
+//  Connector menu
+////////////////////////////////////////////////////////////////////////////////
 
 procedure TfrmG2Main.ConnectorClick(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X,  Y: Integer; Connector: TG2FileConnector);
 var P : TPoint;
@@ -4114,7 +4195,9 @@ begin
   end;
 end;
 
-// ==== Communication menu =====================================================
+////////////////////////////////////////////////////////////////////////////////
+//  Communication menu
+////////////////////////////////////////////////////////////////////////////////
 
 procedure TfrmG2Main.aSendControllerSnapshotExecute(Sender: TObject);
 var G2 : TG2;
@@ -4156,7 +4239,96 @@ begin
   G2.SendDumpMidiMessage;
 end;
 
-// ==== Functions ==============================================================
+////////////////////////////////////////////////////////////////////////////////
+//  Library
+////////////////////////////////////////////////////////////////////////////////
+
+procedure TfrmG2Main.ReadDir( aTreeView : TTreeView; aNode : TTreeNode; aPath : string);
+var sr : TSearchRec;
+    ChildNode : TTreeNode;
+    Ext : string;
+begin
+  if FindFirst( aPath + '*.*', faAnyFile, sr) = 0 then begin
+    repeat
+      if (sr.Attr and faDirectory) = 0 then begin
+        Ext := Lowercase(ExtractFileExt(sr.Name));
+        if Ext = '.prf2' then begin
+          ChildNode := aTreeView.Items.AddChild( aNode, sr.Name);
+          ChildNode.ImageIndex := 1;
+          ChildNode.ExpandedImageIndex := 1;
+          ChildNode.SelectedIndex := 1;
+          //ChildNode.StateIndex := 1;
+        end else
+          if Ext = '.pch2' then begin
+            ChildNode := aTreeView.Items.AddChild( aNode, sr.Name);
+            ChildNode.ImageIndex := 2;
+            ChildNode.ExpandedImageIndex := 2;
+            ChildNode.SelectedIndex := 2;
+            //ChildNode.StateIndex := 2;
+          end;
+      end else begin
+        if (sr.Name = '.') or (sr.Name = '..') then begin
+        end else begin
+          ChildNode := aTreeView.Items.AddChild( aNode, sr.Name);
+          ChildNode.ImageIndex := 0;
+          ChildNode.ExpandedImageIndex := 0;
+          ChildNode.SelectedIndex := 0;
+          //ChildNode.StateIndex := 0;
+          ReadDir( aTreeView, ChildNode, aPath + sr.Name + '\');
+        end;
+      end;
+    until (FindNext(sr) <> 0);
+    FindClose(sr);
+  end;
+end;
+
+procedure TfrmG2Main.ReadFileDir;
+begin
+  tvFiles.Items.Clear;
+  ReadDir( tvFiles, nil, frmSettings.ePatchRootFolder.Text + '\');
+end;
+
+procedure TfrmG2Main.tvFilesDblClick(Sender: TObject);
+var Node : TTreeNode;
+    Path, Filename, Ext : string;
+    G2 : TG2;
+begin
+  G2 := SelectedG2;
+  if not assigned(G2) then
+    exit;
+
+  Node := tvFiles.Selected;
+  FileName := Node.Text;
+  Ext := Lowercase(ExtractFileExt(Node.Text));
+  Path := '';
+  while Node.Parent <> nil do begin
+    Path := Node.Parent.Text + '\' + Path;
+    Node := Node.Parent;
+  end;
+  Path := frmSettings.ePatchRootFolder.Text + '\' + Path;
+  G2.LoadFileStream( Path + '\' + FileName);
+end;
+
+procedure TfrmG2Main.tbLibraryChange(Sender: TObject);
+begin
+  case tbLibrary.TabIndex of
+  0 :begin
+       SelectBuffer(False);
+     end;
+  1 :begin
+       SelectBuffer(False);
+     end;
+  2 : begin
+        SelectBuffer(True);
+      end;
+  end;
+end;
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+//  Functions
+////////////////////////////////////////////////////////////////////////////////
 
 procedure TfrmG2Main.CopyPatchSelection;
 var G2 : TG2;
@@ -4259,7 +4431,9 @@ begin
   end;
 end;
 
-// ==== Event handling =========================================================
+////////////////////////////////////////////////////////////////////////////////
+//  Event handling
+////////////////////////////////////////////////////////////////////////////////
 
 procedure TfrmG2Main.G2BeforeSendMessage(Sender: TObject; SenderID: Integer; SendMessage: TG2SendMessage);
 var SubCmd : byte;
@@ -4327,6 +4501,22 @@ begin
       SelectSlot( ((Sender as TG2GraphLabel).Parent as TSlotPanel).SlotIndex);
 
   UpdateControls;
+end;
+
+procedure TfrmG2Main.G2PatchLoadChange(Sender: TObject; SenderID: integer;
+  Slot: byte);
+var G2 : TG2;
+begin
+  G2 := SelectedG2;
+  if not assigned(G2) or (G2 <> Sender) then
+    exit;
+
+  if assigned(FSlotPanel[Slot]) then begin
+    FSlotPanel[Slot].FG2dPatchLoadVACycles.Line[0] := Format('%.1f', [G2.Slot[Slot].PatchloadCyclesVA]);
+    FSlotPanel[Slot].FG2dPatchLoadVAMem.Line[0] := Format('%.1f', [G2.Slot[Slot].PatchloadMemVA]);
+    FSlotPanel[Slot].FG2dPatchLoadFXCycles.Line[0] := Format('%.1f', [G2.Slot[Slot].PatchloadCyclesFX]);
+    FSlotPanel[Slot].FG2dPatchLoadFXMem.Line[0] := Format('%.1f', [G2.Slot[Slot].PatchloadMemFX]);
+  end;
 end;
 
 procedure TfrmG2Main.G2PatchNameChange(Sender: TObject; SenderID, PatchIndex: Integer; PatchName: AnsiString);

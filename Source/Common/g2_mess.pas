@@ -33,7 +33,7 @@ uses
   {$IFDEF MSWINDOWS}
   WinApi.Windows,
   {$ENDIF}
-  System.Classes, System.SysUtils, System.Contnrs,
+  System.Classes, System.SysUtils, System.Contnrs
 {$ELSE}
   {$IFDEF MSWINDOWS}
   Windows,
@@ -66,6 +66,7 @@ uses
   TAfterClearBankEvent = procedure( Sender : TObject; SenderID : integer; PatchFileType : TPatchFileType; BankIndex : byte) of Object;
   TAfterBankDownloadEvent = procedure( Sender : TObject; SenderID : integer; PatchFileType : TPatchFileType) of Object;
   TAfterGetAssignedVoices = procedure( Sender : TObject) of object;
+  TPatchLoadChangeEvent = procedure( Sender : TObject; SenderID : integer; Slot : byte) of Object;
 
   TG2MessPerformance = class;
   TG2MessSlot = class;
@@ -187,6 +188,7 @@ uses
     FOnAfterClearBank         : TAfterClearBankEvent;
     FOnAfterBankDownload      : TAfterBankDownloadEvent;
     FOnAfterGetAssignedVoices : TAfterGetAssignedVoices;
+    FOnPatchLoadChange        : TPatchLoadChangeEvent;
 
     FErrorMessage        : boolean;
     FErrorMessageNo      : integer;
@@ -313,6 +315,7 @@ uses
     property    OnAfterClearBank : TAfterClearBankEvent read FOnAfterClearBank write FOnAfterClearBank;
     property    OnAfterBankDownload : TAfterBankDownloadEvent read FOnAfterBankDownload write FOnAfterBankDownload;
     property    OnAfterGetAssignedVoices : TAfterGetAssignedVoices read FOnAfterGetAssignedVoices write FOnAfterGetAssignedVoices;
+    property    OnPatchLoadChange : TPatchLoadChangeEvent read FOnPatchLoadChange write FOnPatchLoadChange;
   end;
 
   TG2MessPerformance = class( TG2FilePerformance)
@@ -336,13 +339,25 @@ uses
     function    CreateSetMasterClockRunMessage( Start : boolean): TG2SendMessage;
   end;
 
+  TPatchLoadData = packed array[0..26] of byte;
+
   TG2MessSlot = class( TG2FileSlot)
   protected
     FPatchVersion      : Byte;
     FAssignedVoices    : Byte;
+    FPatchLoadVAData   : TPatchLoadData;
+    FPatchLoadFXData   : TPatchLoadData;
     FOnDeleteModule    : TDeleteModuleEvent;
     FOnPatchUpdate     : TPatchUpdateEvent;
     FOnVariationChange : TVariationChangeEvent;
+
+    function    CalcPatchLoadMem( aPatchLoadData : TPatchLoadData): single;
+    function    CalcPatchLoadCycles( aPatchLoadData : TPatchLoadData): single;
+  protected
+    function    GetPatchLoadMemVA: single;
+    function    GetPatchLoadMemFX : single;
+    function    GetPatchLoadCyclesVA: single;
+    function    GetPatchLoadCyclesFX : single;
   public
     constructor Create( AOwner: TComponent); override;
     destructor  Destroy; override;
@@ -385,6 +400,10 @@ uses
 
     property    PatchVersion : byte read FPatchVersion write FPatchVersion;
     property    AssignedVoices : byte read FAssignedVoices;
+    property    PatchloadMemVA : single read GetPatchloadMemVA;
+    property    PatchloadMemFX : single read GetPatchloadMemFX;
+    property    PatchloadCyclesVA : single read GetPatchloadCyclesVA;
+    property    PatchloadCyclesFX : single read GetPatchloadCyclesFX;
     property    OnDeleteModule : TDeleteModuleEvent read FOnDeleteModule write FOnDeleteModule;
     property    OnPatchUpdate : TPatchUpdateEvent read FOnPatchUpdate write FOnPatchUpdate;
     property    OnVariationChange : TVariationChangeEvent read FOnVariationChange write FOnVariationChange;
@@ -483,6 +502,14 @@ uses
     var aPatchFileName : string): boolean;
 
 implementation
+
+function fmax( Value1, Value2 : single): single;
+begin
+  if Value1 >= Value2 then
+    Result := Value1
+  else
+    Result := Value2;
+end;
 
 
 function ParseBankDumpListLine( line : string; var aBank, aLocation : byte;
@@ -2888,6 +2915,71 @@ end;
 //  TG2MessSlot
 ////////////////////////////////////////////////////////////////////////////////
 
+function TG2MessSlot.CalcPatchLoadMem(aPatchLoadData: TPatchLoadData): single;
+var CyclesRed1, CyclesBlue1, CyclesRed2, CyclesBlue2, Resource5, Resource8,
+    Resource4, Unknown1, Unknown2, Unknown3, Unknown4, Unknown5 : word;
+    InternalMem : byte;
+    RAM : dword;
+begin
+  //CyclesRed1  := aPatchLoadData[1] + aPatchLoadData[0] * 256;
+  //CyclesBlue1 := aPatchLoadData[3] + aPatchLoadData[2] * 256;
+
+  InternalMem := aPatchLoadData[4];
+
+  //Unknown1 := aPatchLoadData[6] + aPatchLoadData[5] * 256;
+  Resource4 := aPatchLoadData[8] + aPatchLoadData[7] * 128;
+
+  //Resource5 := aPatchLoadData[10] + aPatchLoadData[9] * 256;
+
+  //CyclesRed2  := aPatchLoadData[12] + aPatchLoadData[11] * 256;
+
+  //Unknown3 := aPatchLoadData[14] + aPatchLoadData[13] * 256;
+  //Resource8 := aPatchLoadData[16] + aPatchLoadData[15] * 256;
+
+  //CyclesBlue2 := aPatchLoadData[18] + aPatchLoadData[17] * 256;
+
+  //Unknown4 := aPatchLoadData[20] + aPatchLoadData[19] * 256;
+
+  RAM := aPatchLoadData[24] + aPatchLoadData[23] * 256 + aPatchLoadData[22] * 256*256 + aPatchLoadData[21] * 256*256*256;
+
+  //Unknown5 := aPatchLoadData[26] + aPatchLoadData[25] * 256;
+
+  Result := fmax(fmax( 100 * InternalMem / 128, 100 * RAM / 260000), 100*Resource4 / 4315);
+end;
+
+function TG2MessSlot.CalcPatchLoadCycles(aPatchLoadData: TPatchLoadData): single;
+var CyclesRed1, CyclesBlue1, CyclesRed2, CyclesBlue2, Resource5, Resource8,
+    Unknown1, Unknown2, Unknown3, Unknown4, Unknown5 : word;
+    InternalMem : byte;
+    RAM : dword;
+begin
+  CyclesRed1  := aPatchLoadData[1] + aPatchLoadData[0] * 128;
+  CyclesBlue1 := aPatchLoadData[3] + aPatchLoadData[2] * 128;
+
+  //InternalMem := aPatchLoadData[4];
+
+  //Unknown1 := aPatchLoadData[6] + aPatchLoadData[5] * 256;
+  //Unknown2 := aPatchLoadData[8] + aPatchLoadData[7] * 256;
+
+  Resource5 := aPatchLoadData[10] + aPatchLoadData[9] * 256;
+
+  CyclesRed2  := aPatchLoadData[12] + aPatchLoadData[11] * 128;
+
+  //Unknown3 := aPatchLoadData[14] + aPatchLoadData[13] * 256;
+  //Resource8 := aPatchLoadData[16] + aPatchLoadData[15] * 256;
+
+  CyclesBlue2 := aPatchLoadData[18] + aPatchLoadData[17] * 128;
+
+  //Unknown4 := aPatchLoadData[20] + aPatchLoadData[19] * 256;
+
+  //RAM := aPatchLoadData[24] + aPatchLoadData[23] * 256 + aPatchLoadData[22] * 256*256 + aPatchLoadData[21] * 256*256*256;
+
+  //Unknown5 := aPatchLoadData[26] + aPatchLoadData[25] * 256;
+
+  //Result := fmax( 100 * CyclesRed1 / 1352 + 100 * CyclesBlue1 / 5000, 100 * Resource5 / 258);
+  Result := fmax( 100 * CyclesRed1 / 1372 + 100 * CyclesBlue1 / 5000, 0);
+end;
+
 constructor TG2MessSlot.Create( AOwner: TComponent);
 begin
   inherited;
@@ -2908,6 +3000,26 @@ begin
     raise Exception.Create('Patch in slot unassigned!');
 
   Result := Patch as TG2MessPatch;
+end;
+
+function TG2MessSlot.GetPatchLoadCyclesFX: single;
+begin
+  Result := CalcPatchLoadCycles( FPatchLoadFXData);
+end;
+
+function TG2MessSlot.GetPatchLoadCyclesVA: single;
+begin
+  Result := CalcPatchLoadCycles( FPatchLoadVAData);
+end;
+
+function TG2MessSlot.GetPatchLoadMemFX: single;
+begin
+  Result := CalcPatchLoadMem( FPatchLoadFXData);
+end;
+
+function TG2MessSlot.GetPatchLoadMemVA: single;
+begin
+  Result := CalcPatchLoadMem( FPatchLoadVAData);
 end;
 
 function TG2MessSlot.GetPerformance : TG2MessPerformance;
@@ -3086,7 +3198,28 @@ begin
       R_RESOURCES_USED :
             begin // Resources in use
               MemStream.Read(aLocation, 1);
+              case aLocation of
+              $00 : MemStream.Read(FPatchLoadFXData, 27);
+              $01 : MemStream.Read(FPatchLoadVAData, 27);
+              end;
+
+              if Memstream.Position < Memstream.Size - 2 then begin
+                MemStream.Read(b, 1);
+                if b = R_RESOURCES_USED then begin
+                  MemStream.Read(aLocation, 1);
+                  case aLocation of
+                  $00 : MemStream.Read(FPatchLoadFXData, 27);
+                  $01 : MemStream.Read(FPatchLoadVAData, 27);
+                  end;
+                end;
+              end;
+
               Result := True;
+
+              if assigned(G2) then
+                if assigned((G2 as TG2Mess).FOnPatchLoadChange) then
+                  (G2 as TG2Mess).FOnPatchLoadChange( G2, G2.ID, SlotIndex);
+
               {case aLocation of
               $00 : Result := True;
               $01 : Result := True;
