@@ -138,7 +138,7 @@ begin
   if FDisableControls then
     exit;
 
-  G2 := frmG2Main.SelectedG2;
+  G2 := frmG2Main.SelectedEditG2;
   if not assigned(G2) then
     exit;
 
@@ -172,7 +172,7 @@ end;
 procedure TfrmEditorTools.UpdateControls;
 var G2 : TG2;
 begin
-  G2 := frmG2Main.SelectedG2;
+  G2 := frmG2Main.SelectedEditG2;
   if not assigned(G2) then
     exit;
 

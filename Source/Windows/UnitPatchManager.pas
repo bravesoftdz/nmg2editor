@@ -222,7 +222,7 @@ var G2 : TG2;
     PatchFileType, Bank, Location : byte;
     PatchName : string;
 begin
-  G2 := frmG2Main.SelectedG2;
+  G2 := frmG2Main.SelectedCtrlG2;
   if assigned(G2) then begin
     if TPatchFileType(1 - tcPerfPatch.TabIndex) = pftPatch then begin
       OpenDialog1.Filter := 'patch list files (*.pchlist)|*.pchlist';
@@ -271,7 +271,7 @@ end;
 procedure TfrmPatchManager.aUploadBankToDiskExecute(Sender: TObject);
 var G2 : TG2;
 begin
-  G2 := frmG2Main.SelectedG2;
+  G2 := frmG2Main.SelectedCtrlG2;
   if assigned(G2) then begin
 
     G2.BankDumpList.Clear;
@@ -301,7 +301,7 @@ end;
 procedure TfrmPatchManager.aLoadPatchExecute(Sender: TObject);
 var G2 : TG2;
 begin
-  G2 := frmG2Main.SelectedG2;
+  G2 := frmG2Main.SelectedCtrlG2;
   if assigned(G2) then
     G2.LoadFileStream( '');
   frmG2Main.SetFocus;
@@ -310,7 +310,7 @@ end;
 procedure TfrmPatchManager.aLoadPerfExecute(Sender: TObject);
 var G2 : TG2;
 begin
-  G2 := frmG2Main.SelectedG2;
+  G2 := frmG2Main.SelectedCtrlG2;
   if assigned(G2) then
     G2.LoadFileStream( '');
   frmG2Main.SetFocus;
@@ -319,7 +319,7 @@ end;
 procedure TfrmPatchManager.aRefreshExecute(Sender: TObject);
 var G2 : TG2;
 begin
-  G2 := frmG2Main.SelectedG2;
+  G2 := frmG2Main.SelectedCtrlG2;
   if assigned(G2) then begin
     G2.RefreshBanks;
     Update;
@@ -329,7 +329,7 @@ end;
 procedure TfrmPatchManager.bidHighKeyClick(Sender: TObject);
 var G2 : TG2;
 begin
-  G2 := frmG2Main.SelectedG2;
+  G2 := frmG2Main.SelectedCtrlG2;
   if assigned(G2) then begin
     G2.Performance.Slot[ FSelectedSlot].Upper := bidHighKey.Value;
     G2.Performance.SendSetPerfSettingsMessage;
@@ -339,7 +339,7 @@ end;
 procedure TfrmPatchManager.bidLowKeyClick(Sender: TObject);
 var G2 : TG2;
 begin
-  G2 := frmG2Main.SelectedG2;
+  G2 := frmG2Main.SelectedCtrlG2;
   if assigned(G2) then begin
     G2.Performance.Slot[ FSelectedSlot].Lower := bidLowKey.Value;
     G2.Performance.SendSetPerfSettingsMessage;
@@ -349,7 +349,7 @@ end;
 procedure TfrmPatchManager.btEnableClick(Sender: TObject);
 var G2 : TG2;
 begin
-  G2 := frmG2Main.SelectedG2;
+  G2 := frmG2Main.SelectedCtrlG2;
   if assigned(G2) then begin
     G2.Performance.Slot[ FSelectedSlot].Enabled := btEnable.Value;
     G2.Performance.SendSetPerfSettingsMessage;
@@ -370,7 +370,7 @@ end;
 procedure TfrmPatchManager.btHoldClick(Sender: TObject);
 var G2 : TG2;
 begin
-  G2 := frmG2Main.SelectedG2;
+  G2 := frmG2Main.SelectedCtrlG2;
   if assigned(G2) then begin
     G2.Performance.Slot[ FSelectedSlot].Hold := btHold.Value;
     G2.Performance.SendSetPerfSettingsMessage;
@@ -391,7 +391,7 @@ end;
 procedure TfrmPatchManager.btKeyboardClick(Sender: TObject);
 var G2 : TG2;
 begin
-  G2 := frmG2Main.SelectedG2;
+  G2 := frmG2Main.SelectedCtrlG2;
   if assigned(G2) then begin
     G2.Performance.Slot[ FSelectedSlot].Keyboard := btKeyboard.Value;
     G2.Performance.SendSetPerfSettingsMessage;
@@ -412,7 +412,7 @@ end;
 procedure TfrmPatchManager.btKeyboardRangeClick(Sender: TObject);
 var G2 : TG2;
 begin
-  G2 := frmG2Main.SelectedG2;
+  G2 := frmG2Main.SelectedCtrlG2;
   if assigned(G2) then begin
     G2.Performance.KeyboardRangeEnabled := btKeyboardRange.Value;
     G2.Performance.SendSetPerfSettingsMessage;
@@ -469,7 +469,7 @@ begin
       if ACol = 0 then begin
         TextCenter( canvas, Rect, IntToStr((ARow-1) * 8));
       end else begin
-        G2 := frmG2Main.SelectedG2;
+        G2 := frmG2Main.SelectedCtrlG2;
         if assigned(G2) then begin
           if G2.USBActive then begin
 
@@ -573,7 +573,7 @@ end;
 procedure TfrmPatchManager.btPerfModeClick(Sender: TObject);
 var G2 : TG2;
 begin
-  G2 := frmG2Main.SelectedG2;
+  G2 := frmG2Main.SelectedCtrlG2;
   if not assigned(G2) then
     exit;
 
@@ -585,7 +585,7 @@ var i : integer;
     G2 : TG2;
     BankItem : TBankItem;
 begin
-  G2 := frmG2Main.SelectedG2;
+  G2 := frmG2Main.SelectedCtrlG2;
   if assigned(G2) then begin
     i := (FSelectedGridCoord.Y - 1) * 8 + (FSelectedGridCoord.X - 1);
     BankItem := G2.BankList.Find( TPatchFileType(1 - tcPerfPatch.TabIndex), tcBank.TabIndex, i);
@@ -611,7 +611,7 @@ procedure TfrmPatchManager.KeyboardNoteOff(Sender: TObject; aOcatve,
   aKey: Integer);
 var G2 : TG2;
 begin
-  G2 := frmG2Main.SelectedG2;
+  G2 := frmG2Main.SelectedCtrlG2;
   if assigned(G2) then begin
     G2.SendNoteMessage( aOcatve * 12 + aKey, 1);
   end;
@@ -621,7 +621,7 @@ procedure TfrmPatchManager.KeyboardNoteOn(Sender: TObject; aOcatve,
   aKey: Integer);
 var G2 : TG2;
 begin
-  G2 := frmG2Main.SelectedG2;
+  G2 := frmG2Main.SelectedCtrlG2;
   if assigned(G2) then begin
     G2.SendNoteMessage( aOcatve * 12 + aKey, 0);
   end;
@@ -631,7 +631,7 @@ procedure TfrmPatchManager.KeyboardSetRange(Sender: TObject; aLowKey,
   aHighKey: Integer);
 var G2 : TG2;
 begin
-  G2 := frmG2Main.SelectedG2;
+  G2 := frmG2Main.SelectedCtrlG2;
   if assigned(G2) then begin
     G2.Performance.Slot[ FSelectedSlot].Lower := aLowKey;
     G2.Performance.Slot[ FSelectedSlot].Upper := aHighKey;
@@ -677,7 +677,7 @@ var Panel : TPanel;
 begin
   if Sender is TPanel then begin
     FSelectedSlot := (Sender as TPanel).Tag;
-    G2 := frmG2Main.SelectedG2;
+    G2 := frmG2Main.SelectedCtrlG2;
     if assigned(G2) then begin
       G2.SelectedSlotIndex := FSelectedSlot;
     end;
@@ -774,7 +774,7 @@ procedure TfrmPatchManager.Restore(aSlotIndex, aBankIndex,
   aPatchIndex: integer);
 var G2 : TG2;
 begin
-  G2 := frmG2Main.SelectedG2;
+  G2 := frmG2Main.SelectedCtrlG2;
   if assigned(G2) then begin
     G2.SendRetrieveMessage( aSlotIndex, aBankIndex, aPatchIndex)
   end;
@@ -785,7 +785,7 @@ procedure TfrmPatchManager.SetPatchCategorie(aPatchIndex,
 var G2 : TG2;
     FPatchDescription : TPatchDescription;
 begin
-  G2 := frmG2Main.SelectedG2;
+  G2 := frmG2Main.SelectedCtrlG2;
   if assigned(G2) then begin
     FPatchDescription := G2.Patch[ aPatchIndex].PatchDescription;
     FPatchDescription.Categorie := aCategoryIndex;
@@ -796,7 +796,7 @@ end;
 procedure TfrmPatchManager.Store( aSlotIndex, aBankIndex, aPatchIndex : integer);
 var G2 : TG2;
 begin
-  G2 := frmG2Main.SelectedG2;
+  G2 := frmG2Main.SelectedCtrlG2;
   if assigned(G2) then begin
     G2.SendStoreMessage( aSlotIndex, aBankIndex, aPatchIndex)
   end;
@@ -806,7 +806,7 @@ procedure TfrmPatchManager.ClearBank( aPatchFileType : TPatchFileType; aBankInde
 var G2 : TG2;
     FromLocation, ToLocation : byte;
 begin
-  G2 := frmG2Main.SelectedG2;
+  G2 := frmG2Main.SelectedCtrlG2;
   if assigned(G2) then begin
     if G2.BankList.FindFirstLast( aPatchFileType, aBankIndex, FromLocation, ToLocation) then begin
       if MessageDlg('All patches in bank ' + IntToStr(aBankIndex + 1) + ' wil be deleted, sure?', mtWarning,  mbOKCancel, 0) = mrOk then
@@ -819,7 +819,7 @@ end;
 procedure TfrmPatchManager.ClearLocation( aPatchFileType : TPatchFileType; aBankIndex, aPatchIndex : integer);
 var G2 : TG2;
 begin
-  G2 := frmG2Main.SelectedG2;
+  G2 := frmG2Main.SelectedCtrlG2;
   if assigned(G2) then begin
     G2.SendClearMessage( aPatchFileType, aBankIndex, aPatchIndex)
   end;
@@ -832,7 +832,7 @@ var G2 : TG2;
     PatchName1, PatchName2 : AnsiString;
     Patch : TG2FilePatch;
 begin
-  G2 := frmG2Main.SelectedG2;
+  G2 := frmG2Main.SelectedCtrlG2;
   if assigned(G2) then begin
     PatchData1 := TMemoryStream.Create;
     PatchData2 := TmemoryStream.Create;
@@ -875,7 +875,7 @@ var i : integer;
     Panel : TPanel;
     BankItem : TBankItem;
 begin
-  G2 := frmG2Main.SelectedG2;
+  G2 := frmG2Main.SelectedCtrlG2;
   if assigned(G2) then begin
 
     FSelectedSlot := G2.SelectedSlot.SlotIndex;

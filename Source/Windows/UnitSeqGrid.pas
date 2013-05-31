@@ -143,7 +143,7 @@ var Module : TG2FileModule;
     G2 : TG2;
 begin
   Result := nil;
-  G2 := frmG2Main.SelectedG2;
+  G2 := frmG2Main.SelectedEditG2;
   if assigned(G2) then begin
     Module := G2.SelectedPatch.GetModule( ord(FLocation), FModuleIndex);
     if not( assigned(Module) and (Module.TypeID = 121)) then begin

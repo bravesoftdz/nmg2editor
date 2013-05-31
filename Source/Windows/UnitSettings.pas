@@ -227,7 +227,7 @@ procedure TfrmSettings.FormClose(Sender: TObject; var Action: TCloseAction);
 var G2 : TG2;
     i, c, ledtimer : integer;
 begin
-  G2 := frmG2Main.SelectedG2;
+  G2 := frmG2Main.SelectedCtrlG2;
   if assigned(G2) then begin
     G2.Host := eHost.Text;
     G2.Port := StrToInt(ePort.Text);
@@ -261,7 +261,7 @@ end;
 procedure TfrmSettings.UpdateControls;
 var G2 : TG2;
 begin
-  G2 := frmG2Main.SelectedG2;
+  G2 := frmG2Main.SelectedCtrlG2;
   if not assigned(G2) then
     exit;
 
@@ -445,7 +445,7 @@ begin
   if FDisableControls then
     exit;
 
-  G2 := frmG2Main.SelectedG2;
+  G2 := frmG2Main.SelectedCtrlG2;
   if not assigned(G2) then
     exit;
 
@@ -572,7 +572,7 @@ var i : integer;
     MidiInDevice : TMidiInDevice;
     MidiOutDevice : TMidiOutDevice;
 begin
-  G2 := frmG2Main.SelectedG2;
+  G2 := frmG2Main.SelectedCtrlG2;
   if not assigned(G2) then
     exit;
 
@@ -635,7 +635,7 @@ var i : integer;
     MidiOutDevice : TMidiOutDevice;
     G2 : TG2;
 begin
-  G2 := frmG2Main.SelectedG2;
+  G2 := frmG2Main.SelectedCtrlG2;
   if not assigned(G2) then
     exit;
 
@@ -646,6 +646,7 @@ begin
         if G2.MidiInDevice = MidiInDevice then begin
           MidiInDevice.MidiInput.OnMidiInput := nil;
           G2.MidiInDevice := nil;
+          G2.MidiInDeviceName := '';
         end;
         MidiInDevice.Assignment := mdatNone;
       end;
@@ -669,6 +670,7 @@ begin
       if (not clbSysExMidiOutDevices.Checked[i]) and (MidiOutDevice.Assignment = mdatSysEx) and MidiOutDevice.Open then begin
         if G2.MidiOutDevice = MidiOutDevice then begin
           G2.MidiOutDevice := nil;
+          G2.MidiOutDeviceName := '';
         end;
         MidiOutDevice.Assignment := mdatNone;
       end;
@@ -838,7 +840,7 @@ var Doc : TXMLDocument;
     VSTTCPSettingsNode : TXMLVSTTCPSettingsType;
     G2 : TG2;
 begin
-  G2 := frmG2Main.SelectedG2;
+  G2 := frmG2Main.SelectedCtrlG2;
   if not assigned(G2) then
     exit;
 
@@ -942,7 +944,7 @@ begin
   if FDisableControls then
     exit;
 
-  G2 := frmG2Main.SelectedG2;
+  G2 := frmG2Main.SelectedCtrlG2;
   if assigned(G2) then begin
     try
       G2.IsServer := cbIsServer.Checked;
@@ -1086,7 +1088,7 @@ var i, p, c, b, KnobIndex : integer;
     OscPacket : TOSCPacket;
     G2 : TG2;
 begin
-  G2 := frmG2Main.SelectedG2;
+  G2 := frmG2Main.SelectedCtrlG2;
   if not assigned(G2) then
     exit;
 

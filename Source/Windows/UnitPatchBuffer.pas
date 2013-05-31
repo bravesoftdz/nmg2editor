@@ -188,7 +188,7 @@ var G2 : TG2;
 begin
   if lvPatchList.ItemIndex <> -1 then begin
     ListItem := lvPatchList.Items[ lvPatchList.ItemIndex];
-    G2 := frmG2Main.SelectedG2;
+    G2 := frmG2Main.SelectedEditG2;
     if assigned(G2) then begin
       G2.SelectedSlot.SendSetPatchMessage( ListItem.Caption, TG2GraphPatch(ListItem.Data));
       frmG2Main.SetFocus;

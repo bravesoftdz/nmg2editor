@@ -675,9 +675,10 @@ type
     FMidiOutDevices       : TMidiDeviceList;
 
     procedure AddG2( G2USBDevice : pusb_device);
-    function  SelectedG2: TG2;
+    function  SelectedEditG2: TG2;
+    function  SelectedCtrlG2: TG2;
     function  FirstG2 : TG2;
-    procedure SelectG2( G2Index : integer);
+    procedure SelectCtrlG2( G2Index : integer);
 
     procedure SelectBuffer( aValue : boolean);
 
@@ -1129,7 +1130,7 @@ end;
 procedure TfrmG2Main.VariaionCopytoClick(Sender: TObject);
 var G2 : TG2;
 begin
-  G2 := SelectedG2;
+  G2 := SelectedEditG2;
   if not assigned(G2) then
     exit;
 
@@ -1236,7 +1237,7 @@ begin
   for i := 0 to FG2List.Count - 1 do
     rbSynth.ButtonText.Add('G2 Synth ' + IntToStr(i+ 1));
   FG2Index := -1;
-  SelectG2(0);
+  SelectCtrlG2(0);
 
   Caption := 'NMG2 Editor ' + NMG2_VERSION;
 
@@ -1244,7 +1245,7 @@ begin
   FOldSplitterPos := Splitter1.Height;
 
   //FPatchManagerVisible := False;
-  G2 := SelectedG2;
+  G2 := SelectedEditG2;
 
   ModuleMap := TBitmap.Create;
   try
@@ -1352,12 +1353,20 @@ begin
   FEditorSettingsList.Add( EditorSettings);
 end;
 
-function TfrmG2Main.SelectedG2: TG2;
+function TfrmG2Main.SelectedCtrlG2: TG2;
 begin
   if FG2Index <> -1 then
     Result := FG2List[FG2Index] as TG2
   else
     Result := nil;
+end;
+
+function TfrmG2Main.SelectedEditG2: TG2;
+begin
+  if tbLibrary.TabIndex = 2 then
+    Result := G2Buffer
+  else
+    Result := SelectedCtrlG2;
 end;
 
 function TfrmG2Main.FirstG2: TG2;
@@ -1368,7 +1377,7 @@ begin
     Result := nil;
 end;
 
-procedure TfrmG2Main.SelectG2(G2Index: integer);
+procedure TfrmG2Main.SelectCtrlG2(G2Index: integer);
 var i : integer;
 begin
   if (G2Index >= FG2List.Count) or (G2Index < 0) then
@@ -1405,17 +1414,21 @@ end;
 
 
 procedure TfrmG2Main.SelectBuffer(aValue: boolean);
+var G2 : TG2;
 begin
+  G2 := SelectedEditG2;
+  if not assigned(G2) then
+    exit;
+
+  G2.ScrollboxVA := sbVA;
+  G2.ScrollboxFX := sbFX;
+
   if aValue then begin
-    G2Buffer.ScrollboxVA := sbVA;
-    G2Buffer.ScrollboxFX := sbFX;
     sbVA.BackGroundColor := $00660000;
     sbFX.BackgroundColor := $00880000;
   end else begin
     sbVA.BackGroundColor := $00404040;
     sbFX.BackgroundColor := $00505050;
-    SelectedG2.ScrollboxVA := sbVA;
-    SelectedG2.ScrollboxFX := sbFX;
   end;
   sbVA.Invalidate;
   sbFX.Invalidate;
@@ -1448,7 +1461,9 @@ begin
     G2.USBActive := True;
   end;
 
-  G2 := frmG2Main.SelectedG2;
+  G2Buffer.LoadModuleDefs('');
+
+  G2 := frmG2Main.SelectedCtrlG2;
   if assigned(G2) then
     frmPatchBrowserModuleFilter.UpdateModules(G2.FModuleDefList);
 
@@ -1817,7 +1832,7 @@ procedure TfrmG2Main.SetEditorSettings( aSlotStripColor,
 var i : integer;
     G2 : TG2;
 begin
-  G2 := SelectedG2;
+  G2 := SelectedCtrlG2;
   if not assigned(G2) then
     exit;
 
@@ -1860,7 +1875,7 @@ procedure TfrmG2Main.ShakeCables;
 var i : integer;
     G2 : TG2;
 begin
-  G2 := SelectedG2;
+  G2 := SelectedCtrlG2;
   if not assigned(G2) then
     exit;
 
@@ -1873,7 +1888,7 @@ procedure TfrmG2Main.UpdateColorSchema;
 var i : integer;
     G2 : TG2;
 begin
-  G2 := SelectedG2;
+  G2 := SelectedCtrlG2;
   if not assigned(G2) then
     exit;
 
@@ -1903,7 +1918,7 @@ begin
   if not Initialized then
     exit;
 
-  G2 := SelectedG2;
+  G2 := SelectedEditG2;
   if not assigned(G2) then
     exit;
 
@@ -2034,7 +2049,7 @@ begin
   if not Initialized then
     exit;
 
-  G2 := SelectedG2;
+  G2 := SelectedCtrlG2;
   if not assigned(G2) then
     exit;
 
@@ -2132,7 +2147,7 @@ var G2 : TG2;
 begin
   Result := False;
 
-  G2 := SelectedG2;
+  G2 := SelectedEditG2;
   if not assigned(G2) then
     exit;
 
@@ -2155,7 +2170,7 @@ end;
 procedure TfrmG2Main.FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
 var G2 : TG2;
 begin
-  G2 := SelectedG2;
+  G2 := SelectedEditG2;
   if not assigned(G2) then
     exit;
 
@@ -2205,7 +2220,7 @@ procedure TfrmG2Main.GetPatchversion;
 var G2 : TG2;
 begin
   // Get current patch version from G2
-  G2 := SelectedG2;
+  G2 := SelectedEditG2;
   if not assigned(G2) then
     exit;
 
@@ -2216,7 +2231,7 @@ procedure TfrmG2Main.sbFXMouseUp(Sender: TObject; Button: TMouseButton; Shift: T
 var P : TPoint;
     G2 : TG2;
 begin
-  G2 := SelectedG2;
+  G2 := SelectedEditG2;
   if not assigned(G2) then
     exit;
 
@@ -2242,7 +2257,7 @@ procedure TfrmG2Main.sbVAMouseUp(Sender: TObject; Button: TMouseButton; Shift: T
 var P : TPoint;
     G2 : TG2;
 begin
-  G2 := SelectedG2;
+  G2 := SelectedEditG2;
   if not assigned(G2) then
     exit;
 
@@ -2269,7 +2284,7 @@ var l, m : integer;
     Module : TG2FileModule;
     G2 : TG2;
 begin
-  G2 := SelectedG2;
+  G2 := SelectedEditG2;
   if not assigned(G2) then
     exit;
 
@@ -2291,7 +2306,7 @@ end;
 procedure TfrmG2Main.btClockRunClick(Sender: TObject);
 var G2 : TG2;
 begin
-  G2 := SelectedG2;
+  G2 := SelectedCtrlG2;
   if not assigned(G2) then
     exit;
 
@@ -2303,7 +2318,7 @@ procedure TfrmG2Main.gdMasterClockMouseDown(Sender: TObject;
   Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 var G2 : TG2;
 begin
-  G2 := SelectedG2;
+  G2 := SelectedCtrlG2;
   if not assigned(G2) then
     exit;
 
@@ -2331,7 +2346,7 @@ end;
 procedure TfrmG2Main.aDownloadPatchExecute(Sender: TObject);
 var G2 : TG2;
 begin
-  G2 := SelectedG2;
+  G2 := SelectedEditG2;
   if not assigned(G2) then
     exit;
 
@@ -2341,7 +2356,7 @@ end;
 procedure TfrmG2Main.aInitPatchExecute(Sender: TObject);
 var G2 : TG2;
 begin
-  G2 := SelectedG2;
+  G2 := SelectedEditG2;
   if not assigned(G2) then
     exit;
 
@@ -2353,7 +2368,7 @@ end;
 procedure TfrmG2Main.aInitPerfExecute(Sender: TObject);
 var G2 : TG2;
 begin
-  G2 := SelectedG2;
+  G2 := SelectedEditG2;
   if not assigned(G2) then
     exit;
 
@@ -2365,7 +2380,7 @@ end;
 procedure TfrmG2Main.aLoadPatchExecute(Sender: TObject);
 var G2 : TG2;
 begin
-  G2 := SelectedG2;
+  G2 := SelectedEditG2;
   if not assigned(G2) then
     exit;
 
@@ -2378,7 +2393,7 @@ end;
 procedure TfrmG2Main.aLoadPerformanceExecute(Sender: TObject);
 var G2 : TG2;
 begin
-  G2 := SelectedG2;
+  G2 := SelectedEditG2;
   if not assigned(G2) then
     exit;
 
@@ -2393,7 +2408,7 @@ procedure TfrmG2Main.aSaveLogFileExecute(Sender: TObject);
 var WriteStream : TFileStream;
     G2 : TG2;
 begin
-  G2 := SelectedG2;
+  G2 := SelectedEditG2;
   if not assigned(G2) then
     exit;
 
@@ -2407,7 +2422,7 @@ procedure TfrmG2Main.aSavePatchAsFXPExecute(Sender: TObject);
 var WriteStream : TFileStream;
     G2 : TG2;
 begin
-  G2 := SelectedG2;
+  G2 := SelectedEditG2;
   if not assigned(G2) then
     exit;
 
@@ -2442,7 +2457,7 @@ procedure TfrmG2Main.aSavePatchAsSysexExecute(Sender: TObject);
 var WriteStream : TFileStream;
     G2 : TG2;
 begin
-  G2 := SelectedG2;
+  G2 := SelectedEditG2;
   if not assigned(G2) then
     exit;
 
@@ -2461,7 +2476,7 @@ procedure TfrmG2Main.aSavePatchExecute(Sender: TObject);
 var WriteStream : TFileStream;
     G2 : TG2;
 begin
-  G2 := SelectedG2;
+  G2 := SelectedEditG2;
   if not assigned(G2) then
     exit;
 
@@ -2504,7 +2519,7 @@ procedure TfrmG2Main.aSavePerformanceAsFXBExecute(Sender: TObject);
 var WriteStream : TFileStream;
     G2 : TG2;
 begin
-  G2 := SelectedG2;
+  G2 := SelectedEditG2;
   if not assigned(G2) then
     exit;
 
@@ -2539,7 +2554,7 @@ procedure TfrmG2Main.aSavePerformanceAsSysExExecute(Sender: TObject);
 var WriteStream : TFileStream;
     G2 : TG2;
 begin
-  G2 := SelectedG2;
+  G2 := SelectedEditG2;
   if not assigned(G2) then
     exit;
 
@@ -2558,7 +2573,7 @@ procedure TfrmG2Main.aSavePerformanceExecute(Sender: TObject);
 var WriteStream : TFileStream;
     G2 : TG2;
 begin
-  G2 := SelectedG2;
+  G2 := SelectedEditG2;
   if not assigned(G2) then
     exit;
 
@@ -2621,7 +2636,7 @@ end;
 procedure TfrmG2Main.aGetActivePatchSysexExecute(Sender: TObject);
 var G2 : TG2;
 begin
-  G2 := SelectedG2;
+  G2 := SelectedEditG2;
   if not assigned(G2) then
     exit;
 
@@ -2631,7 +2646,7 @@ end;
 procedure TfrmG2Main.aGetActivePerfSysexExecute(Sender: TObject);
 var G2 : TG2;
 begin
-  G2 := SelectedG2;
+  G2 := SelectedEditG2;
   if not assigned(G2) then
     exit;
 
@@ -2643,7 +2658,7 @@ var Bank, Slot, c : integer;
     sBank, sSlot : string;
     G2 : TG2;
 begin
-  G2 := SelectedG2;
+  G2 := SelectedEditG2;
   if not assigned(G2) then
     exit;
 
@@ -2667,7 +2682,7 @@ var Bank, Slot, c : integer;
     sBank, sSlot : string;
     G2 : TG2;
 begin
-  G2 := SelectedG2;
+  G2 := SelectedEditG2;
   if not assigned(G2) then
     exit;
 
@@ -2728,7 +2743,7 @@ procedure TfrmG2Main.aSelectAllExecute(Sender: TObject);
 var i : integer;
     G2 : TG2;
 begin
-  G2 := SelectedG2;
+  G2 := SelectedEditG2;
   if not assigned(G2) then
     exit;
 
@@ -2743,7 +2758,7 @@ var P : TPoint;
     G2 : TG2;
     Module : TG2FileModule;
 begin
-  G2 := SelectedG2;
+  G2 := SelectedEditG2;
   if not assigned(G2) then
     exit;
 
@@ -2763,7 +2778,7 @@ var P : TPoint;
     G2 : TG2;
     Param : TG2FileParameter;
 begin
-  G2 := SelectedG2;
+  G2 := SelectedEditG2;
   if not assigned(G2) then
     exit;
 
@@ -2783,7 +2798,7 @@ end;
 procedure TfrmG2Main.aPatchRenameExecute(Sender: TObject);
 var G2 : TG2;
 begin
-  G2 := SelectedG2;
+  G2 := SelectedEditG2;
   if not assigned(G2) then
     exit;
 
@@ -2796,7 +2811,7 @@ end;
 procedure TfrmG2Main.aPerfRenameExecute(Sender: TObject);
 var G2 : TG2;
 begin
-  G2 := SelectedG2;
+  G2 := SelectedEditG2;
   if not assigned(G2) then
     exit;
 
@@ -2839,7 +2854,7 @@ var ModuleIndex : integer;
     Module : TG2FileModule;
     G2 : TG2;
 begin
-  G2 := SelectedG2;
+  G2 := SelectedEditG2;
   if not assigned(G2) then
     exit;
 
@@ -2857,7 +2872,7 @@ procedure TfrmG2Main.DoSelectParam(Sender: TObject);
 var Param : TG2FileParameter;
     G2 : TG2;
 begin
-  G2 := SelectedG2;
+  G2 := SelectedEditG2;
   if not assigned(G2) then
     exit;
 
@@ -2873,7 +2888,7 @@ procedure TfrmG2Main.DoDeleteCable( Sender: TObject);
 var G2 : TG2;
    Cable : TG2FileCable;
 begin
-  G2 := SelectedG2;
+  G2 := SelectedEditG2;
   if not assigned(G2) then
     exit;
 
@@ -2889,7 +2904,7 @@ var Connector : TG2FileConnector;
    i : integer;
    G2 : TG2;
 begin
-  G2 := SelectedG2;
+  G2 := SelectedEditG2;
   if not assigned(G2) then
     exit;
 
@@ -2905,7 +2920,7 @@ var ConnectorToMenuItem, ModuleMenuItem : TMenuItem;
     FromConnector, ToCOnnector : TG2FileConnector;
     G2 : TG2;
 begin
-  G2 := SelectedG2;
+  G2 := SelectedEditG2;
   if not assigned(G2) then
     exit;
 
@@ -2976,7 +2991,7 @@ end;
 function TfrmG2Main.GetSelectedModule: TG2FileModule;
 var G2 : TG2;
 begin
-  G2 := SelectedG2;
+  G2 := SelectedEditG2;
   if not assigned(G2) then
     exit;
 
@@ -2991,7 +3006,7 @@ var G2 : TG2;
     Module : TG2FileModule;
     i : integer;
 begin
-  G2 := SelectedG2;
+  G2 := SelectedEditG2;
   if not assigned(G2) then
     exit;
 
@@ -3010,7 +3025,7 @@ end;
 function TfrmG2Main.GetSelectedConnector : TG2FileConnector;
 var G2 : TG2;
 begin
-  G2 := SelectedG2;
+  G2 := SelectedEditG2;
   if not assigned(G2) then
     exit;
 end;
@@ -3018,7 +3033,7 @@ end;
 function TfrmG2Main.GetSelectedCable : TG2FileCable;
 var G2 : TG2;
 begin
-  G2 := SelectedG2;
+  G2 := SelectedEditG2;
   if not assigned(G2) then
     exit;
 end;
@@ -3092,7 +3107,7 @@ procedure TfrmG2Main.UpdateSelectSlot;
 var MenuItem : TMenuItem;
     G2 : TG2;
 begin
-  G2 := SelectedG2;
+  G2 := SelectedCtrlG2;
   if not assigned(G2) then
     exit;
 
@@ -3114,7 +3129,7 @@ procedure TfrmG2Main.UpdateVariationMenu;
 var i : integer;
     G2 : TG2;
 begin
-  G2 := SelectedG2;
+  G2 := SelectedEditG2;
   if not assigned(G2) then
     exit;
 
@@ -3142,7 +3157,7 @@ var G2 : TG2;
     Module : TG2FileModule;
     Param : TG2FileParameter;
 begin
-  G2 := SelectedG2;
+  G2 := SelectedEditG2;
   if not assigned(G2) then
     exit;
 
@@ -3168,7 +3183,7 @@ procedure TfrmG2Main.UpdateAddMenu;
 var G2 : TG2;
     Module : TG2FileModule;
 begin
-  G2 := SelectedG2;
+  G2 := SelectedEditG2;
   if not assigned(G2) then
     exit;
 
@@ -3196,7 +3211,7 @@ var G2 : TG2;
     CategorieMenuItem, ModuleMenuItem, ConnectorMenuItem : TMenuItem;
     Allowed : boolean;
 begin
-  G2 := SelectedG2;
+  G2 := SelectedEditG2;
   if not assigned(G2) then
     exit;
 
@@ -3321,7 +3336,7 @@ var G2 : TG2;
     Param : TG2FileParameter;
     MenuItem : TMenuItem;
 begin
-  G2 := SelectedG2;
+  G2 := SelectedEditG2;
   if not assigned(G2) then
     exit;
 
@@ -3345,7 +3360,7 @@ var G2 : TG2;
     MenuItem : TMenuItem;
 begin
   // Add all output connectors of selected module
-  G2 := SelectedG2;
+  G2 := SelectedEditG2;
   if not assigned(G2) then
     exit;
 
@@ -3375,7 +3390,7 @@ var i : integer;
     Module, OtherModule : TG2FileModule;
     OtherConnector : TG2FileConnector;
 begin
-  G2 := SelectedG2;
+  G2 := SelectedEditG2;
   if not assigned(G2) then
     exit;
 
@@ -3451,7 +3466,7 @@ var G2 : TG2;
     ConnectorMenuItem : TMenuItem;
 begin
   // Add all output connectors of selected module
-  G2 := SelectedG2;
+  G2 := SelectedEditG2;
   if not assigned(G2) then
     exit;
 
@@ -3492,7 +3507,7 @@ procedure TfrmG2Main.aShowAddModuleExecute(Sender: TObject);
 var P : TPoint;
     G2 : TG2;
 begin
-  G2 := SelectedG2;
+  G2 := SelectedEditG2;
   if not assigned(G2) then
     exit;
 
@@ -3674,7 +3689,7 @@ begin
 
     puAddModule.Items.Add( aMenuItem);
 
-    G2 := SelectedG2;
+    G2 := SelectedEditG2;
     if not assigned(G2) then
       exit;
 
@@ -3744,7 +3759,7 @@ procedure TfrmG2Main.ModuleAssignGlobalKnobs(Sender: TObject);
 var Module : TG2GraphModule;
     G2 : TG2;
 begin
-  G2 := SelectedG2;
+  G2 := SelectedEditG2;
   if not assigned(G2) then
     exit;
 
@@ -3758,7 +3773,7 @@ procedure TfrmG2Main.ModuleAssignKnobs(Sender: TObject);
 var Module : TG2GraphModule;
     G2 : TG2;
 begin
-  G2 := SelectedG2;
+  G2 := SelectedEditG2;
   if not assigned(G2) then
     exit;
 
@@ -3789,7 +3804,7 @@ procedure TfrmG2Main.miModuleHelpClick(Sender: TObject);
 var Module : TG2GraphModule;
     G2 : TG2;
 begin
-  G2 := SelectedG2;
+  G2 := SelectedEditG2;
   if not assigned(G2) then
     exit;
 
@@ -3804,7 +3819,7 @@ procedure TfrmG2Main.miModuleRenameClick(Sender: TObject);
 var Module : TG2GraphModule;
     G2 : TG2;
 begin
-  G2 := SelectedG2;
+  G2 := SelectedEditG2;
   if not assigned(G2) then
     exit;
 
@@ -3839,7 +3854,7 @@ end;
 procedure TfrmG2Main.AddModule( aModuleType : byte);
 var G2 : TG2;
 begin
-  G2 := SelectedG2;
+  G2 := SelectedEditG2;
   if not assigned(G2) then
     exit;
 
@@ -3923,7 +3938,7 @@ var Parameter : TG2FileParameter;
     G2 : TG2;
     ParamLabelIndex : integer;
 begin
-  G2 := SelectedG2;
+  G2 := SelectedEditG2;
   if not assigned(G2) then
     exit;
 
@@ -3949,7 +3964,7 @@ procedure TfrmG2Main.AssignKnob(Sender: TObject);
 var Parameter : TG2GraphParameter;
     G2 : TG2;
 begin
-  G2 := SelectedG2;
+  G2 := SelectedEditG2;
   if not assigned(G2) then
     exit;
 
@@ -3962,7 +3977,7 @@ var Parameter : TG2GraphParameter;
     KnobIndex : integer;
     G2 : TG2;
 begin
-  G2 := SelectedG2;
+  G2 := SelectedEditG2;
   if not assigned(G2) then
     exit;
 
@@ -3977,7 +3992,7 @@ procedure TfrmG2Main.AssignGlobalKnob(Sender: TObject);
 var Parameter : TG2GraphParameter;
     G2 : TG2;
 begin
-  G2 := SelectedG2;
+  G2 := SelectedEditG2;
   if not assigned(G2) then
     exit;
 
@@ -3990,7 +4005,7 @@ var Parameter : TG2GraphParameter;
     KnobIndex : integer;
     G2 : TG2;
 begin
-  G2 := SelectedG2;
+  G2 := SelectedEditG2;
   if not assigned(G2) then
     exit;
 
@@ -4005,7 +4020,7 @@ procedure TfrmG2Main.AssignMidiCC(Sender: TObject);
 var Parameter : TG2GraphParameter;
     G2 : TG2;
 begin
-  G2 := SelectedG2;
+  G2 := SelectedEditG2;
   if not assigned(G2) then
     exit;
 
@@ -4018,7 +4033,7 @@ var Parameter : TG2GraphParameter;
     MidiCC : byte;
     G2 : TG2;
 begin
-  G2 := SelectedG2;
+  G2 := SelectedEditG2;
   if not assigned(G2) then
     exit;
 
@@ -4032,7 +4047,7 @@ procedure TfrmG2Main.AssignMorph(Sender: TObject);
 var Parameter : TG2GraphParameter;
     G2 : TG2;
 begin
-  G2 := SelectedG2;
+  G2 := SelectedEditG2;
   if not assigned(G2) then
     exit;
 
@@ -4113,7 +4128,7 @@ begin
   if not assigned(aParam) then
     exit;
 
-  G2 := SelectedG2;
+  G2 := SelectedEditG2;
   if not assigned(G2) then
     exit;
 
@@ -4130,7 +4145,7 @@ begin
   if not assigned(Parameter) then
     exit;
 
-  G2 := SelectedG2;
+  G2 := SelectedEditG2;
   if not assigned(G2) then
     exit;
 
@@ -4162,7 +4177,7 @@ var P : TPoint;
     i : integer;
     G2 : TG2;
 begin
-  G2 := SelectedG2;
+  G2 := SelectedEditG2;
   if not assigned(G2) then
     exit;
 
@@ -4202,7 +4217,7 @@ end;
 procedure TfrmG2Main.aSendControllerSnapshotExecute(Sender: TObject);
 var G2 : TG2;
 begin
-  G2 := SelectedG2;
+  G2 := SelectedCtrlG2;
   if not assigned(G2) then
     exit;
 
@@ -4212,7 +4227,7 @@ end;
 procedure TfrmG2Main.aSendPartchSysexExecute(Sender: TObject);
 var G2 : TG2;
 begin
-  G2 := SelectedG2;
+  G2 := SelectedCtrlG2;
   if not assigned(G2) then
     exit;
 
@@ -4222,7 +4237,7 @@ end;
 procedure TfrmG2Main.aSendPerfSysexExecute(Sender: TObject);
 var G2 : TG2;
 begin
-  G2 := SelectedG2;
+  G2 := SelectedCtrlG2;
   if not assigned(G2) then
     exit;
 
@@ -4232,7 +4247,7 @@ end;
 procedure TfrmG2Main.aMidiDumpExecute(Sender: TObject);
 var G2 : TG2;
 begin
-  G2 := SelectedG2;
+  G2 := SelectedCtrlG2;
   if not assigned(G2) then
     exit;
 
@@ -4293,7 +4308,7 @@ var Node : TTreeNode;
     Path, Filename, Ext : string;
     G2 : TG2;
 begin
-  G2 := SelectedG2;
+  G2 := SelectedEditG2;
   if not assigned(G2) then
     exit;
 
@@ -4333,7 +4348,7 @@ end;
 procedure TfrmG2Main.CopyPatchSelection;
 var G2 : TG2;
 begin
-  G2 := SelectedG2;
+  G2 := SelectedEditG2;
   if not assigned(G2) then
     exit;
 
@@ -4348,7 +4363,7 @@ end;
 procedure TfrmG2Main.DeletePatchSelection;
 var G2 : TG2;
 begin
-  G2 := SelectedG2;
+  G2 := SelectedEditG2;
   if not assigned(G2) then
     exit;
 
@@ -4377,7 +4392,7 @@ end;
 procedure TfrmG2Main.Undo;
 var G2 : TG2;
 begin
-  G2 := SelectedG2;
+  G2 := SelectedEditG2;
   if not assigned(G2) then
     exit;
 
@@ -4387,7 +4402,7 @@ end;
 procedure TfrmG2Main.SelectSlot( aSlotIndex : byte);
 var G2 : TG2;
 begin
-  G2 := SelectedG2;
+  G2 := SelectedCtrlG2;
   if not assigned(G2) then
     exit;
 
@@ -4398,7 +4413,7 @@ end;
 procedure TfrmG2Main.SelectVariation( aSlotIndex, aVariationIndex : byte);
 var G2 : TG2;
 begin
-  G2 := SelectedG2;
+  G2 := SelectedEditG2;
   if not assigned(G2) then
     exit;
 
@@ -4408,7 +4423,7 @@ end;
 procedure TfrmG2Main.SelectPatchLocation(aLocation: TLocationType);
 var G2 : TG2;
 begin
-  G2 := SelectedG2;
+  G2 := SelectedEditG2;
   if not assigned(G2) then
     exit;
 
@@ -4474,7 +4489,7 @@ begin
   ResponseTimer.Enabled := False;
   Screen.Cursor := crDefault;
 
-  G2 := SelectedG2;
+  G2 := SelectedEditG2;
   if assigned(G2) then begin
     if G2.ErrorMessage then
        MessageDlg('G2 returned error message ' + IntToStr(G2.ErrorMessageNo), mtError, [mbOK], 0);
@@ -4507,7 +4522,7 @@ procedure TfrmG2Main.G2PatchLoadChange(Sender: TObject; SenderID: integer;
   Slot: byte);
 var G2 : TG2;
 begin
-  G2 := SelectedG2;
+  G2 := SelectedEditG2;
   if not assigned(G2) or (G2 <> Sender) then
     exit;
 
@@ -4548,7 +4563,7 @@ end;
 procedure TfrmG2Main.G2PerfSettingsUpdate(Sender: TObject; SenderID: Integer; PerfMode: Boolean);
 var G2 : TG2;
 begin
-  G2 := SelectedG2;
+  G2 := SelectedEditG2;
   if assigned(G2) then
     gdMasterClock.Line[0] := IntToStr(G2.Performance.MasterClock);
 
@@ -4565,7 +4580,7 @@ procedure TfrmG2Main.G2SetModuleLabel(Sender: TObject; SenderID: integer;
   PatchIndex: byte; Location: TLocationType; ModuleIndex: byte);
 var G2 : TG2;
 begin
-  G2 := SelectedG2;
+  G2 := SelectedEditG2;
   if not assigned(G2) or (G2 <> Sender) then
     exit;
 
@@ -4581,7 +4596,7 @@ procedure TfrmG2Main.G2SetParamLabel(Sender: TObject; SenderID: integer;
   PatchIndex: byte; Location: TLocationType; ModuleIndex: byte);
 var G2 : TG2;
 begin
-  G2 := SelectedG2;
+  G2 := SelectedEditG2;
   if not assigned(G2) or (G2 <> Sender) then
     exit;
 
@@ -4624,7 +4639,7 @@ begin
   if FDisableControls then
     exit;
 
-  G2 := SelectedG2;
+  G2 := SelectedCtrlG2;
   if not assigned(G2) then
     exit;
 
@@ -4636,7 +4651,7 @@ end;
 procedure TfrmG2Main.G2VariationChange(Sender: TObject; SenderID: Integer; Slot, Variation: Integer);
 var G2 : TG2;
 begin
-  G2 := SelectedG2;
+  G2 := SelectedEditG2;
   if not assigned(G2) or (G2 <> Sender) then
     exit;
 
@@ -4651,7 +4666,7 @@ end;
 procedure TfrmG2Main.G2CopyVariation( Sender: TObject; SenderID : integer; SlotIndex, FromVariation, ToVariation : integer);
 var G2 : TG2;
 begin
-  G2 := SelectedG2;
+  G2 := SelectedEditG2;
   if not assigned(G2) or (G2 <> Sender) then
     exit;
 
@@ -4667,16 +4682,6 @@ begin
   UpdateMainFormActions;
 end;
 
-procedure TfrmG2Main.G2AddClient(Sender: TObject; ClientIndex: Integer);
-var G2 : TG2;
-begin
-  G2 := SelectedG2;
-  if not assigned(G2) or (G2 <> Sender) then
-    exit;
-
-  lbClientsConnected.Caption := IntToStr( G2.GetClientCount);
-end;
-
 procedure TfrmG2Main.G2AddModule(Sender: TObject; SenderID: integer; Module: TG2FileModule);
 begin
   UpdateMainFormActions;
@@ -4689,10 +4694,20 @@ begin
   UpdateMainFormActions;
 end;
 
+procedure TfrmG2Main.G2AddClient(Sender: TObject; ClientIndex: Integer);
+var G2 : TG2;
+begin
+  G2 := SelectedCtrlG2;
+  if not assigned(G2) or (G2 <> Sender) then
+    exit;
+
+  lbClientsConnected.Caption := IntToStr( G2.GetClientCount);
+end;
+
 procedure TfrmG2Main.G2DeleteClient(Sender: TObject; ClientIndex: Integer);
 var G2 : TG2;
 begin
-  G2 := SelectedG2;
+  G2 := SelectedCtrlG2;
   if not assigned(G2) or (G2 <> Sender) then
     exit;
 
@@ -4701,7 +4716,7 @@ end;
 
 procedure TfrmG2Main.rbSynthChange(Sender: TObject);
 begin
-  SelectG2( rbSynth.Value);
+  SelectCtrlG2( rbSynth.Value);
 
   UpdateControls;
 end;
@@ -4753,7 +4768,7 @@ end;
 procedure TfrmG2Main.G2CreateModule(Sender: TObject; SenderID: Integer; Module: TG2FileModule);
 var G2 : TG2;
 begin
-  G2 := SelectedG2;
+  G2 := SelectedEditG2;
   if not assigned(G2) then
     exit;
 
@@ -4820,7 +4835,7 @@ end;
 procedure TfrmG2Main.G2MidiClockReceive(Sender : TObject; SenderID : integer; BPM : integer);
 var G2 : TG2;
 begin
-  G2 := SelectedG2;
+  G2 := SelectedCtrlG2;
   if assigned(G2) then begin
 
     if G2.Performance.MasterClockRun = 1 then begin
@@ -4838,7 +4853,7 @@ end;
 procedure TfrmG2Main.G2ClockRunChange(Sender: TObject; SenderID: integer; Status: boolean);
 var G2 : TG2;
 begin
-  G2 := SelectedG2;
+  G2 := SelectedCtrlG2;
 
   if Status = False then begin
     gdMasterClock.Font.Color := clWhite;

@@ -3,7 +3,7 @@
   <G2_Synth_1>
     <Editor_settings LedColor="65280" LogEnabled="True" OnlyTextMenus="False" CableThickness="2" HighlightColor="16776960" SlotStripColor="4341694" SlotStripInverseColor="5447424" SlotStripDisabledColor="13684944"/>
     <TCP_settings IP="127.0.0.1" Port="2501" IsServer="True" TimerBroadcastLedMessages="500"/>
-    <MIDI_settings MidiInDevice="2- MIDISPORT 4x4 In C" MidiOutDevice="2- MIDISPORT 4x4 Out C"/>
+    <MIDI_settings MidiInDevice="" MidiOutDevice=""/>
   </G2_Synth_1>
   <CTRL_MIDI_in_device_list>
     <CtrlMidiDevice CtrlMidiDevice="BCR2000" CtrlMidiEnabled="True"/>
@@ -65,7 +65,7 @@
   <PatchBufferForm PosX="0" PosY="151" SizeX="1166" SizeY="837" Visible="False"/>
   <SettingsForm PosX="752" PosY="258" SizeX="528" SizeY="466" Visible="False"/>
   <ParameterPagesForm PosX="61" PosY="736" SizeX="575" SizeY="180" Visible="False"/>
-  <PatchSettingsForm PosX="0" PosY="601" SizeX="608" SizeY="185" Visible="False"/>
+  <PatchSettingsForm PosX="248" PosY="323" SizeX="608" SizeY="185" Visible="False"/>
   <EditorToolsForm PosX="977" PosY="565" SizeX="151" SizeY="261" Visible="False"/>
   <PatchNotesForm PosX="0" PosY="55" SizeX="611" SizeY="514" Visible="False"/>
 </G2_Editor_settings>

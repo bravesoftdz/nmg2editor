@@ -67,7 +67,7 @@ begin
   if FDisableControls then
     exit;
 
-  G2 := frmG2Main.SelectedG2;
+  G2 := frmG2Main.SelectedEditG2;
   if not assigned(G2) then
     exit;
 
@@ -130,7 +130,7 @@ begin
 
   FDisableControls := True;
   try
-    G2 := frmG2Main.SelectedG2;
+    G2 := frmG2Main.SelectedEditG2;
     if not assigned(G2) then
       exit;
 

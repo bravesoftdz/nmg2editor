@@ -456,7 +456,7 @@ var i : integer;
     Knob : TKnob;
     G2 : TG2;
 begin
-  G2 := frmG2Main.SelectedG2;
+  G2 := frmG2Main.SelectedCtrlG2;
   if assigned(G2) then begin
 
     rbSlot.Value := G2.SelectedSlotIndex;

@@ -363,7 +363,7 @@ end;
 procedure TfrmPatchBrowser.aLoadPatchExecute(Sender: TObject);
 var G2 : TG2;
 begin
-  G2 := frmG2Main.SelectedG2;
+  G2 := frmG2Main.SelectedEditG2;
   if assigned(G2) then
     G2.LoadFileStream( frmSettings.ePatchRootFolder.Text + lvExternalPatch.Selected.SubItems[1] + lvExternalPatch.Selected.Caption);
   frmG2Main.SetFocus;
@@ -372,7 +372,7 @@ end;
 procedure TfrmPatchBrowser.aLoadPerfExecute(Sender: TObject);
 var G2 : TG2;
 begin
-  G2 := frmG2Main.SelectedG2;
+  G2 := frmG2Main.SelectedEditG2;
   if assigned(G2) then
     G2.LoadFileStream( frmSettings.ePatchRootFolder.Text + lvExternalPerf.Selected.SubItems[1] + lvExternalPerf.Selected.Caption);
   frmG2Main.SetFocus;
@@ -383,7 +383,7 @@ var BankItem : TBankItem;
     G2 : TG2;
 begin
  BankItem := TBankItem(lvInternal.Selected.Data);
-  G2 := frmG2Main.SelectedG2;
+  G2 := frmG2Main.SelectedEditG2;
   if assigned(G2) then begin
     if BankItem.PatchFileType = pftPerf then
       G2.SendRetrieveMessage( 4, BankItem.Bank, BankItem.Patch)
@@ -443,7 +443,7 @@ begin
 
   lvInternal.Clear;
 
-  G2 := frmG2Main.SelectedG2;
+  G2 := frmG2Main.SelectedEditG2;
   if assigned(G2) then begin
     if G2.USBActive then begin
       for i := 0 to G2.BankList.Count - 1 do begin
@@ -472,7 +472,7 @@ begin
 
   lvInternal.Clear;
 
-  G2 := frmG2Main.SelectedG2;
+  G2 := frmG2Main.SelectedEditG2;
   if assigned(G2) then begin
     for i := 0 to G2.BankList.Count - 1 do begin
       if G2.BankList[i].PatchFileType = pftPerf then

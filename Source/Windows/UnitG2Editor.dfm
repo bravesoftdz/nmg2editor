@@ -972,8 +972,6 @@ object frmG2Main: TfrmG2Main
         StateImages = iFiles
         TabOrder = 0
         OnDblClick = tvFilesDblClick
-        ExplicitLeft = 8
-        ExplicitTop = 25
       end
     end
   end
@@ -1739,7 +1737,7 @@ object frmG2Main: TfrmG2Main
     LogLevel = 0
     ErrorMessage = False
     ErrorMessageNo = 0
-    IsServer = False
+    IsServer = True
     Port = 0
     Host = '127.0.0.1'
     USBActive = False
@@ -1753,7 +1751,7 @@ object frmG2Main: TfrmG2Main
     Left = 120
     Top = 152
     Bitmap = {
-      494C010103000800240010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010103000800280010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000001000000001002000000000000010
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000

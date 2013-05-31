@@ -30,6 +30,10 @@ object frmSettings: TfrmSettings
     object TabSheet3: TTabSheet
       Caption = 'General'
       ImageIndex = 2
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object GroupBox1: TGroupBox
         Left = 12
         Top = 24
@@ -162,6 +166,10 @@ object frmSettings: TfrmSettings
     object TabSheet6: TTabSheet
       Caption = 'Ctrl Midi'
       ImageIndex = 5
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object StaticText6: TStaticText
         Left = 17
         Top = 21
@@ -213,6 +221,10 @@ object frmSettings: TfrmSettings
     end
     object TabSheet1: TTabSheet
       Caption = 'TCP-IP'
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object cbIsServer: TCheckBox
         Left = 198
         Top = 62
@@ -308,6 +320,10 @@ object frmSettings: TfrmSettings
     object TabSheet4: TTabSheet
       Caption = 'Midi sysex'
       ImageIndex = 3
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object StaticText5: TStaticText
         Left = 19
         Top = 189
@@ -367,6 +383,10 @@ object frmSettings: TfrmSettings
     object TabSheet5: TTabSheet
       Caption = 'Editor'
       ImageIndex = 4
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object cbSlotStripColor: TColorBox
         Left = 184
         Top = 88
@@ -516,6 +536,10 @@ object frmSettings: TfrmSettings
       Caption = 'OSC'
       ImageIndex = 1
       TabVisible = False
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object Panel1: TPanel
         Left = 0
         Top = 0
@@ -598,8 +622,8 @@ object frmSettings: TfrmSettings
     object lExplenation: TStaticText
       Left = 1
       Top = 1
-      Width = 520
-      Height = 61
+      Width = 97
+      Height = 17
       Align = alClient
       Alignment = taCenter
       Caption = 'Application settings'

@@ -76,7 +76,7 @@ end;
 procedure TfrmLog.bClearClick(Sender: TObject);
 var G2 : TG2;
 begin
-  G2 := frmG2Main.SelectedG2;
+  G2 := frmG2Main.SelectedCtrlG2;
   if assigned(G2) then begin
     G2.ClearLog;
     G2.AssignLog( Memo1.Lines);
@@ -87,7 +87,7 @@ end;
 procedure TfrmLog.bRefreshClick(Sender: TObject);
 var G2 : TG2;
 begin
-  G2 := frmG2Main.SelectedG2;
+  G2 := frmG2Main.SelectedCtrlG2;
   if assigned(G2) then begin
     G2.AssignLog( Memo1.Lines);
   end;
@@ -133,7 +133,7 @@ begin
     inc(i);
   end;
 
-  G2 := frmG2Main.SelectedG2;
+  G2 := frmG2Main.SelectedCtrlG2;
   if assigned(G2) then begin
     G2.SendCmdMessage( MemStream);
   end;
@@ -145,7 +145,7 @@ var sr : TSearchRec;
     G2 : TG2;
     ModuleFileName : string;
 begin
-  G2 := frmG2Main.SelectedG2;
+  G2 := frmG2Main.SelectedCtrlG2;
   if not assigned(G2) then
     exit;
 
@@ -187,7 +187,7 @@ end;
 procedure TfrmLog.FormShow(Sender: TObject);
 var G2 : TG2;
 begin
-  G2 := frmG2Main.SelectedG2;
+  G2 := frmG2Main.SelectedCtrlG2;
   if assigned(G2) then begin
     G2.AssignLog( Memo1.Lines);
   end;
