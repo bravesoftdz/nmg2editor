@@ -21,12 +21,6 @@ object frmG2Main: TfrmG2Main
   OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13
-  object Splitter2: TSplitter
-    Left = 185
-    Top = 21
-    Width = 6
-    Height = 565
-  end
   object PerfPanel: TPanel
     Left = 0
     Top = 0
@@ -43,6 +37,7 @@ object frmG2Main: TfrmG2Main
       Width = 102
       Height = 17
       MidiAware = False
+      ID = 0
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -9
@@ -69,6 +64,7 @@ object frmG2Main: TfrmG2Main
       Width = 41
       Height = 15
       MidiAware = False
+      ID = 0
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWhite
       Font.Height = -11
@@ -91,6 +87,7 @@ object frmG2Main: TfrmG2Main
       Width = 29
       Height = 16
       MidiAware = False
+      ID = 0
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -9
@@ -165,29 +162,28 @@ object frmG2Main: TfrmG2Main
     SimplePanel = True
   end
   object pPatchArea: TPanel
-    Left = 191
+    Left = 350
     Top = 21
-    Width = 876
+    Width = 717
     Height = 565
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 2
     object Splitter1: TSplitter
       Left = 0
-      Top = 424
-      Width = 876
-      Height = 10
+      Top = 426
+      Width = 717
+      Height = 8
       Cursor = crVSplit
       Align = alBottom
       OnMoved = Splitter1Moved
-      ExplicitTop = 400
-      ExplicitWidth = 1067
+      ExplicitTop = 424
     end
     object sbVA: TG2GraphScrollBox
       Left = 0
       Top = 0
-      Width = 876
-      Height = 424
+      Width = 717
+      Height = 426
       Align = alClient
       DoubleBuffered = False
       ParentBackground = True
@@ -564,7 +560,7 @@ object frmG2Main: TfrmG2Main
     object sbFX: TG2GraphScrollBox
       Left = 0
       Top = 434
-      Width = 876
+      Width = 717
       Height = 131
       Align = alBottom
       DoubleBuffered = False
@@ -939,40 +935,48 @@ object frmG2Main: TfrmG2Main
       RackColor = clSilver
     end
   end
-  object Panel1: TPanel
+  object SidePanel1: TSidePanel
     Left = 0
     Top = 21
-    Width = 185
+    Width = 203
     Height = 565
-    Align = alLeft
-    BevelOuter = bvNone
-    Caption = 'Panel1'
-    TabOrder = 3
-    object tbLibrary: TTabControl
-      Left = 0
-      Top = 0
-      Width = 185
-      Height = 565
+    Caption = 'File'
+    SidePanelState = spsExpanded
+    CaptionHeight = 18
+    CaptionColor = 12242106
+    object tvFiles: TTreeView
+      Left = 1
+      Top = 21
+      Width = 201
+      Height = 543
       Align = alClient
-      TabOrder = 0
-      Tabs.Strings = (
-        '1'
-        '2'
-        '3')
-      TabIndex = 0
-      OnChange = tbLibraryChange
-      object tvFiles: TTreeView
-        Left = 4
-        Top = 24
-        Width = 177
-        Height = 537
-        Align = alClient
-        Images = iFiles
-        Indent = 19
-        StateImages = iFiles
-        TabOrder = 0
-        OnDblClick = tvFilesDblClick
-      end
+      Images = iFiles
+      Indent = 19
+      StateImages = iFiles
+      TabOrder = 1
+      OnDblClick = tvFilesDblClick
+    end
+  end
+  object SidePanel2: TSidePanel
+    Left = 203
+    Top = 21
+    Width = 147
+    Height = 565
+    Caption = 'Buffer'
+    SidePanelState = spsExpanded
+    CaptionHeight = 18
+    CaptionColor = 11193296
+    OnCollapse = SidePanel2Collapse
+    OnExpand = SidePanel2Expand
+    object lbBuffer: TListBox
+      Left = 1
+      Top = 21
+      Width = 145
+      Height = 543
+      Align = alClient
+      ItemHeight = 13
+      TabOrder = 1
+      OnDblClick = lbBufferDblClick
     end
   end
   object OpenDialog1: TOpenDialog
@@ -1751,7 +1755,7 @@ object frmG2Main: TfrmG2Main
     Left = 120
     Top = 152
     Bitmap = {
-      494C010103000800280010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010103000800400010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000001000000001002000000000000010
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000

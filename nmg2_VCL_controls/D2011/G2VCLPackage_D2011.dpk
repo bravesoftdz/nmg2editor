@@ -41,6 +41,7 @@ contains
   g2_graph in '..\..\Source\Common\g2_graph.pas',
   graph_util_vcl in '..\..\Source\Common\graph_util_vcl.pas',
   JawsCtrls in '..\..\Source\Common\JawsCtrls.pas',
-  MusicalKeyboard in '..\..\Source\Common\MusicalKeyboard.pas';
+  MusicalKeyboard in '..\..\Source\Common\MusicalKeyboard.pas',
+  Sidepanel in '..\..\Source\Common\Sidepanel.pas';
 
 end.

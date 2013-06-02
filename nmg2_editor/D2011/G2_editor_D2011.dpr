@@ -45,7 +45,8 @@ uses
   fastbitmap in '..\..\Source\Common\fastbitmap.pas',
   JawsCtrls in '..\..\Source\Common\JawsCtrls.pas',
   MusicalKeyboard in '..\..\Source\Common\MusicalKeyboard.pas',
-  UnitPatchBuffer in '..\..\Source\Windows\UnitPatchBuffer.pas' {frmPatchBuffer};
+  UnitPatchBuffer in '..\..\Source\Windows\UnitPatchBuffer.pas' {frmPatchBuffer},
+  Sidepanel in '..\..\Source\Common\Sidepanel.pas';
 
 {$R *.res}
 

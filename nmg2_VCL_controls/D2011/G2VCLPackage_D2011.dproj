@@ -92,6 +92,7 @@
 			<DCCReference Include="..\..\Source\Common\graph_util_vcl.pas"/>
 			<DCCReference Include="..\..\Source\Common\JawsCtrls.pas"/>
 			<DCCReference Include="..\..\Source\Common\MusicalKeyboard.pas"/>
+			<DCCReference Include="..\..\Source\Common\Sidepanel.pas"/>
 			<BuildConfiguration Include="Release">
 				<Key>Cfg_2</Key>
 				<CfgParent>Base</CfgParent>

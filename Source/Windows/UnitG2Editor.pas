@@ -266,7 +266,7 @@ uses
 {$ENDIF}
 
   g2_types, g2_database, g2_file, g2_mess, g2_usb, g2_graph, g2_midi,
-  g2_classes, graph_util_vcl, LibUSBWinDyn, DOM, XMLRead, XMLWrite;
+  g2_classes, graph_util_vcl, LibUSBWinDyn, DOM, XMLRead, XMLWrite, Sidepanel;
 
 type
   TEditorSettings = class
@@ -523,12 +523,12 @@ type
     Patchbrowser1: TMenuItem;
     aPatchBuffer: TAction;
     Patchbuffer1: TMenuItem;
-    Panel1: TPanel;
-    tbLibrary: TTabControl;
-    tvFiles: TTreeView;
-    Splitter2: TSplitter;
     G2Buffer: TG2;
     iFiles: TImageList;
+    SidePanel1: TSidePanel;
+    tvFiles: TTreeView;
+    SidePanel2: TSidePanel;
+    lbBuffer: TListBox;
 
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
@@ -652,8 +652,10 @@ type
     procedure gdMasterClockMouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
     procedure aPatchBufferExecute(Sender: TObject);
-    procedure tbLibraryChange(Sender: TObject);
     procedure tvFilesDblClick(Sender: TObject);
+    procedure SidePanel2Collapse(Sender: TObject);
+    procedure SidePanel2Expand(Sender: TObject);
+    procedure lbBufferDblClick(Sender: TObject);
 
   private
     { Private declarations }
@@ -673,6 +675,8 @@ type
 
     FMidiInDevices,
     FMidiOutDevices       : TMidiDeviceList;
+
+    FBufferActive : boolean;
 
     procedure AddG2( G2USBDevice : pusb_device);
     function  SelectedEditG2: TG2;
@@ -751,6 +755,9 @@ type
 
     procedure ReadDir( aTreeView : TTreeView; aNode : TTreeNode; aPath : string);
     procedure ReadFileDir;
+
+    procedure BufferAddPatch( aFilename : string);
+    procedure BufferReadDir( aPath : string);
 
     procedure CopyPatchSelection;
     procedure DeletePatchSelection;
@@ -1239,6 +1246,8 @@ begin
   FG2Index := -1;
   SelectCtrlG2(0);
 
+  FBufferActive := False;
+
   Caption := 'NMG2 Editor ' + NMG2_VERSION;
 
   FDisableControls := False;
@@ -1363,7 +1372,7 @@ end;
 
 function TfrmG2Main.SelectedEditG2: TG2;
 begin
-  if tbLibrary.TabIndex = 2 then
+  if FBufferActive then
     Result := G2Buffer
   else
     Result := SelectedCtrlG2;
@@ -1412,7 +1421,6 @@ begin
   sbFX.Invalidate;
 end;
 
-
 procedure TfrmG2Main.SelectBuffer(aValue: boolean);
 var G2 : TG2;
 begin
@@ -1430,6 +1438,9 @@ begin
     sbVA.BackGroundColor := $00404040;
     sbFX.BackgroundColor := $00505050;
   end;
+
+  FBufferActive := aValue;
+
   sbVA.Invalidate;
   sbFX.Invalidate;
 end;
@@ -1474,6 +1485,7 @@ begin
   Initialized := True;
 
   ReadFileDir;
+  BufferReadDir(frmSettings.ePatchBufferFolder.Text);
 
   UpdateControls;
 end;
@@ -1882,6 +1894,16 @@ begin
   for i := 0 to 3 do begin
     (G2.Slot[i].Patch as TG2Patch).ShakeCables;
   end;
+end;
+
+procedure TfrmG2Main.SidePanel2Collapse(Sender: TObject);
+begin
+  SelectBuffer(False);
+end;
+
+procedure TfrmG2Main.SidePanel2Expand(Sender: TObject);
+begin
+  SelectBuffer(True);
 end;
 
 procedure TfrmG2Main.UpdateColorSchema;
@@ -4324,21 +4346,49 @@ begin
   G2.LoadFileStream( Path + '\' + FileName);
 end;
 
-procedure TfrmG2Main.tbLibraryChange(Sender: TObject);
+////////////////////////////////////////////////////////////////////////////////
+//  Buffer
+////////////////////////////////////////////////////////////////////////////////
+
+procedure TfrmG2Main.BufferAddPatch( aFilename : string);
+var Patch : TG2GraphPatch;
+    FileStream : TFileStream;
 begin
-  case tbLibrary.TabIndex of
-  0 :begin
-       SelectBuffer(False);
-     end;
-  1 :begin
-       SelectBuffer(False);
-     end;
-  2 : begin
-        SelectBuffer(True);
-      end;
+  Patch := TG2GraphPatch.Create(self);
+  try
+    Filestream := TFileStream.Create( aFileName, fmOpenRead);
+    try
+      Patch.LoadFromFile( FileStream, nil);
+      lbBuffer.Items.Add( ExtractFileName( aFileName));
+    finally
+      FileStream.Free;
+    end;
+  except on E:Exception do begin
+      Patch.Free;
+    end;
   end;
 end;
 
+procedure TfrmG2Main.BufferReadDir( aPath : string);
+var sr : TSearchRec;
+begin
+  if FindFirst( aPath + '\*.pch2', faAnyFile, sr) = 0 then begin
+    repeat
+      if (sr.Attr and faDirectory) = 0 then begin
+        BufferAddPatch( aPath + '\' + sr.Name);
+      end else begin
+        if (sr.Name = '.') and (sr.Name <> '..') then begin
+        end;
+      end;
+    until (FindNext(sr) <> 0);
+    FindClose(sr);
+  end;
+end;
+
+procedure TfrmG2Main.lbBufferDblClick(Sender: TObject);
+begin
+//
+end;
 
 
 ////////////////////////////////////////////////////////////////////////////////

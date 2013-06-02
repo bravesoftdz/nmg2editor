@@ -30,10 +30,6 @@ object frmSettings: TfrmSettings
     object TabSheet3: TTabSheet
       Caption = 'General'
       ImageIndex = 2
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object GroupBox1: TGroupBox
         Left = 12
         Top = 24
@@ -622,8 +618,8 @@ object frmSettings: TfrmSettings
     object lExplenation: TStaticText
       Left = 1
       Top = 1
-      Width = 97
-      Height = 17
+      Width = 520
+      Height = 61
       Align = alClient
       Alignment = taCenter
       Caption = 'Application settings'
