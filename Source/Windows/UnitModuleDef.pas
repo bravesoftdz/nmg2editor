@@ -41,6 +41,113 @@ uses
   g2_classes, g2_midi;
 
 type
+  TSVGSkin = class;
+  TSVGSkinSection = class;
+  TSVGSkinSectionPlaceHolder = class;
+
+  TSVGObject = class(TObject)
+  private
+    FID : string;
+    FSkin : TSVGSkin;
+    FPlaceholder : TSVGSkinSectionPlaceHolder;
+    FNode : TDomNode;
+  public
+    constructor Create( aPlaceholder : TSVGSkinSectionPlaceHolder; aID : string); virtual;
+    destructor Destroy; override;
+  end;
+
+  TSVGG2Module = class(TSVGObject)
+    constructor Create( aPlaceholder : TSVGSkinSectionPlaceHolder; aID : string;
+        aModule : TG2GraphModule);
+    destructor Destroy; override;
+  end;
+
+  TSVGSkinSectionPlaceHolder = class(TObject)
+  private
+    FID : string;
+    FSection : TSVGSkinSection;
+    FSkin : TSVGSkin;
+    FNode : TDomNode;
+    FSVGObject : TSVGObject;
+  public
+    constructor Create( aSection : TSVGSkinSection; aID : string; x, y : integer);
+    destructor Destroy; override;
+  end;
+
+  TSVGSkinSection = class(TObject)
+  private
+    FID : string;
+    FComment : string;
+    FSkin : TSVGSkin;
+    FRows, FCols : integer;
+    FPlaceholderWidth, FPlaceholderHeight : integer;
+    FNode : TDomNode;
+    FPlaceholders : TObjectList;
+  public
+    constructor Create( aSkin : TSVGSkin; aID, aComment : string);
+    destructor  Destroy; override;
+    function    CommentText( aID : string; aText : string): string;
+    procedure   CreateComment( aNode : TDomNode);
+    function    CreatePlaceholder( aID : string): TSVGSkinSectionPlaceholder;
+  end;
+
+  TSVGSkin = class(TComponent)
+  private
+    Doc : TXMLDocument;
+    BitMapList : TObjectList;
+    TextBitmap : TBitmap;
+
+    FDefList : TStringList;
+
+    FSections : TObjectList;
+    FRootNode : TDomNode;
+    FDefsNode : TDomNode;
+    FMainNode : TDomNode;
+  public
+    constructor Create(AOwner : TComponent); override;
+    destructor Destroy; override;
+
+    procedure SaveToFile;
+
+    function GetID2D( aBaseName : string; aWidth, aHeight : single): string;
+    function GetID3D( aBaseName : string; aWidth, aHeight, aDepth : single): string;
+
+    function FindDef( aID : string): TDomNode;
+    function DefExists( aID : string): boolean;
+
+    function FindSection( aID : string): TSVGSkinSection;
+    function AddToSection( aSectionID : string; aID : string): TSVGSkinSectionPlaceholder;
+
+    function RoundedBevelObject( aID : string; aWidth, aHeight, aBevelWidth, aBevelHeight : single; aColSideLeft, aColSideTop, aColSideRight, aColSideBottom : string): string;
+    function BevelObject( aID : string; aWidth, aHeight, aBevelWidth : single; aColSideLeft, aColSideTop, aColSideRight, aColSideBottom : string): string;
+    function RoundedButtonObject( aID : string; aWidth, aHeight, aBevelWidth, aBevelHeight : single;
+        aColSideLeft, aColSideTop, aColSideRight, aColSideBottom, aColBG, aColFace : string ): string;
+
+    function CreateChild( aNode : TDomNode; aElementName, aID : string): TDomNode;
+    function CreateG( aNode : TDomNode; aID : string): TDomNode;
+    function CreateDesc( aNode : TDomNode; aID, aDescription : string): TDomNode;
+    function CreateUse( aNode : TDomNode; aID, aRef : string; dx, dy : integer): TDomNode;
+
+    function CreateRect( aNode : TDomNode; aID : string; aFill, aStroke : string; x, y, width, height : integer): TDomNode;
+    procedure CreateGradientPoint( aNode : TDomNode; aID : string; aOffset : single; aStopColor : string);
+    function CreateLinearGradient( aNode : TDomNode; aID : string): TDomNode;
+
+    procedure CreateModulePanelGradients;
+    procedure CreateModulePanelGradient( aNode : TDomNode; aID : string; aColor1, aColor2 : string);
+
+    function  CreateParamLink( aNode : TDomNode; aID : string; aCodeRef, aInfoFunc : integer; aCtrlType : string): TDomNode;
+    function  CreateLabel( aNode : TDomNode; aID : string; x, y : integer; aText : string; aFontSize : integer): TDomNode;
+    function  CreateTextField( aNode : TDomNode; aID : string; x, y, Width, Height : single): TDomNode;
+    function  CreateRoundedButtonTextUp( aNode : TDomNode; aID : string; aWidth, aHeight, aBevelWidth : single): TDomNode;
+    function  CreateRoundedButtonTextDown( aNode : TDomNode; aID : String; aWidth, aHeight, aBevelWidth : single): TDomNode;
+    function  CreateRoundedButton( aNode : TDomNode; aID : string; aWidth, aHeight, aBevelWidth : single): TDomNode;
+
+    procedure SetAttribute( aNode : TDomNode; aName, aValue : string);
+
+    function CreateSection( aID : string; aPlaceholderWidth, aPlaceholderHeight, aCols, aRows : integer; aText : string): TSVGSkinSection;
+  end;
+
+
   TfrmModuleDef = class(TForm)
     Panel1: TPanel;
     sgParams: TStringGrid;
@@ -87,10 +194,60 @@ var
   frmModuleDef: TfrmModuleDef;
 
 implementation
+uses UnitG2Editor, graph_util_vcl;
 
 {$R *.dfm}
 
-uses UnitG2Editor, graph_util_vcl;
+const
+  nl = #10+#13;
+
+  cBtnFace = '#c8b7b7';
+  cBtnSideDark = '#6c5353';
+  cBtnSideMedium = '#ac9393';
+  cBtnSideLight = '#e3dbdb';
+
+  cBtnFlatFace = '#ececec';
+
+  cKnobFace = '#ececec';
+  cKnobBorder = '#000000';
+
+  cSldrKnobFace = '#333333';
+  cSldrKnobSideDark = '#000000';
+  cSldrKnobSideMedium = '#4d4d4d';
+  cSldrKnobSideLight = '#e6e6e6';
+
+  cPartSelWindow = '#e9c6af';
+  cPartselSelected = '#dfdbaa';
+  cPartSelBtn = '#deaa87';
+
+  idSymbol = 'symbol';
+  idLabel = 'label';
+  idLedOffGreen = 'ledGreenOff';
+  idLedOffSequencer = 'ledSeqOff';
+  idLedOnGreen = 'ledGreenOn';
+  idLedOnSequencer = 'ledSeqOn';
+  idMiniVU = 'miniVU';
+  idTxtField = 'txtField';
+  idBtnText = 'btnText';
+  idBtnFlat = 'btnFlat';
+  idBtnIncDecHorz = 'btnIncDecHorz';
+  idBtnIncDecVert = 'btnIncDecVert';
+  idLevelShift = 'levelShift';
+  idBtnRadio = 'btnRadio';
+  idSlider = 'slider';
+  idKnobBig = 'knobBig';
+  idKnobMedium = 'knobMedium';
+  idKnobResetMedium = 'knobResetmedium';
+  idKnobReset = 'knobReset';
+  idKnobSmall = 'knobSmall';
+  idKnobBtns = 'knobBtns';
+  idKnobCenterBtn = 'knobCenterBtn';
+  idConnectorIn = 'connIn';
+  idConnectorOut = 'connOut';
+  idPartSel = 'partSel';
+  idGraph = 'graph';
+  idModule = 'module';
+  idPanelBackground = 'patchbackground';
 
 { TForm1 }
 
@@ -262,57 +419,78 @@ begin
   WriteXMLFile( G2_module_def.FXMLModuleDefs, new_filename);
 end;
 
+procedure TfrmModuleDef.ExtractTextEdit;
+var Control : TG2GraphChildControl;
+    i, j, k, l, p, ParamIndex : Integer;
+    ButtonText : string;
+    ParamNode : TXMLParamType;
+    ParamDefNode : TXMLParamDefType;
+    Node : TDOMNode;
+    new_filename : string;
+begin
+  // I used this to get some info out of the paneld definitions
+  for i := 0 to G2_module_def.FModuleDefList.Count - 1 do begin
+
+    FModuleType := G2_module_def.FModuleDefList.ModuleDef[i].ModuleType;
+    LoadModule;
+
+    try
+
+      for j := 0 to FModule.ParameterCount - 1 do begin
+        k := 0;
+        while (k < FModule.Panel.ChildControlsCount) and (FModule.Panel.GraphChildControls[k].Parameter <> FModule.Parameter[j]) do
+          inc(k);
+
+        if (k < FModule.Panel.ChildControlsCount) then begin
+          Control := FModule.Panel.GraphChildControls[k];
+
+          // Add buttontext to xml database
+          if (control is TG2GraphButton) then begin
+            if (Control as TG2GraphButton).ButtonText.Count > 0 then begin
+
+              ButtonText := '';
+              for l := 0 to (Control as TG2GraphButton).ButtonText.Count - 1 do
+                ButtonText := ButtonText + (Control as TG2GraphButton).ButtonText[l] + ';';
+
+              ParamIndex := (Control as TG2GraphButton).Parameter.ParamIndex;
+              ParamNode := G2_module_def.FModuleDefList.ModuleDef[i].Params[ParamIndex];
+
+              // Zoek parameter type op
+              p := 0;
+              while (p < G2_module_def.FParamDefList.Count) and (G2_module_def.FParamDefList.ParamDef[p].Id  <>  ParamNode.Get_Id) do
+                inc(p);
+
+              if (p < G2_module_def.FParamDefList.Count) then begin
+                ParamDefNode := G2_module_def.FParamDefList.ParamDef[p];
+
+                Node := ParamDefNode.FindNode( 'ButtonText');
+                if Node <> nil then begin
+                  if ButtonText = '' then begin
+                    ParamDefNode.DetachChild(Node);
+                    Node.Free;
+                  end else
+                    Node.TextContent := ButtonText;
+                end else
+                  if ButtonText <> '' then begin
+                     Node := TDOMDocument(ParamDefNode.OwnerDocument).CreateElement('ButtonText');
+                     ParamDefNode.AppendChild( Node);
+                     Node.TextContent := ButtonText;
+                  end;
+              end;
+            end;
+          end;
+
+        end;
+      end;
+    finally
+      UnloadModule
+    end;
+  end;
+  new_filename := 'ParamDef_new.xml';
+  WriteXMLFile( G2_module_def.FXMLParamDefs, new_filename);
+end;
+
 procedure TfrmModuleDef.CreateSVG;
-const
-  nl = #10+#13;
-
-  cBtnFace = '#c8b7b7';
-  cBtnSideDark = '#6c5353';
-  cBtnSideMedium = '#ac9393';
-  cBtnSideLight = '#e3dbdb';
-
-  cBtnFlatFace = '#ececec';
-
-  cKnobFace = '#ececec';
-  cKnobBorder = '#000000';
-
-  cSldrKnobFace = '#333333';
-  cSldrKnobSideDark = '#000000';
-  cSldrKnobSideMedium = '#4d4d4d';
-  cSldrKnobSideLight = '#e6e6e6';
-
-  cPartSelWindow = '#e9c6af';
-  cPartselSelected = '#dfdbaa';
-  cPartSelBtn = '#deaa87';
-
-  idSymbol = 'symbol';
-  idLabel = 'label';
-  idLedOffGreen = 'ledGreenOff';
-  idLedOffSequencer = 'ledSeqOff';
-  idLedOnGreen = 'ledGreenOn';
-  idLedOnSequencer = 'ledSeqOn';
-  idMiniVU = 'miniVU';
-  idTxtField = 'txtField';
-  idBtnText = 'btnText';
-  idBtnFlat = 'btnFlat';
-  idBtnIncDecHorz = 'btnIncDecHorz';
-  idBtnIncDecVert = 'btnIncDecVert';
-  idLevelShift = 'levelShift';
-  idBtnRadio = 'btnRadio';
-  idSlider = 'slider';
-  idKnobBig = 'knobBig';
-  idKnobMedium = 'knobMedium';
-  idKnobResetMedium = 'knobResetmedium';
-  idKnobReset = 'knobReset';
-  idKnobSmall = 'knobSmall';
-  idKnobBtns = 'knobBtns';
-  idKnobCenterBtn = 'knobCenterBtn';
-  idConnectorIn = 'connIn';
-  idConnectorOut = 'connOut';
-  idPartSel = 'partSel';
-  idGraph = 'graph';
-  idModule = 'module';
-  idPanelBackground = 'patchbackground';
 
 var Control : TG2GraphChildControl;
     BitMapList : TObjectList;
@@ -351,6 +529,7 @@ var Control : TG2GraphChildControl;
     GModuleColorSectionNode, GModuleColorDefNode, ModuleColorNode,
     GUIPanelSectionNode, GUIPanelDefNode, UIPanelNode : TDomNode;
     id_smallarrow_up, id_smallarrow_down, id_smallarrow_left, id_smallarrow_right : integer;
+    SVGSkin : TSVGSkin;
 
     function Darker(c : integer; f : byte): integer;
     var R, G, B : byte;
@@ -2476,6 +2655,14 @@ begin
     end;
 
     WriteXMLFile( Doc, 'Skin\g2_graphics.svg');
+
+    SVGSkin := TSVGSkin.Create(self);
+    try
+      SVGSkin.SaveToFile;
+    finally
+      SVGSkin.Free;
+    end;
+
   finally
     TextBitmap.Free;
     BitMapList.Free;
@@ -2483,76 +2670,634 @@ begin
   end;
 end;
 
-procedure TfrmModuleDef.ExtractTextEdit;
-var Control : TG2GraphChildControl;
-    i, j, k, l, p, ParamIndex : Integer;
-    ButtonText : string;
-    ParamNode : TXMLParamType;
-    ParamDefNode : TXMLParamDefType;
-    Node : TDOMNode;
-    new_filename : string;
+
+//------------------------------------------------------------------------------
+//
+//                                  TSVGSkin
+//
+//------------------------------------------------------------------------------
+
+constructor TSVGSkin.Create(AOwner: TComponent);
 begin
-  // I used this to get some info out of the paneld definitions
-  for i := 0 to G2_module_def.FModuleDefList.Count - 1 do begin
+  inherited;
+  Doc := TXMLDocument.Create;
+  BitMapList := TObjectList.Create(True);
+  TextBitmap := TBitmap.Create;
 
-    FModuleType := G2_module_def.FModuleDefList.ModuleDef[i].ModuleType;
-    LoadModule;
+  FDefList := TStringList.Create;
 
-    try
+  FSections := TObjectList.Create(True);
 
-      for j := 0 to FModule.ParameterCount - 1 do begin
-        k := 0;
-        while (k < FModule.Panel.ChildControlsCount) and (FModule.Panel.GraphChildControls[k].Parameter <> FModule.Parameter[j]) do
-          inc(k);
+  FRootNode := Doc.CreateElement('svg');
+  Doc.AppendChild(FRootNode);
+  TDOMElement(FRootNode).SetAttribute('xmlns:dc','http://purl.org/dc/elements/1.1/');
+  TDOMElement(FRootNode).SetAttribute('xmlns:cc','http://creativecommons.org/ns#');
+  TDOMElement(FRootNode).SetAttribute('xmlns:rdf','http://www.w3.org/1999/02/22-rdf-syntax-ns#');
+  TDOMElement(FRootNode).SetAttribute('xmlns:svg','http://www.w3.org/2000/svg');
+  TDOMElement(FRootNode).SetAttribute('xmlns:nmg2','http://www.bverhue/g2dev');
+  TDOMElement(FRootNode).SetAttribute('xmlns','http://www.w3.org/2000/svg');
+  TDOMElement(FRootNode).SetAttribute('xmlns:xlink','http://www.w3.org/1999/xlink');
 
-        if (k < FModule.Panel.ChildControlsCount) then begin
-          Control := FModule.Panel.GraphChildControls[k];
-
-          // Add buttontext to xml database
-          if (control is TG2GraphButton) then begin
-            if (Control as TG2GraphButton).ButtonText.Count > 0 then begin
-
-              ButtonText := '';
-              for l := 0 to (Control as TG2GraphButton).ButtonText.Count - 1 do
-                ButtonText := ButtonText + (Control as TG2GraphButton).ButtonText[l] + ';';
-
-              ParamIndex := (Control as TG2GraphButton).Parameter.ParamIndex;
-              ParamNode := G2_module_def.FModuleDefList.ModuleDef[i].Params[ParamIndex];
-
-              // Zoek parameter type op
-              p := 0;
-              while (p < G2_module_def.FParamDefList.Count) and (G2_module_def.FParamDefList.ParamDef[p].Id  <>  ParamNode.Get_Id) do
-                inc(p);
-
-              if (p < G2_module_def.FParamDefList.Count) then begin
-                ParamDefNode := G2_module_def.FParamDefList.ParamDef[p];
-
-                Node := ParamDefNode.FindNode( 'ButtonText');
-                if Node <> nil then begin
-                  if ButtonText = '' then begin
-                    ParamDefNode.DetachChild(Node);
-                    Node.Free;
-                  end else
-                    Node.TextContent := ButtonText;
-                end else
-                  if ButtonText <> '' then begin
-                     Node := TDOMDocument(ParamDefNode.OwnerDocument).CreateElement('ButtonText');
-                     ParamDefNode.AppendChild( Node);
-                     Node.TextContent := ButtonText;
-                  end;
-              end;
-            end;
-          end;
-
-        end;
-      end;
-    finally
-      UnloadModule
-    end;
-  end;
-  new_filename := 'ParamDef_new.xml';
-  WriteXMLFile( G2_module_def.FXMLParamDefs, new_filename);
+  FDefsNode := CreateChild( FRootNode, 'defs', 'g2_defs');
+  FMainNode := CreateG( FRootNode, 'g2_main');
 end;
 
+destructor TSVGSkin.Destroy;
+begin
+  FSections.Free;
+
+  FDefList.Free;
+
+  TextBitmap.Free;
+  BitMapList.Free;
+  Doc.Free;
+  inherited;
+end;
+
+function TSVGSkin.GetID2D( aBaseName : string; aWidth, aHeight : single): string;
+begin
+  Result :=  aBaseName + '_' + FloatToStr(trunc(aWidth*10)/10) + 'x' + FloatToStr(trunc(aHeight*10)/10);
+end;
+
+function TSVGSkin.GetID3D( aBaseName : string; aWidth, aHeight, aDepth : single): string;
+begin
+  Result :=  aBaseName + '_' + FloatToStr(trunc(aWidth*10)/10) + 'x' + FloatToStr(trunc(aHeight*10)/10) + 'x' + FloatToStr(trunc(aDepth*10)/10);
+end;
+
+function TSVGSkin.FindDef(aID: string): TDomNode;
+var index : integer;
+begin
+  index := FDefList.IndexOf(aID);
+  if index = -1 then
+    Result := nil
+  else begin
+    Result := FDefList.Objects[index] as TDomNode;
+  end;
+end;
+
+function TSVGSkin.FindSection(aID: string): TSVGSkinSection;
+var i : integer;
+begin
+  Result := nil;
+
+  i := 0;
+  while (i < FSections.Count) and not((FSections[i] as TSVGSkinSection).FID = aID) do
+    inc(i);
+
+  if (i >= FSections.Count) then
+    raise Exception.Create('Section ' + aID + ' not found.');
+
+  Result := (FSections[i] as TSVGSkinSection);
+end;
+
+function TSVGSkin.DefExists(aID: string): boolean;
+begin
+  Result := FDefList.IndexOf(aID) <> -1;
+end;
+
+function TSVGSkin.AddToSection(aSectionID, aID: string): TSVGSkinSectionPlaceholder;
+var Section : TSVGSkinSection;
+begin
+  Section := FindSection(aSectionID);
+  Result := Section.CreatePlaceholder('def_' + aID);
+end;
+
+procedure TSVGSkin.SaveToFile;
+var g2_module_def : TG2;
+    i : integer;
+    Module : TG2GraphModule;
+    ModuleType : integer;
+    ModuleID : string;
+    ModuleSection, Section  : TSVGSkinSection;
+    Placeholder : TSVGSkinSectionPlaceholder;
+    SVGObject : TSVGObject;
+begin
+  g2_module_def := TG2.Create(self);
+  try
+    g2_module_def.LoadModuleDefs('');
+
+    CreateModulePanelGradients;
+
+    CreateSection( 'symbolSection',        100,  50, 10, 1, 'Symbol section');
+    CreateSection( 'textfield_section',     80,  50, 50, 1, 'Text field section');
+    CreateSection( 'btntext_up_section',   100,  80, 50, 1, 'Button text up section');
+    CreateSection( 'btntext_down_section', 100,  80, 50, 1, 'Button text down section');
+    CreateSection( 'btntext_section',      100,  80, 50, 1, 'Button text section');
+    ModuleSection := CreateSection( 'moduleSection', 300, 300, 10, 20, 'Module section');
+
+    for i := 0 to G2_module_def.FModuleDefList.Count - 1 do begin
+      ModuleType := G2_module_def.FModuleDefList.ModuleDef[i].ModuleType;
+      Module := G2_module_def.SelectedPatch.CreateModule( ltVA, 1, ModuleType) as TG2GraphModule;
+
+      if assigned(Module) then begin
+
+        ModuleID := 'Module' + '_' + IntToStr(ModuleType);
+        G2_module_def.SelectedPatch.AddModuleToPatch( ltVA, Module);
+        G2_module_def.SelectedPatch.SortLeds;
+        try
+          Placeholder := ModuleSection.CreatePlaceholder( 'def_' + ModuleID);
+          Placeholder.FSVGObject := TSVGG2Module.Create( Placeholder, ModuleID, Module);
+        finally
+          G2_module_def.SelectedPatch.RemoveFromLedList( ltVA, Module.ModuleIndex);
+          G2_module_def.SelectedPatch.DeleteModuleFromPatch(ltVA, Module);
+          Module := nil;
+        end;
+      end;
+    end;
+
+    WriteXMLFile( Doc, 'Skin\g2_graphics_2.svg');
+  finally
+    g2_module_def.Free;
+  end;
+end;
+
+function TSVGSkin.RoundedBevelObject( aID : string; aWidth, aHeight, aBevelWidth, aBevelHeight : single; aColSideLeft, aColSideTop, aColSideRight, aColSideBottom : string): string;
+var dw, dh : single;
+begin
+  dw := aBevelWidth / 1.5;
+  dh := aBevelHeight / 1.5;
+
+  Result :=
+     '<path id="' + aID + '_bevel_l" fill="' + aColSideLeft + '" stroke="none"'
+   + '  d="M 0,0'
+       + ' c 0,0 ' + FloatToStr(aBevelWidth) + ','  + FloatToStr(dw) + ' ' + FloatToStr(aBevelWidth) + ',' + FloatToStr(aBevelWidth+dw)
+         + ' 0,' + FloatToStr(aBevelWidth + dw) + ' 0,' + FloatToStr(aHeight - (aBevelWidth+dw)*2 - dw - aBevelWidth) + ' 0,' + FloatToStr(aHeight - (aBevelWidth+dw)*2)
+         + ' 0,' + FloatToStr(dw) + ' ' + FloatToStr(-aBevelWidth) + ',' + FloatToStr(aBevelWidth+dw) + ' ' + FloatToStr(-aBevelWidth) + ',' + FloatToStr(aBevelWidth+dw)
+       + ' z">'
+   + '</path>'
+   + '<path id="' + aID + '_bevel_t" fill="' + aColSideTop + '" stroke="none"'
+   + '  d="M ' + FloatToStr(aWidth) + ',0'
+       + ' c 0,0 ' + FloatToStr(-dh) + ','  + FloatToStr(aBevelHeight) + ' ' + FloatToStr(-aBevelHeight-dh) + ',' + FloatToStr(aBevelHeight)
+         + ' ' + FloatToStr(-aBevelHeight - dh) + ',0 ' + FloatToStr(-aWidth + (aBevelHeight+dh)*2 + dh + aBevelHeight) + ',0 ' + FloatToStr(-aWidth + (aBevelHeight+dh)*2) + ',0'
+         + ' ' + FloatToStr(-dh) + ',0 ' + FloatToStr(-aBevelHeight-dh) + ',' + FloatToStr(-aBevelHeight) + ' ' + FloatToStr(-aBevelHeight-dh) + ',' + FloatToStr(-aBevelHeight)
+       + ' z">'
+   + '</path>'
+   + '<path id="' + aID + '_bevel_r" fill="' + aColSideRight + '" stroke="none"'
+   + '  d="M ' + FloatToStr(aWidth) + ',' + FloatToStr(aHeight)
+       + ' c 0,0 ' + FloatToStr(-aBevelWidth) + ','  + FloatToStr(-dw) + ' ' + FloatToStr(-aBevelWidth) + ',' + FloatToStr(-aBevelWidth-dw)
+         + ' 0,' + FloatToStr(-aBevelWidth - dw) + ' 0,' + FloatToStr(-aHeight + (aBevelWidth+dw)*2 + dw + aBevelWidth) + ' 0,' + FloatToStr(-aHeight + (aBevelWidth+dw)*2)
+         + ' 0,' + FloatToStr(-dw) + ' ' + FloatToStr(aBevelWidth) + ',' + FloatToStr(-aBevelWidth-dw) + ' ' + FloatToStr(aBevelWidth) + ',' + FloatToStr(-aBevelWidth-dw)
+       + ' z">'
+   + '</path>'
+   + '<path id="' + aID + '_bevel_b" fill="' + aColSideBottom + '" stroke="none"'
+   + '  d="M 0,' + FloatToStr(aHeight)
+       + ' c 0,0 ' + FloatToStr(dh) + ','  + FloatToStr(-aBevelHeight) + ' ' + FloatToStr(aBevelHeight+dh) + ',' + FloatToStr(-aBevelHeight)
+         + ' ' + FloatToStr(aBevelHeight + dh) + ',0 ' + FloatToStr(aWidth - (aBevelHeight+dh)*2 - dh - aBevelHeight) + ',0 ' + FloatToStr(aWidth - (aBevelHeight+dh)*2) + ',0'
+         + ' ' + FloatToStr(dh) + ',0 ' + FloatToStr(aBevelHeight+dh) + ',' + FloatToStr(aBevelHeight) + ' ' + FloatToStr(aBevelHeight+dh) + ',' + FloatToStr(aBevelHeight)
+       + ' z">'
+   + '</path>';
+end;
+
+function TSVGSkin.BevelObject( aID : string; aWidth, aHeight, aBevelWidth : single; aColSideLeft, aColSideTop, aColSideRight, aColSideBottom : string): string;
+begin
+   Result :=
+     '<path id="' + aID + '_bevel_l" fill="' + aColSideLeft + '" stroke="none"'
+   + '  d="M 0,0 l ' + FloatToStr(aBevelWidth) + ','  + FloatToStr(aBevelWidth) + ' v ' + FloatToStr((aHeight - aBevelWidth*2)) + ' l ' + FloatToStr(-aBevelWidth) + ','  + FloatToStr(aBevelWidth) + ' z">'
+   + '</path>'
+   + '<path id="' + aID + '_bevel_t" fill="' + aColSideTop + '" stroke="none"'
+   + '  d="M 0,0 h ' + FloatToStr(aWidth) + ' l ' + FloatToStr(-aBevelWidth) + ','  + FloatToStr(aBevelWidth) + ' h ' + FloatToStr(-(aWidth - aBevelWidth*2)) + ' z">'
+   + '</path>'
+   + '<path id="' + aID + '_bevel_r" fill="' + aColSideRight + '" stroke="none"'
+   + '  d="M ' + FloatToStr(aWidth) + ',0 v ' + FloatToStr(aHeight) + ' l ' + FloatToStr(-aBevelWidth) + ','  + FloatToStr(-aBevelWidth) + ' v ' + FloatToStr(-(aHeight - aBevelWidth*2)) + ' z">'
+   + '</path>'
+   + '<path id="' + aID + '_bevel_b" fill="' + aColSideBottom + '" stroke="none"'
+   + '  d="M 0, ' + FloatToStr(aHeight) + ' l ' + FloatToStr(aBevelWidth) + ','  + FloatToStr(-aBevelWidth) + ' h ' + FloatToStr((aWidth - aBevelWidth*2)) + ' l ' + FloatToStr(aBevelWidth) + ','  + FloatToStr(aBevelWidth) +' z">'
+   + '</path>';
+end;
+
+function TSVGSkin.RoundedButtonObject( aID : string; aWidth, aHeight, aBevelWidth, aBevelHeight : single;
+                                       aColSideLeft, aColSideTop, aColSideRight, aColSideBottom, aColBG, aColFace : string ): string;
+begin
+   Result :=
+     '<desc>Button text for G2 editor</desc>'
+   + '<rect id="' + aID + '_sel" x="0" y="0" width="' + FloatToStr(aWidth) + '" height="' + FloatToStr(aHeight) + '" fill="none" stroke="blue" stroke-width="0.2"/>'
+   + '<g id="' + aID + '_parts">'
+   + '  <rect id="' + aID + '_bg" x="0" y="0" width="' + FloatToStr(aWidth) + '" height="' + FloatToStr(aHeight) + '" fill="' + aColBG + '" stroke="black" stroke-width="0.5"/>'
+   + '  <g id="' + aID + '_bevel">'
+         + RoundedBevelObject( aID, aWidth, aHeight, aBevelWidth, aBevelHeight, aColSideLeft, aColSideTop, aColSideRight, aColSideBottom)
+   + '  </g>'
+   + '  <rect id="' + aID + '_face" x="' + FloatToStr(aBevelWidth) + '" y="' + FloatToStr(aBevelHeight) + '" width="' + FloatToStr(aWidth-aBevelWidth*2) + '" height="' + FloatToStr(aHeight-aBevelHeight*2) + '" rx="0.75" fill="' + aColFace + '" stroke="none"/>'
+   + '</g>';
+end;
+
+function TSVGSkin.CreateChild( aNode : TDomNode; aElementName, aID : string): TDomNode;
+begin
+  Result := Doc.CreateElement(aElementName);
+  aNode.AppendChild(Result);
+  SetAttribute(Result, 'id', aID);
+  FDefList.AddObject( aID, Result);
+end;
+
+function TSVGSkin.CreateG(aNode: TDomNode; aID: string): TDomNode;
+begin
+  Result := CreateChild( aNode, 'g', aID);
+end;
+
+function TSVGSkin.CreateDesc(aNode: TDomNode; aID,
+  aDescription: string): TDomNode;
+begin
+  Result := CreateChild( aNode, 'desc', aID);
+  Result.AppendChild( Doc.CreateTextNode(aDescription));
+end;
+
+function TSVGSkin.CreateUse( aNode : TDomNode; aID, aRef : string; dx, dy : integer): TDomNode;
+begin
+  Result := CreateChild( aNode, 'use', aID);
+  SetAttribute( Result, 'id', aID);
+  SetAttribute( Result, 'xlink:href', '#' + aRef);
+  SetAttribute( Result, 'transform', 'translate(' + IntToStr(dx) + ',' + IntToStr(dy) + ')');
+  SetAttribute( Result, 'x', '0');
+  SetAttribute( Result, 'y', '0');
+end;
+
+function TSVGSkin.CreateRect(aNode: TDomNode; aID, aFill,
+  aStroke: string; x, y, width, height: integer): TDomNode;
+begin
+  Result := CreateChild( aNode, 'rect', aID);
+
+  SetAttribute( Result, 'fill', aFill);
+  SetAttribute( Result, 'stroke', aStroke);
+  SetAttribute( Result, 'x', IntToStr(x));
+  SetAttribute( Result, 'y', IntToStr(y));
+  SetAttribute( Result, 'width', IntToStr(width));
+  SetAttribute( Result, 'height', IntToStr(height));
+end;
+
+procedure TSVGSkin.CreateGradientPoint( aNode : TDomNode; aID : string; aOffset : single; aStopColor : string);
+var S : TStringStream;
+begin
+  S := TStringStream.Create(
+     '<stop id="' + aID + '" offset="' + FloatToStr(aOffset) + '%" stop-color="' + aStopColor + '" />');
+  try
+    ReadXMLFragment( aNode, S);
+  finally
+    S.Free;
+  end;
+end;
+
+function TSVGSkin.CreateLinearGradient( aNode : TDomNode; aID : string): TDomNode;
+begin
+  Result := CreateChild( aNode, 'linearGradient', aID);
+end;
+
+procedure TSVGSkin.CreateModulePanelGradient( aNode : TDomNode; aID : string; aColor1, aColor2 : string);
+var StopsNode : TDomNode;
+    S : TStringStream;
+begin
+  StopsNode := CreateLinearGradient( aNode, aID + '_stops');
+  CreateGradientPoint( StopsNode, aID + '_start', 0, aColor1);
+  CreateGradientPoint( StopsNode, aID + '_stop',  100, aColor2);
+
+  S := TStringStream.Create(
+     '<linearGradient'
+   + ' id="' + aID + '"'
+   + ' gradientUnits="objectBoundingBox"'
+   + ' x1="0"'
+   + ' x2="1"'
+   + ' y1="0"'
+   + ' y2="1"'
+   + ' xlink:href="#' +aID + '_stops' + '">'
+   + '</linearGradient>');
+  try
+    ReadXMLFragment( aNode, S);
+  finally
+    S.Free;
+  end;
+end;
+
+procedure TSVGSkin.CreateModulePanelGradients;
+var j : integer;
+    color : integer;
+    svg_color1, svg_color2 : string;
+begin
+  for j := 0 to 24 do begin
+    color := (ModuleColors[j] and $00FF0000) shr 32
+           + (ModuleColors[j] and $0000FF00)
+           + (ModuleColors[j] and $000000FF) shl 32;
+    svg_color1 := '#' +  IntToHex( Lighter(Color,40), 6);
+    svg_color2 := '#' +  IntToHex( Color, 6);
+    CreateModulePanelGradient( FDefsNode, 'PanelGradient_' + IntToStr(j), svg_color1{'#F0F0F0'} , svg_color2);
+  end;
+end;
+
+function TSVGSkin.CreateParamLink(aNode: TDomNode; aID: string; aCodeRef,
+  aInfoFunc: integer; aCtrlType: string): TDomNode;
+begin
+  Result := CreateG( aNode, aID);
+  SetAttribute( Result, 'nmg2.CodeRef', IntToStr(aCodeRef));
+  SetAttribute( Result, 'nmg2.InfoFunc', IntTostr(aInfoFunc));
+  SetAttribute( Result, 'nmg2.CtrlType', aCtrlType);
+end;
+
+function TSVGSkin.CreateLabel( aNode : TDomNode; aID : string; x, y : integer; aText : string; aFontSize : integer): TDomNode;
+var S : TStringStream;
+    p : integer;
+begin
+  Result := CreateG( aNode, aID);
+
+  p := pos('&', aText);
+  if p>0 then
+    aText[p]:= '+';
+
+  S := TStringStream.Create(
+     '  <desc>Label for G2 editor</desc>'
+   + '  <text id="' + aID + '_text' + '" x="' + IntToStr(x) + '" y="' + IntToStr(y+aFontSize) + '"'
+   + '        style="font-size:' + IntToStr(aFontSize) + 'px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"'
+   + '        xml:space="preserve">'
+   + '     <tspan id="' + aID + '_span"  x="' + IntToStr(x) + '" y="' + IntToStr(y+aFontSize) + '">'
+   + aText
+   + '     </tspan>'
+   + '  </text>');
+  try
+    ReadXMLFragment( Result, S);
+  finally
+    S.Free;
+  end;
+end;
+
+function TSVGSkin.CreateTextField( aNode : TDomNode; aID : string; x, y, Width, Height : single): TDomNode;
+var S : TStringStream;
+    bw : integer;
+begin
+  bw := 1;
+  Result := CreateG( aNode, aID);
+
+  S := TStringStream.Create(
+     '  <desc>TextField for G2 editor</desc>'
+   + '  <g id="' + aID + '_parts">'
+   + '     <rect id="' + aID + '_bevel" fill="gray" stroke="none" x="' + FloatToStr(x) + '" y="' + FloatToStr(y) + '" width="' + FloatToStr(Width)+ '" height="' + FloatToStr(Height) + '" />'
+   + '     <rect id="' + aID + '_window" fill="black" stroke="none" x="' + FloatToStr(x+bw) + '" y="' + FloatToStr(y+bw) + '" width="' + FloatToStr(Width - bw*2) + '" height="' + FloatToStr(Height - bw*2) + '" />'
+   + '  </g>');
+  try
+    ReadXMLFragment( Result, S);
+  finally
+    S.Free;
+  end;
+end;
+
+function TSVGSkin.CreateRoundedButtonTextUp( aNode : TDomNode; aID : string; aWidth, aHeight, aBevelWidth : single): TDomNode;
+var S : TStringStream;
+begin
+  Result := CreateG( aNode, aID);
+  S := TStringStream.Create( RoundedButtonObject( aID, aWidth, aHeight, aBevelWidth, aBevelWidth,
+              cBtnSideLight, cBtnSideLight, cBtnSideDark, cBtnSideDark, cBtnSideMedium, cBtnFace));
+  try
+    ReadXMLFragment( Result, S);
+  finally
+    S.Free;
+  end;
+end;
+
+function TSVGSkin.CreateRoundedButtonTextDown( aNode : TDomNode; aID : String; aWidth, aHeight, aBevelWidth : single): TDomNode;
+var S : TStringStream;
+begin
+  Result := CreateG( aNode, aID);
+  S := TStringStream.Create( RoundedButtonObject( aID, aWidth, aHeight, aBevelWidth, aBevelWidth,
+              'url(#btnTextGradienSideLeft)', 'url(#btnTextGradienSideTop)', 'url(#btnTextGradienSideRight)', 'url(#btnTextGradienSideBottom)',
+              '#00ffcc', 'url(#btnTextGradienFace)'));
+  try
+    ReadXMLFragment( Result, S);
+  finally
+    S.Free;
+  end;
+end;
+
+function TSVGSkin.CreateRoundedButton( aNode : TDomNode; aID : string; aWidth, aHeight, aBevelWidth : single): TDomNode;
+var Placeholder : TSVGSkinSectionPlaceholder;
+begin
+  Placeholder := AddToSection( 'btntext_up_section', aID + '_up');
+  CreateRoundedButtonTextUp( Placeholder.FNode, aID + '_up', aWidth, aHeight, aBevelWidth);
+
+  Placeholder := AddToSection( 'btntext_down_section', aID + '_down');
+  CreateRoundedButtonTextDown( Placeholder.FNode, aID + '_down', aWidth, aHeight, aBevelWidth);
+
+  Result := CreateG( aNode, aID);
+  CreateUse( Result,
+             aID + '_el_1',
+             aID + '_up',
+             0, 0);
+  CreateUse( Result,
+             aID + '_el_2',
+             aID + '_down',
+             0, 0);
+end;
+
+
+procedure TSVGSkin.SetAttribute(aNode: TDomNode; aName, aValue: string);
+begin
+  TDOMElement(aNode).SetAttribute(aName, aValue);
+end;
+
+function TSVGSkin.CreateSection( aID : string; aPlaceholderWidth, aPlaceholderHeight, aCols, aRows : integer; aText : string): TSVGSkinSection;
+var CommentNode : TDomNode;
+begin
+  Result := TSVGSkinSection.Create(self, aID, aText);
+  Result.FID := aID;
+  Result.FPlaceholderWidth := aPlaceholderWidth;
+  Result.FPlaceholderHeight := aPlaceholderHeight;
+  Result.FRows := aRows;
+  Result.FCols := aCols;
+
+  FSections.Add(Result);
+end;
+
+//------------------------------------------------------------------------------
+//
+//                                TSVGSkinSection
+//
+//------------------------------------------------------------------------------
+
+constructor TSVGSkinSection.Create( aSkin : TSVGSkin; aID, aComment : string);
+var CommentNode : TDomNode;
+    i, y : integer;
+begin
+  FSkin := aSkin;
+  FID := aID;
+  FComment := aComment;
+
+  FPlaceHolders := TObjectList.Create(True);
+
+  y := 0;
+  for i := 0 to FSkin.FSections.Count - 1 do begin
+    y := y + (FSkin.FSections[i] as TSVGSkinSection).FPlaceholderHeight
+           * (FSkin.FSections[i] as TSVGSkinSection).FRows;
+  end;
+
+  FNode := FSkin.CreateG( FSkin.FMainNode, FID);
+  FSkin.SetAttribute(FNode, 'transform', 'translate(' + IntToStr(0) + ',' + IntToStr(y) + ')');
+end;
+
+destructor TSVGSkinSection.Destroy;
+begin
+  FPlaceHolders.Free;
+  inherited;
+end;
+
+function TSVGSkinSection.CommentText( aID : string; aText : string): string;
+var sl : TStringList;
+    i : integer;
+begin
+  sl := TStringList.Create;
+  try
+    sl.Text := aText;
+
+    Result := '<text id="' + aID + '">';
+
+    for i := 0 to sl.Count - 1 do begin
+      Result := Result
+              + '<tspan id="' + aID + '_' + IntTostr(i) + '" x="0" dy="' + IntTostr(10) +'">'
+              + sl[i]
+              + '</tspan>';
+    end;
+
+    Result := Result + '</text>'
+
+  finally
+    sl.Free;
+  end;
+end;
+
+procedure TSVGSkinSection.CreateComment( aNode : TDomNode);
+var S : TStringStream;
+    CommentNode : TDomNode;
+begin
+  CommentNode := FSkin.CreateChild(FNode, 'g', FID + '_comment');
+  S := TStringStream.Create( CommentText( FID + '_comment_text', FComment));
+  try
+    ReadXMLFragment( CommentNode, S);
+  finally
+    S.Free;
+  end;
+end;
+
+function TSVGSkinSection.CreatePlaceholder( aID : string): TSVGSkinSectionPlaceholder;
+var index, x, y : integer;
+begin
+  index := FPlaceHolders.Count;
+  x := (index mod FCols) * FPlaceholderWidth;
+  y := (index div FCols) * FPlaceholderHeight;
+
+  Result := TSVGSkinSectionPlaceHolder.Create( self, aID, x, y);
+  FPlaceHolders.Add( Result);
+end;
+
+//------------------------------------------------------------------------------
+//
+//                          TSVGSkinSectionPlaceHolder
+//
+//------------------------------------------------------------------------------
+
+constructor TSVGSkinSectionPlaceHolder.Create( aSection : TSVGSkinSection; aID : string; x, y : integer);
+begin
+  FID := aID;
+  FSection := aSection;
+  FSkin := FSection.FSkin;
+
+  FNode := FSKin.CreateG(FSection.FNode, FID);
+  FSkin.SetAttribute( FNode, 'transform', 'translate(' + IntToStr(x) + ',' + IntToStr(y) + ')');
+  FSVGObject := nil;
+end;
+
+destructor TSVGSkinSectionPlaceHolder.Destroy;
+begin
+  inherited;
+end;
+
+//------------------------------------------------------------------------------
+//
+//                                  TSVGObject
+//
+//------------------------------------------------------------------------------
+
+constructor TSVGObject.Create(aPlaceholder: TSVGSkinSectionPlaceHolder; aID: string);
+begin
+  FPlaceholder := aPlaceholder;
+  FSkin := aPlaceholder.FSkin;
+  FID := aID;
+  FNode := nil;
+end;
+
+destructor TSVGObject.Destroy;
+begin
+  inherited;
+end;
+
+//------------------------------------------------------------------------------
+//
+//                                  TSVGG2Module
+//
+//------------------------------------------------------------------------------
+
+constructor TSVGG2Module.Create(aPlaceholder : TSVGSkinSectionPlaceHolder; aID: string; aModule : TG2GraphModule);
+var ModuleNode, DescNode, PanelNode : TDomNode;
+    Control : TG2GraphChildControl;
+    i : integer;
+    Placeholder : TSVGSkinSectionPlaceholder;
+    ControlID, ObjectID : string;
+    ParamLinkNode,  ObjectNode : TDomNode;
+begin
+  inherited Create( aPlaceHolder, aID);
+
+  ModuleNode := FSkin.CreateG( FPlaceholder.FNode, aID);
+  DescNode := FSkin.CreateDesc( ModuleNode, aID + '_desc', 'Module ' + IntToStr(aModule.TypeID) + ', ' + aModule.ModuleName);
+
+  PanelNode := FSkin.CreateRect( ModuleNode,
+                                 aID +  IntToStr(aModule.TypeID)+ '_panel',
+                                 'url(#PanelGradient_0)', 'black',
+                                 0, 0, aModule.Panel.Width, aModule.Panel.Height);
+
+  FSkin.CreateLabel( ModuleNode, aID + '_label', 1, 1, aModule.ModuleName, 10);
+
+  for i := 0 to aModule.Panel.ChildControlsCount - 1 do begin
+    ControlID := FID + '_ctrl_' + IntToStr(i);
+
+    Control :=  aModule.Panel.GraphChildControls[i];
+
+    if Control is TG2GraphLabel then begin
+      FSkin.CreateLabel( ModuleNode, ControlID, Control.Left, Control.Top, (Control as TG2GraphLabel).Caption, (Control as TG2GraphLabel).Font.Size);
+    end;
+
+    if Control is TG2GraphDisplay then begin
+      ObjectID := FSkin.GetID2D('textfield', Control.Width, Control.Height);
+      if not FSkin.DefExists(ObjectID) then begin
+        Placeholder := FSkin.AddToSection( 'textfield_section', ObjectID);
+        FSKin.CreateTextField( Placeholder.FNode, ObjectID, 0, 0, Control.Width, Control.Height);
+      end;
+      FSkin.CreateUse( ModuleNode, ControlID, ObjectID, Control.Left, Control.Top);
+    end;
+
+    if Control is TG2GraphButtonText then begin
+
+      ObjectID := FSKin.GetID3D('btntext', Control.Width, Control.Height, 2);
+      if not FSkin.DefExists(ObjectID) then begin
+        Placeholder := FSkin.AddToSection( 'btntext_section', ObjectID);
+        FSKin.CreateRoundedButton( Placeholder.FNode, ObjectID, Control.Width, Control.Height, 2);
+      end;
+      ParamLinkNode := FSkin.CreateParamLink( ModuleNode,
+                                              FID + '_paramlink_' + IntToStr(Control.ID),
+                                              Control.Parameter.ParamIndex,
+                                              Control.Parameter.InfoFunctionIndex,
+                                              'btntext');
+      FSkin.CreateUse( ParamLinkNode, ControlID, ObjectID, Control.Left, Control.Top);
+
+      {for m := 0 to (Control as TG2GraphButton).ImageList.Count - 1 do begin
+        symbol_id := AddSymbolFromBitmap( (Control as TG2GraphButton).ImageList.Items[m]);
+        w := (BitmapList[symbol_id] as TBitmap).Width;
+        h := (BitmapList[symbol_id] as TBitmap).Height;
+
+        CreateUse( ParamLinkNode, control_id + '_symbol_' + IntToStr(m), idSymbol + '_' + IntToStr(symbol_id), Control.Left + Control.Width div 2 - w div 2, Control.Top + Control.Height div 2 - h div 2);
+      end;}
+    end;
+
+
+  end;
+
+end;
+
+destructor TSVGG2Module.Destroy;
+begin
+
+  inherited;
+end;
 
 end.

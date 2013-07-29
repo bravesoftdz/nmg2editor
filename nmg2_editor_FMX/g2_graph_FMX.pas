@@ -1052,7 +1052,6 @@ var i : integer;
 begin
   // Update all controls attached to the parameter
   for i := 0 to Length(FControlList) - 1 do begin
-    //FControlList[i].Repaint;
     (FControlList[i] as TSVGG2Control).ParamEvent( g2pChange, 0);
   end;
 end;
@@ -1341,7 +1340,6 @@ procedure TSVGBtnText.ParamEvent(Event: TG2ParamEvent; Info: NativeInt);
 begin
   inherited;
   Value := FParameter.GetParameterValue <> 0;
-  Redraw;
 end;
 
 procedure TSVGBtnText.Redraw;
@@ -1353,21 +1351,7 @@ begin
 end;
 
 procedure TSVGBtnText.SetValue(aValue: boolean);
-var NewValue : byte;
 begin
-  {NewValue := trunc(aValue);
-  if (NewValue>=FParameter.LowValue) and (NewValue<=FParameter.HighValue) then
-    if NewValue <> FParameter.GetParameterValue then begin
-      FParameter.SetParameterValue( NewValue);
-
-      if NewValue = 0 then begin
-        FBtnUp.Visible := True;
-        FBtnDown.Visible := False;
-      end else begin
-        FBtnUp.Visible := False;
-        FBtnDown.Visible := True;
-      end;
-    end;}
   if aValue <> FValue then begin
     FValue := aValue;
     if FValue  then begin
@@ -1391,12 +1375,12 @@ begin
       if State = 'up' then begin
         FBtnUp := TSVGBtnState.Create(self, index, aId, aSVGParent, aCTM, aUserMatrix);
         Result := FBtnUp;
-        FBtnUp.Visible := FValue;
+        FBtnUp.Visible := not FValue;
         FBtnUp.FModule := FModule;
       end else begin
         FBtnDown := TSVGBtnState.Create(self, index, aId, aSVGParent, aCTM, aUserMatrix);
         Result := FBtnDown;
-        FBtnDown.Visible := not FValue;
+        FBtnDown.Visible := FValue;
         FBtnDown.FModule := FModule;
       end;
       aSubTreeOwner := Result;

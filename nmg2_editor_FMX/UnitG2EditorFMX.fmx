@@ -215,7 +215,9 @@ object frmSVGTest: TfrmSVGTest
     Top = 48
   end
   object XMLDocument1: TXMLDocument
-    FileName = 'C:\Users\Bruno\Delphi\nmg2editor\v0.25\skin\g2_graphics.svg'
+    FileName = 
+      'C:\Documents and Settings\BVerhue\Mijn documenten\Delphi\nmg2edi' +
+      'tor\v0.25\skin\g2_graphics.svg'
     ParseOptions = [poPreserveWhiteSpace]
     Left = 440
     Top = 104

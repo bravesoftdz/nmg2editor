@@ -121,6 +121,7 @@ type
     constructor Create;
     destructor Destroy; override;
     procedure Parse(Src: TXMLInputSource; out ADoc: TXMLDocument);
+    procedure ParseExistingDoc(Src: TXMLInputSource; aDoc: TXMLDocument); // bve 20130315
     procedure ParseUri(const URI: WideString; out ADoc: TXMLDocument);
     function ParseWithContext(Src: TXMLInputSource; Context: TDOMNode;
       Action: TXMLContextAction): TDOMNode;
@@ -450,6 +451,7 @@ type
     constructor Create(AParser: TDOMParser); overload;
     destructor Destroy; override;
     procedure ProcessXML(ASource: TXMLCharSource);                // [1]
+    procedure ProcessXMLExistingDoc(ASource: TXMLCharSource; aDoc : TXMLDocument); // bve 20130315
     procedure ProcessFragment(ASource: TXMLCharSource; AOwner: TDOMNode);
     procedure ProcessDTD(ASource: TXMLCharSource);               // ([29])
   end;
@@ -581,6 +583,20 @@ begin
     ProcessXML(InputSrc)
   finally
     ADoc := TXMLDocument(doc);
+    Free;
+  end;
+end;
+
+// bve 20130315
+procedure TDOMParser.ParseExistingDoc(Src: TXMLInputSource; aDoc: TXMLDocument);
+var
+  InputSrc: TXMLCharSource;
+begin
+  with TXMLReader.Create(Self) do
+  try
+    ConvertSource(Src, InputSrc);  // handles 'no-input-specified' case
+    ProcessXMLExistingDoc(InputSrc, aDoc)
+  finally
     Free;
   end;
 end;
@@ -1329,6 +1345,24 @@ procedure TXMLReader.ProcessXML(ASource: TXMLCharSource);
 begin
   doc := TXMLDocument.Create;
   doc.documentURI := ASource.SystemID;  // TODO: to be changed to URI or BaseURI  
+  FCursor := doc;
+  FState := rsProlog;
+  FNesting := 0;
+  Initialize(ASource);
+  ParseContent;
+
+  if FState < rsRoot then
+    FatalError('Root element is missing');
+
+  if FValidate and Assigned(FDocType) then
+    ValidateIdRefs;
+end;
+
+// bve 20130315
+procedure TXMLReader.ProcessXMLExistingDoc(ASource: TXMLCharSource; aDoc : TXMLDocument);
+begin
+  doc := aDoc;
+  doc.documentURI := ASource.SystemID;  // TODO: to be changed to URI or BaseURI
   FCursor := doc;
   FState := rsProlog;
   FNesting := 0;

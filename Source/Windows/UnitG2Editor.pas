@@ -3797,7 +3797,7 @@ end;
 
 procedure TfrmG2Main.aCreateSVGSkinExecute(Sender: TObject);
 begin
- frmModuleDef.CreateSVG
+  frmModuleDef.CreateSVG
 end;
 
 ////////////////////////////////////////////////////////////////////////////////

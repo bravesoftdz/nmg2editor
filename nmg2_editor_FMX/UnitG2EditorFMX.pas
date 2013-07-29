@@ -265,6 +265,8 @@ begin
 
       FPatch.Init;
       FPatch.LoadFromFile(FileStream, nil);
+      FPatch.InvalidateParameters;
+
       FCableBitmapBuffer.BringToFront;
       FCableBitmapBuffer.RedrawBuffer := True;
 

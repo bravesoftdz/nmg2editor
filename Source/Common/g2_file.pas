@@ -232,6 +232,7 @@ type
     function    CreateParameter: TG2FileParameter; virtual;
     function    CreateConnector: TG2FileConnector; virtual;
     procedure   InvalidateCables;
+    procedure   InvalidateParameters;
 
     function    GetNextParam : TG2FileParameter;
     function    GetPrevParam : TG2FileParameter;
@@ -886,6 +887,7 @@ type
     procedure   SelectPrevModuleParam;
     function    CreateModule( aModuleIndex : byte; aModuleType : byte): TG2FileModule;
     function    CreateCable( aColor : byte; aFromModule : byte; aFromConnector : byte; aLinkType : byte; aToModule : byte; aToConnector : byte): TG2FileCable; virtual;
+    procedure   InvalidateParameters;
 
     property    Patch : TG2FilePatch read FPatch write FPatch;
     property    Location : TLocationType read FLocation write SetLocation;
@@ -959,6 +961,8 @@ type
     procedure   InitParameters;
     procedure   InitNames;
     procedure   InitKnobs;
+
+    procedure   InvalidateParameters;
 
     function    GetMaxModuleIndex( aLocation : TLocationType) : integer;
     function    GetNoOffModuleType( aLocation : TLocationType; aModuleType : byte) : integer;
@@ -1672,6 +1676,16 @@ begin
 
   for i := 0 to Length(FOutConnectors) - 1 do
     FOutConnectors[i].InvalidateCables;
+end;
+
+procedure TG2FileModule.InvalidateParameters;
+var i : integer;
+begin
+  for i := 0 to Length(FModes) - 1 do
+    FModes[i].InvalidateControl;
+
+  for i := 0 to Length(FParams) - 1 do
+    FParams[i].InvalidateControl;
 end;
 
 function TG2FileModule.GetInputConnector( ConnectorIndex: integer): TG2FileConnector;
@@ -4848,6 +4862,13 @@ begin
   FSelectedParam := nil;
 end;
 
+procedure TG2FilePatchPart.InvalidateParameters;
+var m : integer;
+begin
+  for m := 0 to FModuleList.Count - 1 do
+    FModuleList[m].InvalidateParameters;
+end;
+
 function TG2FilePatchPart.GetSelectedModuleList: TModuleList;
 begin
   Result := FSelectedModuleList;
@@ -5427,6 +5448,16 @@ begin
 
   // Module params should already be initialized;
   InitKnobs;
+end;
+
+procedure TG2FilePatch.InvalidateParameters;
+var i : integer;
+begin
+  for i := 0 to 1 do begin
+    FPatchPart[i].InvalidateParameters;
+  end;
+  for i := 0 to Length(FParams) - 1 do
+    FParams[i].InvalidateControl;
 end;
 
 procedure TG2FilePatch.Read( aChunk : TPatchChunk);
