@@ -318,7 +318,7 @@ var Control : TG2GraphChildControl;
     BitMapList : TObjectList;
     Bitmap, TextBitmap : TBitmap;
     i, j, k : integer;
-    symbol_section, knob_section, buttontext_up_section, buttontext_down_section,
+    symbol_section, knob_section, buttontext_up_section, buttontext_down_section, buttontext_section,
     buttonflat_section, textfield_section, led_off_section, led_on_section, btnIncDec_section,
     partsel_section, connector_section, graph_section, minivu_section, btnRadioUp_section,
     btnRadioDown_section, levelshift_section, module_section, uipanel_section,
@@ -332,6 +332,7 @@ var Control : TG2GraphChildControl;
     GTextFieldSectionNode, GTextFieldDefNode, TextFieldNode,
     GButtonTextUpSectionNode, GButtonTextUpDefNode, ButtonTextUpNode,
     GButtonTextDownSectionNode, GButtonTextDownDefNode, ButtonTextDownNode,
+    GButtonTextSectionNode, GButtonTextDefNode, ButtonTextNode,
     GButtonFlatSectionNode, GButtonFlatDefNode, ButtonFlatNode,
     GKnobSectionNode, GKnobDefNode, KnobNode,
     GLedOffSectionNode, GLedOffDefNode, LedOffNode,
@@ -978,7 +979,7 @@ var Control : TG2GraphChildControl;
       end;
     end;
 
-    procedure FindOrAddButtonTextUp( aWidth, aHeight, aBevelWidth : single);
+    {procedure FindOrAddButtonTextUp( aWidth, aHeight, aBevelWidth : single);
     var id : string;
     begin
       id := idBtnText + '_up' + '_def_' + FloatToStr(aWidth) + 'x' + FloatToStr(aHeight) + 'x' + FloatToStr(aBevelWidth);
@@ -997,9 +998,44 @@ var Control : TG2GraphChildControl;
 
         btc := btc + trunc(aWidth) + 20;
       end;
+    end;}
+
+    procedure FindOrAddButtonText( aWidth, aHeight, aBevelWidth : single);
+    var id : string;
+        GroupNode : TDomNode;
+    begin
+      id := idBtnText + '_def_' + FloatToStr(aWidth) + 'x' + FloatToStr(aHeight) + 'x' + FloatToStr(aBevelWidth);
+
+      ButtonTextNode := GButtonTextSectionNode.FirstChild;
+      while (ButtonTextNode <> nil) and (TDomELement(ButtonTextNode).GetAttribute('id') <> id) do
+        ButtonTextNode := ButtonTextNode.NextSibling;
+
+      if not assigned(ButtonTextNode) then begin
+        GButtonTextUpDefNode := CreateSectionPlaceholder( GButtonTextUpSectionNode, id, btc, 0);
+        CreateButtonTextUp( GButtonTextUpDefNode, aWidth, aHeight, aBevelWidth);
+
+        GButtonTextDownDefNode := CreateSectionPlaceholder( GButtonTextDownSectionNode, id, btc, 0);
+        CreateButtonTextDown( GButtonTextDownDefNode, aWidth, aHeight, aBevelWidth);
+
+        GButtonTextDefNode := CreateSectionPlaceholder( GButtonTextSectionNode, id, btc, 0);
+
+        GroupNode := Doc.CreateElement('g');
+        TDOMElement(GroupNode).SetAttribute('id', idBtnText + '_' + FloatToStr(aWidth) + 'x' + FloatToStr(aHeight) + 'x' + FloatToStr(aBevelWidth));
+        GButtonTextDefNode.AppendChild(GroupNode);
+        CreateUse( GroupNode,
+                   id + '_el_1',
+                   idBtnText + '_up' + '_' + FloatToStr(aWidth) + 'x' + FloatToStr(aHeight) + 'x' + FloatToStr(aBevelWidth),
+                   0, 0);
+        CreateUse( GroupNode,
+                   id + '_el_2',
+                   idBtnText + '_down' + '_' + FloatToStr(aWidth) + 'x' + FloatToStr(aHeight) + 'x' + FloatToStr(aBevelWidth),
+                   0, 0);
+
+        btc := btc + trunc(aWidth) + 20;
+      end;
     end;
 
-    procedure FindOrAddButtonTextDown( aWidth, aHeight, aBevelWidth : single);
+    {procedure FindOrAddButtonTextDown( aWidth, aHeight, aBevelWidth : single);
     var id : string;
     begin
       id := idBtnText + '_down' + '_def_' + FloatToStr(aWidth) + 'x' + FloatToStr(aHeight) + 'x' + FloatToStr(aBevelWidth);
@@ -1013,7 +1049,7 @@ var Control : TG2GraphChildControl;
         CreateButtonTextDown( GButtonTextDownDefNode, aWidth, aHeight, aBevelWidth);
         btc := btc + trunc(aWidth) + 20;
       end;
-    end;
+    end;}
 
     procedure CreateBtnIncDecHorz( aNode : TDomNode);
     var S : TStringStream;
@@ -1022,21 +1058,21 @@ var Control : TG2GraphChildControl;
       w := 11;
       h := 11;
       d := 1;
-      FindOrAddButtonTextUp(w, h, d);
+      FindOrAddButtonText(w, h, d);
 
       S := TStringStream.Create(
          '<g id="' + idBtnIncDecHorz + '">'
         + ' <desc>Button inc-dec horizontal for G2 editor</desc>'
           + ' <g id="' + idBtnIncDecHorz + '_parts">'
 
-               + Use( idBtnIncDecHorz + '_dec', GetIDBtnText( idBtnText + '_up', w, h, d), 0, 0)
+               + Use( idBtnIncDecHorz + '_dec', GetIDBtnText( idBtnText {+ '_up'}, w, h, d), 0, 0)
 
                + ' <use id="' + idBtnIncDecHorz + '_' + IntToStr(id_smallarrow_left) + '_symbol' + '"'
                   + ' xlink:href="#' + idSymbol + '_' + IntToStr(id_smallarrow_left) + '"'
                   + ' transform="translate(' + FloatToStr(w/2 - 3/2) + ',' + FloatToStr(h/2 - 6/2) + ')"'
                   + ' x="0" y="0" />'
 
-              + Use( idBtnIncDecHorz + '_inc', GetIDBtnText( idBtnText + '_up', w, h, d), w, 0)
+              + Use( idBtnIncDecHorz + '_inc', GetIDBtnText( idBtnText {+ '_up'}, w, h, d), w, 0)
 
                + ' <use id="' + idBtnIncDecHorz + '_' + IntToStr(id_smallarrow_right) + '_symbol' + '"'
                   + ' xlink:href="#' + idSymbol + '_' + IntToStr(id_smallarrow_right) + '"'
@@ -1058,21 +1094,21 @@ var Control : TG2GraphChildControl;
       w := 11;
       h := 9;
       d := 1;
-      FindOrAddButtonTextUp(w, h, d);
+      FindOrAddButtonText(w, h, d);
 
       S := TStringStream.Create(
          '<g id="' + idBtnIncDecVert + '">'
        + ' <desc>Button inc-dec vertical for G2 editor</desc>'
          + ' <g id="g2_btnIncDecVert_parts">'
 
-               + Use( idBtnIncDecVert + '_dec', GetIDBtnText( idBtnText + '_up', w, h, d), 0, 0)
+               + Use( idBtnIncDecVert + '_dec', GetIDBtnText( idBtnText {+ '_up'}, w, h, d), 0, 0)
 
                + ' <use id="' + idBtnIncDecHorz + '_' + IntToStr(id_smallarrow_up) + '_symbol' + '"'
                   + ' xlink:href="#' + idSymbol + '_' + IntToStr(id_smallarrow_up) + '"'
                   + ' transform="translate(' + FloatToStr(w/2 - 6/2) + ',' + FloatToStr(h/2 - 3/2) + ')"'
                   + ' x="0" y="0" />'
 
-               + Use( idBtnIncDecVert + '_inc', GetIDBtnText( idBtnText +'_up', w, h, d), 0, h)
+               + Use( idBtnIncDecVert + '_inc', GetIDBtnText( idBtnText {+'_up'}, w, h, d), 0, h)
 
                + ' <use id="' + idBtnIncDecHorz + '_' + IntToStr(id_smallarrow_down) + '_symbol' + '"'
                   + ' xlink:href="#' + idSymbol + '_' + IntToStr(id_smallarrow_down) + '"'
@@ -1855,7 +1891,7 @@ var Control : TG2GraphChildControl;
 
         if Control is TG2GraphButtonText then begin
 
-          FindOrAddButtonTextUp( Control.Width, Control.Height, 2);
+          FindOrAddButtonText( Control.Width, Control.Height, 2);
 
           ParamLinkNode := Doc.CreateElement('g');
           GModuleNode.AppendChild(ParamLinkNode);
@@ -1864,7 +1900,7 @@ var Control : TG2GraphChildControl;
           TDOMElement(ParamLinkNode).SetAttribute('nmg2.InfoFunc', IntTostr(Control.Parameter.InfoFunctionIndex));
           TDOMElement(ParamLinkNode).SetAttribute('nmg2.CtrlType', 'btnText');
 
-          UseNode := CreateUse( ParamLinkNode, control_id, GetIDBtnText( idBtnText + '_up', Control.Width, Control.Height, 2), Control.Left, Control.Top);
+          UseNode := CreateUse( ParamLinkNode, control_id, GetIDBtnText( idBtnText {+ '_up'}, Control.Width, Control.Height, 2), Control.Left, Control.Top);
 
           for m := 0 to (Control as TG2GraphButton).ImageList.Count - 1 do begin
             symbol_id := AddSymbolFromBitmap( (Control as TG2GraphButton).ImageList.Items[m]);
@@ -2013,17 +2049,17 @@ var Control : TG2GraphChildControl;
             CreateUse( ParamLinkNode, control_id + '_el_2', idBtnIncDecVert, Control.Left, Control.Top + 46);
           end else begin
             case (Control as TG2GraphKnob).KnobType of
-              ktBig : 
+              ktBig :
                 begin
               	  ref_id := idKnobBig;
                   TDOMElement(ParamLinkNode).SetAttribute('nmg2.CtrlStyle', 'big');
-              	end;  
-              ktMedium : 
-                begin 
+              	end;
+              ktMedium :
+                begin
                   ref_id := idKnobMedium;
                   TDOMElement(ParamLinkNode).SetAttribute('nmg2.CtrlStyle', 'medium');
-                end;  
-              ktResetMedium : 
+                end;
+              ktResetMedium :
                 begin
                   ref_id := idKnobResetMedium;
                   TDOMElement(ParamLinkNode).SetAttribute('nmg2.CtrlStyle', 'resetMedium');
@@ -2155,17 +2191,18 @@ begin
     minivu_section := 200;
     buttontext_up_section := 250;
     buttontext_down_section := 300;
-    buttonflat_section := 350;
-    btnradioup_section := 400;
-    btnradiodown_section := 450;
-    textfield_section := 500;
-    btnIncDec_section := 550;
-    levelshift_section := 600;
-    partsel_section := 650;
-    graph_section := 700;
-    connector_section := 750;
-    btnflatoptions_section := 800;
-    partseloptions_section := 900;
+    buttontext_section := 350;
+    buttonflat_section := 400;
+    btnradioup_section := 450;
+    btnradiodown_section := 500;
+    textfield_section := 550;
+    btnIncDec_section := 600;
+    levelshift_section := 650;
+    partsel_section := 700;
+    graph_section := 750;
+    connector_section := 800;
+    btnflatoptions_section := 850;
+    partseloptions_section := 1000;
     module_section := 1100;
     uipanel_section := module_section + 3500;
 
@@ -2290,6 +2327,7 @@ begin
 
     GButtonTextUpSectionNode := CreateSection( GMainNode, 'btnTextUpSection', buttontext_up_section, 'Button text up section');
     GButtonTextDownSectionNode := CreateSection( GMainNode, 'btnTextDownSection', buttontext_down_section, 'Button text down section');
+    GButtonTextSectionNode := CreateSection( GMainNode, 'btnTextSection', buttontext_section, 'Button text section');
     btc := btc + 200;
 
     GButtonFlatSectionNode := CreateSection( GMainNode, 'btnFlatSection', buttonflat_section, 'Button flat section');

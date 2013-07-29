@@ -84,7 +84,6 @@
 			<BCC_SourceDebuggingOn>true</BCC_SourceDebuggingOn>
 			<ILINK_FullDebugInfo>true</ILINK_FullDebugInfo>
 			<DCC_ExeOutput>..\..\v0.25</DCC_ExeOutput>
-			<DCC_UnitSearchPath>C:\Users\Bruno\Delphi\SVG\NativeXML;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
 			<VerInfo_Locale>1033</VerInfo_Locale>
 			<VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
 			<DCC_RemoteDebug>false</DCC_RemoteDebug>
@@ -108,13 +107,11 @@
 			<DCCReference Include="..\UnitG2EditorFMX.pas">
 				<Form>frmSVGTest</Form>
 			</DCCReference>
-			<DCCReference Include="..\..\..\SVG\SVGControl.pas"/>
 			<DCCReference Include="..\..\Source\Third_party_code\FPC_XML\dom.pas"/>
 			<DCCReference Include="..\..\Source\Third_party_code\FPC_XML\uriparser.pas"/>
 			<DCCReference Include="..\..\Source\Third_party_code\FPC_XML\xmlread.pas"/>
 			<DCCReference Include="..\..\Source\Third_party_code\FPC_XML\xmlutils.pas"/>
 			<DCCReference Include="..\..\Source\Third_party_code\FPC_XML\xmlwrite.pas"/>
-			<DCCReference Include="..\..\..\SVG\CSSUtility.pas"/>
 			<DCCReference Include="..\..\Source\Common\g2_types.pas"/>
 			<DCCReference Include="..\..\Source\Common\g2_database.pas"/>
 			<DCCReference Include="..\..\Source\Common\g2_file.pas"/>
@@ -122,8 +119,9 @@
 			<DCCReference Include="..\..\Source\Common\G2_USB.pas"/>
 			<DCCReference Include="..\..\Source\Common\LibUSBWinDyn.pas"/>
 			<DCCReference Include="..\g2_graph_FMX.pas"/>
-			<DCCReference Include="..\..\..\SVG\SVGXMLWrapperFPC.pas"/>
-			<DCCReference Include="..\..\..\SVG\SVGXMLWrapperNativeXML.pas"/>
+			<DCCReference Include="..\..\..\SVG\BVE.SVGControl.pas"/>
+			<DCCReference Include="..\..\..\SVG\BVE.CSSUtility.pas"/>
+			<DCCReference Include="..\..\..\SVG\BVE.SVGXMLWrapperDelphi.pas"/>
 			<None Include="Profiling\AQtimeModule1.aqt"/>
 			<BuildConfiguration Include="Release">
 				<Key>Cfg_2</Key>

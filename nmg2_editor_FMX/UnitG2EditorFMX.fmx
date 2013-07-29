@@ -214,4 +214,23 @@ object frmSVGTest: TfrmSVGTest
     Left = 576
     Top = 48
   end
+  object XMLDocument1: TXMLDocument
+    FileName = 'C:\Users\Bruno\Delphi\nmg2editor\v0.25\skin\g2_graphics.svg'
+    ParseOptions = [poPreserveWhiteSpace]
+    Left = 440
+    Top = 104
+    DOMVendorDesc = 'MSXML'
+  end
+  object SVGDelphiXMLDoc1: TSVGDelphiXMLDoc
+    Active = False
+    XMLDoc = XMLDocument1
+    Left = 544
+    Top = 104
+  end
+  object SVGAgent1: TSVGAgent
+    SVGDoc = SVGDelphiXMLDoc1
+    DPI = 90.000000000000000000
+    Left = 640
+    Top = 104
+  end
 end

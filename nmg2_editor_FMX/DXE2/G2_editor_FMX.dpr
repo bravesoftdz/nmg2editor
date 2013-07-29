@@ -4,13 +4,11 @@ uses
   FMX.Forms,
   FMX.Types,
   UnitG2EditorFMX in '..\UnitG2EditorFMX.pas' {frmSVGTest},
-  SVGControl in '..\..\..\SVG\SVGControl.pas',
   dom in '..\..\Source\Third_party_code\FPC_XML\dom.pas',
   uriparser in '..\..\Source\Third_party_code\FPC_XML\uriparser.pas',
   xmlread in '..\..\Source\Third_party_code\FPC_XML\xmlread.pas',
   xmlutils in '..\..\Source\Third_party_code\FPC_XML\xmlutils.pas',
   xmlwrite in '..\..\Source\Third_party_code\FPC_XML\xmlwrite.pas',
-  CSSUtility in '..\..\..\SVG\CSSUtility.pas',
   g2_types in '..\..\Source\Common\g2_types.pas',
   g2_database in '..\..\Source\Common\g2_database.pas',
   g2_file in '..\..\Source\Common\g2_file.pas',
@@ -18,8 +16,9 @@ uses
   G2_USB in '..\..\Source\Common\G2_USB.pas',
   LibUSBWinDyn in '..\..\Source\Common\LibUSBWinDyn.pas',
   g2_graph_FMX in '..\g2_graph_FMX.pas',
-  SVGXMLWrapperFPC in '..\..\..\SVG\SVGXMLWrapperFPC.pas',
-  SVGXMLWrapperNativeXML in '..\..\..\SVG\SVGXMLWrapperNativeXML.pas';
+  BVE.SVGControl in '..\..\..\SVG\BVE.SVGControl.pas',
+  BVE.CSSUtility in '..\..\..\SVG\BVE.CSSUtility.pas',
+  BVE.SVGXMLWrapperDelphi in '..\..\..\SVG\BVE.SVGXMLWrapperDelphi.pas';
 
 {$R *.res}
 

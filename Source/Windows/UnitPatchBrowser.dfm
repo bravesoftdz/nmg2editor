@@ -84,6 +84,7 @@ object frmPatchBrowser: TfrmPatchBrowser
       OnCompare = lvExternalCompare
       OnDblClick = aLoadPatchExecute
       OnKeyDown = lvExternalPatchKeyDown
+      OnMouseDown = lvExternalPatchMouseDown
     end
     object lvExternalPerf: DListView
       Left = 16

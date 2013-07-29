@@ -26,8 +26,9 @@ uses
   System.SysUtils, System.Types, System.UITypes, System.Classes,
   System.Variants, System.Contnrs,
   FMX.Types, FMX.Controls, FMX.Forms, FMX.Dialogs, FMX.Objects, FMX.Layouts,
-  FMX.Memo, FMX.Ani, FMX.Edit, FMX.Effects, SVGControl,
-  g2_types, g2_file, g2_usb, g2_graph_FMX, FMX.Menus;
+  FMX.Memo, FMX.Ani, FMX.Edit, FMX.Effects, BVE.SVGControl,
+  g2_types, g2_file, g2_usb, g2_graph_FMX, FMX.Menus, Xml.xmldom, Xml.XMLIntf,
+  BVE.SVGXMLWrapperDelphi, Xml.Win.msxmldom, Xml.XMLDoc;
 
 type
   TSVGSelection = class(TLayout)
@@ -76,6 +77,9 @@ type
     Button3: TButton;
     Label4: TLabel;
     eMemory: TEdit;
+    XMLDocument1: TXMLDocument;
+    SVGDelphiXMLDoc1: TSVGDelphiXMLDoc;
+    SVGAgent1: TSVGAgent;
     procedure FormCreate(Sender: TObject);
     procedure tbZoomChange(Sender: TObject);
     procedure sbClick(Sender: TObject);
@@ -188,7 +192,7 @@ begin
   FormatSettings.DecimalSeparator := '.';
   FZoom := tbZoom.Value;
 
-  SVGAgent := TG2SVGAgent.Create;
+  //SVGAgent := TG2SVGAgent.Create;
 
   FSVGSelection := TSVGSelection.Create(self);
   FSVGSelection.Parent := FModuleBitmapBuffer;
@@ -224,7 +228,7 @@ end;
 procedure TfrmSVGTest.FormDestroy(Sender: TObject);
 begin
   FG2.Free;
-  SVGAgent.Free;
+  //SVGAgent.Free;
 end;
 
 procedure TfrmSVGTest.ApplicationIdle(Sender: TObject; var Done: Boolean);
@@ -411,7 +415,9 @@ end;
 
 procedure TfrmSVGTest.LoadSkin;
 begin
-  SVGAgent.LoadSkin( 'skin\g2_graphics.svg');
+  g2_graph_FMX.SVGAgent := SVGAgent1;
+  SVGDelphiXMLDoc1.Active := True;
+  //SVGAgent.LoadSkin( 'skin\g2_graphics.svg');
   CalcLayoutDimensions;
 end;
 

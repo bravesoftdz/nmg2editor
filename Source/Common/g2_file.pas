@@ -1127,7 +1127,7 @@ type
 
   // Interface class between file and application
 
-  TG2FileParameter = class
+  TG2FileParameter = class(TComponent)
   private
     FPatch             : TG2FilePatch;
     FModule            : TG2FileModule;
@@ -6775,7 +6775,7 @@ end;
 
 constructor TG2FileParameter.Create( aPatch : TG2FilePatch; aLocation : TLocationType; aModuleIndex : integer; aModule : TG2FileModule);
 begin
-  inherited Create;
+  inherited Create(nil);
 
   FPatch := aPatch;
   FLocation := aLocation;

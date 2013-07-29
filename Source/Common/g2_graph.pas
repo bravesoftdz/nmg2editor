@@ -4341,17 +4341,15 @@ begin
   Rect2 := Rect;
 
   i := 0;
-  // I don't know what levels green/yellow/red correspond to, I've just
-  // taken an arbitrary value here
-  while (i <= Height) and (i <= (Height * Flevel) div 16) do begin
+  while (i <= Height) and (i <= FLevel{(Height * Flevel) div 16}) do begin
 
     Rect2.Top := Rect.Bottom - i - 1;
     Rect2.Bottom := Rect.Bottom - i;
 
-    if i >= level_yellow then
+    if i > level_yellow then
       ExtCanvas.Brush.Color := clRed
     else
-      if i >= level_green then
+      if i > level_green then
         ExtCanvas.Brush.Color := clYellow
       else
         ExtCanvas.Brush.Color := clLime;
@@ -4413,7 +4411,13 @@ end;
 
 procedure TG2GraphMiniVU.SetLevel(aValue: byte);
 begin
-  FLevel := aValue;
+  // -40dB 0dB Green  aValue 0..7
+  // 0dB 11dB Yellow         9..41/42
+  //     >11dB Red           75/76
+  if aValue = 0 then
+    FLevel := 0
+  else
+    FLevel := round(FMiniVUHeight*system.math.log10(aValue)*0.5); // Something like this...
   Update;
 end;
 
@@ -4504,6 +4508,9 @@ var Rect, LineRect : TRect;
     i : integer;
     LineHeight : integer;
     BitMap : TBitmap;
+    OrgBrush : TBrush;
+    OrgPen : TPen;
+    OrgFont : TFont;
 begin
   if not Visible then
     exit;
@@ -4515,8 +4522,16 @@ begin
   else
     LineHeight := (ClientRect.Bottom - ClientRect.Top);
 
+  OrgBrush := TBrush.Create;
+  OrgPen := TPen.Create;
+  OrgFont := TFont.Create;
+
   Bitmap := TBitmap.Create;
   try
+    OrgBrush.Assign(ExtCanvas.Brush);
+    OrgPen.Assign(ExtCanvas.Pen);
+    OrgFont.Assign(ExtCanvas.Font);
+
     Bitmap.Pixelformat := pf24bit;
     Bitmap.Width := Rect.Right - Rect.Left + 1;
     Bitmap.Height := Rect.Bottom - Rect.Top + 1;
@@ -4556,6 +4571,12 @@ begin
     ExtCanvas.Draw( Rect.Left, Rect.Top, Bitmap);
   finally
     Bitmap.Free;
+    ExtCanvas.Brush.Assign(OrgBrush);
+    ExtCanvas.Pen.Assign(OrgPen);
+    ExtCanvas.Font.Assign(OrgFont);
+    OrgBrush.Free;
+    OrgPen.Free;
+    OrgFont.Free;
   end;
 end;
 
@@ -4757,46 +4778,64 @@ end;
 procedure TG2GraphButton.PaintOn( ExtCanvas : TCanvas; ExtBoundsRect : TRect);
 var Rect, Rect2 : TRect;
     MidiEditorAssignment : TMidiEditorAssignment;
+    OrgBrush : TBrush;
+    OrgPen : TPen;
+    OrgFont : TFont;
 begin
   inherited;
 
-  //if FHide  then
-  //  exit;
+  OrgBrush := TBrush.Create;
+  OrgPen := TPen.Create;
+  OrgFont := TFont.Create;
+  try
+    OrgBrush.Assign(ExtCanvas.Brush);
+    OrgPen.Assign(ExtCanvas.Pen);
+    OrgFont.Assign(ExtCanvas.Font);
+    //if FHide  then
+    //  exit;
 
-  //AddLogLine('Paint button');
+    //AddLogLine('Paint button');
 
-  Rect := SubRect( GetRelToParentRect, ExtBoundsRect);
+    Rect := SubRect( GetRelToParentRect, ExtBoundsRect);
 
-  ExtCanvas.Brush.Color := Color;//clBtnFace;
-  ExtCanvas.FillRect( Rect);
+    ExtCanvas.Brush.Color := Color;//clBtnFace;
+    ExtCanvas.FillRect( Rect);
 
-  if FImageList.Count = 0 then begin
-    ExtCanvas.Font.Assign( Font);
-    TextCenter( ExtCanvas, Rect, '');
-  end else begin
-    Rect2 := Rect;
-    ShrinkRect( Rect2, 4);
-    SquareRect( Rect2);
-    ExtCanvas.Brush.Color := clBlack;
-    DrawIcon( ExtCanvas, Rect2, Rect, FIcon);
-  end;
+    if FImageList.Count = 0 then begin
+      ExtCanvas.Font.Assign( Font);
+      TextCenter( ExtCanvas, Rect, '');
+    end else begin
+      Rect2 := Rect;
+      ShrinkRect( Rect2, 4);
+      SquareRect( Rect2);
+      ExtCanvas.Brush.Color := clBlack;
+      DrawIcon( ExtCanvas, Rect2, Rect, FIcon);
+    end;
 
-  if Selected then
-    ExtCanvas.Brush.Color := CL_SELECTED_PARAM
-  else
-    ExtCanvas.Brush.Color := Color;
-
-  if FPressed then
-    DrawBevel( ExtCanvas, Rect, bvNone)
-  else
-    DrawBevel( ExtCanvas, Rect, bvRaised);
-
-  if MidiAware and ShowMidiBox then begin
-    if assigned(FMidiEditorAssignmentList) then
-      MidiEditorAssignment := FMidiEditorAssignmentList.FindControl(self)
+    if Selected then
+      ExtCanvas.Brush.Color := CL_SELECTED_PARAM
     else
-      MidiEditorAssignment := nil;
-    DrawMidiAwareBox( ExtCanvas, MakeRect( Rect.Left, Rect.Top, 16, 8), MidiEditorAssignment);
+      ExtCanvas.Brush.Color := Color;
+
+    if FPressed then
+      DrawBevel( ExtCanvas, Rect, bvNone)
+    else
+      DrawBevel( ExtCanvas, Rect, bvRaised);
+
+    if MidiAware and ShowMidiBox then begin
+      if assigned(FMidiEditorAssignmentList) then
+        MidiEditorAssignment := FMidiEditorAssignmentList.FindControl(self)
+      else
+        MidiEditorAssignment := nil;
+      DrawMidiAwareBox( ExtCanvas, MakeRect( Rect.Left, Rect.Top, 16, 8), MidiEditorAssignment);
+    end;
+  finally
+    ExtCanvas.Brush.Assign(OrgBrush);
+    ExtCanvas.Pen.Assign(OrgPen);
+    ExtCanvas.Font.Assign(OrgFont);
+    OrgBrush.Free;
+    OrgPen.Free;
+    OrgFont.Free;
   end;
 end;
 
@@ -4969,11 +5008,19 @@ end;
 procedure TG2GraphButtonText.PaintOn( ExtCanvas : TCanvas; ExtBoundsRect : TRect);
 var Rect, IconRect : TRect;
     LabelText : string;
-    OldBrushColor : TColor;
     MidiEditorAssignment : TMidiEditorAssignment;
+    OrgBrush : TBrush;
+    OrgPen : TPen;
+    OrgFont : TFont;
 begin
-  OldBrushColor := ExtCanvas.Brush.Color;
+  OrgBrush := TBrush.Create;
+  OrgPen := TPen.Create;
+  OrgFont := TFont.Create;
   try
+    OrgBrush.Assign(ExtCanvas.Brush);
+    OrgPen.Assign(ExtCanvas.Pen);
+    OrgFont.Assign(ExtCanvas.Font);
+
     Rect := SubRect( GetRelToParentRect, ExtBoundsRect);
 
     ExtCanvas.Font.Assign( Font);
@@ -5037,7 +5084,12 @@ begin
     end;
 
   finally
-    ExtCanvas.Brush.Color := OldBrushColor;
+    ExtCanvas.Brush.Assign(OrgBrush);
+    ExtCanvas.Pen.Assign(OrgPen);
+    ExtCanvas.Font.Assign(OrgFont);
+    OrgBrush.Free;
+    OrgPen.Free;
+    OrgFont.Free;
   end;
 end;
 
@@ -5149,54 +5201,73 @@ procedure TG2GraphButtonFlat.PaintOn( ExtCanvas : TCanvas; ExtBoundsRect : TRect
 var Rect : TRect;
     LabelText : string;
     MidiEditorAssignment : TMidiEditorAssignment;
+    OrgBrush : TBrush;
+    OrgPen : TPen;
+    OrgFont : TFont;
 begin
   //AddLogLine('Paint button flat');
 
   inherited;
 
-  Rect := SubRect( GetRelToParentRect, ExtBoundsRect);
+  OrgBrush := TBrush.Create;
+  OrgPen := TPen.Create;
+  OrgFont := TFont.Create;
+  try
+    OrgBrush.Assign(ExtCanvas.Brush);
+    OrgPen.Assign(ExtCanvas.Pen);
+    OrgFont.Assign(ExtCanvas.Font);
 
-  ExtCanvas.Font.Assign( Font);
+    Rect := SubRect( GetRelToParentRect, ExtBoundsRect);
 
-  ExtCanvas.Brush.Color := CL_BTN_FACE;
-  ExtCanvas.FillRect(Rect);
+    ExtCanvas.Font.Assign( Font);
 
-  {if Value < FButtonText.Count then begin
-    TextCenter( ExtCanvas, Rect, FButtonText[Value])
-  end else
-    if Value < FImageList.Count then begin
+    ExtCanvas.Brush.Color := CL_BTN_FACE;
+    ExtCanvas.FillRect(Rect);
+
+    {if Value < FButtonText.Count then begin
+      TextCenter( ExtCanvas, Rect, FButtonText[Value])
+    end else
+      if Value < FImageList.Count then begin
+        DrawCenter( ExtCanvas, Rect, FImageList.Items[Value])
+      end;}
+
+    if (FImageList.Count > 0) and (Value < FImageList.Count) then begin
       DrawCenter( ExtCanvas, Rect, FImageList.Items[Value])
-    end;}
+    end else begin
+      LabelText := '';
+      if assigned(Parameter) then
+        LabelText := Parameter.SelectedButtonText
+      else
+        if Value < FButtonText.Count then
+          LabelText := FButtonText[Value];
 
-  if (FImageList.Count > 0) and (Value < FImageList.Count) then begin
-    DrawCenter( ExtCanvas, Rect, FImageList.Items[Value])
-  end else begin
-    LabelText := '';
-    if assigned(Parameter) then
-      LabelText := Parameter.SelectedButtonText
+      if assigned(Parameter) and (LabelText = '') then
+        LabelText := Parameter.InfoFunction( Parameter.InfoFunctionIndex);
+
+      TextCenter( ExtCanvas, Rect, LabelText)
+    end;
+
+    if Selected then
+      ExtCanvas.Pen.Color := CL_SELECTED_PARAM
     else
-      if Value < FButtonText.Count then
-        LabelText := FButtonText[Value];
+      ExtCanvas.Pen.Color := CL_BTN_BORDER;
 
-    if assigned(Parameter) and (LabelText = '') then
-      LabelText := Parameter.InfoFunction( Parameter.InfoFunctionIndex);
+    DrawRect( ExtCanvas, Rect);
 
-    TextCenter( ExtCanvas, Rect, LabelText)
-  end;
-
-  if Selected then
-    ExtCanvas.Pen.Color := CL_SELECTED_PARAM
-  else
-    ExtCanvas.Pen.Color := CL_BTN_BORDER;
-
-  DrawRect( ExtCanvas, Rect);
-
-  if MidiAware and ShowMidiBox then begin
-    if assigned(FMidiEditorAssignmentList) then
-      MidiEditorAssignment := FMidiEditorAssignmentList.FindControl(self)
-    else
-      MidiEditorAssignment := nil;
-    DrawMidiAwareBox( ExtCanvas, MakeRect( Rect.Left, Rect.Top, 16, 8), MidiEditorAssignment);
+    if MidiAware and ShowMidiBox then begin
+      if assigned(FMidiEditorAssignmentList) then
+        MidiEditorAssignment := FMidiEditorAssignmentList.FindControl(self)
+      else
+        MidiEditorAssignment := nil;
+      DrawMidiAwareBox( ExtCanvas, MakeRect( Rect.Left, Rect.Top, 16, 8), MidiEditorAssignment);
+    end;
+  finally
+    ExtCanvas.Brush.Assign(OrgBrush);
+    ExtCanvas.Pen.Assign(OrgPen);
+    ExtCanvas.Font.Assign(OrgFont);
+    OrgBrush.Free;
+    OrgPen.Free;
+    OrgFont.Free;
   end;
 end;
 
@@ -5271,129 +5342,147 @@ var Rect, RectTop, RectBottom : TRect;
     HorzCenter, VertCenter: integer;
     P1, P2 : TPoint;
     MidiEditorAssignment : TMidiEditorAssignment;
-
+    OrgBrush : TBrush;
+    OrgPen : TPen;
+    OrgFont : TFont;
 begin
   inherited;
 
-  Rect := SubRect( GetRelToParentRect, ExtBoundsRect);
+  OrgBrush := TBrush.Create;
+  OrgPen := TPen.Create;
+  OrgFont := TFont.Create;
+  try
+    OrgBrush.Assign(ExtCanvas.Brush);
+    OrgPen.Assign(ExtCanvas.Pen);
+    OrgFont.Assign(ExtCanvas.Font);
 
-  ExtCanvas.Font.Assign( Font);
+    Rect := SubRect( GetRelToParentRect, ExtBoundsRect);
 
-  ExtCanvas.Brush.Color := CL_BTN_FACE;
-  ExtCanvas.FillRect(Rect);
+    ExtCanvas.Font.Assign( Font);
 
-  HorzCenter := (Rect.Right + Rect.Left) div 2;
-  VertCenter := (Rect.Top + Rect.Bottom) div 2;
+    ExtCanvas.Brush.Color := CL_BTN_FACE;
+    ExtCanvas.FillRect(Rect);
 
-  RectTop.Top  := Rect.Top;
-  RectTop.Left := HorzCenter - 4;
-  RectTop.Right := HorzCenter + 5;
-  RectTop.Bottom := VertCenter;
+    HorzCenter := (Rect.Right + Rect.Left) div 2;
+    VertCenter := (Rect.Top + Rect.Bottom) div 2;
 
-  RectBottom.Top  := VertCenter;
-  RectBottom.Left := HorzCenter - 4;
-  RectBottom.Right := HorzCenter + 5;
-  RectBottom.Bottom := Rect.Bottom;
+    RectTop.Top  := Rect.Top;
+    RectTop.Left := HorzCenter - 4;
+    RectTop.Right := HorzCenter + 5;
+    RectTop.Bottom := VertCenter;
 
-  ExtCanvas.Pen.Color := clBlack;
-  case Value of
-  0 : begin
-        ExtCanvas.Brush.Color := clLime;
-        ExtCanvas.FillRect(RectTop);
-        ExtCanvas.Brush.Color := CL_BTN_FACE;
-        ExtCanvas.FillRect(RectBottom);
-        P1.X := HorzCenter; P1.Y := RectTop.Top + 1;
-        P2.X := HorzCenter; P2.Y := RectTop.Bottom;
-        ExtCanvas.Brush.Color := clBlack;
-        DrawArrowHead( P1, 2, 0, ExtCanvas);
-        ExtCanvas.MoveTo(P1.X, P1.Y);
-        ExtCanvas.LineTo(P2.X, P2.Y);
-      end;
-  1 : begin
-        ExtCanvas.Brush.Color := clLime;
-        ExtCanvas.FillRect(RectTop);
-        ExtCanvas.Brush.Color := CL_BTN_FACE;
-        ExtCanvas.FillRect(RectBottom);
-        P1.X := HorzCenter; P1.Y := RectTop.Bottom - 1;
-        P2.X := HorzCenter; P2.Y := RectTop.Top;
-        ExtCanvas.Brush.Color := clBlack;
-        DrawArrowHead( P1, 2, 1, ExtCanvas);
-        ExtCanvas.MoveTo(P1.X, P1.Y);
-        ExtCanvas.LineTo(P2.X, P2.Y);
-      end;
-  2 : begin
-        ExtCanvas.Brush.Color :=CL_BTN_FACE;
-        ExtCanvas.FillRect(RectTop);
-        ExtCanvas.Brush.Color := clLime;
-        ExtCanvas.FillRect(RectBottom);
-        P1.X := HorzCenter; P1.Y := RectBottom.Top;
-        P2.X := HorzCenter; P2.Y := RectBottom.Bottom - 1;
-        ExtCanvas.Brush.Color := clBlack;
-        DrawArrowHead( P1, 2, 0, ExtCanvas);
-        ExtCanvas.MoveTo(P1.X, P1.Y);
-        ExtCanvas.LineTo(P2.X, P2.Y);
-      end;
-  3 : begin
-        ExtCanvas.Brush.Color := CL_BTN_FACE;
-        ExtCanvas.FillRect(RectTop);
-        ExtCanvas.Brush.Color := clLime;
-        ExtCanvas.FillRect(RectBottom);
-        P1.X := HorzCenter; P1.Y := RectBottom.Bottom - 2;
-        P2.X := HorzCenter; P2.Y := RectBottom.Top - 1;
-        ExtCanvas.Brush.Color := clBlack;
-        DrawArrowHead( P1, 2, 1, ExtCanvas);
-        ExtCanvas.MoveTo(P1.X, P1.Y);
-        ExtCanvas.LineTo(P2.X, P2.Y);
-      end;
-  4 : begin
-        ExtCanvas.Brush.Color := clLime;
-        ExtCanvas.FillRect(RectTop);
-        ExtCanvas.Brush.Color := clLime;
-        ExtCanvas.FillRect(RectBottom);
-        P1.X := HorzCenter; P1.Y := RectTop.Top + 1;
-        P2.X := HorzCenter; P2.Y := RectBottom.Bottom - 2;
-        ExtCanvas.Brush.Color := clBlack;
-        DrawArrowHead( P1, 2, 0, ExtCanvas);
-        ExtCanvas.MoveTo(P1.X, P1.Y);
-        ExtCanvas.LineTo(P2.X, P2.Y);
-        ExtCanvas.Pen.Color := CL_BTN_FACE;
-        P1.X := Rect.Left; P1.Y := VertCenter;
-        P2.X := Rect.Right; P2.Y := VertCenter;
-        ExtCanvas.MoveTo(P1.X, P1.Y);
-        ExtCanvas.LineTo(P2.X, P2.Y);
-      end;
-  5 : begin
-        ExtCanvas.Brush.Color := clLime;
-        ExtCanvas.FillRect(RectTop);
-        ExtCanvas.Brush.Color := clLime;
-        ExtCanvas.FillRect(RectBottom);
-        P1.X := HorzCenter; P1.Y := RectBottom.Bottom - 2;
-        P2.X := HorzCenter; P2.Y := RectTop.Top + 1;
-        ExtCanvas.Brush.Color := clBlack;
-        DrawArrowHead( P1, 2, 1, ExtCanvas);
-        ExtCanvas.MoveTo(P1.X, P1.Y);
-        ExtCanvas.LineTo(P2.X, P2.Y);
-        ExtCanvas.Pen.Color := CL_BTN_FACE;
-        P1.X := Rect.Left; P1.Y := VertCenter - 1;
-        P2.X := Rect.Right; P2.Y := VertCenter - 1;
-        ExtCanvas.MoveTo(P1.X, P1.Y);
-        ExtCanvas.LineTo(P2.X, P2.Y);
-      end;
-  end;
+    RectBottom.Top  := VertCenter;
+    RectBottom.Left := HorzCenter - 4;
+    RectBottom.Right := HorzCenter + 5;
+    RectBottom.Bottom := Rect.Bottom;
 
-  if Selected then
-    ExtCanvas.Pen.Color := CL_SELECTED_PARAM
-  else
-    ExtCanvas.Pen.Color := CL_BTN_BORDER;
+    ExtCanvas.Pen.Color := clBlack;
+    case Value of
+    0 : begin
+          ExtCanvas.Brush.Color := clLime;
+          ExtCanvas.FillRect(RectTop);
+          ExtCanvas.Brush.Color := CL_BTN_FACE;
+          ExtCanvas.FillRect(RectBottom);
+          P1.X := HorzCenter; P1.Y := RectTop.Top + 1;
+          P2.X := HorzCenter; P2.Y := RectTop.Bottom;
+          ExtCanvas.Brush.Color := clBlack;
+          DrawArrowHead( P1, 2, 0, ExtCanvas);
+          ExtCanvas.MoveTo(P1.X, P1.Y);
+          ExtCanvas.LineTo(P2.X, P2.Y);
+        end;
+    1 : begin
+          ExtCanvas.Brush.Color := clLime;
+          ExtCanvas.FillRect(RectTop);
+          ExtCanvas.Brush.Color := CL_BTN_FACE;
+          ExtCanvas.FillRect(RectBottom);
+          P1.X := HorzCenter; P1.Y := RectTop.Bottom - 1;
+          P2.X := HorzCenter; P2.Y := RectTop.Top;
+          ExtCanvas.Brush.Color := clBlack;
+          DrawArrowHead( P1, 2, 1, ExtCanvas);
+          ExtCanvas.MoveTo(P1.X, P1.Y);
+          ExtCanvas.LineTo(P2.X, P2.Y);
+        end;
+    2 : begin
+          ExtCanvas.Brush.Color :=CL_BTN_FACE;
+          ExtCanvas.FillRect(RectTop);
+          ExtCanvas.Brush.Color := clLime;
+          ExtCanvas.FillRect(RectBottom);
+          P1.X := HorzCenter; P1.Y := RectBottom.Top;
+          P2.X := HorzCenter; P2.Y := RectBottom.Bottom - 1;
+          ExtCanvas.Brush.Color := clBlack;
+          DrawArrowHead( P1, 2, 0, ExtCanvas);
+          ExtCanvas.MoveTo(P1.X, P1.Y);
+          ExtCanvas.LineTo(P2.X, P2.Y);
+        end;
+    3 : begin
+          ExtCanvas.Brush.Color := CL_BTN_FACE;
+          ExtCanvas.FillRect(RectTop);
+          ExtCanvas.Brush.Color := clLime;
+          ExtCanvas.FillRect(RectBottom);
+          P1.X := HorzCenter; P1.Y := RectBottom.Bottom - 2;
+          P2.X := HorzCenter; P2.Y := RectBottom.Top - 1;
+          ExtCanvas.Brush.Color := clBlack;
+          DrawArrowHead( P1, 2, 1, ExtCanvas);
+          ExtCanvas.MoveTo(P1.X, P1.Y);
+          ExtCanvas.LineTo(P2.X, P2.Y);
+        end;
+    4 : begin
+          ExtCanvas.Brush.Color := clLime;
+          ExtCanvas.FillRect(RectTop);
+          ExtCanvas.Brush.Color := clLime;
+          ExtCanvas.FillRect(RectBottom);
+          P1.X := HorzCenter; P1.Y := RectTop.Top + 1;
+          P2.X := HorzCenter; P2.Y := RectBottom.Bottom - 2;
+          ExtCanvas.Brush.Color := clBlack;
+          DrawArrowHead( P1, 2, 0, ExtCanvas);
+          ExtCanvas.MoveTo(P1.X, P1.Y);
+          ExtCanvas.LineTo(P2.X, P2.Y);
+          ExtCanvas.Pen.Color := CL_BTN_FACE;
+          P1.X := Rect.Left; P1.Y := VertCenter;
+          P2.X := Rect.Right; P2.Y := VertCenter;
+          ExtCanvas.MoveTo(P1.X, P1.Y);
+          ExtCanvas.LineTo(P2.X, P2.Y);
+        end;
+    5 : begin
+          ExtCanvas.Brush.Color := clLime;
+          ExtCanvas.FillRect(RectTop);
+          ExtCanvas.Brush.Color := clLime;
+          ExtCanvas.FillRect(RectBottom);
+          P1.X := HorzCenter; P1.Y := RectBottom.Bottom - 2;
+          P2.X := HorzCenter; P2.Y := RectTop.Top + 1;
+          ExtCanvas.Brush.Color := clBlack;
+          DrawArrowHead( P1, 2, 1, ExtCanvas);
+          ExtCanvas.MoveTo(P1.X, P1.Y);
+          ExtCanvas.LineTo(P2.X, P2.Y);
+          ExtCanvas.Pen.Color := CL_BTN_FACE;
+          P1.X := Rect.Left; P1.Y := VertCenter - 1;
+          P2.X := Rect.Right; P2.Y := VertCenter - 1;
+          ExtCanvas.MoveTo(P1.X, P1.Y);
+          ExtCanvas.LineTo(P2.X, P2.Y);
+        end;
+    end;
 
-  DrawRect( ExtCanvas, Rect);
-
-  if MidiAware and ShowMidiBox then begin
-    if assigned(FMidiEditorAssignmentList) then
-      MidiEditorAssignment := FMidiEditorAssignmentList.FindControl(self)
+    if Selected then
+      ExtCanvas.Pen.Color := CL_SELECTED_PARAM
     else
-      MidiEditorAssignment := nil;
-    DrawMidiAwareBox( ExtCanvas, MakeRect( Rect.Left, Rect.Top, 16, 8), MidiEditorAssignment);
+      ExtCanvas.Pen.Color := CL_BTN_BORDER;
+
+    DrawRect( ExtCanvas, Rect);
+
+    if MidiAware and ShowMidiBox then begin
+      if assigned(FMidiEditorAssignmentList) then
+        MidiEditorAssignment := FMidiEditorAssignmentList.FindControl(self)
+      else
+        MidiEditorAssignment := nil;
+      DrawMidiAwareBox( ExtCanvas, MakeRect( Rect.Left, Rect.Top, 16, 8), MidiEditorAssignment);
+    end;
+  finally
+    ExtCanvas.Brush.Assign(OrgBrush);
+    ExtCanvas.Pen.Assign(OrgPen);
+    ExtCanvas.Font.Assign(OrgFont);
+    OrgBrush.Free;
+    OrgPen.Free;
+    OrgFont.Free;
   end;
 end;
 
@@ -5441,11 +5530,20 @@ var ExtRect, Rect : TRect;
     i : integer;
     LabelText : string;
     MidiEditorAssignment : TMidiEditorAssignment;
+    OrgBrush : TBrush;
+    OrgPen : TPen;
+    OrgFont : TFont;
 begin
   ExtRect := SubRect( GetRelToParentRect, ExtBoundsRect);
 
+  OrgBrush := TBrush.Create;
+  OrgPen := TPen.Create;
+  OrgFont := TFont.Create;
   Bitmap := TBitmap.Create;
   try
+    OrgBrush.Assign(ExtCanvas.Brush);
+    OrgPen.Assign(ExtCanvas.Pen);
+    OrgFont.Assign(ExtCanvas.Font);
 
     Bitmap.Pixelformat := pf24bit;
     Bitmap.Width := Width;
@@ -5547,6 +5645,13 @@ begin
 
   finally
     Bitmap.Free;
+
+    ExtCanvas.Brush.Assign(OrgBrush);
+    ExtCanvas.Pen.Assign(OrgPen);
+    ExtCanvas.Font.Assign(OrgFont);
+    OrgBrush.Free;
+    OrgPen.Free;
+    OrgFont.Free;
   end;
 end;
 
@@ -5727,11 +5832,20 @@ var ExtRect, Rect : TRect;
     i, r, c : integer;
     LabelText : string;
     MidiEditorAssignment : TMidiEditorAssignment;
+    OrgBrush : TBrush;
+    OrgPen : TPen;
+    OrgFont : TFont;
 begin
   ExtRect := SubRect( GetRelToParentRect, ExtBoundsRect);
 
+  OrgBrush := TBrush.Create;
+  OrgPen := TPen.Create;
+  OrgFont := TFont.Create;
   Bitmap := TBitmap.Create;
   try
+    OrgBrush.Assign(ExtCanvas.Brush);
+    OrgPen.Assign(ExtCanvas.Pen);
+    OrgFont.Assign(ExtCanvas.Font);
 
     Bitmap.Pixelformat := pf24bit;
     Bitmap.Width := Width;
@@ -5807,6 +5921,13 @@ begin
 
   finally
     Bitmap.Free;
+
+    ExtCanvas.Brush.Assign(OrgBrush);
+    ExtCanvas.Pen.Assign(OrgPen);
+    ExtCanvas.Font.Assign(OrgFont);
+    OrgBrush.Free;
+    OrgPen.Free;
+    OrgFont.Free;
   end;
 end;
 
@@ -5893,89 +6014,106 @@ procedure TG2GraphButtonIncDec.PaintOn(ExtCanvas: TCanvas; ExtBoundsRect: TRect)
 var i : integer;
     Rect, Rect2, IconRect : TRect;
     MidiEditorAssignment : TMidiEditorAssignment;
+    OrgBrush : TBrush;
+    OrgPen : TPen;
+    OrgFont : TFont;
 begin
-  inherited;
+  OrgBrush := TBrush.Create;
+  OrgPen := TPen.Create;
+  OrgFont := TFont.Create;
+  try
+    OrgBrush.Assign(ExtCanvas.Brush);
+    OrgPen.Assign(ExtCanvas.Pen);
+    OrgFont.Assign(ExtCanvas.Font);
 
-  Rect := SubRect( GetRelToParentRect, ExtBoundsRect);
+    Rect := SubRect( GetRelToParentRect, ExtBoundsRect);
 
-  Rect2.Left := 0;
-  Rect2.Top := 0;
-  Rect2.Right := FButtonWidth;
-  Rect2.Bottom := FButtonHeight;
+    Rect2.Left := 0;
+    Rect2.Top := 0;
+    Rect2.Right := FButtonWidth;
+    Rect2.Bottom := FButtonHeight;
 
-  Rect2 := AddRect( Rect2, Rect);
+    Rect2 := AddRect( Rect2, Rect);
 
-  ExtCanvas.Font.Assign( Font);
+    ExtCanvas.Font.Assign( Font);
 
-  for i := 0 to FButtonCount - 1 do begin
-    ExtCanvas.Brush.Color := Color;
-
-    ExtCanvas.FillRect( Rect2);
-
-    ExtCanvas.Brush.Color := clBlack;
-    case FOrientation of
-      otHorizontal:
-        begin;
-          with IconRect do begin
-            Left := 0;
-            Right := 4;
-            Top := 0;
-            Bottom := 2;
-          end;
-          case i of
-          0 : DrawIcon( ExtCanvas, Rect2, IconRect, itDown);
-          1 : DrawIcon( ExtCanvas, Rect2, IconRect, itUp);
-          end;
-        end;
-      otVertical:
-        begin;
-          with IconRect do begin
-            Left := 0;
-            Right := 4;
-            Top := 0;
-            Bottom := 2;
-          end;
-          case i of
-          0 : DrawIcon( ExtCanvas, Rect2, IconRect, itUp);
-          1 : DrawIcon( ExtCanvas, Rect2, IconRect, itDown);
-          end;
-        end;
-    end;
-
-    DrawRect( ExtCanvas, Rect2);
-
-    if Selected then
-      ExtCanvas.Brush.Color := CL_SELECTED_PARAM
-    else
+    for i := 0 to FButtonCount - 1 do begin
       ExtCanvas.Brush.Color := Color;
 
-    if i <> FButtonPressed then
-      DrawBevel( ExtCanvas, Rect2, bvRaised)
-    else
-      DrawBevel( ExtCanvas, Rect2, bvNone);
+      ExtCanvas.FillRect( Rect2);
 
-    if MidiAware and ShowMidiBox then begin
-      if assigned(FMidiEditorAssignmentList) then
-        MidiEditorAssignment := FMidiEditorAssignmentList.FindControlHasIndex( self, i)
+      ExtCanvas.Brush.Color := clBlack;
+      case FOrientation of
+        otHorizontal:
+          begin;
+            with IconRect do begin
+              Left := 0;
+              Right := 4;
+              Top := 0;
+              Bottom := 2;
+            end;
+            case i of
+            0 : DrawIcon( ExtCanvas, Rect2, IconRect, itDown);
+            1 : DrawIcon( ExtCanvas, Rect2, IconRect, itUp);
+            end;
+          end;
+        otVertical:
+          begin;
+            with IconRect do begin
+              Left := 0;
+              Right := 4;
+              Top := 0;
+              Bottom := 2;
+            end;
+            case i of
+            0 : DrawIcon( ExtCanvas, Rect2, IconRect, itUp);
+            1 : DrawIcon( ExtCanvas, Rect2, IconRect, itDown);
+            end;
+          end;
+      end;
+
+      DrawRect( ExtCanvas, Rect2);
+
+      if Selected then
+        ExtCanvas.Brush.Color := CL_SELECTED_PARAM
       else
-        MidiEditorAssignment := nil;
-      DrawMidiAwareBox( ExtCanvas, MakeRect( Rect2.Left, Rect2.Top, 16, 8), MidiEditorAssignment);
+        ExtCanvas.Brush.Color := Color;
+
+      if i <> FButtonPressed then
+        DrawBevel( ExtCanvas, Rect2, bvRaised)
+      else
+        DrawBevel( ExtCanvas, Rect2, bvNone);
+
+      if MidiAware and ShowMidiBox then begin
+        if assigned(FMidiEditorAssignmentList) then
+          MidiEditorAssignment := FMidiEditorAssignmentList.FindControlHasIndex( self, i)
+        else
+          MidiEditorAssignment := nil;
+        DrawMidiAwareBox( ExtCanvas, MakeRect( Rect2.Left, Rect2.Top, 16, 8), MidiEditorAssignment);
+      end;
+
+      if FOrientation = otHorizontal then begin
+        Rect2.Left := Rect2.Left + FButtonWidth;
+        Rect2.Right := Rect2.Right + FButtonWidth;
+      end else begin
+        Rect2.Top := Rect2.Top + FButtonHeight;
+        Rect2.Bottom := Rect2.Bottom + FButtonHeight;
+      end;
     end;
 
-    if FOrientation = otHorizontal then begin
-      Rect2.Left := Rect2.Left + FButtonWidth;
-      Rect2.Right := Rect2.Right + FButtonWidth;
-    end else begin
-      Rect2.Top := Rect2.Top + FButtonHeight;
-      Rect2.Bottom := Rect2.Bottom + FButtonHeight;
-    end;
+    {if (FMidiEditorAssignmentList <> nil) then begin
+      MidiEditorAssignment := FMidiEditorAssignmentList.FindControlHasCC( self);
+      if assigned(MidiEditorAssignment) then
+        DrawMidiAwareBox( ExtCanvas, MakeRect( Rect.Left, Rect.Top, 16, 8), MidiEditorAssignment);
+    end;}
+  finally
+    ExtCanvas.Brush.Assign(OrgBrush);
+    ExtCanvas.Pen.Assign(OrgPen);
+    ExtCanvas.Font.Assign(OrgFont);
+    OrgBrush.Free;
+    OrgPen.Free;
+    OrgFont.Free;
   end;
-
-  {if (FMidiEditorAssignmentList <> nil) then begin
-    MidiEditorAssignment := FMidiEditorAssignmentList.FindControlHasCC( self);
-    if assigned(MidiEditorAssignment) then
-      DrawMidiAwareBox( ExtCanvas, MakeRect( Rect.Left, Rect.Top, 16, 8), MidiEditorAssignment);
-  end;}
 end;
 
 procedure TG2GraphButtonIncDec.ParsePanelData( fs: TModuleDefStream);

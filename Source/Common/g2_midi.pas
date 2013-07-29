@@ -129,7 +129,7 @@ type
   end;
 {$ENDIF}
 
-  // Midi assignmet to editor UI control
+  // Midi assignment to editor UI control
   TMidiEditorAssignment = class
   private
     FChannel        : byte;

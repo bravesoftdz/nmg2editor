@@ -147,15 +147,16 @@ unit UnitG2Editor;
 // ===============
 
 // Added a batch buffer function
-// Added patch load calculcation (not completely accurate yet!)
-
+// Added patch load calculcation (not completely accurate yet (LFO's)!)
+// Added Enable, Hold, Keyb on slot strips
+// Added Sidepanels: Buffer, Files, Patch banks, Perf banks
+// VU levels to logarithmic scale (not 100% accurate)
 
 // Todo :
 // Move modules
 // Edit Midi assignment dialog
 // Download bank, clear rest of bank
 // Ini settings patch manager
-
 
 // Still todo:
 // Update display of dependent param in param pages
@@ -266,7 +267,8 @@ uses
 {$ENDIF}
 
   g2_types, g2_database, g2_file, g2_mess, g2_usb, g2_graph, g2_midi,
-  g2_classes, graph_util_vcl, LibUSBWinDyn, DOM, XMLRead, XMLWrite, Sidepanel;
+  g2_classes, graph_util_vcl, LibUSBWinDyn, DOM, XMLRead, XMLWrite,
+  JawsCtrls, Sidepanel;
 
 type
   TEditorSettings = class
@@ -284,6 +286,9 @@ type
     FSlot            : TG2Slot;
     FlbSlotName      : TG2GraphLabel;
     FePatchName      : TEdit;
+    FG2btEnable      : TG2GraphButtonText;
+    FG2btKeyboard    : TG2GraphButtonText;
+    FG2btHold        : TG2GraphButtonText;
     FlbVariation     : TG2GraphLabel;
     FG2btInitVar     : TG2GraphButtonText;
     FG2btEditAllVars : TG2GraphButtonText;
@@ -291,12 +296,15 @@ type
     FlbVolume        : TG2GraphLabel;
     FG2kVolume       : TG2GraphKnob;
     FG2btMute        : TG2GraphButtonText;
+    FlbVoices        : TG2GraphLabel;
     FG2dVoices       : TG2GraphDisplay;
     FG2idVoiceMode   : TG2GraphButtonIncDec;
+    FlbMem           : TG2GraphLabel;
     FG2dPatchLoadVAMem : TG2GraphDisplay;
     FG2dPatchLoadVACycles : TG2GraphDisplay;
     FG2dPatchLoadFXMem : TG2GraphDisplay;
     FG2dPatchLoadFXCycles : TG2GraphDisplay;
+    FlbCPU           : TG2GraphLabel;
     FG2kMorphArray   : array[0..7] of TG2GraphKnob;
     FG2btMorphArray  : array[0..7] of TG2GraphButtonFlat;
     FpuVariationMenu : TPopupMenu;
@@ -318,6 +326,10 @@ type
 
     procedure  UpdateControls;
     procedure  SetSlotStripColors( aSlotStripColor, aSlotStripInverseColor, aHighLightColor : TColor);
+
+    procedure EnableClick(Sender: TObject);
+    procedure KeyboardClick(Sender: TObject);
+    procedure HoldClick(Sender: TObject);
 
     property VariationMenu : TPopupMenu read FpuVariationMenu write FPuVariationMenu;
     property SlotCaption : string read GetSlotCaption write SetSlotCaption;
@@ -529,6 +541,11 @@ type
     tvFiles: TTreeView;
     SidePanel2: TSidePanel;
     lbBuffer: TListBox;
+    SidePanel3: TSidePanel;
+    tvPatchBanks: TTreeView;
+    aCreateSVGSkin: TAction;
+    N24: TMenuItem;
+    Createsvgskin1: TMenuItem;
 
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
@@ -656,6 +673,11 @@ type
     procedure SidePanel2Collapse(Sender: TObject);
     procedure SidePanel2Expand(Sender: TObject);
     procedure lbBufferDblClick(Sender: TObject);
+    procedure tvPatchBanksDblClick(Sender: TObject);
+    procedure lbBufferDragDrop(Sender, Source: TObject; X, Y: Integer);
+    procedure lbBufferDragOver(Sender, Source: TObject; X, Y: Integer;
+      State: TDragState; var Accept: Boolean);
+    procedure aCreateSVGSkinExecute(Sender: TObject);
 
   private
     { Private declarations }
@@ -756,6 +778,8 @@ type
     procedure ReadDir( aTreeView : TTreeView; aNode : TTreeNode; aPath : string);
     procedure ReadFileDir;
 
+    procedure UpdateMemoryTreeview;
+
     procedure BufferAddPatch( aFilename : string);
     procedure BufferReadDir( aPath : string);
 
@@ -854,16 +878,53 @@ begin
   FlbSlotName.Font.Style := [fsbold];
   FlbSlotName.Font.Color := G_SlotStripInverseColor;
   FlbSlotName.Caption := Caption;
-  FlbSlotName.SetBounds( 15, 8, 11, 19);
+  FlbSlotName.SetBounds( 8, 8, 11, 19);
   FlbSlotName.OnClick := frmG2Main.PanelClick;
 
   FePatchName := TEdit.Create(self);
   FePatchName.Parent := self;
-  FePatchName.SetBounds( 36, 6, 101, 21);
+  FePatchName.SetBounds( 27, 6, 101, 21);
   FePatchName.ParentColor := False;
   FePatchName.Color := clSilver;
   FePatchName.ReadOnly := True;
   FePatchName.OnClick := PatchNameClick;
+
+  FG2btEnable := TG2GraphButtonText.Create(self);
+  FG2btEnable.Parent := Self;
+  FG2btEnable.SetBounds( 136, 8, 38, 18);
+  FG2btEnable.ParentColor := False;
+  FG2btEnable.BorderColor := clBlack;
+  FG2btEnable.Color := clBtnFace;
+  FG2btEnable.HightlightColor := G_HighlightColor;
+  FG2btEnable.ButtonTextType := bttCheck;
+  FG2btEnable.ButtonText.Add('Enable');
+  FG2btEnable.ButtonText.Add('Enable');
+  FG2btEnable.OnClick := EnableClick;
+
+  FG2btKeyboard := TG2GraphButtonText.Create(self);
+  FG2btKeyboard.Parent := Self;
+  FG2btKeyboard.SetBounds( 182, 8, 30, 18);
+  FG2btKeyboard.ParentColor := False;
+  FG2btKeyboard.BorderColor := clBlack;
+  FG2btKeyboard.Color := clBtnFace;
+  FG2btKeyboard.HightlightColor := G_HighlightColor;
+  FG2btKeyboard.ButtonTextType := bttCheck;
+  FG2btKeyboard.ButtonText.Add('Keyb');
+  FG2btKeyboard.ButtonText.Add('Keyb');
+  FG2btKeyboard.OnClick := KeyboardClick;
+
+  FG2btHold := TG2GraphButtonText.Create(self);
+  FG2btHold.Parent := Self;
+  FG2btHold.SetBounds( 220, 8, 30, 18);
+  FG2btHold.ParentColor := False;
+  FG2btHold.BorderColor := clBlack;
+  FG2btHold.Color := clBtnFace;
+  FG2btHold.HightlightColor := G_HighlightColor;
+  FG2btHold.ButtonTextType := bttCheck;
+  FG2btHold.ButtonText.Add('Hold');
+  FG2btHold.ButtonText.Add('Hold');
+  FG2btHold.OnClick := HoldClick;
+
 
   FlbVariation := TG2GraphLabel.Create(self);
   FlbVariation.Parent := self;
@@ -871,12 +932,12 @@ begin
   FlbVariation.Font.Style := [fsBold];
   FlbVariation.Font.Color := G_SlotStripInverseColor;
   FlbVariation.Caption := 'Var';
-  FlbVariation.SetBounds( 145, 10, 25, 13);
+  FlbVariation.SetBounds( 256, 10, 20, 13);
   FlbVariation.OnClick := frmG2Main.PanelClick;
 
   FG2rbVariation := TG2GraphButtonRadio.Create(self);
   FG2rbVariation.Parent := self;
-  FG2rbVariation.SetBounds( 172, 7, 177, 19);
+  FG2rbVariation.SetBounds( 280, 7, 161, 19);
   FG2rbVariation.HightlightColor := G_HighlightColor;
   FG2rbVariation.Color := clActiveBorder;
   FG2rbVariation.BorderColor := clBtnShadow;
@@ -891,7 +952,7 @@ begin
 
   FG2btInitVar := TG2GraphButtonText.Create(self);
   FG2btInitVar.Parent := Self;
-  FG2btInitVar.SetBounds( 355, 8, 35, 18);
+  FG2btInitVar.SetBounds( 441, 8, 28, 18);
   FG2btInitVar.ParentColor := False;
   FG2btInitVar.BorderColor := clBlack;
   FG2btInitVar.Color := clBtnFace;
@@ -903,7 +964,7 @@ begin
 
   FG2btEditAllVars := TG2GraphButtonText.Create(self);
   FG2btEditAllVars.Parent := Self;
-  FG2btEditAllVars.SetBounds( 396, 8, 35, 18);
+  FG2btEditAllVars.SetBounds( 477, 8, 35, 18);
   FG2btEditAllVars.ParentColor := False;
   FG2btEditAllVars.BorderColor := clBlack;
   FG2btEditAllVars.Color := clBtnFace;
@@ -918,22 +979,21 @@ begin
   FlbVolume.ParentColor := True;
   FlbVolume.Font.Size := 8;
   FlbVolume.Font.Style := [fsBold];
-
   FlbVolume.Font.Color := G_SlotStripInverseColor;
   FlbVolume.Caption := 'Vol';
-  FlbVolume.SetBounds( 437, 10, 36, 13);
+  FlbVolume.SetBounds( 518, 10, 20, 13);
   FlbVolume.OnClick := frmG2Main.PanelClick;
 
   FG2kVolume := TG2GraphKnob.Create(self);
   FG2kVolume.Parent := Self;
   FG2kVolume.Orientation := otHorizontal;
   FG2kVolume.KnobType := ktSlider;
-  FG2kVolume.SetBounds( 462, 10, 123, 15);
+  FG2kVolume.SetBounds( 542, 10, 123, 15);
   FG2kVolume.OnMouseUp := frmG2Main.PatchCtrlMouseUp;
 
   FG2btMute := TG2GraphButtonText.Create(self);
   FG2btMute.Parent := Self;
-  FG2btMute.SetBounds( 589, 8, 37, 18);
+  FG2btMute.SetBounds( 665, 8, 26, 18);
   FG2btMute.ParentColor := False;
   FG2btMute.BorderColor := clBlack;
   FG2btMute.Color := clBtnFace;
@@ -945,13 +1005,13 @@ begin
 
   FG2dVoices := TG2GraphDisplay.Create(self);
   FG2dVoices.Parent := Self;
-  FG2dVoices.SetBounds( 639, 8, 45, 17);
+  FG2dVoices.SetBounds( 699, 8, 45, 17);
   FG2dVoices.Line[0] := '0';
   FG2dVoices.Color := CL_DISPLAY_BACKGRND;
 
   FG2idVoiceMode := TG2GraphButtonIncDec.Create(self);
   FG2idVoiceMode.Parent := Self;
-  FG2idVoiceMode.SetBounds( 684, 8, 28, 17);
+  FG2idVoiceMode.SetBounds( 744, 8, 28, 17);
   FG2idVoiceMode.HighValue := 32;
   FG2idVoiceMode.LowValue := 0;
   FG2idVoiceMode.Orientation := otHorizontal;
@@ -963,35 +1023,55 @@ begin
   FG2idVoiceMode.HightlightColor := G_HighlightColor;
   FG2idVoiceMode.OnChange := VoiceModeChange;
 
+  FlbCPU := TG2GraphLabel.Create(self);
+  FlbCPU.Parent := self;
+  FlbCPU.ParentColor := True;
+  FlbCPU.Font.Size := 8;
+  FlbCPU.Font.Style := [fsBold];
+  FlbCPU.Font.Color := G_SlotStripInverseColor;
+  FlbCPU.Caption := 'CPU';
+  FlbCPU.SetBounds( 780, 10, 20, 13);
+  FlbCPU.OnClick := frmG2Main.PanelClick;
+
   FG2dPatchLoadVACycles := TG2GraphDisplay.Create(self);
   FG2dPatchLoadVACycles.Parent := Self;
-  FG2dPatchLoadVACycles.SetBounds( 725, 2, 32, 12);
+  FG2dPatchLoadVACycles.SetBounds( 808, 2, 32, 12);
   FG2dPatchLoadVACycles.Line[0] := '0.0';
   FG2dPatchLoadVACycles.Color := CL_DISPLAY_BACKGRND;
 
-  FG2dPatchLoadVAMem := TG2GraphDisplay.Create(self);
-  FG2dPatchLoadVAMem.Parent := Self;
-  FG2dPatchLoadVAMem.SetBounds( 725, 17, 32, 12);
-  FG2dPatchLoadVAMem.Line[0] := '0.0';
-  FG2dPatchLoadVAMem.Color := CL_DISPLAY_BACKGRND;
-
   FG2dPatchLoadFXCycles := TG2GraphDisplay.Create(self);
   FG2dPatchLoadFXCycles.Parent := Self;
-  FG2dPatchLoadFXCycles.SetBounds( 760, 2, 32, 12);
+  FG2dPatchLoadFXCycles.SetBounds( 808, 17, 32, 12);
   FG2dPatchLoadFXCycles.Line[0] := '0.0';
   FG2dPatchLoadFXCycles.Color := CL_DISPLAY_BACKGRND;
 
+  FG2dPatchLoadVAMem := TG2GraphDisplay.Create(self);
+  FG2dPatchLoadVAMem.Parent := Self;
+  FG2dPatchLoadVAMem.SetBounds( 843, 2, 32, 12);
+  FG2dPatchLoadVAMem.Line[0] := '0.0';
+  FG2dPatchLoadVAMem.Color := CL_DISPLAY_BACKGRND;
+
   FG2dPatchLoadFXMem := TG2GraphDisplay.Create(self);
   FG2dPatchLoadFXMem.Parent := Self;
-  FG2dPatchLoadFXMem.SetBounds( 760, 17, 32, 12);
+  FG2dPatchLoadFXMem.SetBounds( 843, 17, 32, 12);
   FG2dPatchLoadFXMem.Line[0] := '0.0';
   FG2dPatchLoadFXMem.Color := CL_DISPLAY_BACKGRND;
+
+  FlbMem := TG2GraphLabel.Create(self);
+  FlbMem.Parent := self;
+  FlbMem.ParentColor := True;
+  FlbMem.Font.Size := 8;
+  FlbMem.Font.Style := [fsBold];
+  FlbMem.Font.Color := G_SlotStripInverseColor;
+  FlbMem.Caption := 'MEM';
+  FlbMem.SetBounds( 879, 10, 20, 13);
+  FlbMem.OnClick := frmG2Main.PanelClick;
 
   for i := 0 to 7 do begin
     FG2kMorphArray[i] := TG2GraphKnob.Create(self);
     FG2kMorphArray[i].Parent := Self;
     FG2kMorphArray[i].KnobType := ktExtraSmall;
-    FG2kMorphArray[i].SetBounds( 804 + i * 40 + 10, 2, 18, 18);
+    FG2kMorphArray[i].SetBounds( 915 + i * 40 + 10, 2, 18, 18);
     FG2kMorphArray[i].Tag := i;
     if i = (FSlot.Patch as TG2Patch).SelectedMorphIndex then
       FG2kMorphArray[i].Color := CL_KNOB_MORPH_SELECTED
@@ -1004,7 +1084,7 @@ begin
 
     FG2btMorphArray[i] := TG2GraphButtonFlat.Create(self);
     FG2btMorphArray[i].Parent := Self;
-    FG2btMorphArray[i].SetBounds( 804 + i * 40, 20, 38, 11);
+    FG2btMorphArray[i].SetBounds( 915 + i * 40, 20, 38, 11);
     FG2btMorphArray[i].ParentColor := False;
     FG2btMorphArray[i].Bevel := True;
     FG2btMorphArray[i].Color := clBtnFace;
@@ -1067,6 +1147,11 @@ begin
     FG2btMute.Parameter  := FSlot.Patch.Parameter[ PATCH_VOLUME, VOLUME_MUTE];
     FG2kVolume.Parameter := FSlot.Patch.Parameter[ PATCH_VOLUME, VOLUME_LEVEL];
 
+    FG2btEnable.Value := FSlot.Enabled;
+    FG2btKeyboard.Value := FSlot.Keyboard;
+    FG2btHold.Value := FSlot.Hold;
+
+
     if FSlot.AssignedVoices = 0 then
       FG2dVoices.Font.Color := clRed
     else
@@ -1098,6 +1183,9 @@ begin
   FlbVolume.Font.Color := G_SlotStripInverseColor;
   FG2btMute.HightlightColor := G_HighlightColor;
   FG2idVoiceMode.HightlightColor := G_HighlightColor;
+  //FlbVoices.Font.Color := G_SlotStripInverseColor;
+  FlbCPU.Font.Color := G_SlotStripInverseColor;
+  FlbMem.Font.Color := G_SlotStripInverseColor;
   Color := G_SlotStripColor;
   Invalidate;
 end;
@@ -1201,6 +1289,34 @@ begin
   end;
   (FSlot.Patch as TG2Patch).MessSetPatchDescription( FPatchDescription);
 end;
+
+procedure TSlotPanel.EnableClick(Sender: TObject);
+begin
+  if not(assigned(FSlot) and assigned(FSlot.Performance)) then
+    exit;
+
+  FSlot.Enabled := FG2btEnable.Value;
+  (FSlot.Performance as TG2USBPerformance).SendSetPerfSettingsMessage;
+end;
+
+procedure TSlotPanel.KeyboardClick(Sender: TObject);
+begin
+  if not(assigned(FSlot) and assigned(FSlot.Performance)) then
+    exit;
+
+  FSlot.Keyboard := FG2btKeyboard.Value;
+  (FSlot.Performance as TG2USBPerformance).SendSetPerfSettingsMessage;
+end;
+
+procedure TSlotPanel.HoldClick(Sender: TObject);
+begin
+  if not(assigned(FSlot) and assigned(FSlot.Performance)) then
+    exit;
+
+  FSlot.Hold := FG2btHold.Value;
+  (FSlot.Performance as TG2USBPerformance).SendSetPerfSettingsMessage;
+end;
+
 
 ////////////////////////////////////////////////////////////////////////////////
 //  Main app
@@ -1417,6 +1533,8 @@ begin
   SelectSlot( (FG2List[FG2Index] as TG2).SelectedSlotIndex);
 
   UpdateControls;
+  UpdateMemoryTreeview;
+
   sbVA.Invalidate;
   sbFX.Invalidate;
 end;
@@ -1425,11 +1543,20 @@ procedure TfrmG2Main.SelectBuffer(aValue: boolean);
 var G2 : TG2;
 begin
   G2 := SelectedEditG2;
+//  if assigned(G2) then begin
+//    G2.ScrollboxVA := nil;
+//    G2.ScrollboxFX := nil;
+//  end;
+
+  FBufferActive := aValue;
+
+  G2 := SelectedEditG2;
   if not assigned(G2) then
     exit;
 
   G2.ScrollboxVA := sbVA;
   G2.ScrollboxFX := sbFX;
+  SelectSlot( G2.SelectedSlotIndex);
 
   if aValue then begin
     sbVA.BackGroundColor := $00660000;
@@ -1438,8 +1565,6 @@ begin
     sbVA.BackGroundColor := $00404040;
     sbFX.BackgroundColor := $00505050;
   end;
-
-  FBufferActive := aValue;
 
   sbVA.Invalidate;
   sbFX.Invalidate;
@@ -2090,6 +2215,9 @@ begin
         FSlotPanel[i].FlbSlotName.Font.Color := G_SlotStripColor;
         FSlotPanel[i].FlbVariation.Font.Color := G_SlotStripColor;
         FSlotPanel[i].FlbVolume.Font.Color := G_SlotStripColor;
+        //FSlotPanel[i].FlbVoices.Font.Color := G_SlotStripColor;
+        FSlotPanel[i].FlbCPU.Font.Color := G_SlotStripColor;
+        FSlotPanel[i].FlbMem.Font.Color := G_SlotStripColor;
       end else begin
         if G2.Slot[i].Enabled = 1 then
           FSlotPanel[i].Color := G_SlotStripColor
@@ -2098,6 +2226,9 @@ begin
         FSlotPanel[i].FlbSlotName.Font.Color := G_SlotStripInverseColor;
         FSlotPanel[i].FlbVariation.Font.Color := G_SlotStripInverseColor;
         FSlotPanel[i].FlbVolume.Font.Color := G_SlotStripInverseColor;
+        //FSlotPanel[i].FlbVoices.Font.Color := G_SlotStripInverseColor;
+        FSlotPanel[i].FlbCPU.Font.Color := G_SlotStripInverseColor;
+        FSlotPanel[i].FlbMem.Font.Color := G_SlotStripInverseColor;
       end;
 
       FSlotPanel[i].UpdateControls;
@@ -2723,8 +2854,10 @@ begin
   end;
 end;
 
-// ==== Edit menu ==============================================================
-
+////////////////////////////////////////////////////////////////////////////////
+//  Edit menu
+////////////////////////////////////////////////////////////////////////////////
+
 procedure TfrmG2Main.aAnalyzePatchExecute(Sender: TObject);
 begin
 //
@@ -3662,6 +3795,11 @@ begin
   frmEditorTools.Show;
 end;
 
+procedure TfrmG2Main.aCreateSVGSkinExecute(Sender: TObject);
+begin
+ frmModuleDef.CreateSVG
+end;
+
 ////////////////////////////////////////////////////////////////////////////////
 //  Module menu
 ////////////////////////////////////////////////////////////////////////////////
@@ -4291,16 +4429,16 @@ begin
         Ext := Lowercase(ExtractFileExt(sr.Name));
         if Ext = '.prf2' then begin
           ChildNode := aTreeView.Items.AddChild( aNode, sr.Name);
-          ChildNode.ImageIndex := 1;
-          ChildNode.ExpandedImageIndex := 1;
-          ChildNode.SelectedIndex := 1;
+          ChildNode.ImageIndex := 2;
+          ChildNode.ExpandedImageIndex := 2;
+          ChildNode.SelectedIndex := 2;
           //ChildNode.StateIndex := 1;
         end else
           if Ext = '.pch2' then begin
             ChildNode := aTreeView.Items.AddChild( aNode, sr.Name);
-            ChildNode.ImageIndex := 2;
-            ChildNode.ExpandedImageIndex := 2;
-            ChildNode.SelectedIndex := 2;
+            ChildNode.ImageIndex := 3;
+            ChildNode.ExpandedImageIndex := 3;
+            ChildNode.SelectedIndex := 3;
             //ChildNode.StateIndex := 2;
           end;
       end else begin
@@ -4346,6 +4484,77 @@ begin
   G2.LoadFileStream( Path + '\' + FileName);
 end;
 
+procedure TfrmG2Main.tvPatchBanksDblClick(Sender: TObject);
+var G2 : TG2;
+    PatchNode : TTreeNode;
+    BankItem : TBankItem;
+begin
+  G2 := frmG2Main.SelectedCtrlG2;
+  if not assigned(G2) then
+    exit;
+
+  PatchNode := tvPatchBanks.Selected;
+  if not assigned(PatchNode) then
+    exit;
+
+  if PatchNode.Data = nil then
+    exit;
+
+  BankItem := PatchNode.Data;
+
+  G2.SendRetrieveMessage( G2.SelectedSlotIndex, BankItem.Bank, BankItem.Patch);
+end;
+
+procedure TfrmG2Main.UpdateMemoryTreeview;
+var G2 : TG2;
+    i, bank, first_patch, last_patch : integer;
+    BankNode, PatchNode : TTreeNode;
+    BankItem : TBankItem;
+begin
+  G2 := SelectedEditG2;
+  if not assigned(G2) then
+    exit;
+
+  tvPatchBanks.Items.Clear;
+  for bank := 0 to 31 do begin
+    BankNode := tvPatchBanks.Items.AddChild(nil, 'Bank ' + IntToStr(bank+1));
+
+    BankItem := G2.BankList.FindNext( pftPatch, bank, 0);
+    if BankItem <> nil then begin
+      BankNode.ImageIndex := 1;
+      BankNode.ExpandedImageIndex := 1;
+      BankNode.SelectedIndex := 1;
+      while BankItem <> nil do begin
+        PatchNode := tvPatchBanks.Items.AddChild( BankNode, BankItem.PatchName);
+        PatchNode.ImageIndex := 3;
+        PatchNode.ExpandedImageIndex := 3;
+        PatchNode.SelectedIndex := 3;
+        PatchNode.Data := BankItem;
+
+        BankItem := G2.BankList.FindNext( pftPatch, bank, BankItem.Patch);
+      end;
+    end else begin
+      BankNode.ImageIndex := 0;
+      BankNode.ExpandedImageIndex := 0;
+      BankNode.SelectedIndex := 0;
+    end;
+
+  end;
+
+
+  {last_bank := -1;
+  tvMemory.Items.Clear;
+  for i := 0 to G2.BankList.Count - 1 do begin
+    if G2.BankList[i].Bank <> last_bank then begin
+      last_bank := G2.BankList[i].Bank;
+      BankNode := tvMemory.Items.AddChild(nil, IntToStr(last_bank));
+    end;
+    PatchNode := tvMemory.Items.AddChild( BankNode, G2.BankList[i].PatchName);
+  end;}
+end;
+
+
+
 ////////////////////////////////////////////////////////////////////////////////
 //  Buffer
 ////////////////////////////////////////////////////////////////////////////////
@@ -4359,7 +4568,8 @@ begin
     Filestream := TFileStream.Create( aFileName, fmOpenRead);
     try
       Patch.LoadFromFile( FileStream, nil);
-      lbBuffer.Items.Add( ExtractFileName( aFileName));
+      //lbBuffer.Items.Add( ExtractFileName( aFileName));
+      lbBuffer.AddItem( ExtractFileName( aFileName), Patch);
     finally
       FileStream.Free;
     end;
@@ -4386,10 +4596,40 @@ begin
 end;
 
 procedure TfrmG2Main.lbBufferDblClick(Sender: TObject);
+var ListItem : TListItem;
 begin
-//
+  if lbBuffer.ItemIndex <> -1 then begin
+    G2Buffer.SelectedSlot.SendSetPatchMessage( lbBuffer.Items[lbBuffer.ItemIndex], TG2GraphPatch(lbBuffer.Items.Objects[lbBuffer.ItemIndex]));
+  end;
 end;
 
+
+procedure TfrmG2Main.lbBufferDragDrop(Sender, Source: TObject; X, Y: Integer);
+var ListView : TListView;
+begin
+  if Source is TListView then begin
+    ListView := Source as TListView;
+    if ListView.Name = 'lvExternalPatch' then begin
+      CopyFile( PWideChar(frmSettings.ePatchRootFolder.Text + ListView.Selected.SubItems[1] + ListView.Selected.Caption),
+                PWideChar(frmSettings.ePatchBufferFolder.Text + '\' + ListView.Selected.Caption),  False);
+      BufferAddPatch(frmSettings.ePatchBufferFolder.Text + '\' + ListView.Selected.Caption);
+    end;
+  end;
+end;
+
+procedure TfrmG2Main.lbBufferDragOver(Sender, Source: TObject; X, Y: Integer;
+  State: TDragState; var Accept: Boolean);
+var ListView : TListView;
+begin
+  Accept := False;
+  if Source is DListView then begin
+    ListView := Source as DListView;
+    if ListView.Name = 'lvExternalPatch' then begin
+      // Dragged from patch browser patch list
+      Accept := True;
+    end;
+  end;
+end;
 
 ////////////////////////////////////////////////////////////////////////////////
 //  Functions
@@ -4466,6 +4706,8 @@ begin
   G2 := SelectedEditG2;
   if not assigned(G2) then
     exit;
+
+  self.ActiveControl := nil;
 
   G2.Slot[ aSlotIndex].SendSelectVariationMessage( aVariationIndex);
 end;
@@ -4564,6 +4806,8 @@ begin
   end else
     if (Sender is TG2GraphLabel) and ((Sender as TG2GraphLabel).Parent is TSlotPanel) then
       SelectSlot( ((Sender as TG2GraphLabel).Parent as TSlotPanel).SlotIndex);
+
+  self.ActiveControl := nil;
 
   UpdateControls;
 end;
@@ -4775,6 +5019,7 @@ procedure TfrmG2Main.G2AfterG2Init(Sender: TObject);
 begin
   UpdateControls;
   frmPatchBrowser.tcSourceChange(Self);
+
   if frmPatchManager.Showing then
     frmPatchManager.Update;
 end;
@@ -4850,6 +5095,8 @@ end;
 
 procedure TfrmG2Main.G2AfterBankList(Sender: TObject; SenderID: Integer);
 begin
+  UpdateMemoryTreeview;
+
   if frmPatchManager.Showing then
     frmPatchManager.Update;
 end;
@@ -4857,6 +5104,8 @@ end;
 procedure TfrmG2Main.G2AfterStore(Sender: TObject; SenderID: Integer; SlotIndex,
   BankIndex, PatchIndex : byte);
 begin
+  UpdateMemoryTreeview;
+
   if frmPatchManager.Showing then
     frmPatchManager.Update;
 end;
@@ -4864,12 +5113,16 @@ end;
 procedure TfrmG2Main.G2AfterClear(Sender: TObject; SenderID: Integer;
   PatchFileType : TPatchFileType; BankIndex, PatchIndex : byte);
 begin
+  UpdateMemoryTreeview;
+
   if frmPatchManager.Showing then
     frmPatchManager.Update;
 end;
 
 procedure TfrmG2Main.G2AfterBankDownload( Sender : TObject; SenderID : integer; PatchFileType : TPatchFileType);
 begin
+  UpdateMemoryTreeview;
+
   if frmPatchManager.Showing then
     frmPatchManager.Update;
 end;
@@ -4878,6 +5131,8 @@ procedure TfrmG2Main.G2AfterClearBank(Sender: TObject; SenderID: Integer;
   PatchFileType: TPatchFileType; BankIndex: byte);
 begin
   UpdateControls;
+  UpdateMemoryTreeview;
+
   if frmPatchManager.Showing then
     frmPatchManager.Update;
 end;

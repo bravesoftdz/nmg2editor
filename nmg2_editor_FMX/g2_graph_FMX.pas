@@ -26,8 +26,8 @@ uses
   System.SysUtils, System.Types, System.UITypes, System.Classes, System.Variants,
   System.Contnrs,
   FMX.Types, FMX.Controls, FMX.Forms, FMX.Dialogs, FMX.Objects, FMX.Layouts,
-  g2_types, g2_file, g2_usb, SVGControl,
-  SVGXMLWrapperFPC,
+  g2_types, g2_file, g2_usb,
+  BVE.SVGControl, BVE.SVGXMLWrapperDelphi,
   //SVGXMLWrapperNativeXML,
   math;
 
@@ -36,13 +36,18 @@ type
 
   TCreateModuleFMXEvent = procedure(Sender : TObject; Module : TG2GraphModuleFMX) of Object;
 
-  TG2SVGAgent = class( TSVGAgent)
+  TG2ParamEvent = (g2pSet, g2pChange);
+
+  {TG2SVGAgent = class( TSVGAgent)
+  private
+    XMLDocument : TXMLDocument;
+    XMLWrapper : TSVGXMLWrapperDelphi;
   protected
   public
-    constructor Create; override;
+    constructor Create(AOwner : TComponent); override;
     destructor  Destroy; override;
     procedure   LoadSkin( aFilename : string);
-  end;
+  end;}
 
   TG2GraphFMX = class( TG2USB)
   public
@@ -140,6 +145,7 @@ type
   public
     constructor Create( aPatch : TG2FilePatch; aLocation : TLocationType; aModuleIndex : integer; aModule : TG2FileModule);
     destructor  Destroy; override;
+    //procedure   NotifyControls( Event: TG2ParamEvent; Info: NativeInt);
     procedure   AssignControl( aControl : TSVGG2Control);
     procedure   DeassignControl( aControl : TSVGG2Control);
     procedure   InvalidateControl; override;
@@ -205,15 +211,21 @@ type
   private
     FParameter : TG2GraphParameterFMX;
   protected
-    function    GetValue: single;
+    function   GetValue: single;
+    procedure  SetParameter(const Value: TG2GraphParameterFMX); virtual;
+    procedure  Notification(AComponent: TComponent; Operation: TOperation); override;
+    procedure  ParamEvent( Event: TG2ParamEvent; Info: NativeInt); virtual;
   public
     constructor Create( AOwner: TComponent; aId : string; aSVGParent : TSVGGroup; aCTM, aUserMatrix : TMatrix); override;
     destructor Destroy; override;
+
 
     procedure MouseDown( P : TPointF; aHitPath : TSVGHitPath); virtual;
     procedure MouseMove( P : TPointF; aHitPath : TSVGHitPath; dx, dy : single); virtual;
     procedure MouseUp( P : TPointF; aHitPath : TSVGHitPath); virtual;
     procedure MouseLeave; virtual;
+
+    property Parameter : TG2GraphParameterFMX read FParameter write SetParameter;
   end;
 
   TSVGHitPath = class(TSVGPath)
@@ -224,10 +236,10 @@ type
     constructor Create( AOwner: TComponent; aId : string; aSVGParent : TSVGGroup; aCTM, aUserMatrix : TMatrix); override;
     destructor  Destroy; override;
 
-    procedure MouseDown( P : TPointF); virtual;
-    procedure MouseMove( P : TPointF; dx, dy : single); virtual;
-    procedure MouseUp( P : TPointF); virtual;
-    procedure MouseLeave; virtual;
+    procedure   MouseDown( P : TPointF); virtual;
+    procedure   MouseMove( P : TPointF; dx, dy : single); virtual;
+    procedure   MouseUp( P : TPointF); virtual;
+    procedure   MouseLeave; virtual;
 
     property    Control : TSVGG2Control read FControl write FControl;
     property    BtnIndex : integer read FBtnIndex write FBtnIndex;
@@ -248,31 +260,13 @@ type
 
   TSVGBtnText = class(TSVGG2Control)
   private
+    FValue : boolean;
     FBtnUp   : TSVGBtnState;
     FBtnDown : TSVGBtnState;
+    FOnChange : TNotifyEvent;
   protected
-    procedure   SetValue( aValue : single);
-  public
-    constructor Create( AOwner: TComponent; aId : string; aSVGParent : TSVGGroup; aCTM, aUserMatrix : TMatrix); override;
-    destructor  Destroy; override;
-    procedure   SVGPaint( aCanvas : TCanvas); override;
-    procedure   Redraw; override;
-
-    function    CreateUse( aUseNode, aRefNode : TSVGNode; aUseID : string; aSVGParent : TSVGGroup; aCTM, aUserMatrix : TMatrix; var aSubTreeOwner : TSVGGroup) : TSVGGroup; override;
-
-    procedure   MouseDown( P : TPointF; aHitPath : TSVGHitPath); override;
-
-    property    Value : single read GetValue write SetValue;
-  end;
-
-  TSVGBtnIncDec = class(TSVGG2Control)
-  private
-    FBtnDecUp   : TSVGBtnState;
-    FBtnDecDown : TSVGBtnState;
-    FBtnIncUp   : TSVGBtnState;
-    FBtnIncDown : TSVGBtnState;
-  protected
-    procedure   SetValue( aValue : single);
+    procedure   SetValue( aValue : boolean);
+    procedure   ParamEvent( Event: TG2ParamEvent; Info: NativeInt); override;
   public
     constructor Create( AOwner: TComponent; aId : string; aSVGParent : TSVGGroup; aCTM, aUserMatrix : TMatrix); override;
     destructor  Destroy; override;
@@ -280,6 +274,31 @@ type
     procedure   Redraw; override;
 
     function    CreateGroup( aNode : TSVGNode; aId : string; aSVGParent : TSVGGroup; aCTM, aUserMatrix : TMatrix; var aSubTreeOwner : TSVGGroup) : TSVGGroup; override;
+
+    procedure   MouseDown( P : TPointF; aHitPath : TSVGHitPath); override;
+
+    property    Value : boolean read FValue write SetValue;
+    property    OnChange : TNotifyEvent read FOnChange write FOnChange;
+  end;
+
+  TSVGBtnIncDec = class(TSVGG2Control)
+  private
+    {FBtnDecUp   : TSVGBtnState;
+    FBtnDecDown : TSVGBtnState;
+    FBtnIncUp   : TSVGBtnState;
+    FBtnIncDown : TSVGBtnState;}
+    FBtnDec : TSVGBtnText;
+    FBtnInc : TSVGBtnText;
+  protected
+    procedure   SetValue( aValue : single);
+    procedure SetParameter(const Value: TG2GraphParameterFMX); override;
+  public
+    constructor Create( AOwner: TComponent; aId : string; aSVGParent : TSVGGroup; aCTM, aUserMatrix : TMatrix); override;
+    destructor  Destroy; override;
+    procedure   SVGPaint( aCanvas : TCanvas); override;
+    procedure   Redraw; override;
+
+    //function    CreateGroup( aNode : TSVGNode; aId : string; aSVGParent : TSVGGroup; aCTM, aUserMatrix : TMatrix; var aSubTreeOwner : TSVGGroup) : TSVGGroup; override;
     function    CreateUse( aUseNode, aRefNode : TSVGNode; aUseID : string; aSVGParent : TSVGGroup; aCTM, aUserMatrix : TMatrix; var aSubTreeOwner : TSVGGroup) : TSVGGroup; override;
 
     procedure   MouseDown( P : TPointF; aHitPath : TSVGHitPath); override;
@@ -533,7 +552,7 @@ function DecodeButtonStateElement( aValue : string; var aName, aState, aSize : s
 function DecodeModuleControlElement( aValue : string; var aModuleID, aCtrlID, aIndex : integer): boolean;
 
 var
-  SVGAgent : TG2SVGAgent;
+  SVGAgent : TSVGAgent;
 
 implementation
 
@@ -691,10 +710,10 @@ end;
 //
 //==============================================================================
 
-constructor TG2SVGAgent.Create;
+{constructor TG2SVGAgent.Create(AOwner: TComponent);
 begin
   inherited;
-  SVGDoc := TSVGXMLDoc.Create;
+  SVGDoc := TSVGXMLDoc.Create(self);
 end;
 
 destructor TG2SVGAgent.Destroy;
@@ -706,7 +725,7 @@ end;
 procedure TG2SVGAgent.LoadSkin(aFilename: string);
 begin
   (SVGDoc as TSVGXMLDoc).LoadFromFile( aFilename);
-end;
+end;}
 
 
 //==============================================================================
@@ -739,7 +758,6 @@ end;
 constructor TG2GraphPerformanceFMX.Create(AOwner: TComponent);
 begin
   inherited;
-
 end;
 
 function TG2GraphPerformanceFMX.CreateSlot: TG2FileSlot;
@@ -1005,7 +1023,8 @@ begin
   if not(i < Length(FControlList)) then begin
     SetLength(FControlList, i + 1);
     FControlList[i] := aControl;
-    aControl.FParameter := self;
+    aControl.Parameter := self;
+    aControl.ParamEvent( g2pSet, 0);
   end;
 end;
 
@@ -1020,7 +1039,7 @@ begin
     inc(i);
 
   if (i < Length(FControlList)) then begin
-    FControlList[i].FParameter := nil;
+    FControlList[i].Parameter := nil;
     for j := i + 1 to Length(FControlList) - 1 do begin
       FControlList[j-1] := FControlList[j];
     end;
@@ -1033,7 +1052,8 @@ var i : integer;
 begin
   // Update all controls attached to the parameter
   for i := 0 to Length(FControlList) - 1 do begin
-    FControlList[i].Repaint;
+    //FControlList[i].Repaint;
+    (FControlList[i] as TSVGG2Control).ParamEvent( g2pChange, 0);
   end;
 end;
 
@@ -1191,6 +1211,24 @@ begin
     FModule.Repaint;
 end;
 
+procedure TSVGG2Control.SetParameter(const Value: TG2GraphParameterFMX);
+begin
+  FParameter := Value;
+end;
+
+procedure TSVGG2Control.Notification(AComponent: TComponent;
+  Operation: TOperation);
+begin
+ if (Operation = opRemove) and (AComponent = Parameter) then
+    FParameter := nil;
+  inherited;
+end;
+
+procedure TSVGG2Control.ParamEvent(Event: TG2ParamEvent; Info: NativeInt);
+begin
+//
+end;
+
 //==============================================================================
 //
 //                                TSVGHitPath
@@ -1275,11 +1313,7 @@ end;
 constructor TSVGBtnText.Create( AOwner: TComponent; aId : string; aSVGParent : TSVGGroup; aCTM, aUserMatrix : TMatrix);
 begin
   inherited;
-  FBtnUp := TSVGBtnState.Create(self, 0, aId, aSVGParent, aCTM, aUserMatrix);
-  FBtnDown := TSVGBtnState.Create(self, 0, SubTextReplace( aId, 'up', 'down'), aSVGParent, aCTM, aUserMatrix);
-
-  FBtnUp.Visible := True;
-  FBtnDown.Visible := False;
+  Value := False;
 end;
 
 destructor TSVGBtnText.Destroy;
@@ -1289,32 +1323,39 @@ end;
 
 procedure TSVGBtnText.SVGPaint( aCanvas : TCanvas);
 begin
-  if FParameter.GetParameterValue = 0 then begin
-    FBtnUp.Visible := True;
-    FBtnDown.Visible := False;
-  end else begin
-    FBtnUp.Visible := False;
-    FBtnDown.Visible := True;
-  end;
-
   inherited;
 end;
 
 procedure TSVGBtnText.MouseDown(P: TPointF; aHitPath : TSVGHitPath);
 begin
-  Value := 1 - Value;
+  Value := not Value;
+
+  if assigned(Parameter) then
+    Parameter.SetParameterValue( integer(Value));
+
+  if assigned(FOnChange) then
+    FOnChange(self);
+end;
+
+procedure TSVGBtnText.ParamEvent(Event: TG2ParamEvent; Info: NativeInt);
+begin
+  inherited;
+  Value := FParameter.GetParameterValue <> 0;
+  Redraw;
 end;
 
 procedure TSVGBtnText.Redraw;
 begin
-  FBtnUp.Redraw;
-  FBtnDown.Redraw;
+  if assigned(FBtnUp) and assigned(FBtnDown) then begin
+    FBtnUp.Redraw;
+    FBtnDown.Redraw;
+  end;
 end;
 
-procedure TSVGBtnText.SetValue(aValue: single);
+procedure TSVGBtnText.SetValue(aValue: boolean);
 var NewValue : byte;
 begin
-  NewValue := trunc(aValue);
+  {NewValue := trunc(aValue);
   if (NewValue>=FParameter.LowValue) and (NewValue<=FParameter.HighValue) then
     if NewValue <> FParameter.GetParameterValue then begin
       FParameter.SetParameterValue( NewValue);
@@ -1326,41 +1367,39 @@ begin
         FBtnUp.Visible := False;
         FBtnDown.Visible := True;
       end;
+    end;}
+  if aValue <> FValue then begin
+    FValue := aValue;
+    if FValue  then begin
+      FBtnUp.Visible := False;
+      FBtnDown.Visible := True;
+    end else begin
+      FBtnUp.Visible := True;
+      FBtnDown.Visible := False;
     end;
+    Redraw;
+  end;
 end;
 
-function TSVGBtnText.CreateUse(aUseNode, aRefNode: TSVGNode; aUseID: string;
+function TSVGBtnText.CreateGroup(aNode: TSVGNode; aId: string;
   aSVGParent: TSVGGroup; aCTM, aUserMatrix: TMatrix;
   var aSubTreeOwner: TSVGGroup): TSVGGroup;
-var ModuleId, CtrlID, Index : integer;
-    RefID, GraphName, Size, State : string;
-    AttributeValue : string;
-begin
-  if DecodeModuleControlElement( aUseID, ModuleID, CtrlID, Index) then begin
-    if aRefNode.GetAttribute( 'id', AttributeValue) then begin
-      RefId := AttributeValue;
-      if DecodeButtonStateElement( RefId, GraphName, State, Size) then begin
-
-        if State = 'up' then begin
-          FBtnUp := TSVGBtnState.Create(self, index, RefId, aSVGParent, aCTM, aUserMatrix);
-          FBtnDown := TSVGBtnState.Create(self, index, SubTextReplace( RefId, 'up', 'down'), aSVGParent, aCTM, aUserMatrix);
-        end else begin
-          FBtnDown := TSVGBtnState.Create(self, index, RefId, aSVGParent, aCTM, aUserMatrix);
-          FBtnUp := TSVGBtnState.Create(self, index, SubTextReplace( RefId, 'down', 'up'), aSVGParent, aCTM, aUserMatrix);
-        end;
-
-        FBtnDown.Visible := False;
-
+var GraphName, Size, State : string;
+begin
+  if (pos('btnText_up_', aId)>0) or (pos('btnText_down_', aId)>0) then begin
+    if DecodeButtonStateElement( aId, GraphName, State, Size) then begin
+      if State = 'up' then begin
+        FBtnUp := TSVGBtnState.Create(self, index, aId, aSVGParent, aCTM, aUserMatrix);
+        Result := FBtnUp;
+        FBtnUp.Visible := FValue;
         FBtnUp.FModule := FModule;
+      end else begin
+        FBtnDown := TSVGBtnState.Create(self, index, aId, aSVGParent, aCTM, aUserMatrix);
+        Result := FBtnDown;
+        FBtnDown.Visible := not FValue;
         FBtnDown.FModule := FModule;
-
-        Result := nil;
-        aSubTreeOwner := Result;
-
-        SVGAgent.ParseSVG( 'btnText_up_' + Size, FBtnUp, aCTM);
-        SVGAgent.ParseSVG( 'btnText_down_' + Size, FBtnDown, aCTM);
-
       end;
+      aSubTreeOwner := Result;
     end;
   end else
     Result := inherited;
@@ -1382,6 +1421,15 @@ begin
   inherited;
 end;
 
+procedure TSVGBtnIncDec.SetParameter(const Value: TG2GraphParameterFMX);
+begin
+  inherited;
+  if assigned(FBtnDec) then
+    FBtnDec.Parameter := Value;
+  if assigned(FBtnInc) then
+    FBtnInc.Parameter := Value;
+end;
+
 procedure TSVGBtnIncDec.SetValue( aValue : single);
 begin
 end;
@@ -1393,45 +1441,80 @@ end;
 
 procedure TSVGBtnIncDec.Redraw;
 begin
-  FBtnDecUp.Redraw;
+  {FBtnDecUp.Redraw;
   FBtnDecDown.Redraw;
   FBtnIncUp.Redraw;
-  FBtnIncDown.Redraw;
+  FBtnIncDown.Redraw;}
+  FBtnDec.Redraw;
+  FBtnInc.Redraw;
 end;
 
 procedure TSVGBtnIncDec.MouseDown( P : TPointF; aHitPath : TSVGHitPath);
 begin
-  if (aHitPath.BtnIndex = 0) then begin
+  {if (aHitPath.BtnIndex = 0) then begin
     FBtnDecUp.Visible := False;
     FBtnDecDown.Visible := True;
   end;
   if (aHitPath.BtnIndex = 1) then begin
     FBtnIncUp.Visible := False;
     FBtnIncDown.Visible := True;
-  end;
+  end;}
   inherited;
 end;
 
 procedure TSVGBtnIncDec.MouseUp( P : TPointF; aHitPath : TSVGHitPath);
 begin
-  if (aHitPath.BtnIndex = 0) then begin
+  {if (aHitPath.BtnIndex = 0) then begin
     FBtnDecUp.Visible := True;
     FBtnDecDown.Visible := False;
   end;
   if (aHitPath.BtnIndex = 1) then begin
     FBtnIncUp.Visible := True;
     FBtnIncDown.Visible := False;
-  end;
+  end;}
   inherited;
 end;
 
-function TSVGBtnIncDec.CreateGroup( aNode : TSVGNode; aId : string;
+{function TSVGBtnIncDec.CreateGroup( aNode : TSVGNode; aId : string;
     aSVGParent : TSVGGroup; aCTM, aUserMatrix : TMatrix; var aSubTreeOwner : TSVGGroup) : TSVGGroup;
 begin
-  Result := inherited;
-end;
+  if (pos('btnIncDecHorz_inc', aId)>0) or (pos('btnIncDecHorz_dec', aId)>0) or
+     (pos('btnIncDecVert_inc', aId)>0) or (pos('btnIncDecVert_dec', aId)>0) then begin
+    if pos('_inc', aId)>0 then begin
+      FBtnInc := TSVGBtnText.Create(self, aId, aSVGParent, aCTM, aUserMatrix);
+      Result := FBtnDec;
+      FBtnDec.FModule := FModule;
+    end else begin
+      FBtnDec := TSVGBtnText.Create(self, aId, aSVGParent, aCTM, aUserMatrix);
+      Result := FBtnDec;
+      FBtnDec.FModule := FModule;
+    end;
+    aSubTreeOwner := Result;
+  end else
+    Result := inherited;
+end;}
 
 function TSVGBtnIncDec.CreateUse( aUseNode, aRefNode : TSVGNode; aUseID : string;
+    aSVGParent : TSVGGroup; aCTM, aUserMatrix : TMatrix; var aSubTreeOwner : TSVGGroup) : TSVGGroup;
+begin
+  if (pos('btnIncDecHorz_inc', aUseId)>0) or (pos('btnIncDecHorz_dec', aUseId)>0) or
+     (pos('btnIncDecVert_inc', aUseId)>0) or (pos('btnIncDecVert_dec', aUseId)>0) then begin
+    if pos('_inc', aUSeId)>0 then begin
+      FBtnInc := TSVGBtnText.Create(self, aUseId, aSVGParent, aCTM, aUserMatrix);
+      FBtnInc.Parameter := Parameter;
+      Result := FBtnInc;
+      FBtnInc.FModule := FModule;
+    end else begin
+      FBtnDec := TSVGBtnText.Create(self, aUSeId, aSVGParent, aCTM, aUserMatrix);
+      FBtnDec.Parameter := Parameter;
+      Result := FBtnDec;
+      FBtnDec.FModule := FModule;
+    end;
+    aSubTreeOwner := Result;
+  end else
+    Result := inherited;
+end;
+{function TSVGBtnIncDec.CreateUse( aUseNode, aRefNode : TSVGNode; aUseID : string;
     aSVGParent : TSVGGroup; aCTM, aUserMatrix : TMatrix; var aSubTreeOwner : TSVGGroup) : TSVGGroup;
 begin
   if pos('btnIncDecVert_dec', aUseId)>0 then begin
@@ -1501,7 +1584,7 @@ begin
   end else
 
     Result := inherited;
-end;
+end;}
 
 //==============================================================================
 //

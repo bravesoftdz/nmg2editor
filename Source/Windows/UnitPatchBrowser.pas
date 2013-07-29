@@ -108,6 +108,8 @@ type
     procedure lvInternalKeyDown(Sender: TObject; var Key: Word;
       Shift: TShiftState);
     procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure lvExternalPatchMouseDown(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
   private
     { Private declarations }
     FParsePatches : boolean;
@@ -310,6 +312,14 @@ procedure TfrmPatchBrowser.lvExternalPatchKeyDown(Sender: TObject;
 begin
   if Key = VK_RETURN then
     aLoadPatchExecute(self);
+end;
+
+procedure TfrmPatchBrowser.lvExternalPatchMouseDown(Sender: TObject;
+  Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+begin
+  if ssLeft in Shift then begin
+    lvExternalPatch.BeginDrag( False);
+  end;
 end;
 
 procedure TfrmPatchBrowser.lvExternalPerfKeyDown(Sender: TObject; var Key: Word;
