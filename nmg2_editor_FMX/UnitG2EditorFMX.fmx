@@ -215,9 +215,7 @@ object frmSVGTest: TfrmSVGTest
     Top = 48
   end
   object XMLDocument1: TXMLDocument
-    FileName = 
-      'C:\Documents and Settings\BVerhue\Mijn documenten\Delphi\nmg2edi' +
-      'tor\v0.25\skin\g2_graphics.svg'
+    FileName = 'C:\Users\Bruno\Delphi\nmg2editor\v0.25\skin\g2_graphics_2.svg'
     ParseOptions = [poPreserveWhiteSpace]
     Left = 440
     Top = 104
@@ -234,5 +232,12 @@ object frmSVGTest: TfrmSVGTest
     DPI = 90.000000000000000000
     Left = 640
     Top = 104
+  end
+  object TimerStartup: TTimer
+    Enabled = False
+    Interval = 300
+    OnTimer = TimerStartupTimer
+    Left = 648
+    Top = 48
   end
 end

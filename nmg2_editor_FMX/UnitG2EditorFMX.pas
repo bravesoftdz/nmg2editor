@@ -27,6 +27,7 @@ uses
   System.Variants, System.Contnrs,
   FMX.Types, FMX.Controls, FMX.Forms, FMX.Dialogs, FMX.Objects, FMX.Layouts,
   FMX.Memo, FMX.Ani, FMX.Edit, FMX.Effects, BVE.SVGControl,
+  LibUSBWinDyn,
   g2_types, g2_file, g2_usb, g2_graph_FMX, FMX.Menus, Xml.xmldom, Xml.XMLIntf,
   BVE.SVGXMLWrapperDelphi, Xml.Win.msxmldom, Xml.XMLDoc;
 
@@ -80,6 +81,7 @@ type
     XMLDocument1: TXMLDocument;
     SVGDelphiXMLDoc1: TSVGDelphiXMLDoc;
     SVGAgent1: TSVGAgent;
+    TimerStartup: TTimer;
     procedure FormCreate(Sender: TObject);
     procedure tbZoomChange(Sender: TObject);
     procedure sbClick(Sender: TObject);
@@ -95,6 +97,7 @@ type
     procedure Button1Click(Sender: TObject);
     procedure Button2Click(Sender: TObject);
     procedure Button3Click(Sender: TObject);
+    procedure TimerStartupTimer(Sender: TObject);
   private
     { Private declarations }
 
@@ -120,6 +123,8 @@ type
     procedure SetZoom( aZoom : single);
 
     procedure CreateModuleFMX(Sender : TObject; Module : TG2GraphModuleFMX);
+
+    procedure G2AfterG2Init(Sender: TObject);
 
     procedure SVGMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Single);
     procedure SVGMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Single);
@@ -188,6 +193,7 @@ end;
 
 procedure TfrmSVGTest.FormCreate(Sender: TObject);
 var i : integer;
+    G2DeviceList : TList;
 begin
   FormatSettings.DecimalSeparator := '.';
   FZoom := tbZoom.Value;
@@ -202,17 +208,17 @@ begin
   FSVGSelection.Height := sb.Height  / tbZoom.Value;
   FSVGSelection.Active := False;
 
-  LoadSkin;
-
-  FG2 := TG2GraphFMX.Create(self);
-  FG2.LoadModuleDefs('');
-  FG2.IsServer := True;
-
   FCableBitmapBuffer := TCableBitmapBuffer.Create(self);
   lSize.AddObject(FCableBitmapBuffer);
   FCableBitmapBuffer.SetBounds(0,0,2000,1500);
   FModuleBitmapBuffer := TModuleBitmapBuffer.Create(self);
   lSize.AddObject(FModuleBitmapBuffer);
+
+  LoadSkin;
+
+  FG2 := TG2GraphFMX.Create(self);
+  FG2.LoadModuleDefs('');
+  FG2.IsServer := True;
 
   FPatch := FG2.Performance.Slot[0].Patch as TG2GraphPatchFMX;
   FPatch.Layout := FModuleBitmapBuffer;
@@ -221,12 +227,31 @@ begin
   FCableBitmapBuffer.CableList := FPatch.CableList[1];
   FModuleBitmapBuffer.ModuleList := FPatch.ModuleList[1];
 
-  //Application.OnIdle := ApplicationIdle;
-  MemoryUsed;
+  FG2.OnAfterG2Init := G2AfterG2Init;
+
+  G2DeviceList := TList.Create;
+  try
+    GetUSBDeviceList( G2DeviceList);
+
+    if G2DeviceList.Count > 0 then begin
+      //for i := 0 to G2DeviceList.Count - 1 do begin
+      //  AddG2( pusb_device(G2DeviceList[i]));
+      //end;
+      FG2.G2USBDevice := pusb_device(G2DeviceList[0]);
+    end else begin
+      //AddG2( nil);
+      ShowMessage('No g2 device found')
+    end;
+  finally
+    G2DeviceList.Free;
+  end;
+
+  TimerStartup.Enabled := True;
 end;
 
 procedure TfrmSVGTest.FormDestroy(Sender: TObject);
 begin
+  FG2.USBActive := False;
   FG2.Free;
   //SVGAgent.Free;
 end;
@@ -378,6 +403,12 @@ begin
 
   TimerZoom.Enabled := False;
   TimerZoom.Enabled := True;
+end;
+
+procedure TfrmSVGTest.TimerStartupTimer(Sender: TObject);
+begin
+  TimerStartup.Enabled := False;
+  FG2.USBActive := True;
 end;
 
 procedure TfrmSVGTest.TimerZoomTimer(Sender: TObject);
@@ -573,6 +604,17 @@ begin
     FSVGSelection.Active := False;
     CalcLayoutDimensions;
   end;
+end;
+
+procedure TfrmSVGTest.G2AfterG2Init(Sender: TObject);
+begin
+  FCableBitmapBuffer.BringToFront;
+  FCableBitmapBuffer.RedrawBuffer := True;
+
+  CalcLayoutDimensions;
+  FPatch.InvalidateParameters;
+
+  MemoryUsed;
 end;
 
 procedure TfrmSVGTest.SVGMouseUp(Sender: TObject; Button: TMouseButton;

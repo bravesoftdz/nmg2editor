@@ -569,6 +569,7 @@ type
     FTextFunction : integer;
     FMasterRef : integer;
     FDisplayType : integer;
+    FDependencies : TStringList;
   protected
     function    GetLine( LineNo : integer): AnsiString;
     procedure   SetLine( LineNo : integer; aValue : AnsiString);
@@ -585,6 +586,8 @@ type
     property    LineCount : integer read FLineCount write SetLineCount;
     property    TextFunction : integer read FTextFunction write SetTextFunction;
     property    DisplayType : integer read FDisplayType write FDisplayType;
+    property    MasterRef : integer read FMasterRef;
+    property    Dependencies : TStringList read FDependencies;
     property    Font;
     property    Color;
   end;
@@ -4448,10 +4451,12 @@ begin
   FDisplayType := 0;
   //FTextFunction := 0;
   FMasterRef := -1;
+  FDependencies := TStringList.Create;
 end;
 
 destructor TG2GraphDisplay.Destroy;
 begin
+  FDependencies.Free;
   inherited;
 end;
 
@@ -4582,7 +4587,7 @@ end;
 
 function TG2GraphDisplay.ParseProperties( fs: TModuleDefStream; aName : AnsiString): boolean;
 var aValue : AnsiString;
-    sl : TStringList;
+    //sl : TStringList;
     i, value, c : integer;
     G2 : TG2File;
     temp : string;
@@ -4606,21 +4611,22 @@ begin
 
     if aName = 'Dependencies' then begin
       fs.ReadConst( '"');
-      sl := TStringList.Create;
-      try
-        fs.ReadOptions( sl, [','], ['"']);
-        if sl.Count > 0 then
+      //FDependencies := TStringList.Create;
+      //try
+        FDependencies.Clear;
+        fs.ReadOptions( FDependencies, [','], ['"']);
+        if FDependencies.Count > 0 then
           if FMasterRef > -1 then begin
-            //if FMasterRef < sl.Count then begin
+            //if FMasterRef < FDependencies.Count then begin
 
               // Find ref to master parameter
               i := 0;
-              while (i<sl.Count) and (sl[i]<>IntToStr(FMasterRef)) and (sl[i]<>'s'+IntToStr(FMasterRef)) do
+              while (i<FDependencies.Count) and (FDependencies[i]<>IntToStr(FMasterRef)) and (FDependencies[i]<>'s'+IntToStr(FMasterRef)) do
                 inc(i);
 
-              if (i<sl.Count) then begin
+              if (i<FDependencies.Count) then begin
                 // Assign master parameter first
-                if (Lowercase(sl[ i][1]) = 's') then begin // One of the static params
+                if (Lowercase(FDependencies[ i][1]) = 's') then begin // One of the static params
                   FParameter := FModule.FData.Mode[ FMasterRef] as TG2GraphParameter;
                   FParameter.TextFunctionIndex := FTextFunction;
                   (FParameter as TG2GraphParameter).AssignControl(self);
@@ -4637,15 +4643,15 @@ begin
 
               if assigned(FParameter) then begin
 
-                for i := 0 to sl.Count - 1 do begin
-                  if (length(sl[i])>0) and (Lowercase(sl[i][1]) = 's') then begin
-                    val(copy(sl[i], 2, Length(sl[i]) - 1), value, c);
+                for i := 0 to FDependencies.Count - 1 do begin
+                  if (length(FDependencies[i])>0) and (Lowercase(FDependencies[i][1]) = 's') then begin
+                    val(copy(FDependencies[i], 2, Length(FDependencies[i]) - 1), value, c);
                     if c = 0 then begin
                       FParameter.AddTextDependency(ptMode, value);
                       (FModule.FData.Mode[ value] as TG2GraphParameter).AssignControl(self);
                     end;
                   end else begin
-                    val(sl[i], value, c);
+                    val(FDependencies[i], value, c);
                     if c = 0 then begin
                       FParameter.AddTextDependency(ptParam, value);
                       (FModule.FData.Parameter[ value] as TG2GraphParameter).AssignControl(self);
@@ -4655,10 +4661,9 @@ begin
               end;
           end else
             raise Exception.Create('Master param not assigned yet...');
-
-      finally
-        sl.Free;
-      end;
+      //finally
+      //  FDependencies.Free;
+      //end;
 
       if assigned(FParameter) and assigned(FParameter.Patch)
          and assigned(FParameter.Patch.G2) then begin

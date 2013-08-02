@@ -68,7 +68,6 @@ type
     FSection : TSVGSkinSection;
     FSkin : TSVGSkin;
     FNode : TDomNode;
-    FSVGObject : TSVGObject;
   public
     constructor Create( aSection : TSVGSkinSection; aID : string; x, y : integer);
     destructor Destroy; override;
@@ -109,39 +108,74 @@ type
 
     procedure SaveToFile;
 
-    function GetID2D( aBaseName : string; aWidth, aHeight : single): string;
-    function GetID3D( aBaseName : string; aWidth, aHeight, aDepth : single): string;
+    function  GetID2D( aBaseName : string; aWidth, aHeight : single): string;
+    function  GetID3D( aBaseName : string; aWidth, aHeight, aDepth : single): string;
+    function  GetID4D( aBaseName : string; aWidth, aHeight, aDepth : single; aSymbolID: string): string;
+    function  GetLabelID( aBaseName: string; aText : string): string;
 
-    function FindDef( aID : string): TDomNode;
-    function DefExists( aID : string): boolean;
+    function  FindDef( aID : string): TDomNode;
+    function  DefExists( aID : string): boolean;
 
-    function FindSection( aID : string): TSVGSkinSection;
-    function AddToSection( aSectionID : string; aID : string): TSVGSkinSectionPlaceholder;
+    function  FindSection( aID : string): TSVGSkinSection;
+    function  AddToSection( aSectionID : string; aID : string): TSVGSkinSectionPlaceholder;
 
-    function RoundedBevelObject( aID : string; aWidth, aHeight, aBevelWidth, aBevelHeight : single; aColSideLeft, aColSideTop, aColSideRight, aColSideBottom : string): string;
-    function BevelObject( aID : string; aWidth, aHeight, aBevelWidth : single; aColSideLeft, aColSideTop, aColSideRight, aColSideBottom : string): string;
-    function RoundedButtonObject( aID : string; aWidth, aHeight, aBevelWidth, aBevelHeight : single;
+    function  FindBitmap( aBitmap : TBitmap): integer;
+    function  AddSymbolFromBitmap( aBitmap : TBitmap): integer;
+
+    function  RoundedBevelObject( aID : string; aWidth, aHeight, aBevelWidth, aBevelHeight : single; aColSideLeft, aColSideTop, aColSideRight, aColSideBottom : string): string;
+    function  BevelObject( aID : string; aWidth, aHeight, aBevelWidth : single; aColSideLeft, aColSideTop, aColSideRight, aColSideBottom : string): string;
+    function  RoundedButtonObject( aID : string; aWidth, aHeight, aBevelWidth, aBevelHeight : single;
         aColSideLeft, aColSideTop, aColSideRight, aColSideBottom, aColBG, aColFace : string ): string;
 
-    function CreateChild( aNode : TDomNode; aElementName, aID : string): TDomNode;
-    function CreateG( aNode : TDomNode; aID : string): TDomNode;
-    function CreateDesc( aNode : TDomNode; aID, aDescription : string): TDomNode;
-    function CreateUse( aNode : TDomNode; aID, aRef : string; dx, dy : integer): TDomNode;
+    function  CreateChild( aNode : TDomNode; aElementName, aID : string): TDomNode;
+    function  CreateG( aNode : TDomNode; aID : string): TDomNode;
+    function  CreateDesc( aNode : TDomNode; aID, aDescription : string): TDomNode;
+    function  CreateUse( aNode : TDomNode; aID, aRef : string; dx, dy : integer): TDomNode;
 
-    function CreateRect( aNode : TDomNode; aID : string; aFill, aStroke : string; x, y, width, height : integer): TDomNode;
+    function  CreateRect( aNode : TDomNode; aID : string; aFill, aStroke : string; x, y, width, height : integer): TDomNode;
     procedure CreateGradientPoint( aNode : TDomNode; aID : string; aOffset : single; aStopColor : string);
-    function CreateLinearGradient( aNode : TDomNode; aID : string): TDomNode;
+    function  CreateLinearGradient( aNode : TDomNode; aID : string): TDomNode;
 
     procedure CreateModulePanelGradients;
     procedure CreateModulePanelGradient( aNode : TDomNode; aID : string; aColor1, aColor2 : string);
 
-    function  CreateParamLink( aNode : TDomNode; aID : string; aCodeRef, aInfoFunc : integer; aCtrlType : string): TDomNode;
+    function  CreateParamLink( aNode : TDomNode; aID : string; aCodeRef, aMasterRef, aInfoFunc, aTextFunc : integer; aCtrlType, aDependencies : string): TDomNode;
+    function  CreateConnLink(aNode: TDomNode; aID: string; aCodeRef: integer): TDomNode;
+
+    function  CreateSymbol( aNode : TDomNode; aID : string; aWidth, aHeight : integer): TDomNode;
+    function  CreateSymbolSmallArrowUp: TDomNode;
+    function  CreateSymbolSmallArrowDown: TDomNode;
+    function  CreateSymbolSmallArrowLeft: TDomNode;
+    function  CreateSymbolSmallArrowRight: TDomNode;
     function  CreateLabel( aNode : TDomNode; aID : string; x, y : integer; aText : string; aFontSize : integer): TDomNode;
-    function  CreateTextField( aNode : TDomNode; aID : string; x, y, Width, Height : single): TDomNode;
+    function  CreateTextField( aNode : TDomNode; aID : string; x, y, aWidth, aHeight : single): TDomNode;
     function  CreateRoundedButtonTextUp( aNode : TDomNode; aID : string; aWidth, aHeight, aBevelWidth : single): TDomNode;
     function  CreateRoundedButtonTextDown( aNode : TDomNode; aID : String; aWidth, aHeight, aBevelWidth : single): TDomNode;
-    function  CreateRoundedButton( aNode : TDomNode; aID : string; aWidth, aHeight, aBevelWidth : single): TDomNode;
+    function  CreateRoundedButton( aNode : TDomNode; aID : string; aWidth, aHeight, aBevelWidth : single; aSymbolID : string; aSymbolWidth, aSymbolHeight : single): TDomNode;
+    function  CreateButtonFlatButton( aNode : TDomNode; aID : string; aWidth, aHeight : single; aSymbolID : string; aSymbolWidth, aSymbolHeight : single): TDomNode;
+    function  CreateButtonFlat( aNode : TDomNode; aID : string; aBtns : TStringList): TDomNode;
+    function  CreateButtonRadio( aNode : TDomNode; aID : string; dx, dy : integer; aBtns : TStringList): TDomNode;
 
+    function  CreateBtnIncDecVert( aNode : TDomNode; aID : string): TDomNode;
+    function  CreateBtnIncDecHorz( aNode : TDomNode; aID : string): TDomNode;
+    function  CreateInConnector( aNode : TDomNode; aID : string; aColor : string): TDomNode;
+    function  CreateOutConnector( aNode : TDomNode; aID : string; aColor : string): TDomNode;
+
+    function CreateKnobSideGradient( aNode : TDomNode; aID : string; r : single): TDomNode;
+    function CreateCenterBtnOff( aNode : TDomNode): TDomNode;
+    function CreateCenterBtnOn( aNode : TDomNode): TDomNode;
+    function CreateCenterBtn( aNode : TDomNode): TDomNode;
+    function CreateKnobButtons( aNode : TDomNode): TDomNode;
+    function CreateKnob( aNode : TDomNode; aID : string; w, h, c_x, c_y, r_side, r_face : single; reset : boolean): TDomNode;
+    function CreateKnobBig( aNode : TDomNode): TDomNode;
+    function CreateKnobMedium( aNode : TDomNode): TDomNode;
+    function CreateKnobResetMedium( aNode : TDomNode): TDomNode;
+    function CreateKnobReset( aNode : TDomNode): TDomNode;
+    function CreateKnobSmall( aNode : TDomNode): TDomNode;
+    function CreateKnobSliderKnob( aNode : TDomNode; aID : string; aWidth, aHeight, aBevelWidth, aBevelHeight : single): TDomNode;
+    function CreateKnobSlider( aNode : TDomNode; aID : string): TDomNode;
+
+    function CreateBackground( aNode : TDomNode; aID : string): TDomNode;
     procedure SetAttribute( aNode : TDomNode; aName, aValue : string);
 
     function CreateSection( aID : string; aPlaceholderWidth, aPlaceholderHeight, aCols, aRows : integer; aText : string): TSVGSkinSection;
@@ -224,27 +258,27 @@ const
   idLabel = 'label';
   idLedOffGreen = 'ledGreenOff';
   idLedOffSequencer = 'ledSeqOff';
-  idLedOnGreen = 'ledGreenOn';
-  idLedOnSequencer = 'ledSeqOn';
-  idMiniVU = 'miniVU';
+  idLedOnGreen = 'ledgreen';
+  idLedOnSequencer = 'ledseq';
+  idMiniVU = 'minivU';
   idTxtField = 'txtField';
-  idBtnText = 'btnText';
-  idBtnFlat = 'btnFlat';
-  idBtnIncDecHorz = 'btnIncDecHorz';
-  idBtnIncDecVert = 'btnIncDecVert';
-  idLevelShift = 'levelShift';
-  idBtnRadio = 'btnRadio';
+  idBtnText = 'btntext';
+  idBtnFlat = 'btnflat';
+  idBtnIncDecHorz = 'btnincdec_horz';
+  idBtnIncDecVert = 'btnincdec_vert';
+  idLevelShift = 'levelshift';
+  idBtnRadio = 'btnradio';
   idSlider = 'slider';
-  idKnobBig = 'knobBig';
-  idKnobMedium = 'knobMedium';
-  idKnobResetMedium = 'knobResetmedium';
-  idKnobReset = 'knobReset';
-  idKnobSmall = 'knobSmall';
-  idKnobBtns = 'knobBtns';
-  idKnobCenterBtn = 'knobCenterBtn';
-  idConnectorIn = 'connIn';
-  idConnectorOut = 'connOut';
-  idPartSel = 'partSel';
+  idKnobBig = 'knobbig';
+  idKnobMedium = 'knobmedium';
+  idKnobResetMedium = 'knobresetmedium';
+  idKnobReset = 'knobreset';
+  idKnobSmall = 'knobsmall';
+  idKnobBtns = 'knobbtns';
+  idKnobCenterBtn = 'knobresetbtn';
+  idConnectorIn = 'conn_in';
+  idConnectorOut = 'conn_out';
+  idPartSel = 'partsel';
   idGraph = 'graph';
   idModule = 'module';
   idPanelBackground = 'patchbackground';
@@ -1966,7 +2000,7 @@ var Control : TG2GraphChildControl;
        + '     <rect id="' + idSlider + '_bevel" fill="gray" stroke="none" x="0" y="0" width="11" height="45" />'
        + '     <rect id="' + idSlider + '_face" fill="lightgray" stroke="none" x="' + IntToStr(bw) + '" y="' + IntToStr(bw) + '" width="' + IntToStr(11 - bw*2) + '" height="' + IntToStr(45 - bw*2) + '" />'
        //+ '     <rect id="' + idSlider + '_btn" fill="gray" stroke="none" x="0" y="40" width="11" height="5" />'
-       + Use( idSlider + '_knob', GetIDBtnText( idSlider + '_knob', 11, 6, 0.3), 0, 0)
+       + Use( idSlider + '_knob_use', idSlider + '_knob', 0, 0)
        + '  </g>'
        + '</g>');
       try
@@ -2242,17 +2276,17 @@ var Control : TG2GraphChildControl;
                 begin
                   ref_id := idKnobResetMedium;
                   TDOMElement(ParamLinkNode).SetAttribute('nmg2.CtrlStyle', 'resetMedium');
-                end;  
-              ktReset : 
+                end;
+              ktReset :
                 begin
                   ref_id := idKnobReset;
                   TDOMElement(ParamLinkNode).SetAttribute('nmg2.CtrlStyle', 'reset');
-                end;  
-              ktSmall : 
+                end;
+              ktSmall :
                 begin
                   ref_id := idKnobSmall;
                   TDOMElement(ParamLinkNode).SetAttribute('nmg2.CtrlStyle', 'small');
-                end;  
+                end;
             end;
             CreateUse( ParamLinkNode, control_id, ref_id, Control.Left, Control.Top);
           end;
@@ -2677,6 +2711,11 @@ end;
 //
 //------------------------------------------------------------------------------
 
+//http://stackoverflow.com/questions/16865979/delphi-exception-when-preserving-whitespace-in-txmldocument
+//FragNode := storedXMLObj.DocumentElement.ChildNodes[1];
+//FragNode.ChildNodes.Nodes[1].ChildNodes.Nodes[1].ChildNodes.Add(LoadXMLData(XMLFragment.Text).DocumentElement);
+//FragNode.ChildNodes.Nodes[1].ChildNodes.Nodes[1].ChildNodes.Add(LoadXMLData(XMLFragment.Text).DocumentElement);
+
 constructor TSVGSkin.Create(AOwner: TComponent);
 begin
   inherited;
@@ -2722,6 +2761,29 @@ end;
 function TSVGSkin.GetID3D( aBaseName : string; aWidth, aHeight, aDepth : single): string;
 begin
   Result :=  aBaseName + '_' + FloatToStr(trunc(aWidth*10)/10) + 'x' + FloatToStr(trunc(aHeight*10)/10) + 'x' + FloatToStr(trunc(aDepth*10)/10);
+end;
+
+function TSVGSkin.GetID4D(aBaseName: string; aWidth, aHeight, aDepth: single;
+  aSymbolID: string): string;
+begin
+  Result :=  aBaseName + '_' + FloatToStr(trunc(aWidth*10)/10) + 'x' + FloatToStr(trunc(aHeight*10)/10) + 'x' + FloatToStr(trunc(aDepth*10)/10)+ '_' + aSymbolID;
+end;
+
+function TSVGSkin.GetLabelID( aBaseName: string; aText : string): string;
+var i : integer;
+    c : char;
+begin
+  Result := '';
+  for i := 1 to Length(aText) do begin
+    c := aText[i];
+    case c of
+      ' ' : c := '_';
+      '&' : c := '+';
+    end;
+    Result := Result + c;
+  end;
+
+  Result := aBaseName + '_' + Result;
 end;
 
 function TSVGSkin.FindDef(aID: string): TDomNode;
@@ -2778,12 +2840,59 @@ begin
 
     CreateModulePanelGradients;
 
-    CreateSection( 'symbolSection',        100,  50, 10, 1, 'Symbol section');
-    CreateSection( 'textfield_section',     80,  50, 50, 1, 'Text field section');
-    CreateSection( 'btntext_up_section',   100,  80, 50, 1, 'Button text up section');
-    CreateSection( 'btntext_down_section', 100,  80, 50, 1, 'Button text down section');
-    CreateSection( 'btntext_section',      100,  80, 50, 1, 'Button text section');
+    CreateSection( 'module_names_section',  60,  50, 100, 3, 'Module names section');
+    CreateSection( 'module_labels_section', 40,  50, 100, 3, 'Module labels section');
+
+    CreateSection( 'symbol_section',        20,  50, 100, 1, 'Symbol section');
+    CreateSymbolSmallArrowUp;
+    CreateSymbolSmallArrowDown;
+    CreateSymbolSmallArrowLeft;
+    CreateSymbolSmallArrowRight;
+
+
+    CreateSection( 'textfield_section',    100,  50, 50, 1, 'Text field section');
+
+    CreateSection( 'btntext_up_section', 100,  30, 50, 3, 'Button text up section');
+    CreateSection( 'btntext_down_section', 100,  30, 50, 3, 'Button text down section');
+    CreateSection( 'btntext_labels_section', 40,  50, 100, 2, 'Button text labels section');
+    CreateSection( 'btntext_section', 100,  30, 50, 3, 'Button text section');
+
+    CreateSection( 'btnincdec_section', 50,  50, 50, 1, 'Button inc dec section');
+
+    CreateSection( 'btnflat_labels_section', 40,  50, 100, 2, 'Button flat labels section');
+    CreateSection( 'btnflat_btns_section', 80,  30, 50, 4, 'Button flat section');
+
+    CreateSection( 'btnflat_section', 80,  30, 50, 1, 'Button flat section');
+    CreateSection( 'btnradio_section', 100,  100, 50, 1, 'Button radio section');
+
+    CreateSection( 'knob_section', 50, 50, 50, 1, 'Knob section');
+    CreateCenterBtnOff( AddToSection('knob_section', '').FNode);
+    CreateCenterBtnOn( AddToSection('knob_section', '').FNode);
+    CreateCenterBtn( AddToSection('knob_section', '').FNode);
+    CreateKnobButtons( AddToSection('knob_section', '').FNode);
+    CreateKnobBig( AddToSection('knob_section', '').FNode);
+    CreateKnobMedium( AddToSection('knob_section', '').FNode);
+    CreateKnobResetMedium( AddToSection('knob_section', '').FNode);
+    CreateKnobReset( AddToSection('knob_section', '').FNode);
+    CreateKnobSmall( AddToSection('knob_section', '').FNode);
+    CreateKnobSliderKnob( AddToSection('knob_section', '').FNode, idSlider + '_knob', 11, 6, 0.3, 1.0);
+    CreateKnobSlider( AddToSection('knob_section', '').FNode, idSlider);
+
+    CreateSection( 'connector_section', 50, 50, 20, 1, 'Connector section');
+    CreateInConnector( AddToSection('connector_section', '').FNode, 'conn_in' + '_blue', '#6464FF');
+    CreateInConnector( AddToSection('connector_section', '').FNode, 'conn_in' + '_red', '#FF5A5A');
+    CreateInConnector( AddToSection('connector_section', '').FNode, 'conn_in' + '_yellow', '#E6E650');
+    CreateInConnector( AddToSection('connector_section', '').FNode, 'conn_in' + '_orange', '#FFC050');
+    CreateOutConnector( AddToSection('connector_section', '').FNode, 'conn_out' + '_blue', '#6464FF');
+    CreateOutConnector( AddToSection('connector_section', '').FNode, 'conn_out' + '_red', '#FF5A5A');
+    CreateOutConnector( AddToSection('connector_section', '').FNode, 'conn_out' + '_yellow', '#E6E650');
+    CreateOutConnector( AddToSection('connector_section', '').FNode, 'conn_out' + '_orange', '#FFC050');
+
     ModuleSection := CreateSection( 'moduleSection', 300, 300, 10, 20, 'Module section');
+
+    CreateSection( 'UIPanelSection', 300, 300, 1, 4, 'User interf. panel section');
+    Placeholder := AddToSection( 'UIPanelSection', 'patchbackground');
+    CreateBackground( Placeholder.FNode, 'patchbackground');
 
     for i := 0 to G2_module_def.FModuleDefList.Count - 1 do begin
       ModuleType := G2_module_def.FModuleDefList.ModuleDef[i].ModuleType;
@@ -2791,12 +2900,12 @@ begin
 
       if assigned(Module) then begin
 
-        ModuleID := 'Module' + '_' + IntToStr(ModuleType);
+        ModuleID := 'module' + '_' + IntToStr(ModuleType);
         G2_module_def.SelectedPatch.AddModuleToPatch( ltVA, Module);
         G2_module_def.SelectedPatch.SortLeds;
         try
           Placeholder := ModuleSection.CreatePlaceholder( 'def_' + ModuleID);
-          Placeholder.FSVGObject := TSVGG2Module.Create( Placeholder, ModuleID, Module);
+          TSVGG2Module.Create( Placeholder, ModuleID, Module);
         finally
           G2_module_def.SelectedPatch.RemoveFromLedList( ltVA, Module.ModuleIndex);
           G2_module_def.SelectedPatch.DeleteModuleFromPatch(ltVA, Module);
@@ -2808,6 +2917,36 @@ begin
     WriteXMLFile( Doc, 'Skin\g2_graphics_2.svg');
   finally
     g2_module_def.Free;
+  end;
+end;
+
+function TSVGSkin.FindBitmap( aBitmap : TBitmap): integer;
+begin
+  Result := 0;
+  while (Result < BitMapList.Count) and not(CompareBitmap( aBitmap, BitMapList.Items[Result] as TBitmap)) do
+    inc(Result);
+
+  if (Result >= BitMapList.Count) then
+    Result := -1;
+end;
+
+function TSVGSkin.AddSymbolFromBitmap( aBitmap : TBitmap): integer;
+var ObjectID : string;
+    Bitmap : TBitmap;
+    Placeholder : TSVGSkinSectionPlaceholder;
+begin
+  Result := FindBitmap(aBitmap);
+  if Result = - 1 then begin
+
+    Bitmap := TBitmap.Create;
+    Bitmap.Assign(aBitmap);
+    BitMapList.Add(Bitmap);
+    Result := BitmapList.Count -1;
+
+    ObjectID := 'symbol' + '_' + IntToStr(Result);
+
+    Placeholder := AddToSection( 'symbol_section', ObjectID);
+    CreateSymbol( Placeholder.FNode, ObjectID, (BitmapList[Result] as TBitmap).Width, (BitmapList[Result] as TBitmap).Height);
   end;
 end;
 
@@ -2869,8 +3008,7 @@ function TSVGSkin.RoundedButtonObject( aID : string; aWidth, aHeight, aBevelWidt
                                        aColSideLeft, aColSideTop, aColSideRight, aColSideBottom, aColBG, aColFace : string ): string;
 begin
    Result :=
-     '<desc>Button text for G2 editor</desc>'
-   + '<rect id="' + aID + '_sel" x="0" y="0" width="' + FloatToStr(aWidth) + '" height="' + FloatToStr(aHeight) + '" fill="none" stroke="blue" stroke-width="0.2"/>'
+     '<rect id="' + aID + '_sel" x="0" y="0" width="' + FloatToStr(aWidth) + '" height="' + FloatToStr(aHeight) + '" fill="none" stroke="blue" stroke-width="0.2"/>'
    + '<g id="' + aID + '_parts">'
    + '  <rect id="' + aID + '_bg" x="0" y="0" width="' + FloatToStr(aWidth) + '" height="' + FloatToStr(aHeight) + '" fill="' + aColBG + '" stroke="black" stroke-width="0.5"/>'
    + '  <g id="' + aID + '_bevel">'
@@ -2981,53 +3119,171 @@ begin
 end;
 
 function TSVGSkin.CreateParamLink(aNode: TDomNode; aID: string; aCodeRef,
-  aInfoFunc: integer; aCtrlType: string): TDomNode;
+  aMasterRef, aInfoFunc, aTextFunc: integer; aCtrlType, aDependencies: string): TDomNode;
 begin
   Result := CreateG( aNode, aID);
   SetAttribute( Result, 'nmg2.CodeRef', IntToStr(aCodeRef));
+  SetAttribute( Result, 'nmg2.MasterRef', IntToStr(aMasterRef));
   SetAttribute( Result, 'nmg2.InfoFunc', IntTostr(aInfoFunc));
+  SetAttribute( Result, 'nmg2.TextFunc', IntTostr(aTextFunc));
   SetAttribute( Result, 'nmg2.CtrlType', aCtrlType);
+  SetAttribute( Result, 'nmg2.Dependencies', aDependencies);
 end;
+
+function TSVGSkin.CreateConnLink(aNode: TDomNode; aID: string; aCodeRef: integer): TDomNode;
+begin
+  Result := CreateG( aNode, aID);
+  SetAttribute( Result, 'nmg2.CodeRef', IntToStr(aCodeRef));
+end;
+
+function TSVGSkin.CreateSymbol( aNode : TDomNode; aID : string; aWidth, aHeight : integer): TDomNode;
+var S : TStringStream;
+begin
+  Result := CreateChild( aNode, 'rect', aID);
+  SetAttribute( Result, 'fill', 'none');
+  SetAttribute( Result, 'stroke', 'blue');
+  SetAttribute( Result, 'x', '0');
+  SetAttribute( Result, 'y', '0');
+  SetAttribute( Result, 'width', IntToStr(aWidth));
+  SetAttribute( Result, 'height', IntToStr(aHeight));
+
+  {  Result := CreateG( aNode, aID);
+
+  S := TStringStream.Create(
+   '<rect id="' + aID + '_rect" fill="none" stroke="blue" stroke-width="0.2" x="0" y="0" width="' + IntToStr(aWidth)+ '" height="' + IntToStr(aHeight) + '" />');
+  try
+    ReadXMLFragment( Result, S);
+  finally
+    S.Free;
+  end;}
+end;
+
+function TSVGSkin.CreateSymbolSmallArrowUp : TDomNode;
+var S : TStringStream;
+    ObjectiD : string;
+    Placeholder : TSVGSkinSectionPlaceholder;
+begin
+  BitMapList.Add(nil);
+  ObjectID := 'symbol' + '_' + IntToStr(BitmapList.Count - 1);
+  Placeholder := AddToSection( 'symbol_section', ObjectID);
+
+  Result := CreateChild( Placeholder.FNode, 'path', ObjectID);
+  SetAttribute( Result, 'fill', 'black');
+  SetAttribute( Result, 'stroke', 'none');
+  SetAttribute( Result, 'd', 'M0,3 h6 l-3,-3 z');
+  SetAttribute( Result, 'width', '6');
+  SetAttribute( Result, 'height', '3');
+end;
+
+function TSVGSkin.CreateSymbolSmallArrowDown : TDomNode;
+var S : TStringStream;
+    ObjectiD : string;
+    Placeholder : TSVGSkinSectionPlaceholder;
+begin
+  BitMapList.Add(nil);
+  ObjectID := 'symbol' + '_' + IntToStr(BitmapList.Count - 1);
+  Placeholder := AddToSection( 'symbol_section', ObjectID);
+
+  Result := CreateChild( Placeholder.FNode, 'path', ObjectID);
+  SetAttribute( Result, 'fill', 'black');
+  SetAttribute( Result, 'stroke', 'none');
+  SetAttribute( Result, 'd', 'M0,0 h6 l-3,3 z');
+  SetAttribute( Result, 'width', '6');
+  SetAttribute( Result, 'height', '3');
+end;
+
+function TSVGSkin.CreateSymbolSmallArrowLeft : TDomNode;
+var S : TStringStream;
+    ObjectiD : string;
+    Placeholder : TSVGSkinSectionPlaceholder;
+begin
+  BitMapList.Add(nil);
+  ObjectID := 'symbol' + '_' + IntToStr(BitmapList.Count - 1);
+  Placeholder := AddToSection( 'symbol_section', ObjectID);
+
+  Result := CreateChild( Placeholder.FNode, 'path', ObjectID);
+  SetAttribute( Result, 'fill', 'black');
+  SetAttribute( Result, 'stroke', 'none');
+  SetAttribute( Result, 'd', 'M3,0 v6 l-3,-3 z');
+  SetAttribute( Result, 'width', '3');
+  SetAttribute( Result, 'height', '6');
+end;
+
+function TSVGSkin.CreateSymbolSmallArrowRight : TDomNode;
+var S : TStringStream;
+    ObjectiD : string;
+    Placeholder : TSVGSkinSectionPlaceholder;
+begin
+  BitMapList.Add(nil);
+  ObjectID := 'symbol' + '_' + IntToStr(BitmapList.Count - 1);
+  Placeholder := AddToSection( 'symbol_section', ObjectID);
+
+  Result := CreateChild( Placeholder.FNode, 'path', ObjectID);
+  SetAttribute( Result, 'fill', 'black');
+  SetAttribute( Result, 'stroke', 'none');
+  SetAttribute( Result, 'd', 'M0,0 v6 l3,-3 z');
+  SetAttribute( Result, 'width', '3');
+  SetAttribute( Result, 'height', '6');
+end;
+
 
 function TSVGSkin.CreateLabel( aNode : TDomNode; aID : string; x, y : integer; aText : string; aFontSize : integer): TDomNode;
 var S : TStringStream;
     p : integer;
+    ObjectID : string;
+    TextObject, SpanObject : TDomNode;
 begin
-  Result := CreateG( aNode, aID);
+  //Result := CreateG( aNode, aID);
 
   p := pos('&', aText);
   if p>0 then
     aText[p]:= '+';
 
-  S := TStringStream.Create(
-     '  <desc>Label for G2 editor</desc>'
-   + '  <text id="' + aID + '_text' + '" x="' + IntToStr(x) + '" y="' + IntToStr(y+aFontSize) + '"'
-   + '        style="font-size:' + IntToStr(aFontSize) + 'px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"'
-   + '        xml:space="preserve">'
-   + '     <tspan id="' + aID + '_span"  x="' + IntToStr(x) + '" y="' + IntToStr(y+aFontSize) + '">'
-   + aText
-   + '     </tspan>'
-   + '  </text>');
+  Result := CreateChild( aNode, 'text', aID);
+  SetAttribute( Result, 'x', IntToStr(x));
+  SetAttribute( Result, 'y', IntToStr(y+aFontSize));
+  SetAttribute( Result, 'style', 'font-size:' + IntToStr(aFontSize) + 'px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans');
+  //SetAttribute( Result, 'xml:space', 'preserve');
+
+  SpanObject := CreateChild( Result, 'span', aID + '_span');
+  SetAttribute( SpanObject, 'x', IntToStr(x));
+  SetAttribute( SpanObject, 'y', IntToStr(y+aFontSize));
+  SpanObject.TextContent := aText;
+
+  {S := TStringStream.Create(
+     '<text id="' + aID + '_text' + '" x="' + IntToStr(x) + '" y="' + IntToStr(y+aFontSize) + '"'
+   + ' style="font-size:' + IntToStr(aFontSize) + 'px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"'
+   //+ ' xml:space="preserve">'
+   + ' xml:space="default">'
+     + '<tspan id="' + aID + '_span"  x="' + IntToStr(x) + '" y="' + IntToStr(y+aFontSize) + '">'
+          + aText
+     + '</tspan>'
+   + '</text>');
   try
     ReadXMLFragment( Result, S);
   finally
     S.Free;
-  end;
+  end;}
 end;
 
-function TSVGSkin.CreateTextField( aNode : TDomNode; aID : string; x, y, Width, Height : single): TDomNode;
+function TSVGSkin.CreateTextField( aNode : TDomNode; aID : string; x, y, aWidth, aHeight : single): TDomNode;
 var S : TStringStream;
-    bw : integer;
+    bw, th : integer;
 begin
   bw := 1;
+  th := 8;
   Result := CreateG( aNode, aID);
 
   S := TStringStream.Create(
-     '  <desc>TextField for G2 editor</desc>'
-   + '  <g id="' + aID + '_parts">'
-   + '     <rect id="' + aID + '_bevel" fill="gray" stroke="none" x="' + FloatToStr(x) + '" y="' + FloatToStr(y) + '" width="' + FloatToStr(Width)+ '" height="' + FloatToStr(Height) + '" />'
-   + '     <rect id="' + aID + '_window" fill="black" stroke="none" x="' + FloatToStr(x+bw) + '" y="' + FloatToStr(y+bw) + '" width="' + FloatToStr(Width - bw*2) + '" height="' + FloatToStr(Height - bw*2) + '" />'
-   + '  </g>');
+     '<g id="' + aID + '_parts">'
+    + ' <rect id="' + aID + '_bevel" fill="gray" stroke="none" x="' + FloatToStr(x) + '" y="' + FloatToStr(y) + '" width="' + FloatToStr(aWidth)+ '" height="' + FloatToStr(aHeight) + '" />'
+    + ' <rect id="' + aID + '_window" fill="black" stroke="none" x="' + FloatToStr(x+bw) + '" y="' + FloatToStr(y+bw) + '" width="' + FloatToStr(aWidth - bw*2) + '" height="' + FloatToStr(aHeight - bw*2) + '" />'
+     + '<text id="' + aID + '_text' + '"'
+       + ' style="font-size:' + IntToStr(th) + 'px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none;font-family:Arial" xml:space="preserve"'
+       + ' x="0" y="' + FloatToStr( aHeight/2 + th/2) + '">'
+      + '12Ab'
+    + '</text>'
+   + '</g>');
   try
     ReadXMLFragment( Result, S);
   finally
@@ -3039,6 +3295,7 @@ function TSVGSkin.CreateRoundedButtonTextUp( aNode : TDomNode; aID : string; aWi
 var S : TStringStream;
 begin
   Result := CreateG( aNode, aID);
+  SetAttribute( Result, 'nmg2.CtrlType', 'btnstate_off');
   S := TStringStream.Create( RoundedButtonObject( aID, aWidth, aHeight, aBevelWidth, aBevelWidth,
               cBtnSideLight, cBtnSideLight, cBtnSideDark, cBtnSideDark, cBtnSideMedium, cBtnFace));
   try
@@ -3052,6 +3309,7 @@ function TSVGSkin.CreateRoundedButtonTextDown( aNode : TDomNode; aID : String; a
 var S : TStringStream;
 begin
   Result := CreateG( aNode, aID);
+  SetAttribute( Result, 'nmg2.CtrlType', 'btnstate_on');
   S := TStringStream.Create( RoundedButtonObject( aID, aWidth, aHeight, aBevelWidth, aBevelWidth,
               'url(#btnTextGradienSideLeft)', 'url(#btnTextGradienSideTop)', 'url(#btnTextGradienSideRight)', 'url(#btnTextGradienSideBottom)',
               '#00ffcc', 'url(#btnTextGradienFace)'));
@@ -3062,26 +3320,510 @@ begin
   end;
 end;
 
-function TSVGSkin.CreateRoundedButton( aNode : TDomNode; aID : string; aWidth, aHeight, aBevelWidth : single): TDomNode;
+function TSVGSkin.CreateRoundedButton( aNode : TDomNode; aID : string; aWidth, aHeight, aBevelWidth : single; aSymbolID : string; aSymbolWidth, aSymbolHeight : single): TDomNode;
 var Placeholder : TSVGSkinSectionPlaceholder;
+    Node : TDomNode;
 begin
-  Placeholder := AddToSection( 'btntext_up_section', aID + '_up');
-  CreateRoundedButtonTextUp( Placeholder.FNode, aID + '_up', aWidth, aHeight, aBevelWidth);
+  if not DefExists(aID + '_up') then begin
+    Placeholder := AddToSection( 'btntext_up_section', aID + '_up');
+    CreateRoundedButtonTextUp( Placeholder.FNode, aID + '_up', aWidth, aHeight, aBevelWidth);
+  end;
 
-  Placeholder := AddToSection( 'btntext_down_section', aID + '_down');
-  CreateRoundedButtonTextDown( Placeholder.FNode, aID + '_down', aWidth, aHeight, aBevelWidth);
+  if not DefExists(aID + '_down') then begin
+    Placeholder := AddToSection( 'btntext_down_section', aID + '_down');
+    CreateRoundedButtonTextDown( Placeholder.FNode, aID + '_down', aWidth, aHeight, aBevelWidth);
+  end;
 
-  Result := CreateG( aNode, aID);
-  CreateUse( Result,
-             aID + '_el_1',
-             aID + '_up',
-             0, 0);
-  CreateUse( Result,
-             aID + '_el_2',
-             aID + '_down',
-             0, 0);
+  Result := CreateG( aNode, aID + '_' + aSymbolID);
+
+  CreateUse( Result, aID + '_up_use', aID + '_up', 0, 0);
+  CreateUse( Result, aID + '_down_use', aID + '_down', 0, 0);
+
+  if aSymbolID <> '' then begin
+    CreateUse( Result,
+               aID + '_' + aSymbolID + '_use',
+               aSymbolID,
+               trunc(aWidth / 2 - aSymbolWidth / 2), trunc(aHeight / 2 - aSymbolHeight / 2));
+  end;
 end;
 
+function TSVGSkin.CreateButtonFlatButton( aNode : TDomNode; aID : string; aWidth, aHeight : single; aSymbolID : string; aSymbolWidth, aSymbolHeight : single): TDomNode;
+var S : TStringStream;
+    rx, bw : single;
+    w, h : integer;
+    th : integer;
+    Node : TDomNode;
+    svg_text : string;
+    lc, fc : string;
+begin
+  Result := CreateG( aNode, aID);
+
+  bw := 1.2;
+  rx := 2;
+  th := 7;
+
+  lc := '#e6e6e6';
+  fc := '#666666'; // cBtnFlatFace
+
+  svg_text :=
+      '<rect id="' + aID + '_bg" fill="black" stroke="none" x="0" y="0" width="' + FloatToStr(aWidth) + '" height="' + FloatToStr(aHeight) + '" />'
+     + '<rect id="' + aID + '_face" fill="' + fc + '" stroke="none" rx="' + FloatToStr(rx) + '" x="' + FloatToStr(bw) + '" y="' + FloatToStr(bw) + '" width="' + FloatToStr(aWidth-bw*2) + '" height="' + FloatToStr(aHeight-bw*2) + '" />';
+
+    svg_text := svg_text
+       + '<use id="' + aID + '_symbol' + '"'
+         + ' xlink:href="#' + aSymbolID + '"'
+         + ' transform="translate(' + FloatToStr( aWidth / 2 - aSymbolWidth / 2) + ',' + FloatToStr( aHeight / 2 - aSymbolHeight / 2) + ')"'
+         + ' x="0" y="0" />';
+
+         {  if aSymbolID = '' then begin
+    svg_text := svg_text
+      + '<text id="' + aID + '_text' + '"'
+        + ' style="font-size:' + IntToStr(th) + 'px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:' + lc + ';fill-opacity:1;stroke:none;font-family:Arial" xml:space="preserve"'
+        + ' x="0" y="' + FloatToStr( aHeight/2 + th/2) + '">'
+        + aText
+      + '</text>';
+
+  end else begin
+    Node := FindDef( aSymbolID);
+    w := StrToInt(TDomElement(Node).GetAttribute('width'));
+    h := StrToInt(TDomElement(Node).GetAttribute('height'));
+
+    svg_text := svg_text
+       + '<use id="' + aID + '_symbol' + '"'
+         + ' xlink:href="#' + aSymbolID + '"'
+         + ' transform="translate(' + FloatToStr( aWidth / 2 - w div 2) + ',' + FloatToStr( aHeight / 2 - h div 2) + ')"'
+         + ' x="0" y="0" />';
+  end;}
+
+  S := TStringStream.Create(svg_text);
+  try
+    ReadXMLFragment( Result, S);
+  finally
+    S.Free;
+  end;
+end;
+
+function TSVGSkin.CreateButtonRadio(aNode: TDomNode; aID: string; dx,
+  dy: integer; aBtns: TStringList): TDomNode;
+var i : integer;
+    ObjectNode : TDomNode;
+    x, y : integer;
+begin
+  Result := CreateG( aNode, aID);
+
+  x := 0;
+  y := 0;
+
+  for i := 0 to aBtns.Count - 1 do begin
+    ObjectNode := CreateUse( Result, aBtns[i] + '_use', aBtns[i], x, y);
+    SetAttribute( ObjectNode, 'nmg2.CtrlType', 'option');
+    x := x + dx;
+    y := y + dy;
+  end;
+end;
+
+function TSVGSkin.CreateButtonFlat( aNode : TDomNode; aID : string; aBtns : TStringList): TDomNode;
+var i : integer;
+    ObjectNode : TDomNode;
+begin
+  Result := CreateG( aNode, aID);
+
+  for i := 0 to aBtns.Count - 1 do begin
+    ObjectNode := CreateUse( Result, aBtns[i] + '_use', aBtns[i], 0, 0);
+    SetAttribute( ObjectNode, 'nmg2.CtrlType', 'option');
+  end;
+end;
+
+
+function TSVGSkin.CreateBtnIncDecHorz( aNode : TDomNode; aID : string): TDomNode;
+var S : TStringStream;
+    w, h, d : single;
+    Object1ID, Object2ID : string;
+    Placeholder : TSVGSkinSectionPlaceholder;
+begin
+  w := 11;
+  h := 11;
+  d := 1;
+
+  Result := CreateG( aNode, aID);
+
+  Object1ID := GetID4D('btntext', w, h, d, 'symbol_0');
+  if not DefExists(Object1ID) then begin
+    Placeholder := AddToSection( 'btntext_section', Object1ID);
+    CreateRoundedButton( Placeholder.FNode, Object1ID, w, h, d, 'symbol_0', 6, 3);
+  end;
+
+  Object2ID := GetID4D('btntext', w, h, d, 'symbol_1');
+  if not DefExists(Object2ID) then begin
+    Placeholder := AddToSection( 'btntext_section', Object2ID);
+    CreateRoundedButton( Placeholder.FNode, Object2ID, w, h, d, 'symbol_1', 6, 3);
+  end;
+
+  S := TStringStream.Create(
+        ' <g id="' + aID + '_parts">'
+           + ' <use id="' + aID + '_dec' + '"'
+              + ' xlink:href="#' + Object1ID + '"'
+              + ' nmg2.CtrlType="btn_dec"'
+              + ' x="0" y="0" />'
+
+           + ' <use id="' + aID + '_inc' + '"'
+              + ' xlink:href="#' + Object2ID + '"'
+              + ' nmg2.CtrlType="btn_inc"'
+              + ' x="' + FloatToStr(w) + '" y="0" />'
+      + ' </g>');
+  try
+    ReadXMLFragment( Result, S);
+  finally
+    S.Free;
+  end;
+end;
+
+function TSVGSkin.CreateBtnIncDecVert( aNode : TDomNode; aID : string): TDomNode;
+var S : TStringStream;
+    w, h, d : single;
+    Object1ID, Object2ID : string;
+    Placeholder : TSVGSkinSectionPlaceholder;
+begin
+  w := 11;
+  h := 9;
+  d := 1;
+
+  Result := CreateG( aNode, aID);
+
+  Object1ID := GetID4D('btntext', w, h, d, 'symbol_2');
+  if not DefExists(Object1ID) then begin
+    Placeholder := AddToSection( 'btntext_section', Object1ID);
+    CreateRoundedButton( Placeholder.FNode, Object1ID, w, h, d, 'symbol_0', 6, 3);
+  end;
+
+  Object2ID := GetID4D('btntext', w, h, d, 'symbol_3');
+  if not DefExists(Object2ID) then begin
+    Placeholder := AddToSection( 'btntext_section', Object2ID);
+    CreateRoundedButton( Placeholder.FNode, Object2ID, w, h, d, 'symbol_1', 6, 3);
+  end;
+
+  S := TStringStream.Create(
+        ' <g id="' + aID + '_parts">'
+           + ' <use id="' + aID + '_dec' + '"'
+              + ' xlink:href="#' + Object1ID + '"'
+              + ' nmg2.CtrlType="btn_dec"'
+              + ' x="0" y="0" />'
+
+           + ' <use id="' + aID + '_inc' + '"'
+              + ' xlink:href="#' + Object2ID + '"'
+              + ' nmg2.CtrlType="btn_inc"'
+              + ' x="0" y="' + FloatToStr(h) + '" />'
+      + ' </g>');
+  try
+    ReadXMLFragment( Result, S);
+  finally
+    S.Free;
+  end;
+end;
+
+function TSVGSkin.CreateKnobSideGradient( aNode : TDomNode; aID : string; r : single): TDomNode;
+var S : TStringStream;
+begin
+{  StopsNode := CreateLinearGradient( aNode, aID + '_stops');
+  CreateGradientPoint( StopsNode, aID + '_start', 0, aColor1);
+  CreateGradientPoint( StopsNode, aID + '_stop',  100, aColor2);
+
+  S := TStringStream.Create( Gradient( id, r/2, r/2, -r/2, -r/2, '#333333', '#ffffff'));
+  try
+    ReadXMLFragment( aNode, S);
+  finally
+    S.Free;
+  end;}
+end;
+
+function TSVGSkin.CreateCenterBtnOff( aNode : TDomNode): TDomNode;
+var S : TStringStream;
+    id : string;
+    w : single;
+begin
+  w := 10;
+
+  Result := CreateG(aNode, idKnobCenterBtn + '_off');
+  SetAttribute( Result, 'nmg2.CtrlType', 'btnstate_off');
+
+  S := TStringStream.Create(
+     '<path id="' + idKnobCenterBtn + '_off_bg" d="M' + FloatToStr((w - 10)/2) + ',0 h10 l -5,4 z" fill="gray" stroke="black" opacity="1" />');
+  try
+    ReadXMLFragment( Result, S);
+  finally
+    S.Free;
+  end;
+end;
+
+function TSVGSkin.CreateCenterBtnOn( aNode : TDomNode): TDomNode;
+var S : TStringStream;
+    id : string;
+    w : single;
+begin
+  w := 10;
+
+  Result := CreateG(aNode, idKnobCenterBtn + '_on');
+  SetAttribute( Result, 'nmg2.CtrlType',  'btnstate_on');
+
+  S := TStringStream.Create(
+     '<path id="' + idKnobCenterBtn + '_on_bg" d="M' + FloatToStr((w - 10)/2) + ',0 h10 l -5,4 z" fill="lime" stroke="black" opacity="1" />');
+  try
+    ReadXMLFragment( Result, S);
+  finally
+    S.Free;
+  end;
+end;
+
+function TSVGSkin.CreateCenterBtn( aNode : TDomNode): TDomNode;
+begin
+  Result := CreateG(aNode, idKnobCenterBtn);
+  CreateUse( Result, idKnobCenterBtn + '_el_1', idKnobCenterBtn + '_off', 0, 0);
+  CreateUse( Result, idKnobCenterBtn + '_el_2', idKnobCenterBtn + '_on', 0, 0);
+end;
+
+function TSVGSkin.CreateKnobButtons( aNode : TDomNode): TDomNode;
+var S : TStringStream;
+    id, temp, id_smallarrow_up, id_smallarrow_down : string;
+    w, h, bw : single;
+begin
+  w := 11;
+  h := 9;
+  bw := 1;
+
+  id_smallarrow_up := 'symbol_0';
+  id_smallarrow_down := 'symbol_1';
+
+  Result := CreateG( aNode, idKnobBtns);
+
+  temp :=
+      '<rect id="' + idKnobBtns + '_bg" fill="white" stroke="none"'
+         + ' x="0" y="0"  width="' + FloatToStr(w*2-bw) + '" height="' + FloatToStr(h) + '"/>'
+
+    + '<rect id="' + idKnobBtns + '_left" fill="' + cBtnFlatFace + '" stroke="none"'
+         + ' x="' + FloatToStr(bw) + '" y="' + FloatToStr(bw) + '" width="' + FloatToStr(w - bw*2) + '" height="' + FloatToStr(h - bw*2) + '"/>'
+
+    + ' <use id="' + idKnobBtns + '_' + id_smallarrow_down + '"'
+         + ' xlink:href="#' + id_smallarrow_down + '"'
+         + ' transform="translate(' + FloatToStr(w/2 - 6/2) + ',' + FloatToStr(h/2 - 3/2) + ')"'
+         + ' x="0" y="0" />'
+
+    +  '<rect id="' + idKnobBtns + '_right" fill="' + cBtnFlatFace + '" stroke="none"'
+         + ' x="' + FloatToStr(w) + '" y="' + FloatToStr(bw) + '" width="' + FloatToStr(w - bw*2) + '" height="' + FloatToStr(h - bw*2) + '"/>'
+
+    + ' <use id="' + idKnobBtns + '_' + id_smallarrow_up + '"'
+         + ' xlink:href="#' + id_smallarrow_up + '"'
+         + ' transform="translate(' + FloatToStr(w - bw + w/2 - 6/2) + ',' + FloatToStr(h/2 - 3/2) + ')"'
+         + ' x="0" y="0" />';
+  S := TStringStream.Create( temp);
+  try
+    ReadXMLFragment( Result, S);
+  finally
+    S.Free;
+  end;
+end;
+
+function TSVGSkin.CreateKnob( aNode : TDomNode; aID : string; w, h, c_x, c_y, r_side, r_face : single; reset : boolean): TDomNode;
+var S : TStringStream;
+    svg : string;
+begin
+  Result := CreateG( aNode, aID);
+
+  svg :=
+     '<rect id="' + aID + '_sel" nmg2.CtrlType="selection" x="0" y="0" width="' + FLoatToStr(w) + '" height="' + FloatToStr(h) + '" fill="none" stroke="blue" stroke-width="0.2"/>';
+
+   if reset then begin
+     svg := svg
+     + '<use id="' + idKnobCenterBtn + '_use"'
+          + ' xlink:href="#' + idKnobCenterBtn + '"'
+          + ' nmg2.CtrlType="reset"'
+          + ' transform="translate(' + FloatToStr( c_x - 5) + ',' + FloatToStr(0) + ')"'
+          + ' x="0" y="0" />'
+   end;
+
+   svg := svg
+   + '<g transform="translate(' + FloatToStr(c_x) + ',' + FloatToStr(c_y) + ')">'
+     + '<g id="g' + aID + '_face">'
+       + '<circle id="' + aID + '_side" nmg2.CtrlType="side" cx="0" cy="0" r="' + FloatToStr(r_side) + '" fill="url(#knobSideGradient)" stroke="' + cKnobBorder + '" stroke-width="1"  />'
+       + '<circle id="' + aID + '_face" nmg2.CtrlType="face" cx="0" cy="0" r="' + FloatToStr(r_face) + '" fill="' + cKnobFace + '" stroke="none"/>'
+     + '</g>'
+     + '<g id="g' + aID + '_needle" nmg2.CtrlType="needle">'
+       + '<rect id="' + aID + '_needle" fill="' + cKnobBorder + '" stroke="' + cKnobBorder + '" x="-0.1" y="' + FloatToStr(-(r_face-1)) + '" width="0.2" height="' + FloatToStr(r_face-1) + '" />'
+     + '</g>'
+     + '<g id="g' + aID + '_morph">'
+       + '<path id="' + aID + '_morph" nmg2.CtrlType="morph" d="M0,0 v' + FLoatToStr(-r_side) + ' a' + FloatToStr(r_side) + ',' + FLoatToStr(r_side) + ' 0 0,0 ' + FloatToStr(-r_side) + ',' + FloatToStr(r_side) + ' z" fill="red" stroke="none" opacity="0.5" />'
+     + '</g>'
+   + '</g>'
+
+   + '<use id="' + idKnobBtns + '_use"'
+        + ' xlink:href="#' + idKnobBtns + '"'
+        + ' nmg2.CtrlType="buttons"'
+        + ' transform="translate(' + FloatToStr( c_x - 10.5) + ',' + FloatToStr(h - 9) + ')"'
+        + ' x="0" y="0" />';
+
+  S := TStringStream.Create(svg);
+  try
+    ReadXMLFragment( Result, S);
+  finally
+    S.Free;
+  end;
+end;
+
+function TSVGSkin.CreateKnobBig( aNode : TDomNode): TDomNode;
+var id : string;
+    w, h, c_x, c_y, r_side, r_face : single;
+begin
+  // url(#linearGradient26483)
+
+  w := 22;
+  h := 26;
+  r_side := 11;
+  r_face := 8;
+  c_x := 11;
+  c_y := 11;
+
+  id := idKnobBig;
+
+  Result := CreateKnob( aNode, idKnobBig, 22, 26, 11, 11, 11, 8, false);
+end;
+
+function TSVGSkin.CreateKnobMedium( aNode : TDomNode): TDomNode;
+var id : string;
+begin
+  id := idKnobMedium;
+  Result := CreateKnob( aNode, idKnobMedium, 20, 24, 10, 10, 10, 7, false);
+end;
+
+function TSVGSkin.CreateKnobResetMedium( aNode : TDomNode): TDomNode;
+var id : string;
+begin
+  id := idKnobResetMedium;
+  Result := CreateKnob( aNode, idKnobResetMedium, 20, 30, 10, 15, 10, 7, true);
+end;
+
+function TSVGSkin.CreateKnobReset( aNode : TDomNode): TDomNode;
+var id : string;
+begin
+  id := idKnobReset;
+  Result := CreateKnob( aNode, idKnobReset, 18, 26, 9, 14, 9, 6, true);
+end;
+
+function TSVGSkin.CreateKnobSmall( aNode : TDomNode): TDomNode;
+var id : string;
+begin
+  id := idKnobSmall;
+  Result := CreateKnob( aNode, idKnobSmall, 18, 22, 9, 9, 9, 6, false);
+end;
+
+function TSVGSkin.CreateKnobSliderKnob( aNode : TDomNode; aID : string; aWidth, aHeight, aBevelWidth, aBevelHeight : single): TDomNode;
+var S : TStringStream;
+begin
+  Result := CreateG( aNode, aID);
+  S := TStringStream.Create( RoundedButtonObject( aID, aWidth, aHeight, aBevelWidth, aBevelWidth,
+              cSldrKnobSideLight, cSldrKnobSideLight, cSldrKnobSideDark, cSldrKnobSideDark, cSldrKnobSideMedium, cSldrKnobFace));
+  try
+    ReadXMLFragment( Result, S);
+  finally
+    S.Free;
+  end;
+  {S := TStringStream.Create( NiceButton( idSlider + '_knob', aWidth, aHeight, aBevelWidth, aBevelHeight,
+              cSldrKnobSideLight, cSldrKnobSideLight, cSldrKnobSideDark, cSldrKnobSideDark, cSldrKnobSideMedium, cSldrKnobFace));
+  try
+    ReadXMLFragment( aNode, S);
+  finally
+    S.Free;
+  end;}
+end;
+
+function TSVGSkin.CreateKnobSlider( aNode : TDomNode; aID : string): TDomNode;
+var S : TStringStream;
+    bw : integer;
+begin
+  bw := 1;
+
+  Result := CreateG( aNode, aID);
+
+  S := TStringStream.Create(
+     '<g id="' + idSlider + '_parts">'
+     + '<rect id="' + idSlider + '_bevel" fill="gray" stroke="none" x="0" y="0" width="11" height="45" />'
+     + '<rect id="' + idSlider + '_face" fill="lightgray" stroke="none" x="' + IntToStr(bw) + '" y="' + IntToStr(bw) + '" width="' + IntToStr(11 - bw*2) + '" height="' + IntToStr(45 - bw*2) + '" />'
+     + '<use id="' + idSlider + '_knob_use"'
+          + ' xlink:href="#' + idSlider + '_knob' + '"'
+          + ' nmg2.CtrlType="knob"'
+          + ' x="0" y="0" />'
+     + '<use id="' + idSlider + '_btnincdec_use"'
+          + ' xlink:href="#' + idBtnIncDecVert + '"'
+          + ' nmg2.CtrlType="btns"'
+          + ' x="0" y="46" />'
+     + '</g>');
+  try
+    ReadXMLFragment( Result, S);
+  finally
+    S.Free;
+  end;
+end;
+
+function TSVGSkin.CreateInConnector( aNode : TDomNode; aID : string; aColor : string): TDomNode;
+var S : TStringStream;
+begin
+  Result := CreateG( aNode, aID);
+
+  S := TStringStream.Create(
+     '<rect id="' + aID + '_sel" x="0" y="0" width="10" height="10" fill="none" stroke="blue" stroke-width="0.2"/>'
+     + '<g transform="translate(5,5)">'
+     + '<g id="' + aID + '_parts">'
+       + '<circle id="' + aID + '_border" cx="0" cy="0" r="5" fill="' + aColor + '" stroke="none" opacity="1"  />'
+       + '<circle id="' + aID + '_hole" cx="0" cy="0" r="3" fill="black" stroke="none" opacity="1"  />'
+     + '</g>'
+   + '</g>');
+  try
+    ReadXMLFragment( Result, S);
+  finally
+    S.Free;
+  end;
+end;
+
+function TSVGSkin.CreateOutConnector( aNode : TDomNode; aID : string; aColor : string): TDomNode;
+var S : TStringStream;
+begin
+  Result := CreateG( aNode, aID);
+
+  S := TStringStream.Create(
+     '<rect id="' + aID + '_sel" x="0" y="0" width="10" height="10" fill="none" stroke="blue" stroke-width="0.2"/>'
+     + '<g transform="translate(5,5)">'
+     + '<g id="' + aID + '_parts">'
+       + '<rect id="' + aID + '_border" x="-5" y="-5" width="10" height="10" fill="' + aColor + '" stroke="none" opacity="1" />'
+       + '<circle id="' + aID + '_hole" cx="0" cy="0" r="3" fill="black" stroke="none" opacity="1"  />'
+     + '</g>'
+   + '</g>');
+  try
+    ReadXMLFragment( Result, S);
+  finally
+    S.Free;
+  end;
+end;
+
+function TSVGSkin.CreateBackground( aNode : TDomNode; aID : string): TDomNode;
+var S : TStringStream;
+    rx, bw : single;
+begin
+  bw := 1;
+  rx := 1;
+  Result := CreateG( aNode, aID);
+
+  S := TStringStream.Create(
+     '<g id="' + aID + '_parts">'
+     + '<rect id="' + aID + '_bg" fill="#483737" stroke="none" x="0" y="0" width="' + IntToStr(UNITS_COL) + '" height="' + IntToStr(UNITS_ROW) + '" />'
+     + '<rect id="' + aID + '_leftrail" fill="lightgray" stroke="none" x="' + IntToStr(0) + '" y="' + IntToStr(0) + '" width="' + IntToStr(UNITS_ROW) + '" height="' + IntToStr(UNITS_ROW) + '" />'
+     + '<rect id="' + aID + '_rightrail" fill="lightgray" stroke="none" x="' + IntToStr(UNITS_COL - UNITS_ROW) + '" y="' + IntToStr(0) + '" width="' + IntToStr(UNITS_ROW) + '" height="' + IntToStr(UNITS_ROW) + '" />'
+     + '<circle id="' + aID + '_lefthole" cx="' + FloatToStr(UNITS_ROW/2) + '" cy="' + FloatToStr(UNITS_ROW/2) + '" r="' + FloatToStr(UNITS_ROW * 0.3) + '" fill="#483737" stroke="none"  />'
+     + '<circle id="' + aID + '_rightthole" cx="' + FloatToStr(UNITS_COL - UNITS_ROW/2) + '" cy="' + FloatToStr(UNITS_ROW/2) + '" r="' + FloatToStr(UNITS_ROW * 0.3) + '" fill="#483737" stroke="none"  />'
+   + '</g>');
+  try
+    ReadXMLFragment( Result, S);
+  finally
+    S.Free;
+  end;
+end;
 
 procedure TSVGSkin.SetAttribute(aNode: TDomNode; aName, aValue: string);
 begin
@@ -3195,7 +3937,6 @@ begin
 
   FNode := FSKin.CreateG(FSection.FNode, FID);
   FSkin.SetAttribute( FNode, 'transform', 'translate(' + IntToStr(x) + ',' + IntToStr(y) + ')');
-  FSVGObject := nil;
 end;
 
 destructor TSVGSkinSectionPlaceHolder.Destroy;
@@ -3231,10 +3972,16 @@ end;
 constructor TSVGG2Module.Create(aPlaceholder : TSVGSkinSectionPlaceHolder; aID: string; aModule : TG2GraphModule);
 var ModuleNode, DescNode, PanelNode : TDomNode;
     Control : TG2GraphChildControl;
-    i : integer;
+    TextField : TG2GraphDisplay;
+    BtnText : TG2GraphButtonText;
+    BtnFlat : TG2GraphButtonFlat;
+    BtnRadio : TG2GraphButtonRadio;
+    Connector : TG2GraphConnector;
+    i, j, t, w, h, dx, dy, x, y, symbol_width, symbol_height : integer;
     Placeholder : TSVGSkinSectionPlaceholder;
-    ControlID, ObjectID : string;
-    ParamLinkNode,  ObjectNode : TDomNode;
+    ControlID, ObjectID, ChildObjectID, ButtonID, SymbolID : string;
+    slObjectID : TStringlist;
+    ConnLinkNode, ParamLinkNode, ObjectNode : TDomNode;
 begin
   inherited Create( aPlaceHolder, aID);
 
@@ -3246,57 +3993,377 @@ begin
                                  'url(#PanelGradient_0)', 'black',
                                  0, 0, aModule.Panel.Width, aModule.Panel.Height);
 
-  FSkin.CreateLabel( ModuleNode, aID + '_label', 1, 1, aModule.ModuleName, 10);
+  ObjectID := FSKin.GetLabelID('module_name', aModule.ModuleName);
+  if not FSkin.DefExists(ObjectID) then begin
+    Placeholder := FSkin.AddToSection( 'module_names_section', ObjectID);
+    FSkin.CreateLabel( Placeholder.FNode, ObjectID, 0, 0, aModule.ModuleName, 10);
+  end;
+  FSkin.CreateUse( ModuleNode, ObjectID + '_use', ObjectID, 1, 1);
+
 
   for i := 0 to aModule.Panel.ChildControlsCount - 1 do begin
     ControlID := FID + '_ctrl_' + IntToStr(i);
 
+
     Control :=  aModule.Panel.GraphChildControls[i];
 
     if Control is TG2GraphLabel then begin
-      FSkin.CreateLabel( ModuleNode, ControlID, Control.Left, Control.Top, (Control as TG2GraphLabel).Caption, (Control as TG2GraphLabel).Font.Size);
+
+      ObjectID := FSKin.GetLabelID('module_label', (Control as TG2GraphLabel).Caption);
+      if not FSkin.DefExists(ObjectID) then begin
+        Placeholder := FSkin.AddToSection( 'module_labels_section', ObjectID);
+        FSkin.CreateLabel( Placeholder.FNode, ObjectID, 0, 0, (Control as TG2GraphLabel).Caption, (Control as TG2GraphLabel).Font.Size);
+      end;
+      FSkin.CreateUse( ModuleNode, ObjectID + '_use', ObjectID, Control.Left, Control.Top);
+
     end;
 
     if Control is TG2GraphDisplay then begin
+      TextField := Control as TG2GraphDisplay;
       ObjectID := FSkin.GetID2D('textfield', Control.Width, Control.Height);
       if not FSkin.DefExists(ObjectID) then begin
         Placeholder := FSkin.AddToSection( 'textfield_section', ObjectID);
         FSKin.CreateTextField( Placeholder.FNode, ObjectID, 0, 0, Control.Width, Control.Height);
       end;
-      FSkin.CreateUse( ModuleNode, ControlID, ObjectID, Control.Left, Control.Top);
+      ParamLinkNode := FSkin.CreateParamLink( ModuleNode,
+                                              FID + '_paramlink_' + IntToStr(Control.ID),
+                                              0,
+                                              TextField.MasterRef,
+                                              0,
+                                              TextField.TextFunction,
+                                              'textfield',
+                                              TextField.Dependencies.DelimitedText);
+      FSkin.CreateUse( ParamLinkNode, ControlID, ObjectID, Control.Left, Control.Top);
     end;
 
     if Control is TG2GraphButtonText then begin
 
-      ObjectID := FSKin.GetID3D('btntext', Control.Width, Control.Height, 2);
+      BtnText := Control as TG2GraphButtonText;
+
+      if BtnText.ImageList.Count > 0 then begin
+
+        symbol_width := BtnText.ImageList.Items[0].Width;
+        symbol_height := BtnText.ImageList.Items[0].Height;
+
+        SymbolID := '';
+        for j := 0 to BtnText.ImageList.Count - 1 do begin
+          SymbolID := 'symbol_' + IntToStr(FSkin.AddSymbolFromBitmap( BtnText.ImageList.Items[j]));
+        end;
+
+      end else begin
+        symbol_width := BtnText.Width;
+        symbol_height := BtnText.Height;
+
+        SymbolID := FSKin.GetLabelID('btntext_label', BtnText.Parameter.SelectedButtonText);
+        if not FSkin.DefExists(SymbolID) then begin
+          Placeholder := FSkin.AddToSection( 'btntext_labels_section', SymbolID);
+          FSkin.CreateLabel( Placeholder.FNode, SymbolID, 0, 0, BtnText.Parameter.SelectedButtonText, 7);
+        end;
+      end;
+
+      //ObjectID := FSKin.GetID4D('btntext', BtnText.Width, BtnText.Height, 2, SymbolID);
+      ButtonID := FSKin.GetID3D('btntext', BtnText.Width, BtnText.Height, 2);
+      ObjectID := ButtonID + '_' + SymbolID;
       if not FSkin.DefExists(ObjectID) then begin
         Placeholder := FSkin.AddToSection( 'btntext_section', ObjectID);
-        FSKin.CreateRoundedButton( Placeholder.FNode, ObjectID, Control.Width, Control.Height, 2);
+        FSKin.CreateRoundedButton( Placeholder.FNode, ButtonID, BtnText.Width, BtnText.Height, 2, SymbolID, symbol_width, symbol_height);
       end;
       ParamLinkNode := FSkin.CreateParamLink( ModuleNode,
                                               FID + '_paramlink_' + IntToStr(Control.ID),
                                               Control.Parameter.ParamIndex,
+                                              0,
                                               Control.Parameter.InfoFunctionIndex,
-                                              'btntext');
-      FSkin.CreateUse( ParamLinkNode, ControlID, ObjectID, Control.Left, Control.Top);
+                                              0,
+                                              'btntext',
+                                              '');
+      FSkin.CreateUse( ParamLinkNode, ControlID, ObjectID, BtnText.Left, BtnText.Top);
+    end;
 
-      {for m := 0 to (Control as TG2GraphButton).ImageList.Count - 1 do begin
-        symbol_id := AddSymbolFromBitmap( (Control as TG2GraphButton).ImageList.Items[m]);
-        w := (BitmapList[symbol_id] as TBitmap).Width;
-        h := (BitmapList[symbol_id] as TBitmap).Height;
+    if Control is TG2GraphButtonIncDec then begin
+      if (Control as TG2GraphButtonIncDec).Orientation = otHorizontal then begin
 
-        CreateUse( ParamLinkNode, control_id + '_symbol_' + IntToStr(m), idSymbol + '_' + IntToStr(symbol_id), Control.Left + Control.Width div 2 - w div 2, Control.Top + Control.Height div 2 - h div 2);
-      end;}
+        ObjectID := idBtnIncDecHorz;
+        if not FSkin.DefExists(ObjectID) then begin
+          Placeholder := FSkin.AddToSection( 'btnincdec_section', ObjectID);
+          FSKin.CreateBtnIncDecHorz( Placeholder.FNode, ObjectID);
+        end;
+        ParamLinkNode := FSkin.CreateParamLink( ModuleNode,
+                                                FID + '_paramlink_' + IntToStr(Control.ID),
+                                                Control.Parameter.ParamIndex,
+                                                0,
+                                                Control.Parameter.InfoFunctionIndex,
+                                                0,
+                                                'btnincdec',
+                                                '');
+        FSkin.CreateUse( ParamLinkNode, ControlID, ObjectID, Control.Left, Control.Top);
+      end else begin
+        ObjectID := idBtnIncDecVert;
+        if not FSkin.DefExists(ObjectID) then begin
+          Placeholder := FSkin.AddToSection( 'btnincdec_section', ObjectID);
+          FSKin.CreateBtnIncDecVert( Placeholder.FNode, ObjectID);
+        end;
+        ParamLinkNode := FSkin.CreateParamLink( ModuleNode,
+                                                FID + '_paramlink_' + IntToStr(Control.ID),
+                                                Control.Parameter.ParamIndex,
+                                                0,
+                                                Control.Parameter.InfoFunctionIndex,
+                                                0,
+                                                'btnincdec',
+                                                '');
+        FSkin.CreateUse( ParamLinkNode, ControlID, ObjectID, Control.Left, Control.Top);
+      end;
+    end;
+
+    if Control is TG2GraphButtonFlat then begin
+
+      slObjectID := TStringList.Create;
+      try
+
+        if Control is TG2GraphLevelShift then begin
+          //CreateUse( GModuleNode, control_id, idLevelShift, Control.Left, Control.Top);
+        end else begin
+          BtnFlat := Control as TG2GraphButtonFlat;
+
+          ObjectID := 'btnflat_' + IntToStr(BtnFlat.Parameter.ParamID);
+
+          if (BtnFlat.ImageList.Count > 0) then begin
+            for j := 0 to BtnFlat.ImageList.Count - 1 do begin
+
+              symbol_width := BtnFlat.ImageList.Items[j].Width;
+              symbol_height := BtnFlat.ImageList.Items[j].Height;
+              SymbolID := 'symbol_' + IntToStr(FSkin.AddSymbolFromBitmap(  BtnFlat.ImageList.Items[j]));
+
+              ChildObjectID := ObjectID + '_' + IntToStr(j);
+
+              slObjectID.Add( ChildObjectID);
+              if not FSkin.DefExists( ChildObjectID) then begin
+                Placeholder := FSkin.AddToSection( 'btnflat_btns_section', ChildObjectID);
+                FSKin.CreateButtonFlatButton( Placeholder.FNode, ChildObjectID, BtnFlat.Width, BtnFlat.Height, SymbolID, symbol_width, symbol_height);
+              end;
+            end;
+          end else begin
+            for j := 0 to BtnFlat.ButtonText.Count - 1 do begin
+
+              SymbolID := FSKin.GetLabelID('btnflat_label', BtnFlat.Parameter.ButtonText[j]);
+              if not FSkin.DefExists(SymbolID) then begin
+                Placeholder := FSkin.AddToSection( 'btnflat_labels_section', SymbolID);
+                FSkin.CreateLabel( Placeholder.FNode, SymbolID, 0, 0, BtnFlat.Parameter.ButtonText[j], 7);
+              end;
+
+              ChildObjectID := ObjectID + '_' + IntToStr(j);
+              slObjectID.Add(ChildObjectID);
+              if not FSkin.DefExists(ChildObjectID) then begin
+                Placeholder := FSkin.AddToSection( 'btnflat_btns_section', ChildObjectID);
+                FSKin.CreateButtonFlatButton( Placeholder.FNode, ChildObjectID, BtnFlat.Width, BtnFlat.Height, SymbolID, BtnFlat.Width, BtnFlat.Height);
+              end;
+            end;
+          end;
+
+        end;
+
+        if not FSkin.DefExists(ObjectID) then begin
+          Placeholder := FSkin.AddToSection( 'btnflat_section', ObjectID);
+          FSKin.CreateButtonFlat( Placeholder.FNode, ObjectID, slObjectID);
+        end;
+
+        ParamLinkNode := FSkin.CreateParamLink( ModuleNode,
+                                                FID + '_paramlink_' + IntToStr(Control.ID),
+                                                Control.Parameter.ParamIndex,
+                                                0,
+                                                Control.Parameter.InfoFunctionIndex,
+                                                0,
+                                                'btnflat',
+                                                '');
+        FSkin.CreateUse( ParamLinkNode, ControlID, ObjectID, Control.Left, Control.Top);
+      finally
+        slObjectID.Free;
+      end;
+    end;
+
+    if Control is TG2GraphButtonRadio then begin
+      slObjectID := TStringList.Create;
+      try
+        BtnRadio := Control as TG2GraphButtonRadio;
+
+        ObjectID := 'btnradio_' + IntToStr(BtnRadio.Parameter.ParamID);
+
+        if BtnRadio.ButtonCount > 0 then begin
+
+          if BtnRadio.Orientation = otHorizontal then begin
+            w := BtnRadio.Width div BtnRadio.ButtonCount - 1;
+            h := BtnRadio.Height;
+            if BtnRadio.UpsideDown then begin
+              dx := w;
+              dy := 0;
+            end else begin
+              dx := -w;
+              dy := 0;
+            end;
+          end else begin
+            w := BtnRadio.Width;
+            h := BtnRadio.Height div BtnRadio.ButtonCount - 1;
+            if BtnRadio.UpsideDown then begin
+              dx := 0;
+              dy := h;
+            end else begin
+              dx := 0;
+              dy := -h;
+            end;
+          end;
+
+          if (BtnRadio.ImageList.Count > 0) then begin
+            for j := 0 to BtnRadio.ImageList.Count - 1 do begin
+
+              symbol_width := BtnRadio.ImageList.Items[j].Width;
+              symbol_height := BtnRadio.ImageList.Items[j].Height;
+              SymbolID := 'symbol_' + IntToStr(FSkin.AddSymbolFromBitmap(  BtnRadio.ImageList.Items[j]));
+
+              ButtonID := FSKin.GetID3D('btntext', w, h, 2);
+              //ChildObjectID := FSKin.GetID4D('btntext', w, h, 2, SymbolID);
+              ChildObjectID := ButtonID + '_' + SymbolID;
+
+              slObjectID.Add( ChildObjectID);
+              if not FSkin.DefExists( ChildObjectID) then begin
+                Placeholder := FSkin.AddToSection( 'btntext_section', ChildObjectID);
+                FSKin.CreateRoundedButton( Placeholder.FNode, ButtonID, w, h, 2, SymbolID, symbol_width, symbol_height);
+              end;
+            end;
+          end else begin
+            for j := 0 to BtnRadio.ButtonText.Count - 1 do begin
+
+              SymbolID := FSKin.GetLabelID('btntext_label', BtnRadio.Parameter.ButtonText[j]);
+              if not FSkin.DefExists(SymbolID) then begin
+                Placeholder := FSkin.AddToSection( 'btntext_labels_section', SymbolID);
+                FSkin.CreateLabel( Placeholder.FNode, SymbolID, 0, 0, BtnRadio.Parameter.ButtonText[j], 7);
+              end;
+
+              ButtonID := FSKin.GetID3D('btntext', w, h, 2);
+              //ChildObjectID := FSKin.GetID4D('btntext', w, h, 2, SymbolID);
+              ChildObjectID := ButtonID + '_' + SymbolID;
+
+              slObjectID.Add( ChildObjectID);
+              if not FSkin.DefExists( ChildObjectID) then begin
+                Placeholder := FSkin.AddToSection( 'btntext_section', ChildObjectID);
+                FSKin.CreateRoundedButton( Placeholder.FNode, ButtonID, w, h, 2, SymbolID, w, h);
+              end;
+            end;
+          end;
+
+          if not FSkin.DefExists(ObjectID) then begin
+            Placeholder := FSkin.AddToSection( 'btnradio_section', ObjectID);
+            FSKin.CreateButtonRadio( Placeholder.FNode, ObjectID, dx, dy, slObjectID);
+          end;
+
+          {FindOrAddBtnRadio( w, h);
+
+          x := BtnRadio.Left;
+          y := BtnRadio.Top;
+          for m := 0 to BtnRadio.ButtonCount - 1 do begin
+            if m = 0 then
+              CreateUse( ParamLinkNode, control_id + '_el_'+ IntToStr(m), GetIDBtnRadio( idBtnRadio + '_down', w, h), x, y)
+            else
+              CreateUse( ParamLinkNode, control_id + '_el_'+ IntToStr(m), GetIDBtnRadio( idBtnRadio + '_up', w, h), x, y);
+            x := x + dx;
+            y := y + dy;
+          end;}
+        end;
+
+        ParamLinkNode := FSkin.CreateParamLink( ModuleNode,
+                                                FID + '_paramlink_' + IntToStr(Control.ID),
+                                                Control.Parameter.ParamIndex,
+                                                0,
+                                                Control.Parameter.InfoFunctionIndex,
+                                                0,
+                                                'btnradio',
+                                                '');
+        FSkin.CreateUse( ParamLinkNode, ControlID, ObjectID, Control.Left, Control.Top);
+
+      finally
+        slObjectID.Free;
+      end;
+    end;
+
+    if Control is TG2GraphKnob then begin
+
+      ParamLinkNode := FSkin.CreateParamLink( ModuleNode,
+                                              FID + '_paramlink_' + IntToStr(Control.ID),
+                                              Control.Parameter.ParamIndex,
+                                              0,
+                                              Control.Parameter.InfoFunctionIndex,
+                                              0,
+                                              'knob',
+                                              '');
+
+      if (Control as TG2GraphKnob).KnobType = ktSlider then begin
+        TDOMElement(ParamLinkNode).SetAttribute('nmg2.CtrlStyle', 'slider');
+
+        FSkin.CreateUse( ParamLinkNode, ControlID, idSlider, Control.Left, Control.Top);
+      end else begin
+        case (Control as TG2GraphKnob).KnobType of
+          ktBig :
+            begin
+              FSkin.SetAttribute(ParamLinkNode, 'nmg2.CtrlStyle', 'big');
+              FSkin.CreateUse( ParamLinkNode, ControlID, idKnobBig, Control.Left, Control.Top);
+            end;
+          ktMedium :
+            begin
+              FSkin.SetAttribute(ParamLinkNode, 'nmg2.CtrlStyle', 'medium');
+              FSkin.CreateUse( ParamLinkNode, ControlID, idKnobMedium, Control.Left, Control.Top);
+            end;
+          ktResetMedium :
+            begin
+              FSkin.SetAttribute(ParamLinkNode, 'nmg2.CtrlStyle', 'resetmedium');
+              FSkin.CreateUse( ParamLinkNode, ControlID, idKnobResetMedium, Control.Left, Control.Top);
+            end;
+          ktReset :
+            begin
+              FSkin.SetAttribute(ParamLinkNode, 'nmg2.CtrlStyle', 'reset');
+              FSkin.CreateUse( ParamLinkNode, ControlID, idKnobReset, Control.Left, Control.Top);
+            end;
+          ktSmall :
+            begin
+              FSkin.SetAttribute(ParamLinkNode, 'nmg2.CtrlStyle', 'small');
+              FSkin.CreateUse( ParamLinkNode, ControlID, idKnobSmall, Control.Left, Control.Top);
+            end;
+        end;
+      end;
+    end;
+
+    if Control is TG2GraphConnector then begin
+      Connector := Control as TG2GraphConnector;
+
+      ConnLinkNode := FSkin.CreateConnLink( ModuleNode,
+                                            FID + '_connlink_' + IntToStr(Control.ID),
+                                            Connector.Data.ConnectorIndex);
+
+      if Connector.Data.ConnectorKind = ckInput then begin
+        case Connector.Data.ConnectorDefColor of
+        COLOR_YELLOW : FSkin.CreateUse( ConnLinkNode, ControlID, idConnectorIn + '_yellow', Control.Left, Control.Top);
+        COLOR_BLUE : FSkin.CreateUse( ConnLinkNode, ControlID, idConnectorIn + '_blue', Control.Left, Control.Top);
+        COLOR_RED : FSkin.CreateUse( ConnLinkNode, ControlID, idConnectorIn + '_red', Control.Left, Control.Top);
+        end;
+      end;
+
+      if Connector.Data.ConnectorKind = ckOutput then begin
+        case Connector.Data.ConnectorDefColor of
+        COLOR_YELLOW : FSkin.CreateUse( ConnLinkNode, ControlID, idConnectorOut + '_yellow', Control.Left, Control.Top);
+        COLOR_BLUE : FSkin.CreateUse( ConnLinkNode, ControlID, idConnectorOut + '_blue', Control.Left, Control.Top);
+        COLOR_RED : FSkin.CreateUse( ConnLinkNode, ControlID, idConnectorOut + '_red', Control.Left, Control.Top);
+        end;
+      end;
+
+      {ConnLinkNode := Doc.CreateElement('g');
+      GModuleNode.AppendChild(ConnLinkNode);
+      TDOMElement(ConnLinkNode).SetAttribute('id', 'g2_module_' + IntToStr(FModule.TypeID) + '_connlink_' + IntToStr(Control.ID));
+      TDOMElement(ConnLinkNode).SetAttribute('nmg2.CodeRef', IntToStr(Connector.Data.ConnectorIndex));}
     end;
 
 
   end;
-
-end;
+end;
 
 destructor TSVGG2Module.Destroy;
 begin
-
   inherited;
 end;
 
