@@ -82,6 +82,9 @@ type
     SVGDelphiXMLDoc1: TSVGDelphiXMLDoc;
     SVGAgent1: TSVGAgent;
     TimerStartup: TTimer;
+    MenuItem2: TMenuItem;
+    MenuItem3: TMenuItem;
+    Profiler: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure tbZoomChange(Sender: TObject);
     procedure sbClick(Sender: TObject);
@@ -98,6 +101,9 @@ type
     procedure Button2Click(Sender: TObject);
     procedure Button3Click(Sender: TObject);
     procedure TimerStartupTimer(Sender: TObject);
+    procedure SVGAgent1AfterParseNode(Sender: TObject; aNode: TSVGNode);
+    procedure SVGAgent1BeforeParseNode(Sender: TObject; aNode: TSVGNode);
+    procedure MenuItem3Click(Sender: TObject);
   private
     { Private declarations }
 
@@ -137,6 +143,8 @@ var
 implementation
 
 {$R *.fmx}
+
+uses UnitLog;
 
 //==============================================================================
 //
@@ -220,6 +228,8 @@ begin
   FG2.LoadModuleDefs('');
   FG2.IsServer := True;
 
+  FG2.ParseModulePanels;
+
   FPatch := FG2.Performance.Slot[0].Patch as TG2GraphPatchFMX;
   FPatch.Layout := FModuleBitmapBuffer;
   FPatch.OnCreateModuleFMX := CreateModuleFMX;
@@ -288,9 +298,13 @@ begin
         inc(i);
       end;
 
+      //frmProfiler.Active := True;
+
       FPatch.Init;
       FPatch.LoadFromFile(FileStream, nil);
       FPatch.InvalidateParameters;
+
+      //frmProfiler.Active := False;
 
       FCableBitmapBuffer.BringToFront;
       FCableBitmapBuffer.RedrawBuffer := True;
@@ -454,6 +468,11 @@ begin
   CalcLayoutDimensions;
 end;
 
+procedure TfrmSVGTest.MenuItem3Click(Sender: TObject);
+begin
+  frmLog.Show;
+end;
+
 procedure TfrmSVGTest.sbClick(Sender: TObject);
 begin
   FSVGSelection.UnSelectAll;
@@ -475,6 +494,17 @@ begin
     FSVGCtrlSelected := nil;
     FSVGModule := nil;
   end;
+end;
+
+procedure TfrmSVGTest.SVGAgent1BeforeParseNode(Sender: TObject;
+  aNode: TSVGNode);
+begin
+  //frmLog.Memo1.Lines.Add(' -> ' + aNode.ElementName);
+end;
+
+procedure TfrmSVGTest.SVGAgent1AfterParseNode(Sender: TObject; aNode: TSVGNode);
+begin
+  //frmLog.Memo1.Lines.Add(' <- ' + aNode.ElementName);
 end;
 
 procedure TfrmSVGTest.SVGMouseDown(Sender: TObject; Button: TMouseButton;
@@ -704,7 +734,7 @@ var SVGModule : TSVGG2Module;
 begin
   while FSelList.Count > 0 do begin
     SVGModule := FSelList[0] as TSVGG2Module;
-    SVGModule.Data.Selected := False;
+    SVGModule.ModuleData.Selected := False;
     FSelList.Delete(0);
   end;
 end;
@@ -723,7 +753,7 @@ begin
   end else begin
     UnSelectall;
     FSelList.Add(aSVGModule);
-    aSVGModule.Data.Selected := True;
+    aSVGModule.ModuleData.Selected := True;
   end;
 end;
 

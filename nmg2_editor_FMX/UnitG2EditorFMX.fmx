@@ -206,12 +206,43 @@ object frmSVGTest: TfrmSVGTest
         Text = 'Delete'
       end
     end
+    object MenuItem2: TMenuItem
+      Width = 50.000000000000000000
+      Height = 50.000000000000000000
+      TabOrder = 2
+      ShortCut = 0
+      Text = 'Debug'
+      object MenuItem3: TMenuItem
+        Locked = True
+        Width = 50.000000000000000000
+        Height = 50.000000000000000000
+        OnClick = MenuItem3Click
+        TabOrder = 0
+        ShortCut = 0
+        Text = 'Log'
+      end
+      object Profiler: TMenuItem
+        Locked = True
+        Width = 50.000000000000000000
+        Height = 50.000000000000000000
+        TabOrder = 1
+        ShortCut = 0
+        Text = 'Profiler'
+      end
+    end
   end
   object TimerZoom: TTimer
     Enabled = False
     Interval = 100
     OnTimer = TimerZoomTimer
     Left = 576
+    Top = 48
+  end
+  object TimerStartup: TTimer
+    Enabled = False
+    Interval = 300
+    OnTimer = TimerStartupTimer
+    Left = 648
     Top = 48
   end
   object XMLDocument1: TXMLDocument
@@ -230,14 +261,9 @@ object frmSVGTest: TfrmSVGTest
   object SVGAgent1: TSVGAgent
     SVGDoc = SVGDelphiXMLDoc1
     DPI = 90.000000000000000000
+    OnBeforeParseNode = SVGAgent1BeforeParseNode
+    OnAfterParseNode = SVGAgent1AfterParseNode
     Left = 640
     Top = 104
-  end
-  object TimerStartup: TTimer
-    Enabled = False
-    Interval = 300
-    OnTimer = TimerStartupTimer
-    Left = 648
-    Top = 48
   end
 end

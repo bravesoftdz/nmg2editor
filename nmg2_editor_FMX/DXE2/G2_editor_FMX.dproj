@@ -122,7 +122,10 @@
 			<DCCReference Include="..\..\..\SVG\BVE.SVGControl.pas"/>
 			<DCCReference Include="..\..\..\SVG\BVE.CSSUtility.pas"/>
 			<DCCReference Include="..\..\..\SVG\BVE.SVGXMLWrapperDelphi.pas"/>
-			<None Include="Profiling\AQtimeModule1.aqt"/>
+			<DCCReference Include="..\UnitLog.pas">
+				<Form>frmLog</Form>
+				<FormType>fmx</FormType>
+			</DCCReference>
 			<BuildConfiguration Include="Release">
 				<Key>Cfg_2</Key>
 				<CfgParent>Base</CfgParent>

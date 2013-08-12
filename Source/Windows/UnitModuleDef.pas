@@ -141,7 +141,10 @@ type
 
     function  CreateParamLink( aNode : TDomNode; aID : string; aCodeRef, aMasterRef, aInfoFunc, aTextFunc : integer; aCtrlType, aDependencies : string): TDomNode;
     function  CreateConnLink(aNode: TDomNode; aID: string; aCodeRef: integer): TDomNode;
-
+    function  CreateParamLinkedUse( aNode : TDomNode; aID, aRef : string; dx, dy : integer;
+                 aCodeRef, aMasterRef, aInfoFunc, aTextFunc: integer; aCtrlType, aDependencies: string): TDomNode;
+    function  CreateConnectorLinkedUse( aNode : TDomNode; aID, aRef : string; dx, dy : integer;
+                 aCodeRef: integer; aCtrlStyle : string): TDomNode;
     function  CreateSymbol( aNode : TDomNode; aID : string; aWidth, aHeight : integer): TDomNode;
     function  CreateSymbolSmallArrowUp: TDomNode;
     function  CreateSymbolSmallArrowDown: TDomNode;
@@ -795,7 +798,7 @@ var Control : TG2GraphChildControl;
 
     procedure CreateLabel( aNode : TDomNode; x, y : integer; aText : string; aFontSize : integer);
     var S : TStringStream;
-        id : string;
+        id, FontFamily : string;
         p : integer;
     begin
       id := idLabel;
@@ -804,11 +807,13 @@ var Control : TG2GraphChildControl;
       if p>0 then
         aText[p]:= '+';
 
+      FontFamily := 'arial';
+
       S := TStringStream.Create(
          '<g id="' + id + '">'
        + '  <desc>Label for G2 editor</desc>'
        + '  <text id="' + id + '_text' + '" x="' + IntToStr(x) + '" y="' + IntToStr(y+aFontSize) + '"'
-       + '        style="font-size:' + IntToStr(aFontSize) + 'px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"'
+       + '        style="font-size:' + IntToStr(aFontSize) + 'px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:' + FontFamily + '"'
        + '        xml:space="preserve">'
        + '     <tspan id="' + id + '_span"  x="' + IntToStr(x) + '" y="' + IntToStr(y+aFontSize) + '">'
        + aText
@@ -3048,6 +3053,55 @@ begin
   SetAttribute( Result, 'y', '0');
 end;
 
+function TSVGSkin.CreateParamLink(aNode: TDomNode; aID: string; aCodeRef,
+  aMasterRef, aInfoFunc, aTextFunc: integer; aCtrlType, aDependencies: string): TDomNode;
+begin
+  Result := CreateG( aNode, aID);
+  SetAttribute( Result, 'nmg2.CodeRef', IntToStr(aCodeRef));
+  SetAttribute( Result, 'nmg2.MasterRef', IntToStr(aMasterRef));
+  SetAttribute( Result, 'nmg2.InfoFunc', IntTostr(aInfoFunc));
+  SetAttribute( Result, 'nmg2.TextFunc', IntTostr(aTextFunc));
+  SetAttribute( Result, 'nmg2.CtrlType', aCtrlType);
+  SetAttribute( Result, 'nmg2.Dependencies', aDependencies);
+end;
+
+function TSVGSkin.CreateConnLink(aNode: TDomNode; aID: string; aCodeRef: integer): TDomNode;
+begin
+  Result := CreateG( aNode, aID);
+  SetAttribute( Result, 'nmg2.CodeRef', IntToStr(aCodeRef));
+end;
+
+function TSVGSkin.CreateParamLinkedUse( aNode : TDomNode; aID, aRef : string; dx, dy : integer;
+  aCodeRef, aMasterRef, aInfoFunc, aTextFunc: integer; aCtrlType, aDependencies: string): TDomNode;
+begin
+  Result := CreateChild( aNode, 'use', aID);
+  SetAttribute( Result, 'id', aID);
+  SetAttribute( Result, 'xlink:href', '#' + aRef);
+  SetAttribute( Result, 'transform', 'translate(' + IntToStr(dx) + ',' + IntToStr(dy) + ')');
+  SetAttribute( Result, 'x', '0');
+  SetAttribute( Result, 'y', '0');
+  SetAttribute( Result, 'nmg2.CodeRef', IntToStr(aCodeRef));
+  SetAttribute( Result, 'nmg2.MasterRef', IntToStr(aMasterRef));
+  SetAttribute( Result, 'nmg2.InfoFunc', IntTostr(aInfoFunc));
+  SetAttribute( Result, 'nmg2.TextFunc', IntTostr(aTextFunc));
+  SetAttribute( Result, 'nmg2.CtrlType', aCtrlType);
+  SetAttribute( Result, 'nmg2.Dependencies', aDependencies);
+end;
+
+function TSVGSkin.CreateConnectorLinkedUse( aNode : TDomNode; aID, aRef : string; dx, dy : integer;
+    aCodeRef: integer; aCtrlStyle : string): TDomNode;
+begin
+  Result := CreateChild( aNode, 'use', aID);
+  SetAttribute( Result, 'id', aID);
+  SetAttribute( Result, 'xlink:href', '#' + aRef);
+  SetAttribute( Result, 'transform', 'translate(' + IntToStr(dx) + ',' + IntToStr(dy) + ')');
+  SetAttribute( Result, 'x', '0');
+  SetAttribute( Result, 'y', '0');
+  SetAttribute( Result, 'nmg2.CodeRef', IntToStr(aCodeRef));
+  SetAttribute( Result, 'nmg2.CtrlType', 'Connector');
+  SetAttribute( Result, 'nmg2.CtrlStyle', aCtrlStyle);
+end;
+
 function TSVGSkin.CreateRect(aNode: TDomNode; aID, aFill,
   aStroke: string; x, y, width, height: integer): TDomNode;
 begin
@@ -3116,24 +3170,6 @@ begin
     svg_color2 := '#' +  IntToHex( Color, 6);
     CreateModulePanelGradient( FDefsNode, 'PanelGradient_' + IntToStr(j), svg_color1{'#F0F0F0'} , svg_color2);
   end;
-end;
-
-function TSVGSkin.CreateParamLink(aNode: TDomNode; aID: string; aCodeRef,
-  aMasterRef, aInfoFunc, aTextFunc: integer; aCtrlType, aDependencies: string): TDomNode;
-begin
-  Result := CreateG( aNode, aID);
-  SetAttribute( Result, 'nmg2.CodeRef', IntToStr(aCodeRef));
-  SetAttribute( Result, 'nmg2.MasterRef', IntToStr(aMasterRef));
-  SetAttribute( Result, 'nmg2.InfoFunc', IntTostr(aInfoFunc));
-  SetAttribute( Result, 'nmg2.TextFunc', IntTostr(aTextFunc));
-  SetAttribute( Result, 'nmg2.CtrlType', aCtrlType);
-  SetAttribute( Result, 'nmg2.Dependencies', aDependencies);
-end;
-
-function TSVGSkin.CreateConnLink(aNode: TDomNode; aID: string; aCodeRef: integer): TDomNode;
-begin
-  Result := CreateG( aNode, aID);
-  SetAttribute( Result, 'nmg2.CodeRef', IntToStr(aCodeRef));
 end;
 
 function TSVGSkin.CreateSymbol( aNode : TDomNode; aID : string; aWidth, aHeight : integer): TDomNode;
@@ -3230,7 +3266,7 @@ end;
 function TSVGSkin.CreateLabel( aNode : TDomNode; aID : string; x, y : integer; aText : string; aFontSize : integer): TDomNode;
 var S : TStringStream;
     p : integer;
-    ObjectID : string;
+    ObjectID, FontFamily : string;
     TextObject, SpanObject : TDomNode;
 begin
   //Result := CreateG( aNode, aID);
@@ -3239,13 +3275,15 @@ begin
   if p>0 then
     aText[p]:= '+';
 
+  FontFamily := 'arial';
+
   Result := CreateChild( aNode, 'text', aID);
   SetAttribute( Result, 'x', IntToStr(x));
   SetAttribute( Result, 'y', IntToStr(y+aFontSize));
-  SetAttribute( Result, 'style', 'font-size:' + IntToStr(aFontSize) + 'px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans');
+  SetAttribute( Result, 'style', 'font-size:' + IntToStr(aFontSize) + 'px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:' + FontFamily);
   //SetAttribute( Result, 'xml:space', 'preserve');
 
-  SpanObject := CreateChild( Result, 'span', aID + '_span');
+  SpanObject := CreateChild( Result, 'tspan', aID + '_span');
   SetAttribute( SpanObject, 'x', IntToStr(x));
   SetAttribute( SpanObject, 'y', IntToStr(y+aFontSize));
   SpanObject.TextContent := aText;
@@ -3363,7 +3401,7 @@ begin
   th := 7;
 
   lc := '#e6e6e6';
-  fc := '#666666'; // cBtnFlatFace
+  fc := '#b3b3b3'; //'#666666'; // cBtnFlatFace
 
   svg_text :=
       '<rect id="' + aID + '_bg" fill="black" stroke="none" x="0" y="0" width="' + FloatToStr(aWidth) + '" height="' + FloatToStr(aHeight) + '" />'
@@ -3447,27 +3485,27 @@ begin
 
   Result := CreateG( aNode, aID);
 
-  Object1ID := GetID4D('btntext', w, h, d, 'symbol_0');
-  if not DefExists(Object1ID) then begin
-    Placeholder := AddToSection( 'btntext_section', Object1ID);
+  Object1ID := GetID3D('btntext', w, h, d);
+  if not DefExists(Object1ID + '_symbol_0') then begin
+    Placeholder := AddToSection( 'btntext_section', Object1ID + '_symbol_0');
     CreateRoundedButton( Placeholder.FNode, Object1ID, w, h, d, 'symbol_0', 6, 3);
   end;
 
-  Object2ID := GetID4D('btntext', w, h, d, 'symbol_1');
-  if not DefExists(Object2ID) then begin
-    Placeholder := AddToSection( 'btntext_section', Object2ID);
+  Object2ID := GetID3D('btntext', w, h, d);
+  if not DefExists(Object2ID + '_symbol_1') then begin
+    Placeholder := AddToSection( 'btntext_section', Object2ID + '_symbol_1');
     CreateRoundedButton( Placeholder.FNode, Object2ID, w, h, d, 'symbol_1', 6, 3);
   end;
 
   S := TStringStream.Create(
         ' <g id="' + aID + '_parts">'
            + ' <use id="' + aID + '_dec' + '"'
-              + ' xlink:href="#' + Object1ID + '"'
+              + ' xlink:href="#' + Object1ID + '_symbol_0' + '"'
               + ' nmg2.CtrlType="btn_dec"'
               + ' x="0" y="0" />'
 
            + ' <use id="' + aID + '_inc' + '"'
-              + ' xlink:href="#' + Object2ID + '"'
+              + ' xlink:href="#' + Object2ID + '_symbol_1' + '"'
               + ' nmg2.CtrlType="btn_inc"'
               + ' x="' + FloatToStr(w) + '" y="0" />'
       + ' </g>');
@@ -3490,27 +3528,27 @@ begin
 
   Result := CreateG( aNode, aID);
 
-  Object1ID := GetID4D('btntext', w, h, d, 'symbol_2');
-  if not DefExists(Object1ID) then begin
-    Placeholder := AddToSection( 'btntext_section', Object1ID);
+  Object1ID := GetID3D('btntext', w, h, d);
+  if not DefExists(Object1ID + '_symbol_0') then begin
+    Placeholder := AddToSection( 'btntext_section', Object1ID + '_symbol_0');
     CreateRoundedButton( Placeholder.FNode, Object1ID, w, h, d, 'symbol_0', 6, 3);
   end;
 
-  Object2ID := GetID4D('btntext', w, h, d, 'symbol_3');
-  if not DefExists(Object2ID) then begin
-    Placeholder := AddToSection( 'btntext_section', Object2ID);
+  Object2ID := GetID3D('btntext', w, h, d);
+  if not DefExists(Object2ID + '_symbol_1') then begin
+    Placeholder := AddToSection( 'btntext_section', Object2ID + '_symbol_1');
     CreateRoundedButton( Placeholder.FNode, Object2ID, w, h, d, 'symbol_1', 6, 3);
   end;
 
   S := TStringStream.Create(
         ' <g id="' + aID + '_parts">'
            + ' <use id="' + aID + '_dec' + '"'
-              + ' xlink:href="#' + Object1ID + '"'
+              + ' xlink:href="#' + Object1ID + '_symbol_0' + '"'
               + ' nmg2.CtrlType="btn_dec"'
               + ' x="0" y="0" />'
 
            + ' <use id="' + aID + '_inc' + '"'
-              + ' xlink:href="#' + Object2ID + '"'
+              + ' xlink:href="#' + Object2ID + '_symbol_1' + '"'
               + ' nmg2.CtrlType="btn_inc"'
               + ' x="0" y="' + FloatToStr(h) + '" />'
       + ' </g>');
@@ -3633,7 +3671,7 @@ begin
 
    if reset then begin
      svg := svg
-     + '<use id="' + idKnobCenterBtn + '_use"'
+     + '<use id="' + aID + '_reset' + '"'
           + ' xlink:href="#' + idKnobCenterBtn + '"'
           + ' nmg2.CtrlType="reset"'
           + ' transform="translate(' + FloatToStr( c_x - 5) + ',' + FloatToStr(0) + ')"'
@@ -3654,7 +3692,7 @@ begin
      + '</g>'
    + '</g>'
 
-   + '<use id="' + idKnobBtns + '_use"'
+   + '<use id="' + aID + '_btns' + '"'
         + ' xlink:href="#' + idKnobBtns + '"'
         + ' nmg2.CtrlType="buttons"'
         + ' transform="translate(' + FloatToStr( c_x - 10.5) + ',' + FloatToStr(h - 9) + ')"'
@@ -3979,7 +4017,7 @@ var ModuleNode, DescNode, PanelNode : TDomNode;
     Connector : TG2GraphConnector;
     i, j, t, w, h, dx, dy, x, y, symbol_width, symbol_height : integer;
     Placeholder : TSVGSkinSectionPlaceholder;
-    ControlID, ObjectID, ChildObjectID, ButtonID, SymbolID : string;
+    ControlID, ObjectID, ChildObjectID, ButtonID, SymbolID, CtrlStyle : string;
     slObjectID : TStringlist;
     ConnLinkNode, ParamLinkNode, ObjectNode : TDomNode;
 begin
@@ -3989,7 +4027,7 @@ begin
   DescNode := FSkin.CreateDesc( ModuleNode, aID + '_desc', 'Module ' + IntToStr(aModule.TypeID) + ', ' + aModule.ModuleName);
 
   PanelNode := FSkin.CreateRect( ModuleNode,
-                                 aID +  IntToStr(aModule.TypeID)+ '_panel',
+                                 aID + '_panel',
                                  'url(#PanelGradient_0)', 'black',
                                  0, 0, aModule.Panel.Width, aModule.Panel.Height);
 
@@ -4014,8 +4052,7 @@ begin
         Placeholder := FSkin.AddToSection( 'module_labels_section', ObjectID);
         FSkin.CreateLabel( Placeholder.FNode, ObjectID, 0, 0, (Control as TG2GraphLabel).Caption, (Control as TG2GraphLabel).Font.Size);
       end;
-      FSkin.CreateUse( ModuleNode, ObjectID + '_use', ObjectID, Control.Left, Control.Top);
-
+      FSkin.CreateUse( ModuleNode, ControlID, ObjectID, Control.Left, Control.Top);
     end;
 
     if Control is TG2GraphDisplay then begin
@@ -4025,7 +4062,7 @@ begin
         Placeholder := FSkin.AddToSection( 'textfield_section', ObjectID);
         FSKin.CreateTextField( Placeholder.FNode, ObjectID, 0, 0, Control.Width, Control.Height);
       end;
-      ParamLinkNode := FSkin.CreateParamLink( ModuleNode,
+      {ParamLinkNode := FSkin.CreateParamLink( ModuleNode,
                                               FID + '_paramlink_' + IntToStr(Control.ID),
                                               0,
                                               TextField.MasterRef,
@@ -4033,7 +4070,18 @@ begin
                                               TextField.TextFunction,
                                               'textfield',
                                               TextField.Dependencies.DelimitedText);
-      FSkin.CreateUse( ParamLinkNode, ControlID, ObjectID, Control.Left, Control.Top);
+      FSkin.CreateUse( ParamLinkNode, ControlID, ObjectID, Control.Left, Control.Top);}
+      ParamLinkNode := FSkin.CreateParamLinkedUse( ModuleNode,
+                                                   ControlID,
+                                                   ObjectID,
+                                                   Control.Left,
+                                                   Control.Top,
+                                                   0,
+                                                   TextField.MasterRef,
+                                                   0,
+                                                   TextField.TextFunction,
+                                                   'textfield',
+                                                   TextField.Dependencies.DelimitedText);
     end;
 
     if Control is TG2GraphButtonText then begin
@@ -4068,7 +4116,7 @@ begin
         Placeholder := FSkin.AddToSection( 'btntext_section', ObjectID);
         FSKin.CreateRoundedButton( Placeholder.FNode, ButtonID, BtnText.Width, BtnText.Height, 2, SymbolID, symbol_width, symbol_height);
       end;
-      ParamLinkNode := FSkin.CreateParamLink( ModuleNode,
+      {ParamLinkNode := FSkin.CreateParamLink( ModuleNode,
                                               FID + '_paramlink_' + IntToStr(Control.ID),
                                               Control.Parameter.ParamIndex,
                                               0,
@@ -4076,7 +4124,19 @@ begin
                                               0,
                                               'btntext',
                                               '');
-      FSkin.CreateUse( ParamLinkNode, ControlID, ObjectID, BtnText.Left, BtnText.Top);
+      FSkin.CreateUse( ParamLinkNode, ControlID, ObjectID, BtnText.Left, BtnText.Top);}
+      ParamLinkNode := FSkin.CreateParamLinkedUse( ModuleNode,
+                                                   ControlID,
+                                                   ObjectID,
+                                                   BtnText.Left,
+                                                   BtnText.Top,
+                                                   Control.Parameter.ParamIndex,
+                                                   0,
+                                                   Control.Parameter.InfoFunctionIndex,
+                                                   0,
+                                                   'btntext',
+                                                   '');
+
     end;
 
     if Control is TG2GraphButtonIncDec then begin
@@ -4087,7 +4147,7 @@ begin
           Placeholder := FSkin.AddToSection( 'btnincdec_section', ObjectID);
           FSKin.CreateBtnIncDecHorz( Placeholder.FNode, ObjectID);
         end;
-        ParamLinkNode := FSkin.CreateParamLink( ModuleNode,
+        {ParamLinkNode := FSkin.CreateParamLink( ModuleNode,
                                                 FID + '_paramlink_' + IntToStr(Control.ID),
                                                 Control.Parameter.ParamIndex,
                                                 0,
@@ -4095,14 +4155,26 @@ begin
                                                 0,
                                                 'btnincdec',
                                                 '');
-        FSkin.CreateUse( ParamLinkNode, ControlID, ObjectID, Control.Left, Control.Top);
+        FSkin.CreateUse( ParamLinkNode, ControlID, ObjectID, Control.Left, Control.Top);}
+        ParamLinkNode := FSkin.CreateParamLinkedUse( ModuleNode,
+                                                     ControlID,
+                                                     ObjectID,
+                                                     Control.Left,
+                                                     Control.Top,
+                                                     Control.Parameter.ParamIndex,
+                                                     0,
+                                                     Control.Parameter.InfoFunctionIndex,
+                                                     0,
+                                                     'btnincdec',
+                                                     '');
+
       end else begin
         ObjectID := idBtnIncDecVert;
         if not FSkin.DefExists(ObjectID) then begin
           Placeholder := FSkin.AddToSection( 'btnincdec_section', ObjectID);
           FSKin.CreateBtnIncDecVert( Placeholder.FNode, ObjectID);
         end;
-        ParamLinkNode := FSkin.CreateParamLink( ModuleNode,
+        {ParamLinkNode := FSkin.CreateParamLink( ModuleNode,
                                                 FID + '_paramlink_' + IntToStr(Control.ID),
                                                 Control.Parameter.ParamIndex,
                                                 0,
@@ -4110,7 +4182,19 @@ begin
                                                 0,
                                                 'btnincdec',
                                                 '');
-        FSkin.CreateUse( ParamLinkNode, ControlID, ObjectID, Control.Left, Control.Top);
+         FSkin.CreateUse( ParamLinkNode, ControlID, ObjectID, Control.Left, Control.Top);}
+        ParamLinkNode := FSkin.CreateParamLinkedUse( ModuleNode,
+                                                     ControlID,
+                                                     ObjectID,
+                                                     Control.Left,
+                                                     Control.Top,
+                                                     Control.Parameter.ParamIndex,
+                                                     0,
+                                                     Control.Parameter.InfoFunctionIndex,
+                                                     0,
+                                                     'btnincdec',
+                                                     '');
+
       end;
     end;
 
@@ -4166,7 +4250,7 @@ begin
           FSKin.CreateButtonFlat( Placeholder.FNode, ObjectID, slObjectID);
         end;
 
-        ParamLinkNode := FSkin.CreateParamLink( ModuleNode,
+        {ParamLinkNode := FSkin.CreateParamLink( ModuleNode,
                                                 FID + '_paramlink_' + IntToStr(Control.ID),
                                                 Control.Parameter.ParamIndex,
                                                 0,
@@ -4174,7 +4258,19 @@ begin
                                                 0,
                                                 'btnflat',
                                                 '');
-        FSkin.CreateUse( ParamLinkNode, ControlID, ObjectID, Control.Left, Control.Top);
+        FSkin.CreateUse( ParamLinkNode, ControlID, ObjectID, Control.Left, Control.Top);}
+        ParamLinkNode := FSkin.CreateParamLinkedUse( ModuleNode,
+                                                     ControlID,
+                                                     ObjectID,
+                                                     Control.Left,
+                                                     Control.Top,
+                                                     Control.Parameter.ParamIndex,
+                                                     0,
+                                                     Control.Parameter.InfoFunctionIndex,
+                                                     0,
+                                                     'btnflat',
+                                                     '');
+
       finally
         slObjectID.Free;
       end;
@@ -4268,7 +4364,7 @@ begin
           end;}
         end;
 
-        ParamLinkNode := FSkin.CreateParamLink( ModuleNode,
+        {ParamLinkNode := FSkin.CreateParamLink( ModuleNode,
                                                 FID + '_paramlink_' + IntToStr(Control.ID),
                                                 Control.Parameter.ParamIndex,
                                                 0,
@@ -4276,8 +4372,18 @@ begin
                                                 0,
                                                 'btnradio',
                                                 '');
-        FSkin.CreateUse( ParamLinkNode, ControlID, ObjectID, Control.Left, Control.Top);
-
+        FSkin.CreateUse( ParamLinkNode, ControlID, ObjectID, Control.Left, Control.Top);}
+        ParamLinkNode := FSkin.CreateParamLinkedUse( ModuleNode,
+                                                     ControlID,
+                                                     ObjectID,
+                                                     Control.Left,
+                                                     Control.Top,
+                                                     Control.Parameter.ParamIndex,
+                                                     0,
+                                                     Control.Parameter.InfoFunctionIndex,
+                                                     0,
+                                                     'btnradio',
+                                                     '');
       finally
         slObjectID.Free;
       end;
@@ -4285,70 +4391,124 @@ begin
 
     if Control is TG2GraphKnob then begin
 
-      ParamLinkNode := FSkin.CreateParamLink( ModuleNode,
+      {ParamLinkNode := FSkin.CreateParamLink( ModuleNode,
                                               FID + '_paramlink_' + IntToStr(Control.ID),
                                               Control.Parameter.ParamIndex,
                                               0,
                                               Control.Parameter.InfoFunctionIndex,
                                               0,
                                               'knob',
-                                              '');
+                                              '');}
 
       if (Control as TG2GraphKnob).KnobType = ktSlider then begin
-        TDOMElement(ParamLinkNode).SetAttribute('nmg2.CtrlStyle', 'slider');
-
-        FSkin.CreateUse( ParamLinkNode, ControlID, idSlider, Control.Left, Control.Top);
+        //TDOMElement(ParamLinkNode).SetAttribute('nmg2.CtrlStyle', 'slider');
+        //FSkin.CreateUse( ParamLinkNode, ControlID, idSlider, Control.Left, Control.Top);
+        ObjectID := idSlider;
+        CtrlStyle := 'slider';
       end else begin
         case (Control as TG2GraphKnob).KnobType of
           ktBig :
             begin
-              FSkin.SetAttribute(ParamLinkNode, 'nmg2.CtrlStyle', 'big');
-              FSkin.CreateUse( ParamLinkNode, ControlID, idKnobBig, Control.Left, Control.Top);
+              //FSkin.SetAttribute(ParamLinkNode, 'nmg2.CtrlStyle', 'big');
+              //FSkin.CreateUse( ParamLinkNode, ControlID, idKnobBig, Control.Left, Control.Top);
+              ObjectID := idKnobBig;
+              CtrlStyle := 'big';
             end;
           ktMedium :
             begin
-              FSkin.SetAttribute(ParamLinkNode, 'nmg2.CtrlStyle', 'medium');
-              FSkin.CreateUse( ParamLinkNode, ControlID, idKnobMedium, Control.Left, Control.Top);
+              //FSkin.SetAttribute(ParamLinkNode, 'nmg2.CtrlStyle', 'medium');
+              //FSkin.CreateUse( ParamLinkNode, ControlID, idKnobMedium, Control.Left, Control.Top);
+              ObjectID := idKnobMedium;
+              CtrlStyle := 'medium';
             end;
           ktResetMedium :
             begin
-              FSkin.SetAttribute(ParamLinkNode, 'nmg2.CtrlStyle', 'resetmedium');
-              FSkin.CreateUse( ParamLinkNode, ControlID, idKnobResetMedium, Control.Left, Control.Top);
+              //FSkin.SetAttribute(ParamLinkNode, 'nmg2.CtrlStyle', 'resetmedium');
+              //FSkin.CreateUse( ParamLinkNode, ControlID, idKnobResetMedium, Control.Left, Control.Top);
+              ObjectID := idKnobResetMedium;
+              CtrlStyle := 'resetmedium';
             end;
           ktReset :
             begin
-              FSkin.SetAttribute(ParamLinkNode, 'nmg2.CtrlStyle', 'reset');
-              FSkin.CreateUse( ParamLinkNode, ControlID, idKnobReset, Control.Left, Control.Top);
+              //FSkin.SetAttribute(ParamLinkNode, 'nmg2.CtrlStyle', 'reset');
+              //FSkin.CreateUse( ParamLinkNode, ControlID, idKnobReset, Control.Left, Control.Top);
+              ObjectID := idKnobReset;
+              CtrlStyle := 'reset';
             end;
           ktSmall :
             begin
-              FSkin.SetAttribute(ParamLinkNode, 'nmg2.CtrlStyle', 'small');
-              FSkin.CreateUse( ParamLinkNode, ControlID, idKnobSmall, Control.Left, Control.Top);
+              //FSkin.SetAttribute(ParamLinkNode, 'nmg2.CtrlStyle', 'small');
+              //FSkin.CreateUse( ParamLinkNode, ControlID, idKnobSmall, Control.Left, Control.Top);
+              ObjectID := idKnobSmall;
+              CtrlStyle := 'small';
             end;
         end;
       end;
+      ParamLinkNode := FSkin.CreateParamLinkedUse( ModuleNode,
+                                                   ControlID,
+                                                   ObjectID,
+                                                   Control.Left,
+                                                   Control.Top,
+                                                   Control.Parameter.ParamIndex,
+                                                   0,
+                                                   Control.Parameter.InfoFunctionIndex,
+                                                   0,
+                                                   'knob',
+                                                   '');
+       FSkin.SetAttribute(ParamLinkNode, 'nmg2.CtrlStyle', CtrlStyle);
+
     end;
 
     if Control is TG2GraphConnector then begin
       Connector := Control as TG2GraphConnector;
 
-      ConnLinkNode := FSkin.CreateConnLink( ModuleNode,
-                                            FID + '_connlink_' + IntToStr(Control.ID),
-                                            Connector.Data.ConnectorIndex);
+      //ConnLinkNode := FSkin.CreateConnLink( ModuleNode,
+      //                                      FID + '_connlink_' + IntToStr(Control.ID),
+      //                                      Connector.Data.ConnectorIndex);
 
       if Connector.Data.ConnectorKind = ckInput then begin
         case Connector.Data.ConnectorDefColor of
-        COLOR_YELLOW : FSkin.CreateUse( ConnLinkNode, ControlID, idConnectorIn + '_yellow', Control.Left, Control.Top);
-        COLOR_BLUE : FSkin.CreateUse( ConnLinkNode, ControlID, idConnectorIn + '_blue', Control.Left, Control.Top);
-        COLOR_RED : FSkin.CreateUse( ConnLinkNode, ControlID, idConnectorIn + '_red', Control.Left, Control.Top);
+        COLOR_YELLOW :
+          begin
+            //FSkin.CreateUse( ConnLinkNode, ControlID, idConnectorIn + '_yellow', Control.Left, Control.Top);
+            ObjectID := idConnectorIn + '_yellow';
+            CtrlStyle := 'In';
+          end;
+        COLOR_BLUE :
+          begin
+            //FSkin.CreateUse( ConnLinkNode, ControlID, idConnectorIn + '_blue', Control.Left, Control.Top);
+            ObjectID := idConnectorIn + '_blue';
+            CtrlStyle := 'In';
+          end;
+        COLOR_RED :
+          begin
+            //FSkin.CreateUse( ConnLinkNode, ControlID, idConnectorIn + '_red', Control.Left, Control.Top);
+            ObjectID := idConnectorIn + '_red';
+            CtrlStyle := 'In';
+          end;
         end;
       end;
 
       if Connector.Data.ConnectorKind = ckOutput then begin
         case Connector.Data.ConnectorDefColor of
-        COLOR_YELLOW : FSkin.CreateUse( ConnLinkNode, ControlID, idConnectorOut + '_yellow', Control.Left, Control.Top);
-        COLOR_BLUE : FSkin.CreateUse( ConnLinkNode, ControlID, idConnectorOut + '_blue', Control.Left, Control.Top);
-        COLOR_RED : FSkin.CreateUse( ConnLinkNode, ControlID, idConnectorOut + '_red', Control.Left, Control.Top);
+        COLOR_YELLOW :
+          begin
+            //FSkin.CreateUse( ConnLinkNode, ControlID, idConnectorOut + '_yellow', Control.Left, Control.Top);
+            ObjectID := idConnectorOut + '_yellow';
+            CtrlStyle := 'Out';
+          end;
+        COLOR_BLUE :
+          begin
+            //FSkin.CreateUse( ConnLinkNode, ControlID, idConnectorOut + '_blue', Control.Left, Control.Top);
+            ObjectID := idConnectorOut + '_blue';
+            CtrlStyle := 'Out';
+          end;
+        COLOR_RED :
+          begin
+            //FSkin.CreateUse( ConnLinkNode, ControlID, idConnectorOut + '_red', Control.Left, Control.Top);
+            ObjectID := idConnectorOut + '_red';
+            CtrlStyle := 'Out';
+          end;
         end;
       end;
 
@@ -4356,6 +4516,15 @@ begin
       GModuleNode.AppendChild(ConnLinkNode);
       TDOMElement(ConnLinkNode).SetAttribute('id', 'g2_module_' + IntToStr(FModule.TypeID) + '_connlink_' + IntToStr(Control.ID));
       TDOMElement(ConnLinkNode).SetAttribute('nmg2.CodeRef', IntToStr(Connector.Data.ConnectorIndex));}
+
+      ConnLinkNode := FSkin.CreateConnectorLinkedUse( ModuleNode,
+                                                      ControlID,
+                                                      ObjectID,
+                                                      Control.Left,
+                                                      Control.Top,
+                                                      Connector.Data.ConnectorIndex,
+                                                      CtrlStyle);
+
     end;
 
 

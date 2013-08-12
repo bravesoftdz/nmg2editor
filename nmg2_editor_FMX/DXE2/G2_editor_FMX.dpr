@@ -18,7 +18,8 @@ uses
   g2_graph_FMX in '..\g2_graph_FMX.pas',
   BVE.SVGControl in '..\..\..\SVG\BVE.SVGControl.pas',
   BVE.CSSUtility in '..\..\..\SVG\BVE.CSSUtility.pas',
-  BVE.SVGXMLWrapperDelphi in '..\..\..\SVG\BVE.SVGXMLWrapperDelphi.pas';
+  BVE.SVGXMLWrapperDelphi in '..\..\..\SVG\BVE.SVGXMLWrapperDelphi.pas',
+  UnitLog in '..\UnitLog.pas' {frmLog};
 
 {$R *.res}
 
@@ -36,5 +37,6 @@ begin
 
   Application.Initialize;
   Application.CreateForm(TfrmSVGTest, frmSVGTest);
+  Application.CreateForm(TfrmLog, frmLog);
   Application.Run;
 end.
