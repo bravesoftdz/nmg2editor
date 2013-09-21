@@ -28,8 +28,8 @@ uses
   FMX.Types, FMX.Controls, FMX.Forms, FMX.Dialogs, FMX.Objects, FMX.Layouts,
   FMX.Memo, FMX.Ani, FMX.Edit, FMX.Effects, BVE.SVGControl,
   LibUSBWinDyn,
-  g2_types, g2_file, g2_usb, g2_graph_FMX, FMX.Menus, Xml.xmldom, Xml.XMLIntf,
-  BVE.SVGXMLWrapperDelphi, Xml.Win.msxmldom, Xml.XMLDoc;
+  g2_types, g2_file, g2_usb, g2_graph_FMX_2, FMX.Menus, Xml.xmldom, Xml.XMLIntf,
+  BVE.SVGXMLWrapperDelphi, Xml.Win.msxmldom, Xml.XMLDoc, FMX.StdCtrls;
 
 type
   TSVGSelection = class(TLayout)
@@ -42,10 +42,10 @@ type
     constructor Create( AOwner: TComponent); override;
     destructor  Destroy; override;
 
-    procedure SelectObject( aSVGModule : TSVGG2Module);
-    procedure AddToSelection( aSVGModule : TSVGG2Module);
+    procedure SelectObject( aSVGModule : TG2Module);
+    procedure AddToSelection( aSVGModule : TG2Module);
     procedure UnSelectAll;
-    function  Selected( aSVGModule : TSVGG2Module): boolean;
+    function  Selected( aSVGModule : TG2Module): boolean;
 
     property Active : boolean read GetActive write SetActive;
   end;
@@ -79,8 +79,6 @@ type
     Label4: TLabel;
     eMemory: TEdit;
     XMLDocument1: TXMLDocument;
-    SVGDelphiXMLDoc1: TSVGDelphiXMLDoc;
-    SVGAgent1: TSVGAgent;
     TimerStartup: TTimer;
     MenuItem2: TMenuItem;
     MenuItem3: TMenuItem;
@@ -88,11 +86,6 @@ type
     procedure FormCreate(Sender: TObject);
     procedure tbZoomChange(Sender: TObject);
     procedure sbClick(Sender: TObject);
-    procedure FormMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Single);
-    procedure FormMouseDown(Sender: TObject; Button: TMouseButton;
-      Shift: TShiftState; X, Y: Single);
-    procedure FormMouseUp(Sender: TObject; Button: TMouseButton;
-      Shift: TShiftState; X, Y: Single);
     procedure miPasteClick(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure miLoadClick(Sender: TObject);
@@ -104,23 +97,31 @@ type
     procedure SVGAgent1AfterParseNode(Sender: TObject; aNode: TSVGNode);
     procedure SVGAgent1BeforeParseNode(Sender: TObject; aNode: TSVGNode);
     procedure MenuItem3Click(Sender: TObject);
+    procedure sbMouseDown(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Single);
+    procedure sbMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Single);
+    procedure sbMouseUp(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Single);
   private
     { Private declarations }
 
     FZoom : single;
     FSVGSelection : TSVGSelection;
-    FSVGModule : TSVGG2Module;
-    FSVGHitpath : TSVGHitpath;
-    FSVGCtrlSelected,
-    FSVGCtrlOver : TSVGG2Control;
 
-    FCableBitmapBuffer : TCableBitmapBuffer;
+    FSVGModule : TG2Module;
+    FSVGControl,
+    FSVGCtrlSelected,
+    FSVGCtrlOver : TG2Control;
+
+    //FCableBitmapBuffer : TCableBitmapBuffer;
     FModuleBitmapBuffer : TModuleBitmapBuffer;
 
-    FDX, FDY : single;
+    FStartX, FStartY : single;
     procedure ApplicationIdle(Sender: TObject; var Done: Boolean);
     function CreateSVGGroup: TSVGGroup;
-  public
+
+    procedure SetSelectedControl(const Value: TG2Control);
+    procedure SetSelectedModule(const Value: TG2Module); public
     { Public declarations }
     FG2 : TG2GraphFMX;
     FPatch : TG2GraphPatchFMX;
@@ -132,9 +133,17 @@ type
 
     procedure G2AfterG2Init(Sender: TObject);
 
-    procedure SVGMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Single);
-    procedure SVGMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Single);
-    procedure SVGMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Single);
+    procedure ControlMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Single);
+    procedure ControlMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Single);
+    procedure ControlMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Single);
+
+    procedure ModuleMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Single);
+    procedure ModuleMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Single);
+    procedure ModuleMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Single);
+
+    property SelectedControl : TG2Control read FSVGControl write SetSelectedControl;
+    property SelectedModule : TG2Module read FSVGModule write SetSelectedModule;
+
   end;
 
 var
@@ -216,11 +225,20 @@ begin
   FSVGSelection.Height := sb.Height  / tbZoom.Value;
   FSVGSelection.Active := False;
 
-  FCableBitmapBuffer := TCableBitmapBuffer.Create(self);
-  lSize.AddObject(FCableBitmapBuffer);
-  FCableBitmapBuffer.SetBounds(0,0,2000,1500);
+  //FCableBitmapBuffer := TCableBitmapBuffer.Create(self);
+  //FCableBitmapBuffer.Parent := lSize;
+
+  //FCableBitmapBuffer.SetBounds(0,0,2000,1500);
+
   FModuleBitmapBuffer := TModuleBitmapBuffer.Create(self);
-  lSize.AddObject(FModuleBitmapBuffer);
+  FModuleBitmapBuffer.Parent := lSize;
+
+  FModuleBitmapBuffer.OnControlMouseDown := ControlMouseDown;
+  FModuleBitmapBuffer.OnControlMouseMOve := ControlMouseMove;
+  FModuleBitmapBuffer.OnControlMouseUp := ControlMouseUp;
+  FModuleBitmapBuffer.OnModuleMouseDown := ModuleMouseDown;
+  FModuleBitmapBuffer.OnModuleMouseMOve := ModuleMouseMove;
+  FModuleBitmapBuffer.OnModuleMouseUp := ModuleMouseUp;
 
   LoadSkin;
 
@@ -234,7 +252,7 @@ begin
   FPatch.Layout := FModuleBitmapBuffer;
   FPatch.OnCreateModuleFMX := CreateModuleFMX;
 
-  FCableBitmapBuffer.CableList := FPatch.CableList[1];
+  //FCableBitmapBuffer.CableList := FPatch.CableList[1];
   FModuleBitmapBuffer.ModuleList := FPatch.ModuleList[1];
 
   FG2.OnAfterG2Init := G2AfterG2Init;
@@ -278,9 +296,11 @@ var PatchName : string;
     aFileName : string;
 begin
   FSVGSelection.UnselectAll;
-  FSVGModule :=  nil;
   FSVGCtrlSelected := nil;
   FSVGCtrlOver := nil;
+
+  SelectedModule :=  nil;
+  SelectedControl := nil;
 
   if OpenDialog1.Execute then begin
     aFileName := OpenDialog1.FileName;
@@ -306,8 +326,8 @@ begin
 
       //frmProfiler.Active := False;
 
-      FCableBitmapBuffer.BringToFront;
-      FCableBitmapBuffer.RedrawBuffer := True;
+      //FCableBitmapBuffer.BringToFront;
+      //FCableBitmapBuffer.RedrawBuffer := True;
 
       CalcLayoutDimensions;
     finally
@@ -341,7 +361,10 @@ procedure TfrmSVGTest.CalcLayoutDimensions;
 var R : TRectF;
 begin
   if assigned(FModuleBitmapBuffer) then begin
-    {R := RealignChildren( FModuleBitmapBuffer, 0, 0);
+    FModuleBitmapBuffer.CaLcBounds;
+    lSize.Width := FModuleBitmapBuffer.Width;
+    lSize.Height := FModuleBitmapBuffer.Height;
+    {R := RealignChildren( FModuleBitmapBuffer, 0, 0);
     FModuleBitmapBuffer.Width := R.Right * tbZoom.Value;
     FModuleBitmapBuffer.Height := R.Bottom * tbZoom.Value;
     lSize.Width := FModuleBitmapBuffer.Width;
@@ -351,18 +374,45 @@ begin
   end;
 end;
 
+procedure TfrmSVGTest.SetSelectedControl(const Value: TG2Control);
+begin
+  if Value <> FSVGControl then begin
+
+    if assigned(FSVGControl) then begin
+      FSVGControl.Selected := False;
+    end;
+
+    FSVGControl := Value;
+
+    if assigned(FSVGControl) then begin
+      FSVGControl.Selected := True;
+    end;
+  end;
+end;
+
+procedure TfrmSVGTest.SetSelectedModule(const Value: TG2Module);
+begin
+  if Value <> FSVGModule then begin
+
+{    if assigned(FSVGModule) then begin
+      FSVGModule.Selected := False;
+    end;
+}
+    FSVGModule := Value;
+
+{    if assigned(FSVGModule) then begin
+      FSVGModule.Selected := True;
+    end;
+}  end;
+end;
+
 procedure TfrmSVGTest.SetZoom(aZoom: single);
 var mx, my : single;
 begin
-  if sb.HScrollBar.Visible then
-    mx := (sb.Width/2 + sb.HScrollBar.Value) / FZoom
-  else
-    mx := (sb.Width/2) / FZoom;
+  // Calc middle of currently visible rectangle of scrollbox
 
-  if sb.VScrollBar.Visible then
-    my := (sb.Height/2 + sb.VScrollBar.Value) / FZoom
-  else
-    my := (sb.Height/2) / FZoom;
+  mx := (sb.ViewportPosition.X + sb.Width/2) / FZoom;
+  my := (sb.ViewportPosition.Y + sb.Height/2) / FZoom;
 
   FZoom := aZoom;
 
@@ -370,21 +420,19 @@ begin
   FModuleBitmapBuffer.Scale.Y := 1;
   FModuleBitmapBuffer.Zoom := FZoom;
 
-  //FModuleBitmapBuffer.Width := (FModuleBitmapBuffer.MaxCol + 3) * UNITS_COL * FZoom;
-  //FModuleBitmapBuffer.Height := (FModuleBitmapBuffer.MaxRow + 6) * UNITS_ROW * FZoom;
   FModuleBitmapBuffer.SetBounds(0,0,
                                 (FModuleBitmapBuffer.MaxCol + 3) * UNITS_COL * FZoom,
                                 (FModuleBitmapBuffer.MaxRow + 6) * UNITS_ROW * FZoom);
   lSize.Width := FModuleBitmapBuffer.Width;
   lSize.Height := FModuleBitmapBuffer.Height;
 
-  FCableBitmapBuffer.Scale.X := 1;
-  FCableBitmapBuffer.Scale.Y := 1;
-  FCableBitmapBuffer.Zoom := FZoom;
-  FCableBitmapBuffer.SetBounds(0,0, FModuleBitmapBuffer.Width, FModuleBitmapBuffer.Height);
+  //FCableBitmapBuffer.Scale.X := 1;
+  //FCableBitmapBuffer.Scale.Y := 1;
+  //FCableBitmapBuffer.Zoom := FZoom;
+  //FCableBitmapBuffer.SetBounds(0,0, FModuleBitmapBuffer.Width, FModuleBitmapBuffer.Height);
 
-  sb.HScrollBar.Value := mx * FZoom - (sb.Width/2);
-  sb.VScrollBar.Value := my * FZoom - (sb.Height/2);
+  // Adjust scrollbox to keep centered on original mid point
+  sb.ViewportPosition := PointF( mx * FZoom - (sb.Width/2), my * FZoom - (sb.Height/2));
 
   MemoryUsed;
 end;
@@ -392,41 +440,46 @@ end;
 procedure TfrmSVGTest.tbZoomChange(Sender: TObject);
 var mx, my : single;
 begin
-  if sb.HScrollBar.Visible then
-    mx := (sb.Width/2 + sb.HScrollBar.Value) / FZoom
-  else
-    mx := (sb.Width/2) / FZoom;
+ // Calc middle of currently visible rectangle of scrollbox
 
-  if sb.VScrollBar.Visible then
-    my := (sb.Height/2 + sb.VScrollBar.Value) / FZoom
-  else
-    my := (sb.Height/2) / FZoom;
+  mx := (sb.ViewportPosition.X + sb.Width/2) / FZoom;
+  my := (sb.ViewportPosition.Y + sb.Height/2) / FZoom;
 
   FZoom := tbZoom.Value;
 
   FModuleBitmapBuffer.Scale.X := (FZoom/FModuleBitmapBuffer.Zoom);
   FModuleBitmapBuffer.Scale.Y := (FZoom/FModuleBitmapBuffer.Zoom);
-  FCableBitmapBuffer.Scale.X := (FZoom/FCableBitmapBuffer.Zoom);
-  FCableBitmapBuffer.Scale.Y := (FZoom/FCableBitmapBuffer.Zoom);
+
+  //FCableBitmapBuffer.Scale.X := (FZoom/FCableBitmapBuffer.Zoom);
+  //FCableBitmapBuffer.Scale.Y := (FZoom/FCableBitmapBuffer.Zoom);
+
+  //FCableBitmapBuffer.Scale.X := 1;
+  //FCableBitmapBuffer.Scale.Y := 1;
+  //FCableBitmapBuffer.Zoom := FZoom;
 
   lSize.Width := FModuleBitmapBuffer.Width * FZoom;
   lSize.Height := FModuleBitmapBuffer.Height * FZoom;
 
-  sb.HScrollBar.Value := mx * FZoom - (sb.Width/2);
-  sb.VScrollBar.Value := my * FZoom - (sb.Height/2);
+  // Adjust scrollbox to keep centered on original mid point
+  sb.ViewportPosition := PointF( mx * FZoom - (sb.Width/2), my * FZoom - (sb.Height/2));
 
-  TimerZoom.Enabled := False;
-  TimerZoom.Enabled := True;
+  MemoryUsed;
+
+  //TimerZoom.Enabled := False;
+  //TimerZoom.Enabled := True;
 end;
 
 procedure TfrmSVGTest.TimerStartupTimer(Sender: TObject);
 begin
   TimerStartup.Enabled := False;
   FG2.USBActive := True;
+
+  MemoryUsed;
 end;
 
 procedure TfrmSVGTest.TimerZoomTimer(Sender: TObject);
 begin
+  exit;
   TimerZoom.Enabled := False;
 
   FModuleBitmapBuffer.Scale.X := 1;
@@ -438,9 +491,9 @@ begin
   lSize.Width := FModuleBitmapBuffer.Width;
   lSize.Height := FModuleBitmapBuffer.Height;
 
-  FCableBitmapBuffer.Scale.X := 1;
-  FCableBitmapBuffer.Scale.Y := 1;
-  FCableBitmapBuffer.Zoom := FZoom;
+  //FCableBitmapBuffer.Scale.X := 1;
+  //FCableBitmapBuffer.Scale.Y := 1;
+  //FCableBitmapBuffer.Zoom := FZoom;
 
   MemoryUsed;
 end;
@@ -448,11 +501,11 @@ end;
 procedure TfrmSVGTest.CreateModuleFMX(Sender: TObject;
   Module: TG2GraphModuleFMX);
 begin
-  if assigned(Module) and assigned(Module.SVGControl) then begin
-     Module.SVGControl.OnMouseDown := SVGMouseDown;
-     Module.SVGControl.OnMouseMove := SVGMouseMove;
-     Module.SVGControl.OnMouseUp := SVGMouseUp;
-  end;
+  {if assigned(Module) and assigned(Module.SVGControl) then begin
+     Module.SVGControl.OnMouseDown := ControlMouseDown;
+     Module.SVGControl.OnMouseMove := ControlMouseMove;
+     Module.SVGControl.OnMouseUp := ControlMouseUp;
+  end;}
   CalcLayoutDimensions;
 end;
 
@@ -462,8 +515,6 @@ end;
 
 procedure TfrmSVGTest.LoadSkin;
 begin
-  g2_graph_FMX.SVGAgent := SVGAgent1;
-  SVGDelphiXMLDoc1.Active := True;
   //SVGAgent.LoadSkin( 'skin\g2_graphics.svg');
   CalcLayoutDimensions;
 end;
@@ -478,22 +529,15 @@ begin
   FSVGSelection.UnSelectAll;
 end;
 
-procedure TfrmSVGTest.FormMouseDown(Sender: TObject; Button: TMouseButton;
-  Shift: TShiftState; X, Y: Single);
-var P: TPointF;
+procedure TfrmSVGTest.G2AfterG2Init(Sender: TObject);
 begin
-  if Button = TMouseButton.mbLeft then begin
+  //FCableBitmapBuffer.BringToFront;
+  //FCableBitmapBuffer.RedrawBuffer := True;
 
-    // Get startpoint in lZoom layout
+  CalcLayoutDimensions;
+  FPatch.InvalidateParameters;
 
-    P := PointF(X, Y);
-    P := FModuleBitmapBuffer.AbsoluteToLocal(P);
-
-    FDX := P.X;
-    FDY := P.Y;
-    FSVGCtrlSelected := nil;
-    FSVGModule := nil;
-  end;
+  MemoryUsed;
 end;
 
 procedure TfrmSVGTest.SVGAgent1BeforeParseNode(Sender: TObject;
@@ -507,190 +551,210 @@ begin
   //frmLog.Memo1.Lines.Add(' <- ' + aNode.ElementName);
 end;
 
-procedure TfrmSVGTest.SVGMouseDown(Sender: TObject; Button: TMouseButton;
-  Shift: TShiftState; X, Y: Single);
-var Module : TSVGG2Module;
-    P : TPointF;
-begin
-  if (Sender is TSVGG2Module) then begin
 
-    FSVGModule := Sender as TSVGG2Module;
-    P := FSVGModule.LocalToAbsolute(PointF(X, Y));
+
+//==============================================================================
+//
+//                                 Mouse
+//
+//==============================================================================
+
+procedure TfrmSVGTest.ControlMouseDown(Sender: TObject; Button: TMouseButton;
+  Shift: TShiftState; X, Y: Single);
+var P : TPointF;
+begin
+  if (Sender is TG2Control) then begin
+    SelectedControl := Sender as TG2Control;
+
+    P := SelectedControl.LocalToAbsolute(PointF(X, Y));
     P := FModuleBitmapBuffer.AbsoluteToLocal(P);
 
-    Edit3.Text := FSVGModule.ID + ' MsDn';
-    Edit4.Text := FSVGModule.ID;
+    FStartX := P.X;
+    FStartY := P.Y;
 
-    FSVGHitpath := FSVGModule.SelectHitpath( PointF(X , Y));
-    if assigned( FSVGHitpath) then begin
-      Edit2.Text := FSVGHitpath.ID;
-      FSVGHitpath.MouseDown( P);
-    end;
+    SelectedControl.ProcessMouseDown( Shift, P.X, P.Y, X, Y);
   end;
 end;
 
-procedure TfrmSVGTest.FormMouseMove(Sender: TObject; Shift: TShiftState; X,
+procedure TfrmSVGTest.ModuleMouseDown(Sender: TObject; Button: TMouseButton;
+  Shift: TShiftState; X, Y: Single);
+var P : TPointF;
+begin
+  if (Sender is TG2Module) then begin
+
+    SelectedModule := Sender as TG2Module;
+    SelectedControl := nil;
+    P := SelectedModule.LocalToAbsolute(PointF(X, Y));
+    P := FModuleBitmapBuffer.AbsoluteToLocal(P);
+
+    FStartX := P.X;
+    FStartY := P.Y;
+  end;
+end;
+
+procedure TfrmSVGTest.sbMouseDown(Sender: TObject; Button: TMouseButton;
+  Shift: TShiftState; X, Y: Single);
+var P: TPointF;
+begin
+  if Button = TMouseButton.mbLeft then begin
+
+    SelectedControl := nil;
+    SelectedModule := nil;
+
+    P := PointF(X, Y);
+    P := FModuleBitmapBuffer.AbsoluteToLocal(P);
+
+    FStartX := P.X;
+    FStartY := P.Y;
+  end;
+end;
+
+procedure TfrmSVGTest.ControlMouseMove(Sender: TObject; Shift: TShiftState;
+  X, Y: Single);
+var
+  P: TPointF;
+  dx, dy : single;
+begin
+  if not(Sender is TControl) then
+    exit;
+
+  P := (Sender as TControl).LocalToAbsolute(PointF(X, Y));
+  P := FModuleBitmapBuffer.AbsoluteToLocal(P);
+  dx := (P.X - FStartX) * FZoom;
+  dy := (P.Y - FStartY) * FZoom;
+  FStartX := P.X;
+  FSTartY := P.Y;
+
+  //if (ssLeft in Shift) then begin
+
+    if FSVGSelection.Active then begin
+      FSVGSelection.Position.X := FSVGSelection.Position.X + dx;
+      FSVGSelection.Position.Y := FSVGSelection.Position.Y + dy;
+    end else
+      if assigned(SelectedControl) then begin
+        SelectedControl.ProcessMouseMove( Shift, P.X, P.Y, X, Y, dx, dy);
+      end else
+        if assigned(SelectedModule) then begin
+        end;
+    //end;
+end;
+
+procedure TfrmSVGTest.ModuleMouseMove(Sender: TObject; Shift: TShiftState; X,
+  Y: Single);
+var P: TPointF;
+    dx, dy : single;
+begin
+  if not(Sender is TControl) then
+    exit;
+
+  P := (Sender as TControl).LocalToAbsolute(PointF(X, Y));
+  P := FModuleBitmapBuffer.AbsoluteToLocal(P);
+  dx := (P.X - FStartX) * FZoom;
+  dy := (P.Y - FStartY) * FZoom;
+  FStartX := P.X;
+  FSTartY := P.Y;
+
+  if (ssLeft in Shift) then begin
+    if FSVGSelection.Active then begin
+      FSVGSelection.Position.X := FSVGSelection.Position.X + dx;
+      FSVGSelection.Position.Y := FSVGSelection.Position.Y + dy;
+    end else
+      if assigned(SelectedControl) then begin
+        SelectedControl.ProcessMouseMove( Shift, P.X, P.Y, -1, -1, dx, dy);
+      end else
+        if assigned(SelectedModule) then begin
+          if (abs(P.X-FStartX)>0.1) or (abs(P.Y-FStartY)>0.1) then begin
+            // Activate selection
+
+            // If the control wasn't selected yet, then select it here
+            if not FSVGSelection.Selected(SelectedModule) then begin
+              if ssShift in Shift then
+                FSVGSelection.AddToSelection(SelectedModule)
+              else
+                FSVGSelection.SelectObject(SelectedModule);
+            end;
+
+            FSVGSelection.Position.X := 0;
+            FSVGSelection.Position.Y := 0;
+            FSVGSelection.Width := sb.Width / tbZoom.Value;
+            FSVGSelection.Height := sb.Height  / tbZoom.Value;
+            FSVGSelection.Active := True;
+          end;
+        end;
+  end;
+end;
+
+
+procedure TfrmSVGTest.sbMouseMove(Sender: TObject; Shift: TShiftState; X,
   Y: Single);
 var dx, dy : single;
     P: TPointF;
 begin
-  if (ssLeft in Shift) then
-    if assigned(FSVGHitpath) then begin
-      if assigned(FSVGModule) then begin
-
-        P := PointF(X, Y);
-        P := FModuleBitmapBuffer.AbsoluteToLocal(P);
-        dx := P.X - FDX;
-        dy := P.Y - FDY;
-
-        FSVGHitpath.MouseMove( P, dx, dy);
-      end;
-    end else
-      if FSVGSelection.Active then begin
-
-        P := PointF(X, Y);
-        P := FModuleBitmapBuffer.AbsoluteToLocal(P);
-
-        FSVGSelection.Position.X := P.X - FDX;
-        FSVGSelection.Position.Y := P.Y - FDY;
-      end;
-end;
-
-procedure TfrmSVGTest.SVGMouseMove(Sender: TObject; Shift: TShiftState;
-  X, Y: Single);
-var
-  P: TPointF;
-  Control : TSVGG2Control;
-begin
-  if not(Sender is TSVGG2Module) then
-    exit;
-
-  FSVGModule := Sender as TSVGG2Module;
-  P := FSVGModule.LocalToAbsolute(PointF(X, Y));
+  P := PointF(X, Y);
   P := FModuleBitmapBuffer.AbsoluteToLocal(P);
-
-  Edit3.Text := FSVGModule.ID + ' MsMv';
+  dx := (P.X - FStartX) * FZoom;
+  dy := (P.Y - FStartY) * FZoom;
+  FStartX := P.X;
+  FSTartY := P.Y;
 
   if (ssLeft in Shift) then begin
-
-    if (abs(P.X-FDX)>0.1) or (abs(P.Y-FDY)>0.1) then begin
-      if (not assigned(FSVGCtrlSelected)) and (not FSVGSelection.Active) then begin
-        // Select something...
-
-        // Check if movement is over a control
-        FSVGCtrlSelected := FSVGModule.SelectControl( PointF(X , Y));
-        if assigned(FSVGCtrlSelected) then begin
-          Edit2.Text := FSVGCtrlSelected.ID;
-          // If the parentcontrol isn't currently selected, select it here
-          if not FSVGSelection.Selected(FSVGModule) then begin
-            if ssShift in Shift then
-              FSVGSelection.AddToSelection( FSVGModule)
-            else
-              FSVGSelection.SelectObject( FSVGModule);
-          end;
-
-        end else begin
-          // Activate selection
-
-          // If the control wasn't selected yet, then select it here
-          if not FSVGSelection.Selected(FSVGModule) then begin
-            if ssShift in Shift then
-              FSVGSelection.AddToSelection( FSVGModule)
-            else
-              FSVGSelection.SelectObject( FSVGModule);
-          end;
-
-          FSVGSelection.Position.X := 0;
-          FSVGSelection.Position.Y := 0;
-          FSVGSelection.Width := sb.Width / tbZoom.Value;
-          FSVGSelection.Height := sb.Height  / tbZoom.Value;
-          FSVGSelection.Active := True;
-
-          FDX := P.X;
-          FDY := P.Y;
-        end;
+    if FSVGSelection.Active then begin
+      FSVGSelection.Position.X := FSVGSelection.Position.X + dx;
+      FSVGSelection.Position.Y := FSVGSelection.Position.Y + dy;
+    end else
+      if assigned(SelectedControl) then begin
+        SelectedControl.ProcessMouseMove( Shift, P.X, P.Y, -1, -1, dx, dy);
       end;
-    end;
+  end;
+end;
+
+procedure TfrmSVGTest.ControlMouseUp(Sender: TObject; Button: TMouseButton;
+  Shift: TShiftState; X, Y: Single);
+var P : TPointF;
+begin
+
+  if (Sender is TG2Control) and (Sender = SelectedControl) then begin
+    P := SelectedControl.LocalToAbsolute(PointF(X, Y));
+    P := FModuleBitmapBuffer.AbsoluteToLocal(P);
+    SelectedControl.ProcessMouseUp( Shift, P.X, P.Y, X, Y);
   end else begin
-    Control := FSVGModule.SelectControl( PointF(X , Y));
-    if assigned(Control) then begin
-      if assigned(FSVGCtrlOver) and (FSVGCtrlOver <> Control) then
-        FSVGCtrlOver.MouseLeave;
-      FSVGCtrlOver := Control;
-      FSVGCtrlOver.MouseMove( P, nil, P.X-FDX, P.Y-FDY);
-    end else begin
-      if assigned(FSVGCtrlOver) then
-        FSVGCtrlOver.MouseLeave;
-      FSVGCtrlOver := nil;
+    if FSVGSelection.Active then begin
+      // Deactivate the selection
+      FSVGSelection.Active := False;
+      CalcLayoutDimensions;
     end;
   end;
 end;
 
-procedure TfrmSVGTest.FormMouseUp(Sender: TObject; Button: TMouseButton;
+procedure TfrmSVGTest.ModuleMouseUp(Sender: TObject; Button: TMouseButton;
+  Shift: TShiftState; X, Y: Single);
+begin
+  if (Sender is TG2Module) and not(assigned(SelectedControl)) then begin
+
+    // Add the control to the selection
+    SelectedModule := Sender as TG2Module;
+
+    if ssShift in Shift then
+      FSVGSelection.AddToSelection(SelectedModule)
+    else begin
+      FSVGSelection.SelectObject(SelectedModule);
+    end;
+    SelectedModule := nil;
+  end else
+    if FSVGSelection.Active then begin
+      // Deactivate the selection
+      FSVGSelection.Active := False;
+      CalcLayoutDimensions;
+    end;
+end;
+
+procedure TfrmSVGTest.sbMouseUp(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Single);
 var i : integer;
 begin
   if FSVGSelection.Active then begin
     FSVGSelection.Active := False;
     CalcLayoutDimensions;
-  end;
-end;
-
-procedure TfrmSVGTest.G2AfterG2Init(Sender: TObject);
-begin
-  FCableBitmapBuffer.BringToFront;
-  FCableBitmapBuffer.RedrawBuffer := True;
-
-  CalcLayoutDimensions;
-  FPatch.InvalidateParameters;
-
-  MemoryUsed;
-end;
-
-procedure TfrmSVGTest.SVGMouseUp(Sender: TObject; Button: TMouseButton;
-  Shift: TShiftState; X, Y: Single);
-var Module : TSVGG2Module;
-    P : TPointF;
-begin
-  // If FSVGControl is assigned, then the last action was a selection movement
-  if (Sender is TSVGG2Module) then begin
-
-    Module := Sender as TSVGG2Module;
-    P := Module.LocalToAbsolute(PointF(X, Y));
-    P := FModuleBitmapBuffer.AbsoluteToLocal(P);
-
-    Edit3.Text := Module.ID + ' MsUp';
-    Edit4.Text := FSVGModule.ID;
-
-    if not(assigned(FSVGModule)) then begin
-      FSVGModule := Module;
-      FSVGCtrlSelected := nil;
-
-      if ssShift in Shift then
-        FSVGSelection.AddToSelection( FSVGModule)
-      else
-        FSVGSelection.SelectObject( FSVGModule);
-
-      FSVGHitpath := FSVGModule.SelectHitpath( PointF(X, Y));
-      if assigned(FSVGHitpath) then begin
-        FSVGHitpath.MouseUp( P);
-      end;
-
-
-    end else begin
-
-      if assigned(FSVGHitpath) then begin
-        FSVGHitpath.MouseUp( P);
-      end;
-
-      if not FSVGSelection.Selected(FSVGModule) then begin
-        if ssShift in Shift then
-          FSVGSelection.AddToSelection( FSVGModule)
-        else
-          FSVGSelection.SelectObject( FSVGModule);
-      end;
-
-    end;
   end;
 end;
 
@@ -716,35 +780,35 @@ begin
   inherited;
 end;
 
-procedure TSVGSelection.AddToSelection(aSVGModule: TSVGG2Module);
+procedure TSVGSelection.AddToSelection(aSVGModule: TG2Module);
 var i : integer;
 begin
-  i := FSelList.IndexOf( aSVGModule);
+{  i := FSelList.IndexOf( aSVGModule);
   if i <> -1 then begin
     FSelList.Delete(i);
     aSVGModule.Data.Selected := False;
   end else begin
     FSelList.Add(aSVGModule);
     aSVGModule.Data.Selected := True;
-  end;
+  end;}
 end;
 
 procedure TSVGSelection.UnSelectAll;
-var SVGModule : TSVGG2Module;
+var SVGModule : TG2Module;
 begin
   while FSelList.Count > 0 do begin
-    SVGModule := FSelList[0] as TSVGG2Module;
+    SVGModule := FSelList[0] as TG2Module;
     SVGModule.ModuleData.Selected := False;
     FSelList.Delete(0);
   end;
 end;
 
-function TSVGSelection.Selected(aSVGModule: TSVGG2Module): boolean;
+function TSVGSelection.Selected(aSVGModule: TG2Module): boolean;
 begin
   Result := FSelList.IndexOf( aSVGModule) <> -1;
 end;
 
-procedure TSVGSelection.SelectObject(aSVGModule: TSVGG2Module);
+procedure TSVGSelection.SelectObject(aSVGModule: TG2Module);
 var i : integer;
 begin
   i := FSelList.IndexOf( aSVGModule);

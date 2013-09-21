@@ -16,9 +16,9 @@ uses
   G2_USB in '..\..\Source\Common\G2_USB.pas',
   LibUSBWinDyn in '..\..\Source\Common\LibUSBWinDyn.pas',
   g2_graph_FMX in '..\g2_graph_FMX.pas',
-  BVE.SVGControl in '..\..\..\SVG\BVE.SVGControl.pas',
-  BVE.CSSUtility in '..\..\..\SVG\BVE.CSSUtility.pas',
-  BVE.SVGXMLWrapperDelphi in '..\..\..\SVG\BVE.SVGXMLWrapperDelphi.pas',
+  BVE.SVGControl in '..\..\..\SVG\Common\BVE.SVGControl.pas',
+  BVE.CSSUtility in '..\..\..\SVG\Common\BVE.CSSUtility.pas',
+  BVE.SVGXMLWrapperDelphi in '..\..\..\SVG\Common\BVE.SVGXMLWrapperDelphi.pas',
   UnitLog in '..\UnitLog.pas' {frmLog};
 
 {$R *.res}

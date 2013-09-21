@@ -205,7 +205,7 @@ type
     function   CreateCopy( AOwner : TComponent; aSVGParent : TSVGGroup): TSVGObject; override;
     procedure  Assign(Source: TPersistent); override;
 
-    function  CreateGroup( aNode : TSVGNode; aId : string; aSVGParent : TSVGGroup; aCTM, aUserMatrix : TMatrix; var aSubTreeOwner : TSVGGroup) : TSVGGroup; override;
+    function  CreateGroup(  AOwner : TComponent; aNode : TSVGNode; aId : string; aSVGParent : TSVGGroup; aCTM, aUserMatrix : TMatrix; var aSubTreeOwner : TSVGGroup) : TSVGGroup; override;
   end;
 
   TSVGG2ConnLink = class(TSVGG2Graphic)
@@ -219,7 +219,7 @@ type
     function  CreateCopy( AOwner : TComponent; aSVGParent : TSVGGroup): TSVGObject; override;
     procedure Assign(Source: TPersistent); override;
 
-    function  CreateGroup( aNode : TSVGNode; aId : string; aSVGParent : TSVGGroup; aCTM, aUserMatrix : TMatrix; var aSubTreeOwner : TSVGGroup) : TSVGGroup; override;
+    function  CreateGroup(  AOwner : TComponent; aNode : TSVGNode; aId : string; aSVGParent : TSVGGroup; aCTM, aUserMatrix : TMatrix; var aSubTreeOwner : TSVGGroup) : TSVGGroup; override;
   end;
 
   TSVGHitPath = class;
@@ -268,7 +268,7 @@ type
     function   CreateCopy( AOwner : TComponent; aSVGParent : TSVGGroup): TSVGObject; override;
     procedure  Assign(Source: TPersistent); override;
 
-    function   CreatePath( aNode : TSVGNode; aId : string; aSVGParent : TSVGGroup; aCTM, aUserMatrix : TMatrix) : TSVGPath; override;
+    function   CreatePath(  AOwner : TComponent; aNode : TSVGNode; aId : string; aSVGParent : TSVGGroup; aCTM, aUserMatrix : TMatrix) : TSVGPath; override;
 
     property Data : TG2FileConnector read FData write SetData;
     property ModuleData : TG2GraphModuleFMX read FModuleData write SetModuleData;
@@ -330,8 +330,8 @@ type
     function   CreateCopy( AOwner : TComponent; aSVGParent : TSVGGroup): TSVGObject; override;
     procedure  Assign(Source: TPersistent); override;
 
-    function    CreatePath( aNode : TSVGNode; aId : string; aSVGParent : TSVGGroup; aCTM, aUserMatrix : TMatrix) : TSVGPath; override;
-    function    CreateSpan( aNode : TSVGNode; aID : string; aSVGParent : TSVGGroup; aCTM, aUserMatrix : TMatrix) : TSVGSpan; override;
+    function    CreatePath(  AOwner : TComponent; aNode : TSVGNode; aId : string; aSVGParent : TSVGGroup; aCTM, aUserMatrix : TMatrix) : TSVGPath; override;
+    function    CreateSpan(  AOwner : TComponent; aNode : TSVGNode; aID : string; aSVGParent : TSVGGroup; aCTM, aUserMatrix : TMatrix) : TSVGSpan; override;
 
     property    Control : TSVGG2Control read FControl write FControl;
   end;
@@ -352,8 +352,8 @@ type
     function   CreateCopy( AOwner : TComponent; aSVGParent : TSVGGroup): TSVGObject; override;
     procedure  Assign(Source: TPersistent); override;
 
-    function    CreateSpan( aNode : TSVGNode; aID : string; aSVGParent : TSVGGroup; aCTM, aUserMatrix : TMatrix) : TSVGSpan; override;
-    function    CreatePath( aNode : TSVGNode; aId : string; aSVGParent : TSVGGroup; aCTM, aUserMatrix : TMatrix) : TSVGPath; override;
+    function    CreateSpan(  AOwner : TComponent; aNode : TSVGNode; aID : string; aSVGParent : TSVGGroup; aCTM, aUserMatrix : TMatrix) : TSVGSpan; override;
+    function    CreatePath(  AOwner : TComponent; aNode : TSVGNode; aId : string; aSVGParent : TSVGGroup; aCTM, aUserMatrix : TMatrix) : TSVGPath; override;
 
     property    Value : string read FValue write SetValue;
   end;
@@ -380,8 +380,8 @@ type
 
     procedure Redraw; override;
 
-    function  CreateGroup( aNode : TSVGNode; aId : string; aSVGParent : TSVGGroup; aCTM, aUserMatrix : TMatrix; var aSubTreeOwner : TSVGGroup) : TSVGGroup; override;
-    function  CreateSpan( aNode : TSVGNode; aID : string; aSVGParent : TSVGGroup; aCTM, aUserMatrix : TMatrix) : TSVGSpan; override;
+    function  CreateGroup(  AOwner : TComponent; aNode : TSVGNode; aId : string; aSVGParent : TSVGGroup; aCTM, aUserMatrix : TMatrix; var aSubTreeOwner : TSVGGroup) : TSVGGroup; override;
+    function  CreateSpan(  AOwner : TComponent; aNode : TSVGNode; aID : string; aSVGParent : TSVGGroup; aCTM, aUserMatrix : TMatrix) : TSVGSpan; override;
 
     procedure MouseDown( P : TPointF; aHitPath : TSVGHitPath); override;
     procedure MouseUp( P : TPointF; aHitPath : TSVGHitPath); override;
@@ -412,7 +412,7 @@ type
 
     procedure   Redraw; override;
 
-    function    CreateUse( aUseNode, aRefNode : TSVGNode; aUseID : string; aSVGParent : TSVGGroup; aCTM, aUserMatrix : TMatrix; var aSubTreeOwner : TSVGGroup) : TSVGGroup; override;
+    function    CreateUse(  AOwner : TComponent; aUseNode, aRefNode : TSVGNode; aUseID : string; aSVGParent : TSVGGroup; aCTM, aUserMatrix : TMatrix; var aSubTreeOwner : TSVGGroup) : TSVGGroup; override;
 
     property    Value : byte read FValue write SetValue;
   end;
@@ -451,7 +451,7 @@ type
     procedure UpdateParts;
     procedure Redraw; override;
 
-    function  CreateUse( aUseNode, aRefNode : TSVGNode; aUseID : string; aSVGParent : TSVGGroup; aCTM, aUserMatrix : TMatrix; var aSubTreeOwner : TSVGGroup) : TSVGGroup; override;
+    function  CreateUse(  AOwner : TComponent; aUseNode, aRefNode : TSVGNode; aUseID : string; aSVGParent : TSVGGroup; aCTM, aUserMatrix : TMatrix; var aSubTreeOwner : TSVGGroup) : TSVGGroup; override;
 
     procedure MouseDown( P : TPointF; aHitPath : TSVGHitPath); override;
 
@@ -477,7 +477,7 @@ type
 
     procedure UpdateParts;
 
-    function  CreateUse( aUseNode, aRefNode : TSVGNode; aUseID : string; aSVGParent : TSVGGroup; aCTM, aUserMatrix : TMatrix; var aSubTreeOwner : TSVGGroup) : TSVGGroup; override;
+    function  CreateUse(  AOwner : TComponent; aUseNode, aRefNode : TSVGNode; aUseID : string; aSVGParent : TSVGGroup; aCTM, aUserMatrix : TMatrix; var aSubTreeOwner : TSVGGroup) : TSVGGroup; override;
 
     property Value : integer read FValue write SetValue;
   end;
@@ -511,9 +511,9 @@ type
 
     procedure   UpdateParts;
 
-    function    CreatePath( aNode : TSVGNode; aId : string; aSVGParent : TSVGGroup; aCTM, aUserMatrix : TMatrix) : TSVGPath; override;
-    function    CreateGroup( aNode : TSVGNode; aId : string; aSVGParent : TSVGGroup; aCTM, aUserMatrix : TMatrix; var aSubTreeOwner : TSVGGroup) : TSVGGroup; override;
-    function    CreateUse( aUseNode, aRefNode : TSVGNode; aUseID : string; aSVGParent : TSVGGroup; aCTM, aUserMatrix : TMatrix; var aSubTreeOwner : TSVGGroup) : TSVGGroup; override;
+    function    CreatePath(  AOwner : TComponent; aNode : TSVGNode; aId : string; aSVGParent : TSVGGroup; aCTM, aUserMatrix : TMatrix) : TSVGPath; override;
+    function    CreateGroup(  AOwner : TComponent; aNode : TSVGNode; aId : string; aSVGParent : TSVGGroup; aCTM, aUserMatrix : TMatrix; var aSubTreeOwner : TSVGGroup) : TSVGGroup; override;
+    function    CreateUse(  AOwner : TComponent; aUseNode, aRefNode : TSVGNode; aUseID : string; aSVGParent : TSVGGroup; aCTM, aUserMatrix : TMatrix; var aSubTreeOwner : TSVGGroup) : TSVGGroup; override;
 
     procedure   MouseDown( P : TPointF; aHitPath : TSVGHitPath); override;
     procedure   MouseMove( P : TPointF; aHitPath : TSVGHitPath; dx, dy : single); override;
@@ -545,8 +545,8 @@ type
 
     procedure   UpdateParts;
 
-    function    CreatePath( aNode : TSVGNode; aId : string; aSVGParent : TSVGGroup; aCTM, aUserMatrix : TMatrix) : TSVGPath; override;
-    function    CreateUse( aUseNode, aRefNode : TSVGNode; aUseID : string; aSVGParent : TSVGGroup; aCTM, aUserMatrix : TMatrix; var aSubTreeOwner : TSVGGroup) : TSVGGroup; override;
+    function    CreatePath(  AOwner : TComponent; aNode : TSVGNode; aId : string; aSVGParent : TSVGGroup; aCTM, aUserMatrix : TMatrix) : TSVGPath; override;
+    function    CreateUse(  AOwner : TComponent; aUseNode, aRefNode : TSVGNode; aUseID : string; aSVGParent : TSVGGroup; aCTM, aUserMatrix : TMatrix; var aSubTreeOwner : TSVGGroup) : TSVGGroup; override;
 
     procedure   MouseDown( P : TPointF; aHitPath : TSVGHitPath); override;
     procedure   MouseMove( P : TPointF; aHitPath : TSVGHitPath; dx, dy : single); override;
@@ -661,15 +661,15 @@ type
 
     function   CreateCopy( AOwner : TComponent; aSVGParent : TSVGGroup): TSVGObject; override;
     procedure  Assign(Source: TPersistent); override;
-    procedure  AddSVGChild( aSVGObject : TSVGObject); override;
+    //procedure  AddSVGChild( aSVGObject : TSVGObject); override;
 
     procedure   Paint; override;
     procedure   Redraw;
 
-    function    CreateSpan( aNode : TSVGNode; aID : string; aSVGParent : TSVGGroup; aCTM, aUserMatrix : TMatrix) : TSVGSpan; override;
-    function    CreatePath( aNode : TSVGNode; aId : string; aSVGParent : TSVGGroup; aCTM, aUserMatrix : TMatrix) : TSVGPath; override;
-    //function    CreateGroup( aNode : TSVGNode; aId : string; aSVGParent : TSVGGroup; aCTM, aUserMatrix : TMatrix; var aSubTreeOwner : TSVGGroup) : TSVGGroup; override;
-    function    CreateUse( aUseNode, aRefNode : TSVGNode; aUseID : string; aSVGParent : TSVGGroup; aCTM, aUserMatrix : TMatrix; var aSubTreeOwner : TSVGGroup) : TSVGGroup; override;
+    function    CreateSpan(  AOwner : TComponent; aNode : TSVGNode; aID : string; aSVGParent : TSVGGroup; aCTM, aUserMatrix : TMatrix) : TSVGSpan; override;
+    function    CreatePath(  AOwner : TComponent; aNode : TSVGNode; aId : string; aSVGParent : TSVGGroup; aCTM, aUserMatrix : TMatrix) : TSVGPath; override;
+    //function    CreateGroup(  AOwner : TComponent; aNode : TSVGNode; aId : string; aSVGParent : TSVGGroup; aCTM, aUserMatrix : TMatrix; var aSubTreeOwner : TSVGGroup) : TSVGGroup; override;
+    function    CreateUse(  AOwner : TComponent; aUseNode, aRefNode : TSVGNode; aUseID : string; aSVGParent : TSVGGroup; aCTM, aUserMatrix : TMatrix; var aSubTreeOwner : TSVGGroup) : TSVGGroup; override;
 
     procedure   ParseDependencies( aControl : TSVGG2Control; aMasterRef : integer; aDependencies : string; aTextFunction : integer);
 
@@ -1301,7 +1301,7 @@ begin
   end;
 end;
 
-function TSVGG2ConnLink.CreateGroup(aNode: TSVGNode; aId : string; aSVGParent: TSVGGroup;
+function TSVGG2ConnLink.CreateGroup( AOwner : TComponent; aNode: TSVGNode; aId : string; aSVGParent: TSVGGroup;
   aCTM, aUserMatrix : TMatrix; var aSubTreeOwner: TSVGGroup): TSVGGroup;
 var Connector : TSVGG2Connector;
 begin
@@ -1372,7 +1372,7 @@ begin
   end;
 end;
 
-function TSVGG2Connector.CreatePath(aNode: TSVGNode; aId : string;
+function TSVGG2Connector.CreatePath( AOwner : TComponent; aNode: TSVGNode; aId : string;
   aSVGParent: TSVGGroup; aCTM, aUserMatrix : TMatrix): TSVGPath;
 begin
   if pos('_border', aId)>0 then begin
@@ -1468,7 +1468,7 @@ begin
   end;
 end;
 
-function TSVGG2ParamLink.CreateGroup(aNode: TSVGNode; aId : string; aSVGParent: TSVGGroup;
+function TSVGG2ParamLink.CreateGroup( AOwner : TComponent; aNode: TSVGNode; aId : string; aSVGParent: TSVGGroup;
   aCTM, aUserMatrix : TMatrix; var aSubTreeOwner: TSVGGroup): TSVGGroup;
 var TextField : TSVGTextField;
     BtnText : TSVGBtn;
@@ -1817,7 +1817,7 @@ begin
   end;
 end;
 
-function TSVGBtnState.CreatePath( aNode: TSVGNode; aId : string; aSVGParent: TSVGGroup;
+function TSVGBtnState.CreatePath( AOwner : TComponent; aNode: TSVGNode; aId : string; aSVGParent: TSVGGroup;
   aCTM, aUserMatrix : TMatrix): TSVGPath;
 var id : string;
 begin
@@ -1830,7 +1830,7 @@ begin
     result := inherited;
 end;
 
-function TSVGBtnState.CreateSpan(aNode: TSVGNode; aID: string;
+function TSVGBtnState.CreateSpan( AOwner : TComponent; aNode: TSVGNode; aID: string;
   aSVGParent: TSVGGroup; aCTM, aUserMatrix: TMatrix): TSVGSpan;
 begin
   FLabel := TSVGLabel.Create(self, aId, aSVGParent, aCTM, aUserMatrix);
@@ -2003,7 +2003,7 @@ begin
   end;
 end;
 
-function TSVGTextField.CreateSpan( aNode : TSVGNode; aID : string; aSVGParent : TSVGGroup; aCTM, aUserMatrix : TMatrix) : TSVGSpan;
+function TSVGTextField.CreateSpan(  AOwner : TComponent; aNode : TSVGNode; aID : string; aSVGParent : TSVGGroup; aCTM, aUserMatrix : TMatrix) : TSVGSpan;
 begin
   if pos('_text', aId)>0 then begin
     FSimpleText := TSVGLabel.Create(self, aId, aSVGParent, aCTM, aUserMatrix);
@@ -2015,7 +2015,7 @@ begin
   end;
 end;
 
-function TSVGTextField.CreatePath( aNode : TSVGNode; aId : string; aSVGParent : TSVGGroup; aCTM, aUserMatrix : TMatrix) : TSVGPath;
+function TSVGTextField.CreatePath( AOwner : TComponent; aNode : TSVGNode; aId : string; aSVGParent : TSVGGroup; aCTM, aUserMatrix : TMatrix) : TSVGPath;
 begin
   Result := inherited;
 
@@ -2184,7 +2184,7 @@ begin
   end;
 end;
 
-function TSVGBtn.CreateGroup(aNode: TSVGNode; aId: string;
+function TSVGBtn.CreateGroup( AOwner : TComponent; aNode: TSVGNode; aId: string;
   aSVGParent: TSVGGroup; aCTM, aUserMatrix: TMatrix;
   var aSubTreeOwner: TSVGGroup): TSVGGroup;
 var GraphName, Size, State : string;
@@ -2213,7 +2213,7 @@ var GraphName, Size, State : string;
     Result := inherited;
 end;
 
-function TSVGBtn.CreateSpan(aNode: TSVGNode; aID: string;
+function TSVGBtn.CreateSpan( AOwner : TComponent; aNode: TSVGNode; aID: string;
   aSVGParent: TSVGGroup; aCTM, aUserMatrix: TMatrix): TSVGSpan;
 begin
   FLabel := TSVGLabel.Create(self, aId, aSVGParent, aCTM, aUserMatrix);
@@ -2292,7 +2292,7 @@ begin
   inherited;
 end;
 
-function TSVGBtnIncDec.CreateUse( aUseNode, aRefNode : TSVGNode; aUseID : string;
+function TSVGBtnIncDec.CreateUse( AOwner : TComponent; aUseNode, aRefNode : TSVGNode; aUseID : string;
     aSVGParent : TSVGGroup; aCTM, aUserMatrix : TMatrix; var aSubTreeOwner : TSVGGroup) : TSVGGroup;
 var ctrl_type : string;
 begin
@@ -2471,7 +2471,7 @@ begin
   end;
 end;
 
-function TSVGBtnFlat.CreateUse(aUseNode, aRefNode: TSVGNode; aUseID: string;
+function TSVGBtnFlat.CreateUse( AOwner : TComponent; aUseNode, aRefNode: TSVGNode; aUseID: string;
   aSVGParent: TSVGGroup; aCTM, aUserMatrix: TMatrix;
   var aSubTreeOwner: TSVGGroup): TSVGGroup;
 var ctrl_type : string;
@@ -2598,7 +2598,7 @@ begin
   end;
 end;
 
-function TSVGBtnRadio.CreateUse( aUseNode, aRefNode : TSVGNode; aUseID : string; aSVGParent : TSVGGroup; aCTM, aUserMatrix : TMatrix; var aSubTreeOwner : TSVGGroup) : TSVGGroup;
+function TSVGBtnRadio.CreateUse(  AOwner : TComponent; aUseNode, aRefNode : TSVGNode; aUseID : string; aSVGParent : TSVGGroup; aCTM, aUserMatrix : TMatrix; var aSubTreeOwner : TSVGGroup) : TSVGGroup;
 var ctrl_type : string;
     Btn : TSVGBtn;
 begin
@@ -2815,7 +2815,7 @@ begin
   end;
 end;
 
-function TSVGKnob.CreateGroup( aNode: TSVGNode; aId : string; aSVGParent : TSVGGroup;
+function TSVGKnob.CreateGroup( AOwner : TComponent; aNode: TSVGNode; aId : string; aSVGParent : TSVGGroup;
   aCTM, aUserMatrix : TMatrix; var aSubTreeOwner: TSVGGroup): TSVGGroup;
 var ctrl_type : string;
 begin
@@ -2829,7 +2829,7 @@ begin
   end;
 end;
 
-function TSVGKnob.CreatePath( aNode: TSVGNode; aId : string; aSVGParent : TSVGGroup;
+function TSVGKnob.CreatePath( AOwner : TComponent; aNode: TSVGNode; aId : string; aSVGParent : TSVGGroup;
   aCTM, aUserMatrix : TMatrix): TSVGPath;
 var ctrl_type : string;
 begin
@@ -2854,7 +2854,7 @@ begin
     Result := inherited;
 end;
 
-function TSVGKnob.CreateUse( aUseNode, aRefNode : TSVGNode; aUseID : string; aSVGParent : TSVGGroup; aCTM, aUserMatrix : TMatrix; var aSubTreeOwner : TSVGGroup) : TSVGGroup;
+function TSVGKnob.CreateUse(  AOwner : TComponent; aUseNode, aRefNode : TSVGNode; aUseID : string; aSVGParent : TSVGGroup; aCTM, aUserMatrix : TMatrix; var aSubTreeOwner : TSVGGroup) : TSVGGroup;
 var ctrl_type : string;
 begin
   if aUseNode.GetAttribute('nmg2.CtrlType', ctrl_type) then begin
@@ -2979,7 +2979,7 @@ begin
   end;
 end;
 
-function TSVGSlider.CreatePath( aNode : TSVGNode; aId : string; aSVGParent : TSVGGroup; aCTM, aUserMatrix : TMatrix) : TSVGPath;
+function TSVGSlider.CreatePath( AOwner : TComponent; aNode : TSVGNode; aId : string; aSVGParent : TSVGGroup; aCTM, aUserMatrix : TMatrix) : TSVGPath;
 begin
   if (aId = 'slider_face') then begin
     FSliderFace := TSVGHitPath.Create(self, aId, aSVGParent, aCTM, aUserMatrix);
@@ -2993,7 +2993,7 @@ begin
   end;
 end;
 
-function TSVGSlider.CreateUse( aUseNode, aRefNode : TSVGNode; aUseID : string; aSVGParent : TSVGGroup; aCTM, aUserMatrix : TMatrix; var aSubTreeOwner : TSVGGroup) : TSVGGroup;
+function TSVGSlider.CreateUse( AOwner : TComponent; aUseNode, aRefNode : TSVGNode; aUseID : string; aSVGParent : TSVGGroup; aCTM, aUserMatrix : TMatrix; var aSubTreeOwner : TSVGGroup) : TSVGGroup;
 var ctrl_type : string;
 begin
   if aUseNode.GetAttribute('nmg2.CtrlType', ctrl_type) then begin
@@ -3859,10 +3859,10 @@ begin
   Result.Assign(self);
 end;
 
-procedure TSVGG2Module.AddSVGChild(aSVGObject: TSVGObject);
+{procedure TSVGG2Module.AddSVGChild(aSVGObject: TSVGObject);
 begin
   inherited;
-end;
+end;}
 
 procedure TSVGG2Module.Assign(Source: TPersistent);
 begin
@@ -3875,7 +3875,7 @@ begin
   end;
 end;
 
-function TSVGG2Module.CreateUse( aUseNode, aRefNode : TSVGNode; aUseID : string; aSVGParent : TSVGGroup; aCTM, aUserMatrix : TMatrix; var aSubTreeOwner : TSVGGroup) : TSVGGroup;
+function TSVGG2Module.CreateUse( AOwner : TComponent; aUseNode, aRefNode : TSVGNode; aUseID : string; aSVGParent : TSVGGroup; aCTM, aUserMatrix : TMatrix; var aSubTreeOwner : TSVGGroup) : TSVGGroup;
 var AttributeValue, CodeRef, CtrlType, CtrlStyle : string;
     ConnLink : TSVGG2ConnLink;
     ParamLink : TSVGG2ParamLink;
@@ -3936,7 +3936,7 @@ begin
     Result := inherited;
 end;
 
-{function TSVGG2Module.CreateGroup( aNode: TSVGNode; aId : string; aSVGParent : TSVGGroup;
+{function TSVGG2Module.CreateGroup( AOwner : TComponent; aNode: TSVGNode; aId : string; aSVGParent : TSVGGroup;
   aCTM, aUserMatrix : TMatrix; var aSubTreeOwner : TSVGGroup): TSVGGroup;
 var AttributeValue : string;
     ConnLink : TSVGG2ConnLink;
@@ -4173,7 +4173,7 @@ begin
   end;
 end;
 
-function TSVGG2Module.CreateSpan( aNode : TSVGNode; aID : string; aSVGParent : TSVGGroup; aCTM, aUserMatrix : TMatrix) : TSVGSpan;
+function TSVGG2Module.CreateSpan( AOwner : TComponent; aNode : TSVGNode; aID : string; aSVGParent : TSVGGroup; aCTM, aUserMatrix : TMatrix) : TSVGSpan;
 var FLabel : TSVGLabel;
 begin
   FLabel := TSVGLabel.Create(self, aId, aSVGParent, aCTM, aUserMatrix);
@@ -4182,7 +4182,7 @@ begin
   Result := FLabel;
 end;
 
-function TSVGG2Module.CreatePath( aNode: TSVGNode; aId : string; aSVGParent : TSVGGroup;
+function TSVGG2Module.CreatePath( AOwner : TComponent; aNode: TSVGNode; aId : string; aSVGParent : TSVGGroup;
   aCTM, aUserMatrix : TMatrix): TSVGPath;
 begin
   Result := inherited;

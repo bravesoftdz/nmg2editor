@@ -38,7 +38,7 @@ uses
   ActnList, ActnMan, XPStyleActnCtrls, Contnrs,
 {$ENDIF}
   DOM, XMLWrite, XMLRead, g2_types, g2_database, g2_graph, g2_file, g2_mess, g2_usb,
-  g2_classes, g2_midi;
+  g2_classes, g2_midi, System.Actions;
 
 type
   TSVGSkin = class;

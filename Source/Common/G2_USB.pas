@@ -139,7 +139,11 @@ type
     FInitialized : boolean;
     FLastWrite : integer;
   public
+{$IFDEF VER250}
+    constructor Create(AConnection: TIdTCPConnection; AYarn: TIdYarn; AList: TIdContextThreadList = nil); override;
+{$ELSE}
     constructor Create(AConnection: TIdTCPConnection; AYarn: TIdYarn; AList: TThreadList = nil); override;
+{$ENDIF}
     destructor Destroy; override;
   public
     procedure Lock;
@@ -1559,7 +1563,11 @@ end;
 // Client context for server
 ////////////////////////////////////////////////////////////////////////////////
 
+{$IFDEF VER250}
+constructor TClientContext.Create(AConnection: TIdTCPConnection; AYarn: TIdYarn; AList: TIdContextThreadList);
+{$ELSE}
 constructor TClientContext.Create(AConnection: TIdTCPConnection; AYarn: TIdYarn; AList: TThreadList);
+{$ENDIF}
 begin
   inherited Create(AConnection, AYarn, AList);
   // create the critical section

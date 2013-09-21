@@ -673,7 +673,7 @@ type
   TPatchFileType = (pftPatch, pftPerf, pftEnd);
   TMessageDataType = (mdtResponseMessage = 0, mdtSendMessage = 1);
   TParamType = ( ptParam, ptMode, ptMasterClock, ptVoiceMode);
-  TKnobType = ( ktBig, ktMedium, ktSmall, ktExtraSmall, ktReset, ktResetMedium, ktSlider, ktSeqSlider);
+  TKnobType = ( ktBig, ktMedium, ktSmall, ktExtraSmall, ktReset, ktResetMedium, ktSlider, ktSeqSlider, ktNone);
   TButtonTextType = (bttNormal, bttPush, bttCheck, bttCheckBox);
   TOrientationType = ( otHorizontal, otVertical);
   TIconType = (itNone, itUp, itDown, itLeft, itRight, itCheck, itSine, itSaw, itPulse, itTri, itPulse25, itPulse10);

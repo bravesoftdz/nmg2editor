@@ -4,229 +4,194 @@ object frmSVGTest: TfrmSVGTest
   Caption = 'Delphi XE2 SVG Test - B.Verhue 2013'
   ClientHeight = 614
   ClientWidth = 808
-  Visible = False
+  FormFactor.Width = 320
+  FormFactor.Height = 480
+  FormFactor.Devices = [dkDesktop, dkiPhone, dkiPad]
   OnCreate = FormCreate
   OnDestroy = FormDestroy
-  OnMouseDown = FormMouseDown
-  OnMouseMove = FormMouseMove
-  OnMouseUp = FormMouseUp
-  StyleLookup = 'backgroundstyle'
+  DesignerMobile = False
+  DesignerWidth = 0
+  DesignerHeight = 0
+  DesignerDeviceName = ''
+  DesignerOrientation = 0
   object OpenDialog1: TOpenDialog
     Left = 440
     Top = 48
   end
   object Layout1: TLayout
     Align = alBottom
-    Position.Point = '(0,544)'
-    Width = 808.000000000000000000
     Height = 70.000000000000000000
+    Position.Y = 544.000000000000000000
+    Width = 808.000000000000000000
     object tbZoom: TTrackBar
-      Position.Point = '(576,5)'
-      Width = 209.000000000000000000
-      Height = 20.000000000000000000
-      TabOrder = 0
-      Min = 0.100000001490116100
+      Height = 19.000000000000000000
       Max = 10.000000000000000000
+      Min = 0.100000001490116100
       Orientation = orHorizontal
+      Position.X = 576.000000000000000000
+      Position.Y = 5.000000000000000000
+      TabOrder = 0
       Value = 1.000000000000000000
+      Width = 209.000000000000000000
       OnChange = tbZoomChange
     end
     object Edit1: TEdit
-      Position.Point = '(304,15)'
-      Width = 33.000000000000000000
-      Height = 22.000000000000000000
       TabOrder = 1
       ReadOnly = True
-      KeyboardType = vktDefault
-      Password = False
+      Position.X = 304.000000000000000000
+      Position.Y = 15.000000000000000000
+      Width = 33.000000000000000000
+      Height = 22.000000000000000000
+      KillFocusByReturn = False
     end
     object Edit2: TEdit
-      Position.Point = '(416,16)'
-      Width = 100.000000000000000000
-      Height = 22.000000000000000000
       TabOrder = 2
       ReadOnly = True
-      KeyboardType = vktDefault
-      Password = False
+      Position.X = 416.000000000000000000
+      Position.Y = 16.000000000000000000
+      Width = 100.000000000000000000
+      Height = 22.000000000000000000
+      KillFocusByReturn = False
     end
     object Label1: TLabel
-      Position.Point = '(533,6)'
-      Width = 41.000000000000000000
       Height = 15.000000000000000000
-      TabOrder = 3
+      Position.X = 533.000000000000000000
+      Position.Y = 6.000000000000000000
       Text = 'Zoom'
+      Width = 41.000000000000000000
     end
     object Label2: TLabel
-      Position.Point = '(347,19)'
-      Width = 65.000000000000000000
       Height = 15.000000000000000000
-      TabOrder = 4
+      Position.X = 347.000000000000000000
+      Position.Y = 19.000000000000000000
       Text = 'SVG object'
+      Width = 65.000000000000000000
     end
     object Label3: TLabel
-      Position.Point = '(238,19)'
-      Width = 57.000000000000000000
       Height = 15.000000000000000000
-      TabOrder = 5
+      Position.X = 238.000000000000000000
+      Position.Y = 19.000000000000000000
       Text = 'No of obj'
+      Width = 57.000000000000000000
     end
     object Edit3: TEdit
-      Position.Point = '(120,15)'
+      TabOrder = 6
+      Position.X = 120.000000000000000000
+      Position.Y = 15.000000000000000000
       Width = 113.000000000000000000
       Height = 22.000000000000000000
-      TabOrder = 6
-      KeyboardType = vktDefault
-      Password = False
+      KillFocusByReturn = False
     end
     object Edit4: TEdit
-      Position.Point = '(8,15)'
+      TabOrder = 7
+      Position.X = 8.000000000000000000
+      Position.Y = 15.000000000000000000
       Width = 105.000000000000000000
       Height = 22.000000000000000000
-      TabOrder = 7
-      KeyboardType = vktDefault
-      Password = False
+      KillFocusByReturn = False
     end
     object Button1: TButton
-      Position.Point = '(536,29)'
-      Width = 80.000000000000000000
       Height = 17.000000000000000000
-      OnClick = Button1Click
+      Position.X = 536.000000000000000000
+      Position.Y = 29.000000000000000000
       TabOrder = 8
       Text = 'x0.5'
+      Width = 80.000000000000000000
+      OnClick = Button1Click
     end
     object Button2: TButton
-      Position.Point = '(624,29)'
-      Width = 80.000000000000000000
       Height = 17.000000000000000000
-      OnClick = Button2Click
+      Position.X = 624.000000000000000000
+      Position.Y = 29.000000000000000000
       TabOrder = 9
       Text = 'x1'
+      Width = 80.000000000000000000
+      OnClick = Button2Click
     end
     object Button3: TButton
-      Position.Point = '(712,29)'
-      Width = 80.000000000000000000
       Height = 17.000000000000000000
-      OnClick = Button3Click
+      Position.X = 712.000000000000000000
+      Position.Y = 29.000000000000000000
       TabOrder = 10
       Text = 'x2'
+      Width = 80.000000000000000000
+      OnClick = Button3Click
     end
     object Label4: TLabel
-      Position.Point = '(8,48)'
-      Width = 57.000000000000000000
       Height = 15.000000000000000000
-      TabOrder = 11
+      Position.X = 8.000000000000000000
+      Position.Y = 48.000000000000000000
       Text = 'Memory'
+      Width = 57.000000000000000000
     end
     object eMemory: TEdit
-      Position.Point = '(59,42)'
+      TabOrder = 12
+      Position.X = 59.000000000000000000
+      Position.Y = 42.000000000000000000
       Width = 94.000000000000000000
       Height = 22.000000000000000000
-      TabOrder = 12
-      KeyboardType = vktDefault
-      Password = False
+      KillFocusByReturn = False
     end
   end
   object sb: TScrollBox
     Align = alClient
-    Width = 808.000000000000000000
     Height = 544.000000000000000000
-    OnClick = sbClick
     TabOrder = 1
-    MouseTracking = True
+    Width = 808.000000000000000000
+    OnClick = sbClick
+    OnMouseDown = sbMouseDown
+    OnMouseMove = sbMouseMove
+    OnMouseUp = sbMouseUp
     object lSize: TLayout
-      Width = 721.000000000000000000
       Height = 481.000000000000000000
+      Width = 721.000000000000000000
     end
   end
   object MainMenu1: TMainMenu
     Left = 512
     Top = 48
     object MenuItem1: TMenuItem
-      Width = 50.000000000000000000
-      Height = 50.000000000000000000
-      TabOrder = 0
-      ShortCut = 0
       Text = '&File'
       object miLoad: TMenuItem
         Locked = True
-        Width = 50.000000000000000000
-        Height = 50.000000000000000000
-        OnClick = miLoadClick
-        TabOrder = 0
-        ShortCut = 0
         Text = 'Load patch'
+        OnClick = miLoadClick
       end
       object miExit: TMenuItem
         Locked = True
-        Width = 50.000000000000000000
-        Height = 50.000000000000000000
-        TabOrder = 1
-        ShortCut = 0
         Text = 'Exit'
       end
     end
     object MenuItem4: TMenuItem
-      Width = 50.000000000000000000
-      Height = 50.000000000000000000
-      TabOrder = 1
-      ShortCut = 0
       Text = 'Edit'
       object miCut: TMenuItem
         Locked = True
-        Width = 50.000000000000000000
-        Height = 50.000000000000000000
-        TabOrder = 0
-        ShortCut = 0
         Text = 'Cut'
       end
       object miCopy: TMenuItem
         Locked = True
-        Width = 50.000000000000000000
-        Height = 50.000000000000000000
-        TabOrder = 1
-        ShortCut = 0
         Text = 'Copy'
       end
       object miPaste: TMenuItem
         Enabled = False
         Locked = True
-        Width = 50.000000000000000000
-        Height = 50.000000000000000000
-        OnClick = miPasteClick
-        TabOrder = 2
-        ShortCut = 0
         Text = 'Paste'
+        OnClick = miPasteClick
       end
       object miDelete: TMenuItem
         Locked = True
-        Width = 50.000000000000000000
-        Height = 50.000000000000000000
-        TabOrder = 3
-        ShortCut = 0
         Text = 'Delete'
       end
     end
     object MenuItem2: TMenuItem
-      Width = 50.000000000000000000
-      Height = 50.000000000000000000
-      TabOrder = 2
-      ShortCut = 0
       Text = 'Debug'
       object MenuItem3: TMenuItem
         Locked = True
-        Width = 50.000000000000000000
-        Height = 50.000000000000000000
-        OnClick = MenuItem3Click
-        TabOrder = 0
-        ShortCut = 0
         Text = 'Log'
+        OnClick = MenuItem3Click
       end
       object Profiler: TMenuItem
         Locked = True
-        Width = 50.000000000000000000
-        Height = 50.000000000000000000
-        TabOrder = 1
-        ShortCut = 0
         Text = 'Profiler'
       end
     end
@@ -251,19 +216,5 @@ object frmSVGTest: TfrmSVGTest
     Left = 440
     Top = 104
     DOMVendorDesc = 'MSXML'
-  end
-  object SVGDelphiXMLDoc1: TSVGDelphiXMLDoc
-    Active = False
-    XMLDoc = XMLDocument1
-    Left = 544
-    Top = 104
-  end
-  object SVGAgent1: TSVGAgent
-    SVGDoc = SVGDelphiXMLDoc1
-    DPI = 90.000000000000000000
-    OnBeforeParseNode = SVGAgent1BeforeParseNode
-    OnAfterParseNode = SVGAgent1AfterParseNode
-    Left = 640
-    Top = 104
   end
 end

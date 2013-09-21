@@ -119,9 +119,9 @@
 			<DCCReference Include="..\..\Source\Common\G2_USB.pas"/>
 			<DCCReference Include="..\..\Source\Common\LibUSBWinDyn.pas"/>
 			<DCCReference Include="..\g2_graph_FMX.pas"/>
-			<DCCReference Include="..\..\..\SVG\BVE.SVGControl.pas"/>
-			<DCCReference Include="..\..\..\SVG\BVE.CSSUtility.pas"/>
-			<DCCReference Include="..\..\..\SVG\BVE.SVGXMLWrapperDelphi.pas"/>
+			<DCCReference Include="..\..\..\SVG\Common\BVE.SVGControl.pas"/>
+			<DCCReference Include="..\..\..\SVG\Common\BVE.CSSUtility.pas"/>
+			<DCCReference Include="..\..\..\SVG\Common\BVE.SVGXMLWrapperDelphi.pas"/>
 			<DCCReference Include="..\UnitLog.pas">
 				<Form>frmLog</Form>
 				<FormType>fmx</FormType>
